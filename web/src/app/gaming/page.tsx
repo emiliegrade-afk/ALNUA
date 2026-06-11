@@ -10,12 +10,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchProjects } from "@/lib/api";
 import { checkNwiroHost } from "@/lib/lobby-api";
 import { useCooStore } from "@/store/coo-store";
-import { useRouter } from "next/navigation";
 import type { Project } from "@/lib/types";
 
 export default function GamingPage() {
-  const router = useRouter();
   const setPrefillMessage = useCooStore((s) => s.setPrefillMessage);
+  const openDrawer = useCooStore((s) => s.openDrawer);
   const [projects, setProjects] = useState<Project[]>([]);
   const [nwiroConnected, setNwiroConnected] = useState(false);
 
@@ -28,7 +27,7 @@ export default function GamingPage() {
 
   function generateQuest() {
     setPrefillMessage("Génère une quête pour Wyrdheim Online");
-    router.push("/ceo");
+    openDrawer();
   }
 
   const gamingAgents = [

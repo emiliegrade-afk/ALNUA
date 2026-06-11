@@ -182,7 +182,7 @@ export function QuickCaptureButton() {
           onClick={() => setOpen(true)}
           aria-label="Capturer rapidement (Ctrl+Shift+Espace)"
           className={cn(
-            "fixed bottom-6 right-6 z-[9999] flex h-14 w-14 items-center justify-center",
+            "fixed bottom-6 right-24 z-[9999] flex h-14 w-14 items-center justify-center",
             "rounded-full bg-copper text-white shadow-lg shadow-black/30",
             "transition-transform duration-150 hover:scale-110",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian"

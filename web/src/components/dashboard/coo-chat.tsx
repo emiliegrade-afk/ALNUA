@@ -27,9 +27,11 @@ const CEO_SUGGESTIONS = [
 
 interface COOChatProps {
   variant?: "default" | "ceo";
+  /** Hides the card header when rendered inside CooDrawer */
+  embedded?: boolean;
 }
 
-export function COOChat({ variant = "default" }: COOChatProps) {
+export function COOChat({ variant = "default", embedded = false }: COOChatProps) {
   const consumePrefillMessage = useCooStore((s) => s.consumePrefillMessage);
   const suggestions =
     variant === "ceo" ? CEO_SUGGESTIONS : DEFAULT_SUGGESTIONS;
@@ -97,18 +99,25 @@ export function COOChat({ variant = "default" }: COOChatProps) {
   }
 
   return (
-    <Card className="flex h-full min-h-[480px] flex-col border-white/[0.08] bg-surface/80 backdrop-blur-sm">
-      <CardHeader className="border-b border-white/[0.06] pb-3">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-copper/20 ring-1 ring-copper/30">
-            <Bot className="h-4 w-4 text-copper" />
+    <Card
+      className={cn(
+        "flex h-full flex-col border-white/[0.08] bg-surface/80 backdrop-blur-sm",
+        !embedded && "min-h-[480px]"
+      )}
+    >
+      {!embedded ? (
+        <CardHeader className="border-b border-white/[0.06] pb-3">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-copper/20 ring-1 ring-copper/30">
+              <Bot className="h-4 w-4 text-copper" />
+            </div>
+            <div>
+              <CardTitle className="text-base text-ivory">Parler au COO</CardTitle>
+              <p className="text-xs text-titanium">Langage naturel · délégation auto</p>
+            </div>
           </div>
-          <div>
-            <CardTitle className="text-base text-ivory">Parler au COO</CardTitle>
-            <p className="text-xs text-titanium">Langage naturel · délégation auto</p>
-          </div>
-        </div>
-      </CardHeader>
+        </CardHeader>
+      ) : null}
 
       <CardContent className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-0">
         <ScrollArea className="min-h-0 flex-1">

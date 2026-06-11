@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,8 +28,8 @@ export function AgentCard({
   badge,
   onDelegate,
 }: AgentCardProps) {
-  const router = useRouter();
   const setPrefillMessage = useCooStore((s) => s.setPrefillMessage);
+  const openDrawer = useCooStore((s) => s.openDrawer);
   const colors = DEPT_COLORS[branch];
 
   function handleDelegate() {
@@ -39,7 +38,7 @@ export function AgentCard({
       return;
     }
     setPrefillMessage(`Délègue une tâche à ${name} (${role}) : `);
-    router.push("/ceo");
+    openDrawer();
   }
 
   return (

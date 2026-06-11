@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchProjects, fetchTickets } from "@/lib/api";
 import { useCooStore } from "@/store/coo-store";
-import { useRouter } from "next/navigation";
 import type { Project } from "@/lib/types";
 
 const APP_AGENTS = [
@@ -38,8 +37,8 @@ interface ProjectStat {
 }
 
 export default function AppPolePage() {
-  const router = useRouter();
   const setPrefillMessage = useCooStore((s) => s.setPrefillMessage);
+  const openDrawer = useCooStore((s) => s.openDrawer);
   const [projectStats, setProjectStats] = useState<ProjectStat[]>([]);
 
   useEffect(() => {
@@ -59,7 +58,7 @@ export default function AppPolePage() {
 
   function launchPipeline() {
     setPrefillMessage("Lance le pipeline sur une issue Naïa");
-    router.push("/ceo");
+    openDrawer();
   }
 
   return (

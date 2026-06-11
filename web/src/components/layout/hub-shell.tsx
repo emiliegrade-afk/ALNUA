@@ -1,16 +1,18 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Sidebar } from "@/components/layout/sidebar";
+import { BackToLobby } from "@/components/shared/back-to-lobby";
+import { CooDrawer } from "@/components/shared/coo-drawer";
 import { QuickCaptureButton } from "@/components/shared/quick-capture-button";
 import { Toaster } from "@/components/ui/sonner";
 import { isDepartmentRoute, isPublicPortalRoute } from "@/lib/routes";
+import { cn } from "@/lib/utils";
 
 export function HubShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isPublic = isPublicPortalRoute(pathname);
-  const isDepartment = isDepartmentRoute(pathname);
   const isLobby = pathname === "/";
+  const showBackToLobby = !isPublic && !isLobby && !isDepartmentRoute(pathname);
 
   if (isPublic) {
     return (
@@ -29,39 +31,23 @@ export function HubShell({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (isDepartment) {
-    return (
-      <>
-        <main
-          className={
-            isLobby
-              ? "relative min-h-screen"
-              : "relative mx-auto min-h-screen max-w-7xl px-6 py-8"
-          }
-        >
-          {children}
-        </main>
-        {!isLobby ? <QuickCaptureButton /> : null}
-        <Toaster
-          theme="dark"
-          position="bottom-left"
-          toastOptions={{
-            classNames: {
-              toast: "bg-surface border-white/10 text-ivory/90",
-            },
-          }}
-        />
-      </>
-    );
-  }
-
   return (
     <>
-      <Sidebar />
-      <main className="relative min-h-screen pl-64">
-        <div className="mx-auto max-w-7xl px-6 py-8">{children}</div>
+      {showBackToLobby ? <BackToLobby /> : null}
+      <main
+        className={
+          isLobby
+            ? "relative min-h-screen"
+            : cn(
+                "relative mx-auto min-h-screen max-w-7xl px-6 py-8",
+                showBackToLobby && "pt-16"
+              )
+        }
+      >
+        {children}
       </main>
-      <QuickCaptureButton />
+      {!isLobby ? <QuickCaptureButton /> : null}
+      {!isLobby ? <CooDrawer /> : null}
       <Toaster
         theme="dark"
         position="bottom-left"
