@@ -14,6 +14,7 @@ from crewai.tools import tool
 from agents.tools.hub_tools import HUB_TOOLS
 from database.supabase_client import SupabaseClient, get_supabase
 from config.github_repos import get_target_by_slug
+from skills.skill_chroma import search_knowledge as _search
 from skills.skill_composio import composio_execute, get_composio_tools, get_oauth_link
 from skills.skill_gh_issues import create_github_issue, get_open_issues
 from skills.skill_langfuse import trace_agent
@@ -178,6 +179,15 @@ def create_calendar_event(title: str, date: str, description: str = "") -> str:
         user_id="alnua_coo",
     )
     return "Événement créé ✅" if result["success"] else f"Erreur: {result['error']}"
+
+
+@tool("search_knowledge_base")
+def search_knowledge_base(query: str) -> str:
+    """Cherche dans la base de connaissance ALNUA (specs, docs, notes)."""
+    results = _search(query)
+    if not results:
+        return "Aucun document trouvé pour cette recherche."
+    return "\n---\n".join(results[:3])
 
 # Instructions clairement liées à un projet
 PROJECT_SCOPED_KEYWORDS = (
@@ -420,6 +430,7 @@ class COOAgent:
             connect_app_oauth,
             send_email_via_gmail,
             create_calendar_event,
+            search_knowledge_base,
         ]
 
     # ------------------------------------------------------------------
