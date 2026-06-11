@@ -9,6 +9,7 @@ from crewai import Agent, LLM
 from agents.base import LLMClient, log_agent_action, parse_json_response
 from agents.tools.hub_tools import QA_TOOLS
 from database.supabase_client import SupabaseClient, get_supabase
+from skills.skill_langfuse import trace_agent
 
 
 class QAAgent:
@@ -64,6 +65,7 @@ Ne crée pas de doublons évidents. Sois précis et actionnable."""
             )
         return self._crew_agent
 
+    @trace_agent("qa_agent")
     def analyze_feedback_batch(self, project_id: str, limit: int = 20) -> dict[str, Any]:
         feedback_items = self.db.select(
             "feedback",

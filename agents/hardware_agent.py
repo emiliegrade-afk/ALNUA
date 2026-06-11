@@ -27,6 +27,7 @@ from crewai import Agent, Crew, LLM, Task
 from crewai.tools import tool
 
 from database.supabase_client import get_supabase
+from skills.skill_langfuse import trace_agent
 
 logger = logging.getLogger(__name__)
 
@@ -220,6 +221,7 @@ class HardwareAgent:
             verbose=True,
         )
 
+    @trace_agent("hardware_agent")
     def handle_instruction(self, instruction: str) -> str:
         task = Task(
             description=instruction,

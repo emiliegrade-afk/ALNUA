@@ -12,6 +12,7 @@ from agents.base import LLMClient, log_agent_action, parse_json_response
 from agents.tools.hub_tools import CONTENT_TOOLS
 from database.supabase_client import SupabaseClient, get_supabase
 from skills.skill_composio import get_composio_tools
+from skills.skill_langfuse import trace_agent
 
 VALID_PLATFORMS = frozenset({"instagram", "tiktok", "x", "youtube", "linkedin", "website_blog"})
 VALID_CONTENT_TYPES = frozenset({
@@ -102,6 +103,7 @@ Respecte STRICTEMENT les contraintes de chaque plateforme."""
             )
         return self._crew_agent
 
+    @trace_agent("content_agent")
     def generate_posts(
         self,
         project_id: str,

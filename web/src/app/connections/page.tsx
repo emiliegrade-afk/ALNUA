@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ExternalLink, Loader2, Plug } from "lucide-react";
+import { ExternalLink, Loader2, Plug, LineChart } from "lucide-react";
 import { BackToLobby } from "@/components/shared/back-to-lobby";
 import { DepartmentHeader } from "@/components/shared/department-header";
 import { Button } from "@/components/ui/button";
@@ -96,6 +96,29 @@ export default function ConnectionsPage() {
               ))}
             </ul>
           )}
+        </CardContent>
+      </Card>
+
+      <Card className="mb-8 border-copper-dim/30 bg-obsidian-2/90">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 font-title text-base text-ivory">
+            <LineChart className="h-4 w-4 text-copper-dim" />
+            Langfuse — Monitoring agents
+          </CardTitle>
+          <p className="label-caps">
+            Traces LLM, coûts et latence en temps réel
+          </p>
+        </CardHeader>
+        <CardContent>
+          <a
+            href="https://cloud.langfuse.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-lg border border-copper/20 px-4 py-3 font-body text-sm text-ivory transition-colors hover:border-copper-dim/50 hover:bg-obsidian-3/50"
+          >
+            <ExternalLink className="h-4 w-4 text-copper-dim" />
+            Ouvrir le dashboard Langfuse
+          </a>
         </CardContent>
       </Card>
 

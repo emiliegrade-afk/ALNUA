@@ -26,6 +26,7 @@ from crewai.tools import tool
 from skills.skill_coding_agent import execute_coding_task
 from skills.skill_composio import get_composio_tools
 from skills.skill_gh_issues import comment_on_issue, get_issue, get_open_issues, list_ready_issues, process_issue
+from skills.skill_langfuse import trace_agent
 from skills.skill_model_usage import format_costs_report
 from skills.skill_playwright import run_and_report
 
@@ -158,6 +159,7 @@ class DevAppAgent:
             verbose=True,
         )
 
+    @trace_agent("dev_app_agent")
     def handle_instruction(self, instruction: str) -> str:
         """
         Point d'entrée : reçoit une instruction en langage naturel du COO ou de Telegram.

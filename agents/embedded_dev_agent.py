@@ -27,6 +27,7 @@ from crewai.tools import tool
 
 from skills.skill_coding_agent import execute_coding_task
 from skills.skill_naia_embodied import call_naia_embodied
+from skills.skill_langfuse import trace_agent
 from skills.skill_pi_ssh import run_pi_command
 from skills.skill_retry_loop import retry_with_learning
 
@@ -226,6 +227,7 @@ class EmbeddedDevAgent:
             verbose=True,
         )
 
+    @trace_agent("embedded_dev_agent")
     def handle_instruction(self, instruction: str) -> str:
         task = Task(
             description=instruction,

@@ -116,6 +116,7 @@ from skills.skill_gh_issues import (
     poll_issues_loop,
     process_issue,
 )
+from skills.skill_langfuse import agent_trace
 from skills.skill_model_usage import get_daily_costs, get_monthly_costs, get_weekly_costs
 
 logger = logging.getLogger(__name__)
@@ -612,34 +613,43 @@ async def run_pipeline_background(
 ) -> None:
     """Runs the coding pipeline independently of the HTTP connection."""
     task = _pipeline_tasks[task_id]
+    pipeline_input = f"issue #{issue_number} on {repo or 'default'}"
 
     def _log(message: str) -> None:
         task["log"].append(message)
 
-    try:
-        task["status"] = "running"
-        task["progress"] = 10
-        _log(f"Fetching issue #{issue_number}…")
+    with agent_trace("pipeline", input=pipeline_input) as trace:
+        try:
+            task["status"] = "running"
+            task["progress"] = 10
+            _log(f"Fetching issue #{issue_number}…")
 
-        issue = await asyncio.to_thread(get_issue, issue_number, repo_slug=repo)
-        task["progress"] = 25
-        _log(f"Issue #{issue_number}: {issue.get('title', '')}")
+            issue = await asyncio.to_thread(get_issue, issue_number, repo_slug=repo)
+            task["progress"] = 25
+            _log(f"Issue #{issue_number}: {issue.get('title', '')}")
 
-        result = await asyncio.to_thread(process_issue, issue, None, None)
+            result = await asyncio.to_thread(process_issue, issue, None, None)
 
-        if result.get("success"):
-            task["status"] = "completed"
-            task["progress"] = 100
-            _log(f"Pipeline completed — PR: {result.get('pr_url', 'n/a')}")
-        else:
+            if result.get("success"):
+                task["status"] = "completed"
+                task["progress"] = 100
+                _log(f"Pipeline completed — PR: {result.get('pr_url', 'n/a')}")
+                if trace:
+                    trace.update(output="completed")
+            else:
+                task["status"] = "failed"
+                task["progress"] = 100
+                error = result.get("error", "unknown error")
+                _log(f"Pipeline failed — {error}")
+                if trace:
+                    trace.update(output=f"failed: {error}", level="ERROR")
+        except Exception as exc:
             task["status"] = "failed"
             task["progress"] = 100
-            _log(f"Pipeline failed — {result.get('error', 'unknown error')}")
-    except Exception as exc:
-        task["status"] = "failed"
-        task["progress"] = 100
-        _log(f"Error: {exc}")
-        logger.exception("Pipeline task %s failed", task_id)
+            _log(f"Error: {exc}")
+            if trace:
+                trace.update(output=f"failed: {exc}", level="ERROR")
+            logger.exception("Pipeline task %s failed", task_id)
 
 
 @app.get("/pipeline/issues")

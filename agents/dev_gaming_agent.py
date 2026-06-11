@@ -26,6 +26,7 @@ from crewai import Agent, Crew, LLM, Task
 from crewai.tools import tool
 
 from skills.skill_coding_agent import execute_coding_task
+from skills.skill_langfuse import trace_agent
 from skills.skill_nwiro import nwiro_call, nwiro_is_available
 from skills.skill_retry_loop import retry_with_learning
 
@@ -273,6 +274,7 @@ class DevGamingAgent:
             verbose=True,
         )
 
+    @trace_agent("dev_gaming_agent")
     def handle_instruction(self, instruction: str) -> str:
         task = Task(
             description=(

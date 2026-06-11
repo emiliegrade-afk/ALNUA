@@ -12,6 +12,7 @@ from typing import Any
 
 from agents.base import LLMClient, log_agent_action, parse_json_response
 from database.supabase_client import SupabaseClient, get_supabase
+from skills.skill_langfuse import trace_agent
 
 # Racine des exports markdown
 BRAINSTORM_NOTES_ROOT = Path(__file__).resolve().parent.parent / "brainstorm_notes"
@@ -556,6 +557,7 @@ Contexte projet actif :
             history.append({"role": msg["role"], "content": msg["content"]})
         return history
 
+    @trace_agent("brainstorm_agent")
     def chat(
         self,
         message: str,

@@ -26,6 +26,7 @@ from crewai import Agent, Crew, LLM, Task
 from crewai.tools import tool
 
 from skills.skill_discord_wyrdheim import get_recent_messages, post_to_discord
+from skills.skill_langfuse import trace_agent
 from skills.skill_lore_database import add_lore_entry, search_lore
 
 logger = logging.getLogger(__name__)
@@ -170,6 +171,7 @@ class GameDirectorAgent:
             verbose=True,
         )
 
+    @trace_agent("game_director_agent")
     def handle_instruction(self, instruction: str) -> str:
         task = Task(
             description=instruction,

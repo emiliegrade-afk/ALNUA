@@ -27,6 +27,7 @@ from crewai.tools import tool
 from skills.skill_browser_use import browse_url, search_web
 from skills.skill_composio import get_composio_tools
 from skills.skill_discord_wyrdheim import get_recent_messages, post_to_discord
+from skills.skill_langfuse import trace_agent
 from skills.skill_seo_audit import run_seo_audit
 
 logger = logging.getLogger(__name__)
@@ -177,6 +178,7 @@ class MarketingAgent:
             verbose=True,
         )
 
+    @trace_agent("marketing_agent")
     def handle_instruction(self, instruction: str) -> str:
         task = Task(
             description=instruction,

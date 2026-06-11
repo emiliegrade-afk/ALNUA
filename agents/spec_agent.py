@@ -9,6 +9,7 @@ from crewai import Agent, LLM
 from agents.base import LLMClient, log_agent_action
 from agents.tools.hub_tools import SPEC_TOOLS
 from database.supabase_client import SupabaseClient, get_supabase
+from skills.skill_langfuse import trace_agent
 
 
 class SpecAgent:
@@ -79,6 +80,7 @@ Ne mets pas de blabla — uniquement du contenu actionnable prêt à coller dans
             )
         return self._crew_agent
 
+    @trace_agent("spec_agent")
     def generate_cursor_prompt(self, ticket_id: str) -> dict[str, Any]:
         tickets = self.db.select("tickets", filters={"id": ticket_id})
         if not tickets:

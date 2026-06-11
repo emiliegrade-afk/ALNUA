@@ -12,6 +12,7 @@ from agents.tools.hub_tools import PM_TOOLS
 from database.supabase_client import SupabaseClient, get_supabase
 from skills.skill_composio import get_composio_tools
 from skills.skill_gh_issues import get_open_issues, label_issue
+from skills.skill_langfuse import trace_agent
 
 logger = logging.getLogger(__name__)
 
@@ -82,6 +83,7 @@ Réponds UNIQUEMENT en JSON valide avec cette structure :
             )
         return self._crew_agent
 
+    @trace_agent("pm_agent")
     def handle_instruction(self, instruction: str, project_id: str | None = None) -> str:
         """Exécute une instruction PM via CrewAI + outils API Hub."""
         instruction = instruction.strip()
