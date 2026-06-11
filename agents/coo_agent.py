@@ -529,6 +529,14 @@ class COOAgent:
         if total_new_feedback:
             summary_lines.append(f"💬 {total_new_feedback} feedback(s) non traité(s).")
 
+        from skills.skill_error_journal import get_open_errors_summary
+
+        errors_summary = get_open_errors_summary()
+        if not errors_summary.startswith("✅"):
+            summary_lines.append("")
+            summary_lines.append("🔴 Journal d'erreurs agents :")
+            summary_lines.append(errors_summary)
+
         summary_lines.append("→ Dis-moi sur quoi tu veux te concentrer aujourd'hui.")
 
         return {

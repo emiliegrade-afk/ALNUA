@@ -115,10 +115,10 @@ def run_command(
         return 124, stdout, stderr or f"Command timed out after {timeout}s"
 
 
-def execute_coding_task(spec: dict) -> dict:
+def _execute_coding_task_core(spec: dict) -> dict:
     """
-    Point d'entrée principal du skill.
-    Crée un worktree isolé, lance Claude Code, commit, push, ouvre PR.
+    Single coding pipeline run (worktree → Claude Code → commit → PR).
+    Raises on logical failure so retry_with_learning can catch and retry.
     """
     repo_path = spec.get("repo_path")
     branch = spec.get(
@@ -238,6 +238,7 @@ def execute_coding_task(spec: dict) -> dict:
     except Exception as e:
         result["error"] = str(e)
         logger.error("[CodingAgent] ❌ Erreur : %s", e)
+        raise
 
     finally:
         # 8. Nettoyer le worktree (toujours, même en cas d'erreur)
@@ -248,4 +249,46 @@ def execute_coding_task(spec: dict) -> dict:
             )
             logger.info("[CodingAgent] Worktree nettoyé : %s", worktree_path)
 
+    if not result.get("success"):
+        raise RuntimeError(result.get("error", "Échec inconnu du coding agent"))
+
     return result
+
+
+def execute_coding_task(
+    spec: dict,
+    telegram_notify_fn=None,
+) -> dict:
+    """
+    Point d'entrée principal — avec retry intelligent.
+    Consulte le journal d'erreurs avant chaque tentative.
+    """
+    from skills.skill_retry_loop import retry_with_learning
+
+    def _attempt(learning_context: str) -> dict:
+        enriched_spec = dict(spec)
+        if learning_context:
+            enriched_spec["description"] = spec["description"] + learning_context
+        return _execute_coding_task_core(enriched_spec)
+
+    retry_result = retry_with_learning(
+        agent_name="DevApp",
+        task_fn=_attempt,
+        task_id=spec.get("task_id"),
+        task_context=f"Tâche : {spec.get('title')}\nRepo : {spec.get('repo_path')}",
+        max_attempts=3,
+        telegram_notify_fn=telegram_notify_fn,
+    )
+
+    if retry_result["success"]:
+        return retry_result["result"]
+
+    return {
+        "success": False,
+        "pr_url": None,
+        "branch": spec.get("branch_name"),
+        "commit_sha": None,
+        "claude_output": "",
+        "error": retry_result["error"],
+        "escalated": retry_result["escalated"],
+    }

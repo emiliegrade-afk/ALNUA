@@ -26,9 +26,54 @@ from crewai import Agent, Crew, LLM, Task
 from crewai.tools import tool
 
 from skills.skill_coding_agent import execute_coding_task
-from skills.skill_nwiro import nwiro_call
+from skills.skill_nwiro import nwiro_call, nwiro_is_available
+from skills.skill_retry_loop import retry_with_learning
 
 logger = logging.getLogger(__name__)
+
+_telegram_notify: Callable[[str], None] | None = None
+
+
+def execute_ue5_task_with_retry(
+    agent_name: str,
+    prompt: str,
+    task_id: str | None = None,
+    telegram_notify_fn: Callable[[str], None] | None = None,
+) -> str:
+    """Run a Nwiro prompt with intelligent retry on UE5 failures."""
+
+    def _attempt(learning_context: str) -> str:
+        if not nwiro_is_available():
+            raise ConnectionError("Nwiro non accessible — UE5 doit être ouvert")
+
+        enriched_prompt = prompt
+        if learning_context:
+            enriched_prompt = (
+                f"{prompt}\n\n"
+                f"Note: Previous attempts failed. {learning_context}"
+            )
+
+        result = nwiro_call("ai_agent_prompt", {"prompt": enriched_prompt})
+
+        if result and any(
+            kw in result.lower() for kw in ("error", "failed", "cannot", "invalid")
+        ):
+            raise RuntimeError(f"Nwiro a retourné une erreur : {result[:300]}")
+
+        return result
+
+    retry_result = retry_with_learning(
+        agent_name=agent_name,
+        task_fn=_attempt,
+        task_id=task_id,
+        task_context=f"Prompt Nwiro : {prompt[:200]}",
+        max_attempts=3,
+        telegram_notify_fn=telegram_notify_fn,
+    )
+
+    if retry_result["success"]:
+        return retry_result["result"]
+    return "❌ Échec après 3 tentatives — escaladé au COO"
 
 
 def _build_llm() -> LLM:
@@ -54,12 +99,35 @@ def nwiro_execute_tool(request_json: str) -> str:
     """
     try:
         data = json.loads(request_json)
-        result = nwiro_call(data["tool"], data.get("params", {}))
-        return f"✅ Nwiro [{data['tool']}] : {result}"
-    except ConnectionError:
-        return (
-            "❌ Nwiro non accessible. Vérifie que UE5 est ouvert avec le plugin Nwiro actif (port 5353)."
+        tool_name = data["tool"]
+        params = data.get("params", {})
+
+        def _attempt(learning_context: str) -> str:
+            if not nwiro_is_available():
+                raise ConnectionError(
+                    "Nwiro non accessible — UE5 doit être ouvert avec le plugin Nwiro (port 5353)"
+                )
+            result = nwiro_call(tool_name, params)
+            if result and any(
+                kw in str(result).lower() for kw in ("error", "failed", "cannot", "invalid")
+            ):
+                hint = f"\n{learning_context}" if learning_context else ""
+                raise RuntimeError(f"Nwiro [{tool_name}] erreur : {str(result)[:300]}{hint}")
+            return str(result)
+
+        retry_result = retry_with_learning(
+            agent_name="DevGaming",
+            task_fn=_attempt,
+            task_id=tool_name,
+            task_context=f"Nwiro tool: {tool_name}, params: {json.dumps(params)[:200]}",
+            max_attempts=3,
+            telegram_notify_fn=_telegram_notify,
         )
+        if retry_result["success"]:
+            return f"✅ Nwiro [{tool_name}] : {retry_result['result']}"
+        return f"❌ Erreur Nwiro après 3 tentatives : {retry_result['error']}"
+    except json.JSONDecodeError as e:
+        return f"❌ JSON invalide : {e}"
     except Exception as e:
         return f"❌ Erreur Nwiro : {e}"
 
@@ -71,10 +139,14 @@ def nwiro_prompt_tool(prompt: str) -> str:
     Nwiro interprète le prompt et exécute les outils UE5 nécessaires automatiquement.
     """
     try:
-        result = nwiro_call("ai_agent_prompt", {"prompt": prompt})
+        result = execute_ue5_task_with_retry(
+            agent_name="DevGaming",
+            prompt=prompt,
+            telegram_notify_fn=_telegram_notify,
+        )
+        if result.startswith("❌"):
+            return result
         return f"✅ Nwiro AI : {result}"
-    except ConnectionError:
-        return "❌ Nwiro non accessible. UE5 doit être ouvert avec le plugin Nwiro."
     except Exception as e:
         return f"❌ Erreur : {e}"
 
@@ -154,7 +226,7 @@ def gaming_code_tool(spec_json: str) -> str:
             "IMPORTANT : Précise toujours Blueprint vs C++. "
             "Respecte les conventions UE5 (préfixes U/A/F/E)."
         )
-        result = execute_coding_task(spec)
+        result = execute_coding_task(spec, telegram_notify_fn=_telegram_notify)
         if result["success"]:
             return f"✅ PR Gaming créée : {result['pr_url']}"
         return f"❌ Échec : {result['error']}"
@@ -164,6 +236,8 @@ def gaming_code_tool(spec_json: str) -> str:
 
 class DevGamingAgent:
     def __init__(self, telegram_notify_fn: Callable[[str], None] | None = None):
+        global _telegram_notify
+        _telegram_notify = telegram_notify_fn
         self.telegram_notify = telegram_notify_fn
 
         self.agent = Agent(

@@ -28,8 +28,37 @@ from crewai.tools import tool
 from skills.skill_coding_agent import execute_coding_task
 from skills.skill_naia_embodied import call_naia_embodied
 from skills.skill_pi_ssh import run_pi_command
+from skills.skill_retry_loop import retry_with_learning
 
 logger = logging.getLogger(__name__)
+
+_telegram_notify: Callable[[str], None] | None = None
+
+
+def execute_pi_ssh_with_retry(
+    command: str,
+    timeout: int = 30,
+    telegram_notify_fn: Callable[[str], None] | None = None,
+) -> dict:
+    """Run an SSH command on Eve Pi with retry on unstable connections."""
+
+    def _attempt(learning_context: str) -> dict:
+        result = run_pi_command(command, timeout)
+        if not result["success"]:
+            detail = result.get("output", "SSH command failed")
+            if learning_context:
+                detail = f"{detail}\n{learning_context[:200]}"
+            raise ConnectionError(detail)
+        return result
+
+    return retry_with_learning(
+        agent_name="EmbeddedDev",
+        task_fn=_attempt,
+        task_id=command[:80],
+        task_context=f"SSH: {command}",
+        max_attempts=3,
+        telegram_notify_fn=telegram_notify_fn,
+    )
 
 
 def _build_llm() -> LLM:
@@ -56,7 +85,14 @@ def pi_ssh_tool(command_json: str) -> str:
     """
     try:
         data = json.loads(command_json)
-        result = run_pi_command(data["command"], data.get("timeout", 30))
+        retry_result = execute_pi_ssh_with_retry(
+            data["command"],
+            data.get("timeout", 30),
+            telegram_notify_fn=_telegram_notify,
+        )
+        if not retry_result["success"]:
+            return f"❌ SSH échoué après 3 tentatives : {retry_result['error']}"
+        result = retry_result["result"]
         if not result["success"] and result["host"] == "":
             return f"❌ {result['output']}"
         return f"Pi [{result['host']}] $ {result['command']}\n{result['output']}"
@@ -153,7 +189,7 @@ def eve_code_tool(spec_json: str) -> str:
             "- Logging via logging module (pas print)\n"
             "- Gestion des exceptions hardware (GPIO busy, disconnected)"
         )
-        result = execute_coding_task(spec)
+        result = execute_coding_task(spec, telegram_notify_fn=_telegram_notify)
         if result["success"]:
             return f"✅ PR Eve créée : {result['pr_url']}"
         return f"❌ Échec : {result['error']}"
@@ -163,6 +199,8 @@ def eve_code_tool(spec_json: str) -> str:
 
 class EmbeddedDevAgent:
     def __init__(self, telegram_notify_fn: Callable[[str], None] | None = None):
+        global _telegram_notify
+        _telegram_notify = telegram_notify_fn
         self.agent = Agent(
             role="Embedded Dev — Eve Robot",
             goal=(

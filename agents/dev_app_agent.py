@@ -32,6 +32,7 @@ from skills.skill_playwright import run_and_report
 logger = logging.getLogger(__name__)
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
+_telegram_notify = None
 
 
 def _build_llm() -> LLM:
@@ -58,7 +59,7 @@ def coding_agent_tool(spec_json: str) -> str:
     """
     try:
         spec = json.loads(spec_json)
-        result = execute_coding_task(spec)
+        result = execute_coding_task(spec, telegram_notify_fn=_telegram_notify)
         if result["success"]:
             return f"✅ PR créée : {result['pr_url']}"
         return f"❌ Échec : {result['error']}"
@@ -125,6 +126,8 @@ def costs_report_tool(period: str = "day") -> str:
 
 class DevAppAgent:
     def __init__(self, telegram_notify_fn=None):
+        global _telegram_notify
+        _telegram_notify = telegram_notify_fn
         self.telegram_notify = telegram_notify_fn
         self.repo_path = os.getenv("HUB_REPO_PATH", str(_REPO_ROOT))
 

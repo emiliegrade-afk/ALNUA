@@ -257,7 +257,7 @@ def process_issue(
         telegram_notify_fn(f"🔧 Pipeline démarré\n**Issue #{number}** : {title}")
 
     spec = issue_to_spec(issue, repo_path)
-    result = execute_coding_task(spec)
+    result = execute_coding_task(spec, telegram_notify_fn=telegram_notify_fn)
 
     if result["success"]:
         set_label(number, ["agent-done"], remove_labels=["in-pipeline"])
