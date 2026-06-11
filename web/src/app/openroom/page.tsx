@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { BackToLobby } from "@/components/shared/back-to-lobby";
 import { AgentAvatar } from "@/components/openroom/agent-avatar";
+import { AgentFocusPanel } from "@/components/openroom/agent-focus-panel";
 import {
   countActiveAgents,
   fetchAgentsStatus,
@@ -91,6 +92,7 @@ export default function OpenRoomPage() {
   >({});
   const [logs, setLogs] = useState<OpenRoomLogEntry[]>([]);
   const [pipelineActive, setPipelineActive] = useState(false);
+  const [focusedAgent, setFocusedAgent] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -141,6 +143,7 @@ export default function OpenRoomPage() {
             branch={agent.branch}
             status={agentStatuses[agent.id]?.status ?? "idle"}
             currentTask={agentStatuses[agent.id]?.currentTask}
+            onClick={() => setFocusedAgent(agent.id)}
           />
         ))}
       </div>
@@ -162,6 +165,14 @@ export default function OpenRoomPage() {
           ) : null}
         </div>
       </div>
+
+      {focusedAgent ? (
+        <AgentFocusPanel
+          agent={AGENTS.find((a) => a.id === focusedAgent)!}
+          status={agentStatuses[focusedAgent] ?? { status: "idle" }}
+          onClose={() => setFocusedAgent(null)}
+        />
+      ) : null}
     </>
   );
 }

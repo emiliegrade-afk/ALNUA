@@ -7,6 +7,10 @@ export type AgentStatusKind = "idle" | "working" | "waiting" | "error";
 export interface AgentStatus {
   status: AgentStatusKind;
   currentTask?: string;
+  currentFile?: string;
+  recentCode?: string[];
+  log?: string[];
+  progress?: number;
 }
 
 export interface OpenRoomLogEntry {

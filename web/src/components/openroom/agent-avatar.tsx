@@ -11,6 +11,7 @@ export interface AgentAvatarProps {
   status: AgentStatusKind;
   currentTask?: string;
   branch: "hub" | "app" | "gaming" | "robo";
+  onClick?: () => void;
 }
 
 const STATUS_RING: Record<
@@ -30,15 +31,19 @@ export function AgentAvatar({
   status,
   currentTask,
   branch,
+  onClick,
 }: AgentAvatarProps) {
   const colors = DEPT_COLORS[branch];
   const ring = STATUS_RING[status];
   const isIdle = status === "idle";
 
   return (
-    <div
+    <button
+      type="button"
+      onClick={onClick}
       className={cn(
-        "relative flex flex-col items-center gap-3 pt-10 transition-opacity duration-300",
+        "relative flex w-full flex-col items-center gap-3 border-0 bg-transparent pt-10 transition-opacity duration-300",
+        onClick && "cursor-pointer hover:opacity-90",
         isIdle && "opacity-50",
       )}
     >
@@ -83,6 +88,6 @@ export function AgentAvatar({
           {role}
         </p>
       </div>
-    </div>
+    </button>
   );
 }

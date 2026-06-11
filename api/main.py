@@ -7,6 +7,7 @@ import csv
 import io
 import logging
 import os
+import re
 import subprocess
 import uuid
 import zipfile
@@ -730,12 +731,40 @@ _OPENROOM_DISPLAY: dict[str, str] = {
 }
 
 
-def _openroom_idle_agents() -> dict[str, dict[str, str | None]]:
-    return {agent_id: {"status": "idle", "currentTask": None} for agent_id in _OPENROOM_AGENT_IDS}
+def _openroom_idle_agents() -> dict[str, dict[str, Any]]:
+    return {
+        agent_id: {
+            "status": "idle",
+            "currentTask": None,
+            "currentFile": None,
+            "recentCode": [],
+            "log": [],
+            "progress": None,
+        }
+        for agent_id in _OPENROOM_AGENT_IDS
+    }
+
+
+def extract_file_mentions(logs: list[str]) -> tuple[str | None, list[str]]:
+    """Return (last mentioned file path, recent code-like log lines)."""
+    current_file: str | None = None
+    code_lines: list[str] = []
+    for line in reversed(logs[-20:]):
+        match = re.search(r"[\w/.-]+\.(tsx|ts|py|js|jsx)", line)
+        if match and not current_file:
+            current_file = match.group(0)
+        stripped = line.strip()
+        if stripped.startswith(
+            (" ", "\t", "import", "export", "const", "def", "function", "//")
+        ):
+            code_lines.insert(0, stripped)
+        if len(code_lines) >= 6:
+            break
+    return current_file, code_lines
 
 
 def _set_openroom_status(
-    agents: dict[str, dict[str, str | None]],
+    agents: dict[str, dict[str, Any]],
     agent_id: str,
     status: str,
     current_task: str | None = None,
@@ -748,6 +777,21 @@ def _set_openroom_status(
         agents[agent_id]["status"] = status
         if current_task:
             agents[agent_id]["currentTask"] = current_task
+
+
+def _apply_task_details(
+    agents: dict[str, dict[str, Any]],
+    agent_id: str,
+    task: dict[str, Any],
+) -> None:
+    if agent_id not in agents:
+        return
+    task_logs = [str(line) for line in task.get("log", [])]
+    current_file, recent_code = extract_file_mentions(task_logs)
+    agents[agent_id]["currentFile"] = current_file
+    agents[agent_id]["recentCode"] = recent_code
+    agents[agent_id]["log"] = task_logs
+    agents[agent_id]["progress"] = task.get("progress", 0)
 
 
 def _format_log_time(value: str | None) -> str:
@@ -777,12 +821,14 @@ async def agents_status() -> dict[str, Any]:
         last_log = task.get("log", [""])[-1]
         issue = task.get("issue_number")
         _set_openroom_status(agents, "dev_app", "working", last_log or None)
+        _apply_task_details(agents, "dev_app", task)
         _set_openroom_status(
             agents,
             "pm",
             "waiting",
             f"Issue #{issue} en cours" if issue else "Pipeline en cours",
         )
+        _apply_task_details(agents, "pm", task)
         started_at = task.get("started_at")
         for line in task.get("log", [])[-4:]:
             recent_logs.append(
@@ -837,6 +883,16 @@ async def agents_status() -> dict[str, Any]:
             _set_openroom_status(agents, agent_id, "working", task_summary or None)
         elif log_status == "error":
             _set_openroom_status(agents, agent_id, "error", task_summary or None)
+
+        agent_log_lines = agents[agent_id].setdefault("log", [])
+        if message and message not in agent_log_lines:
+            agent_log_lines.append(message)
+        agents[agent_id]["log"] = agent_log_lines[-20:]
+        current_file, recent_code = extract_file_mentions(agents[agent_id]["log"])
+        if current_file:
+            agents[agent_id]["currentFile"] = current_file
+        if recent_code:
+            agents[agent_id]["recentCode"] = recent_code
 
     recent_logs = recent_logs[:20]
 
