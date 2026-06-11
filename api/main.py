@@ -114,7 +114,6 @@ from skills.skill_gh_issues import (
     get_open_prs,
     list_ready_issues,
     poll_issues_loop,
-    process_issue,
 )
 from skills.skill_langfuse import agent_trace
 from skills.skill_model_usage import get_daily_costs, get_monthly_costs, get_weekly_costs
@@ -606,6 +605,21 @@ def health() -> dict[str, str]:
 _pipeline_tasks: dict[str, dict[str, Any]] = {}
 
 
+def is_simple_task(issue_title: str) -> bool:
+    """Tâches simples → Aider. Complexes → OpenHands."""
+    simple_keywords = [
+        "fix",
+        "bug",
+        "typo",
+        "rename",
+        "update",
+        "change",
+        "corriger",
+        "modifier",
+    ]
+    return any(kw in issue_title.lower() for kw in simple_keywords)
+
+
 async def run_pipeline_background(
     task_id: str,
     issue_number: int,
@@ -626,20 +640,45 @@ async def run_pipeline_background(
 
             issue = await asyncio.to_thread(get_issue, issue_number, repo_slug=repo)
             task["progress"] = 25
-            _log(f"Issue #{issue_number}: {issue.get('title', '')}")
+            issue_title = issue.get("title", "")
+            _log(f"Issue #{issue_number}: {issue_title}")
 
-            result = await asyncio.to_thread(process_issue, issue, None, None)
+            from config.github_repos import issue_target
+
+            target = issue_target(issue)
+            repo_path = str(target.local_path)
+            task_description = f"{issue_title}\n\n{issue.get('body', '') or ''}"
+
+            task["progress"] = 40
+            if is_simple_task(issue_title):
+                from skills.skill_aider import run_aider_task
+
+                _log("Simple task — routing to Aider")
+                result = await asyncio.to_thread(
+                    run_aider_task, task_description, repo_path
+                )
+            else:
+                from skills.skill_openhands import run_openhands_task
+
+                _log("Complex task — routing to OpenHands")
+                result = await asyncio.to_thread(
+                    run_openhands_task, task_description, repo_path
+                )
 
             if result.get("success"):
                 task["status"] = "completed"
                 task["progress"] = 100
-                _log(f"Pipeline completed — PR: {result.get('pr_url', 'n/a')}")
+                pr_url = result.get("pr_url", "n/a")
+                agent_output = result.get("output", "")
+                _log(f"Pipeline completed — PR: {pr_url}")
+                if agent_output:
+                    _log(agent_output[-500:])
                 if trace:
                     trace.update(output="completed")
             else:
                 task["status"] = "failed"
                 task["progress"] = 100
-                error = result.get("error", "unknown error")
+                error = result.get("error") or result.get("output", "unknown error")
                 _log(f"Pipeline failed — {error}")
                 if trace:
                     trace.update(output=f"failed: {error}", level="ERROR")
