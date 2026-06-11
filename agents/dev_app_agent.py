@@ -1,0 +1,186 @@
+"""
+agents/dev_app_agent.py
+
+Agent CrewAI — Dev App (Lead Dev + Backend + Frontend/Mobile)
+
+Responsabilités :
+- Développement Naïa App (React Native + Supabase)
+- Développement Eve Journey's app
+- PRs automatiques depuis backlog GitHub
+- Code Review (validation qualité avant merge)
+- Debugging builds CI
+
+Tools : skill_coding_agent, skill_gh_issues, skill_playwright, skill_git, skill_model_usage
+Règle : max 6 tools. Ne touche pas aux projets Gaming ou Robotique.
+"""
+
+from __future__ import annotations
+
+import json
+import logging
+import os
+from pathlib import Path
+
+from crewai import Agent, Crew, LLM, Task
+from crewai.tools import tool
+
+from skills.skill_coding_agent import execute_coding_task
+from skills.skill_gh_issues import get_issue, list_ready_issues, process_issue
+from skills.skill_model_usage import format_costs_report
+from skills.skill_playwright import run_and_report
+
+logger = logging.getLogger(__name__)
+
+_REPO_ROOT = Path(__file__).resolve().parent.parent
+
+
+def _build_llm() -> LLM:
+    from config.settings import get_settings
+
+    settings = get_settings()
+    model = os.getenv("AGENT_MODEL", "openrouter/minimax/minimax-m1")
+    if not model.startswith("openrouter/"):
+        model = f"openrouter/{model}"
+    return LLM(
+        model=model,
+        base_url=settings.openrouter_base_url,
+        api_key=settings.openrouter_api_key,
+        temperature=0.3,
+    )
+
+
+@tool("coding_agent")
+def coding_agent_tool(spec_json: str) -> str:
+    """
+    Lance le pipeline de codage autonome sur une spec JSON.
+    Input : JSON string avec task_id, title, description, repo_path, branch_name.
+    Output : URL de la PR créée ou message d'erreur.
+    """
+    try:
+        spec = json.loads(spec_json)
+        result = execute_coding_task(spec)
+        if result["success"]:
+            return f"✅ PR créée : {result['pr_url']}"
+        return f"❌ Échec : {result['error']}"
+    except Exception as e:
+        return f"❌ Erreur tool coding_agent : {e}"
+
+
+@tool("list_ready_issues")
+def list_issues_tool(dummy: str = "") -> str:
+    """
+    Liste les GitHub Issues prêtes (label 'agent-ready').
+    Retourne JSON avec numéro, titre, et description de chaque issue.
+    """
+    try:
+        issues = list_ready_issues()
+        if not issues:
+            return "Aucune issue prête à traiter."
+        return json.dumps(
+            [
+                {
+                    "number": i["number"],
+                    "title": i["title"],
+                    "body": i.get("body", "")[:200],
+                }
+                for i in issues
+            ],
+            ensure_ascii=False,
+            indent=2,
+        )
+    except Exception as e:
+        return f"❌ Erreur : {e}"
+
+
+@tool("run_qa_tests")
+def qa_tests_tool(input_json: str) -> str:
+    """
+    Lance les tests QA sur une branche/PR.
+    Input JSON : {"branch": "feat/...", "pr_number": 42, "repo_path": "/path/to/repo"}
+    """
+    try:
+        data = json.loads(input_json)
+        result = run_and_report(
+            repo_path=data["repo_path"],
+            branch=data["branch"],
+            pr_number=data["pr_number"],
+        )
+        status = "✅ Passés" if result["passed"] else "❌ Échoués"
+        return (
+            f"{status} — {result['passed_count']}/{result['total']} tests "
+            f"en {result['duration_s']}s"
+        )
+    except Exception as e:
+        return f"❌ Erreur tests : {e}"
+
+
+@tool("get_costs_report")
+def costs_report_tool(period: str = "day") -> str:
+    """
+    Retourne un rapport des coûts LLM.
+    period : 'day' pour aujourd'hui, 'month' pour le mois en cours.
+    """
+    return format_costs_report(period)
+
+
+class DevAppAgent:
+    def __init__(self, telegram_notify_fn=None):
+        self.telegram_notify = telegram_notify_fn
+        self.repo_path = os.getenv("HUB_REPO_PATH", str(_REPO_ROOT))
+
+        self.agent = Agent(
+            role="Dev App Agent",
+            goal=(
+                "Implémenter les features et corrections demandées sur les projets App "
+                "(Naïa App, Eve Journey's). Créer des PRs propres, documentées, avec tests. "
+                "Respecter les conventions ALNUA : logging, gestion d'erreurs, docstrings."
+            ),
+            backstory=(
+                "Tu es le Lead Developer du Pôle App d'ALNUA. "
+                "Tu maîtrises Python/FastAPI, React Native, Supabase, Docker. "
+                "Tu codes proprement, tu testes, tu documentes. "
+                "Tu ne touches jamais aux projets Gaming ou Robotique. "
+                "Tu crées des worktrees isolés pour chaque feature."
+            ),
+            tools=[
+                coding_agent_tool,
+                list_issues_tool,
+                qa_tests_tool,
+                costs_report_tool,
+            ],
+            llm=_build_llm(),
+            max_iter=10,
+            verbose=True,
+        )
+
+    def handle_instruction(self, instruction: str) -> str:
+        """
+        Point d'entrée : reçoit une instruction en langage naturel du COO ou de Telegram.
+        """
+        task = Task(
+            description=instruction,
+            agent=self.agent,
+            expected_output="Résultat de la tâche avec liens PR/commit si applicable.",
+        )
+
+        crew = Crew(agents=[self.agent], tasks=[task])
+        result = crew.kickoff()
+        return str(result)
+
+    def process_ready_issues(self):
+        """
+        Traite toutes les issues GitHub labelées "agent-ready".
+        À appeler depuis le scheduler ou manuellement.
+        """
+        issues = list_ready_issues()
+        if not issues:
+            logger.info("[DevApp] Aucune issue à traiter")
+            return
+
+        for issue in issues:
+            process_issue(issue, self.repo_path, self.telegram_notify)
+
+    def process_issue_by_number(self, issue_number: int) -> dict:
+        """Traite une issue GitHub spécifique par son numéro."""
+        issue = get_issue(issue_number)
+        return process_issue(issue, self.repo_path, self.telegram_notify)

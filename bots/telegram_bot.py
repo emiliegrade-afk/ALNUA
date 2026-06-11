@@ -1,0 +1,608 @@
+"""Telegram Bot — COO interface for ALNUA Hub."""
+
+from __future__ import annotations
+
+import asyncio
+import atexit
+import datetime as dt
+import json
+import logging
+import os
+from pathlib import Path
+from typing import Any
+from zoneinfo import ZoneInfo
+
+import httpx
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.error import Conflict
+from telegram.ext import (
+    Application,
+    CallbackQueryHandler,
+    CommandHandler,
+    ContextTypes,
+    MessageHandler,
+    filters,
+)
+
+from agents.coo_agent import COOAgent
+from agents.dev_app_agent import DevAppAgent
+from bots.base import log_bot_action
+from config.settings import get_settings
+from database.supabase_client import get_supabase
+from skills.skill_gh_issues import list_ready_issues
+from skills.skill_model_usage import format_costs_report
+
+logger = logging.getLogger(__name__)
+
+BOT_NAME = "telegram_bot"
+TELEGRAM_CHUNK_SIZE = 4000
+_LOCK_FILE = Path(__file__).resolve().parent.parent / ".telegram_bot.lock"
+
+_START_MESSAGE = (
+    "Salut Emilie ! Je suis le COO ALNUA sur Telegram.\n"
+    "Envoie-moi une instruction en texte libre — je la traite et te réponds ici."
+)
+
+_MORNING_BRIEF_JOB = "morning_brief"
+_MORNING_BRIEF_TZ = ZoneInfo("Europe/Paris")
+_REPO_ROOT = Path(__file__).resolve().parent.parent
+
+
+def _hub_repo_path() -> str:
+    return os.getenv("HUB_REPO_PATH", str(_REPO_ROOT))
+
+
+def _telegram_notify(context: ContextTypes.DEFAULT_TYPE, chat_id: int):
+    """Build a notify callback that posts Markdown to the given chat."""
+
+    def notify(msg: str) -> None:
+        asyncio.create_task(
+            context.bot.send_message(chat_id=chat_id, text=msg, parse_mode="Markdown")
+        )
+
+    return notify
+
+
+async def pipeline_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """
+    /pipeline — liste les issues prêtes et permet d'en lancer une
+    /pipeline #42 — lance directement l'issue #42
+    """
+    if not update.message or not update.effective_chat:
+        return
+
+    args = context.args
+    chat_id = update.effective_chat.id
+
+    if args and args[0].startswith("#"):
+        issue_num = int(args[0][1:])
+        await update.message.reply_text(
+            f"🔧 *Pipeline lancé*\nIssue #{issue_num} en cours de traitement...",
+            parse_mode="Markdown",
+        )
+        agent = DevAppAgent(telegram_notify_fn=_telegram_notify(context, chat_id))
+        context.application.create_task(
+            asyncio.to_thread(agent.process_issue_by_number, issue_num)
+        )
+        return
+
+    try:
+        issues = list_ready_issues()
+    except Exception as exc:
+        await update.message.reply_text(f"❌ Erreur : {exc}")
+        return
+
+    if not issues:
+        await update.message.reply_text(
+            "✅ Aucune issue en attente.\n"
+            "Pour créer une tâche, ouvre une issue GitHub avec le label `agent-ready`.",
+            parse_mode="Markdown",
+        )
+        return
+
+    keyboard = []
+    for issue in issues[:8]:
+        keyboard.append(
+            [
+                InlineKeyboardButton(
+                    f"#{issue['number']} — {issue['title'][:40]}",
+                    callback_data=json.dumps(
+                        {"action": "run_issue", "number": issue["number"]}
+                    ),
+                )
+            ]
+        )
+    keyboard.append(
+        [InlineKeyboardButton("❌ Annuler", callback_data='{"action":"cancel"}')]
+    )
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await update.message.reply_text(
+        f"🔧 *{len(issues)} issue(s) prête(s)*\nChoisis laquelle lancer :",
+        reply_markup=reply_markup,
+        parse_mode="Markdown",
+    )
+
+
+async def prs_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """/prs — liste les PRs ouvertes sur le repo avec boutons actions."""
+    if not update.message:
+        return
+
+    repo = os.getenv("GITHUB_REPO")
+    token = os.getenv("GITHUB_TOKEN")
+
+    if not repo or not token:
+        await update.message.reply_text("❌ GITHUB_REPO ou GITHUB_TOKEN non configuré.")
+        return
+
+    try:
+        with httpx.Client() as client:
+            resp = client.get(
+                f"https://api.github.com/repos/{repo}/pulls",
+                headers={
+                    "Authorization": f"Bearer {token}",
+                    "Accept": "application/vnd.github+json",
+                },
+                params={"state": "open", "per_page": 8},
+            )
+            resp.raise_for_status()
+            prs = resp.json()
+
+        if not prs:
+            await update.message.reply_text("✅ Aucune PR ouverte.")
+            return
+
+        for pr in prs:
+            number = pr["number"]
+            title = pr["title"]
+            labels = [label["name"] for label in pr.get("labels", [])]
+            auto_tag = "🤖 Auto" if "auto-generated" in labels else "👤"
+
+            keyboard = [
+                [
+                    InlineKeyboardButton("🔍 Voir PR", url=pr["html_url"]),
+                    InlineKeyboardButton(
+                        "🧪 Lancer tests",
+                        callback_data=json.dumps(
+                            {
+                                "action": "run_tests",
+                                "pr": number,
+                                "branch": pr["head"]["ref"],
+                            }
+                        ),
+                    ),
+                ]
+            ]
+
+            await update.message.reply_text(
+                f"{auto_tag} *PR #{number}*\n{title}\n`{pr['head']['ref']}`",
+                reply_markup=InlineKeyboardMarkup(keyboard),
+                parse_mode="Markdown",
+            )
+
+    except Exception as e:
+        await update.message.reply_text(f"❌ Erreur : {e}")
+
+
+async def costs_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """/costs — rapport coûts LLM avec boutons jour/mois."""
+    if not update.message:
+        return
+
+    keyboard = [
+        [
+            InlineKeyboardButton(
+                "📅 Aujourd'hui",
+                callback_data='{"action":"costs","period":"day"}',
+            ),
+            InlineKeyboardButton(
+                "📆 Ce mois",
+                callback_data='{"action":"costs","period":"month"}',
+            ),
+        ]
+    ]
+    report = format_costs_report("day")
+    await update.message.reply_text(
+        report,
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        parse_mode="Markdown",
+    )
+
+
+_AGENTS_STATUS_TEXT = """🏢 *ALNUA — État des agents*
+
+🟢 **COO Agent** — Actif
+🟢 **Dev App Agent** — Actif
+⚪ **R&D Agent** — En veille
+⚪ **Computer Vision** — En veille
+⚪ **Game Director** — En veille
+⚪ **Dev Gaming** — En veille
+⚪ **Art Director** — En veille
+⚪ **Hardware** — En veille
+⚪ **Embedded Dev** — En veille
+⚪ **QA/Sécurité** — En veille
+⚪ **Marketing** — En veille
+⚪ **Admin** — Désactivé (on demand)"""
+
+
+async def agents_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """/agents — état de tous les agents ALNUA."""
+    keyboard = [
+        [InlineKeyboardButton("🔄 Rafraîchir", callback_data='{"action":"refresh_agents"}')]
+    ]
+    message = update.message or (
+        update.callback_query.message if update.callback_query else None
+    )
+    if not message:
+        return
+    await message.reply_text(
+        _AGENTS_STATUS_TEXT,
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        parse_mode="Markdown",
+    )
+
+
+async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Gère tous les clics sur les boutons inline."""
+    query = update.callback_query
+    if not query:
+        return
+
+    await query.answer()
+
+    try:
+        data = json.loads(query.data or "{}")
+    except json.JSONDecodeError:
+        return
+
+    action = data.get("action")
+    chat_id = query.message.chat_id if query.message else None
+
+    if action == "cancel":
+        await query.edit_message_text("❌ Annulé.")
+
+    elif action == "run_issue":
+        issue_num = data["number"]
+        await query.edit_message_text(
+            f"🔧 *Pipeline démarré*\nIssue #{issue_num} en cours de traitement...\n"
+            f"Je te notifie quand c'est prêt.",
+            parse_mode="Markdown",
+        )
+        if chat_id is not None:
+            agent = DevAppAgent(telegram_notify_fn=_telegram_notify(context, chat_id))
+            context.application.create_task(
+                asyncio.to_thread(agent.process_issue_by_number, issue_num)
+            )
+
+    elif action == "run_tests":
+        branch = data.get("branch")
+        pr_num = data.get("pr")
+        await query.edit_message_text(
+            f"🧪 *Tests QA lancés*\nBranche : `{branch}`\nPR #{pr_num}\n"
+            f"Résultats dans quelques minutes...",
+            parse_mode="Markdown",
+        )
+        if chat_id is not None:
+            from skills.skill_playwright import run_and_report
+
+            context.application.create_task(
+                asyncio.to_thread(
+                    run_and_report,
+                    _hub_repo_path(),
+                    branch,
+                    pr_num,
+                    _telegram_notify(context, chat_id),
+                )
+            )
+
+    elif action == "costs":
+        period = data.get("period", "day")
+        report = format_costs_report(period)
+        keyboard = [
+            [
+                InlineKeyboardButton(
+                    "📅 Aujourd'hui",
+                    callback_data='{"action":"costs","period":"day"}',
+                ),
+                InlineKeyboardButton(
+                    "📆 Ce mois",
+                    callback_data='{"action":"costs","period":"month"}',
+                ),
+            ]
+        ]
+        await query.edit_message_text(
+            report,
+            reply_markup=InlineKeyboardMarkup(keyboard),
+            parse_mode="Markdown",
+        )
+
+    elif action == "refresh_agents":
+        keyboard = [
+            [
+                InlineKeyboardButton(
+                    "🔄 Rafraîchir",
+                    callback_data='{"action":"refresh_agents"}',
+                )
+            ]
+        ]
+        await query.edit_message_text(
+            _AGENTS_STATUS_TEXT,
+            reply_markup=InlineKeyboardMarkup(keyboard),
+            parse_mode="Markdown",
+        )
+
+
+def _split_message(text: str, chunk_size: int = TELEGRAM_CHUNK_SIZE) -> list[str]:
+    if len(text) <= chunk_size:
+        return [text]
+    return [text[i : i + chunk_size] for i in range(0, len(text), chunk_size)]
+
+
+def _pid_is_running(pid: int) -> bool:
+    """Check whether a process is alive (Windows-safe)."""
+    if pid <= 0:
+        return False
+    if os.name == "nt":
+        import ctypes
+
+        handle = ctypes.windll.kernel32.OpenProcess(0x1000, False, pid)
+        if handle:
+            ctypes.windll.kernel32.CloseHandle(handle)
+            return True
+        return False
+    try:
+        os.kill(pid, 0)
+    except OSError:
+        return False
+    return True
+
+
+def _acquire_single_instance_lock() -> None:
+    """Prevent two polling processes from fighting over getUpdates."""
+    if _LOCK_FILE.exists():
+        try:
+            old_pid = int(_LOCK_FILE.read_text().strip())
+        except ValueError:
+            _LOCK_FILE.unlink(missing_ok=True)
+        else:
+            if _pid_is_running(old_pid):
+                raise RuntimeError(
+                    f"Telegram bot already running (PID {old_pid}). "
+                    "Stop it before starting a new instance."
+                )
+            _LOCK_FILE.unlink(missing_ok=True)
+
+    _LOCK_FILE.write_text(str(os.getpid()), encoding="utf-8")
+    atexit.register(lambda: _LOCK_FILE.unlink(missing_ok=True))
+
+
+async def _on_error(
+    update: object, context: ContextTypes.DEFAULT_TYPE
+) -> None:
+    if isinstance(context.error, Conflict):
+        logger.warning(
+            "409 Conflict: another bot instance is polling. "
+            "Stop duplicate processes (task manager or Ctrl+C)."
+        )
+        return
+    logger.error("Telegram handler error", exc_info=context.error)
+
+
+class TelegramBot:
+    """Routes Telegram messages to the COO agent and replies in the same chat."""
+
+    def __init__(self) -> None:
+        self.settings = get_settings()
+        self.db = get_supabase()
+        self._application: Application | None = None
+        self._started = False
+
+    def _ensure_token(self) -> str:
+        token = self.settings.telegram_bot_token
+        if not token:
+            raise RuntimeError("TELEGRAM_BOT_TOKEN is not configured")
+        return token
+
+    def _run_coo(self, instruction: str) -> str:
+        agent = COOAgent(self.db)
+        return agent.handle_instruction(instruction)
+
+    def _run_morning_briefing(self) -> str:
+        agent = COOAgent(self.db)
+        return agent.run_daily_briefing()
+
+    def _morning_brief_chat_id(self) -> int | None:
+        raw = self.settings.telegram_chat_id.strip()
+        if not raw:
+            return None
+        try:
+            return int(raw)
+        except ValueError:
+            logger.error("TELEGRAM_CHAT_ID invalid (expected integer): %r", raw)
+            return None
+
+    async def _send_morning_brief(self, context: ContextTypes.DEFAULT_TYPE) -> None:
+        chat_id = self._morning_brief_chat_id()
+        if chat_id is None:
+            logger.warning("Morning brief skipped — TELEGRAM_CHAT_ID is not configured")
+            return
+
+        logger.info("Sending morning brief to chat %s", chat_id)
+        try:
+            briefing = await asyncio.to_thread(self._run_morning_briefing)
+            log_bot_action(
+                self.db, BOT_NAME, "morning_brief", "scheduled", briefing[:200]
+            )
+        except Exception:
+            logger.exception("Morning brief generation failed")
+            briefing = "Brief matinal indisponible — erreur lors de la génération."
+            log_bot_action(
+                self.db,
+                BOT_NAME,
+                "morning_brief",
+                "scheduled",
+                briefing,
+                status="error",
+            )
+
+        for chunk in _split_message(briefing):
+            await context.bot.send_message(chat_id=chat_id, text=chunk)
+
+    async def _schedule_morning_brief(self, application: Application) -> None:
+        if application.job_queue is None:
+            logger.warning("Job queue unavailable — morning brief not scheduled")
+            return
+
+        for job in application.job_queue.get_jobs_by_name(_MORNING_BRIEF_JOB):
+            job.schedule_removal()
+
+        if self._morning_brief_chat_id() is None:
+            logger.warning(
+                "TELEGRAM_CHAT_ID not set — morning brief disabled. "
+                "Send /start to the bot and copy the chat ID from the console."
+            )
+            return
+
+        application.job_queue.run_daily(
+            self._send_morning_brief,
+            time=dt.time(hour=8, minute=0, tzinfo=_MORNING_BRIEF_TZ),
+            name=_MORNING_BRIEF_JOB,
+        )
+        logger.info("Morning brief scheduled daily at 08:00 %s", _MORNING_BRIEF_TZ)
+
+    def _start_reply(self, chat_id: int) -> str:
+        configured = self._morning_brief_chat_id()
+        lines = [
+            _START_MESSAGE,
+            "",
+            f"Ton chat ID : {chat_id}",
+        ]
+
+        if configured == chat_id:
+            lines.append("")
+            lines.append("Brief matinal activé — envoi automatique à 8h (Europe/Paris).")
+        elif configured is not None:
+            lines.append("")
+            lines.append(
+                "Le brief matinal pointe vers un autre chat. "
+                f"Mets TELEGRAM_CHAT_ID={chat_id} dans .env, puis redémarre le bot."
+            )
+        else:
+            lines.append("")
+            lines.append("Pour activer le brief matinal à 8h, ajoute dans .env :")
+            lines.append(f"TELEGRAM_CHAT_ID={chat_id}")
+            lines.append("Puis redémarre le bot (Ctrl+C dans le terminal, relance).")
+        return "\n".join(lines)
+
+    async def _handle_start(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> None:
+        if not update.message or not update.effective_chat:
+            return
+
+        chat_id = update.effective_chat.id
+        logger.info("Telegram chat ID: %s", chat_id)
+        print(f"TELEGRAM_CHAT_ID={chat_id}")
+
+        await update.message.reply_text(self._start_reply(chat_id))
+
+    async def _handle_text(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> None:
+        if not update.message or not update.message.text:
+            return
+
+        text = update.message.text.strip()
+        if not text:
+            return
+
+        log_bot_action(self.db, BOT_NAME, "message_received", text[:200], "")
+
+        await update.message.chat.send_action("typing")
+
+        try:
+            response = await asyncio.to_thread(self._run_coo, text)
+            log_bot_action(
+                self.db, BOT_NAME, "coo_response", text[:200], response[:200]
+            )
+        except Exception:
+            logger.exception("Telegram COO handler error")
+            response = "Une erreur est survenue. Réessaie dans un instant."
+            log_bot_action(
+                self.db,
+                BOT_NAME,
+                "coo_response",
+                text[:200],
+                response,
+                status="error",
+            )
+
+        for chunk in _split_message(response):
+            await update.message.reply_text(chunk)
+
+    def build_application(self) -> Application:
+        if self._application is None:
+            app = (
+                Application.builder()
+                .token(self._ensure_token())
+                .post_init(self._schedule_morning_brief)
+                .build()
+            )
+            app.add_handler(CommandHandler("start", self._handle_start))
+            app.add_handler(CommandHandler("pipeline", pipeline_command))
+            app.add_handler(CommandHandler("prs", prs_command))
+            app.add_handler(CommandHandler("costs", costs_command))
+            app.add_handler(CommandHandler("agents", agents_command))
+            app.add_handler(CallbackQueryHandler(button_callback))
+            app.add_handler(
+                MessageHandler(filters.TEXT & ~filters.COMMAND, self._handle_text)
+            )
+            app.add_error_handler(_on_error)
+            self._application = app
+        return self._application
+
+    async def ensure_started(self) -> Application:
+        """Initialize PTB application for webhook mode (FastAPI)."""
+        app = self.build_application()
+        if not self._started:
+            await app.initialize()
+            await app.start()
+            self._started = True
+        return app
+
+    async def process_update(self, update_data: dict[str, Any]) -> None:
+        app = await self.ensure_started()
+        update = Update.de_json(update_data, app.bot)
+        await app.process_update(update)
+
+    async def shutdown(self) -> None:
+        if self._application is not None and self._started:
+            await self._application.stop()
+            await self._application.shutdown()
+            self._started = False
+
+    def run_polling(self) -> None:
+        _acquire_single_instance_lock()
+        logging.basicConfig(level=logging.INFO)
+        app = self.build_application()
+        logger.info("Telegram bot starting in polling mode")
+        app.run_polling(allowed_updates=Update.ALL_TYPES, drop_pending_updates=True)
+
+
+_telegram_bot: TelegramBot | None = None
+
+
+def get_telegram_bot() -> TelegramBot:
+    global _telegram_bot
+    if _telegram_bot is None:
+        _telegram_bot = TelegramBot()
+    return _telegram_bot
+
+
+def run_telegram_bot() -> None:
+    get_telegram_bot().run_polling()
+
+
+if __name__ == "__main__":
+    run_telegram_bot()

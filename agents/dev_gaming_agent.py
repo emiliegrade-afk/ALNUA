@@ -1,0 +1,222 @@
+"""
+agents/dev_gaming_agent.py
+
+Agent CrewAI — Dev Gaming (Pôle Gaming)
+
+Projets : Wyrdheim Online, Naïa World
+Responsabilités :
+- Blueprint et C++ UE5 pour Wyrdheim et Naïa World
+- Connexion UE5 ↔ naia-embodied (WebSocket)
+- HoloPlay SDK pour Looking Glass
+- Outils modding pour la communauté Wyrdheim
+- PRs automatiques sur repos UE5
+
+Tools (max 5) : nwiro_execute, nwiro_prompt, ue5_blueprint_spec, search_ue5_docs, gaming_coding_agent
+Règle : TOUJOURS préciser Blueprint vs C++ dans les réponses et specs.
+"""
+
+from __future__ import annotations
+
+import json
+import logging
+import os
+from collections.abc import Callable
+
+from crewai import Agent, Crew, LLM, Task
+from crewai.tools import tool
+
+from skills.skill_coding_agent import execute_coding_task
+from skills.skill_nwiro import nwiro_call
+
+logger = logging.getLogger(__name__)
+
+
+def _build_llm() -> LLM:
+    from config.settings import get_settings
+
+    settings = get_settings()
+    model = os.getenv("AGENT_MODEL", "openrouter/minimax/minimax-m1")
+    if not model.startswith("openrouter/"):
+        model = f"openrouter/{model}"
+    return LLM(
+        model=model,
+        base_url=settings.openrouter_base_url,
+        api_key=settings.openrouter_api_key,
+        temperature=0.3,
+    )
+
+
+@tool("nwiro_execute")
+def nwiro_execute_tool(request_json: str) -> str:
+    """
+    Exécute une commande directement dans UE5 via le serveur MCP Nwiro (localhost:5353).
+    Input JSON : {"tool": "blueprint_create_actor", "params": {...}}
+    """
+    try:
+        data = json.loads(request_json)
+        result = nwiro_call(data["tool"], data.get("params", {}))
+        return f"✅ Nwiro [{data['tool']}] : {result}"
+    except ConnectionError:
+        return (
+            "❌ Nwiro non accessible. Vérifie que UE5 est ouvert avec le plugin Nwiro actif (port 5353)."
+        )
+    except Exception as e:
+        return f"❌ Erreur Nwiro : {e}"
+
+
+@tool("nwiro_prompt")
+def nwiro_prompt_tool(prompt: str) -> str:
+    """
+    Envoie un prompt en langage naturel à l'AI Agent intégré dans Nwiro.
+    Nwiro interprète le prompt et exécute les outils UE5 nécessaires automatiquement.
+    """
+    try:
+        result = nwiro_call("ai_agent_prompt", {"prompt": prompt})
+        return f"✅ Nwiro AI : {result}"
+    except ConnectionError:
+        return "❌ Nwiro non accessible. UE5 doit être ouvert avec le plugin Nwiro."
+    except Exception as e:
+        return f"❌ Erreur : {e}"
+
+
+@tool("ue5_blueprint_spec")
+def ue5_spec_tool(request: str) -> str:
+    """
+    Génère une spec technique UE5 (Blueprint ou C++) depuis une demande en langage naturel.
+    """
+    return f"""Spec UE5 pour : {request}
+
+**TYPE :** Blueprint / C++ (à préciser selon complexité)
+
+**Règle de choix :**
+- Blueprint : logique gameplay, UI, animations, prototypage
+- C++ : systèmes core, performance critique, plugins, réutilisabilité
+
+**Nodes/Classes principaux :**
+[Liste des Nodes Blueprint ou Classes C++ à utiliser]
+
+**Input :** [Ce que reçoit le système]
+**Output :** [Ce que produit le système]
+
+**Événements :** BeginPlay / Tick / Custom Events
+
+**Connexion naia-embodied (si applicable) :**
+- WebSocket URL : wss://[supabase-url]/realtime/v1/...
+- Format message : JSON {{ "action": "...", "data": {{...}} }}
+
+**Tests à faire :**
+[Comment valider que ça marche en PIE (Play In Editor)]
+
+Note : Pour la connexion UE5 ↔ naia-embodied, utiliser le plugin WebSocket natif UE5.
+Référence : https://docs.unrealengine.com/5.0/en-US/API/Runtime/WebSockets/"""
+
+
+@tool("search_ue5_docs")
+def ue5_docs_tool(query: str) -> str:
+    """
+    Recherche dans la documentation UE5 et retourne les références pertinentes.
+    """
+    ue5_refs = {
+        "websocket": "https://docs.unrealengine.com/5.0/en-US/API/Runtime/WebSockets/",
+        "http": "https://docs.unrealengine.com/5.0/en-US/API/Runtime/HTTP/",
+        "blueprint": "https://docs.unrealengine.com/5.0/en-US/blueprints-visual-scripting-in-unreal-engine/",
+        "multiplayer": "https://docs.unrealengine.com/5.0/en-US/networking-and-multiplayer-in-unreal-engine/",
+        "holographic": "https://docs.lookingglassfactory.com/developer-tools/holoplay-sdk-unreal",
+        "gameinstance": "https://docs.unrealengine.com/5.0/en-US/API/Runtime/Engine/Engine/UGameInstance/",
+        "dataasset": "https://docs.unrealengine.com/5.0/en-US/API/Runtime/Engine/Engine/UPrimaryDataAsset/",
+    }
+
+    query_lower = query.lower()
+    for key, url in ue5_refs.items():
+        if key in query_lower:
+            return (
+                f"Documentation UE5 — {key.title()} :\n{url}\n\n"
+                "Pour des exemples Blueprint spécifiques, consulte : "
+                "https://www.unrealengine.com/marketplace/en-US/free"
+            )
+
+    return (
+        f"Pour '{query}' dans UE5 :\n"
+        f"https://docs.unrealengine.com/5.0/en-US/search/#q={query.replace(' ', '+')}"
+    )
+
+
+@tool("gaming_coding_agent")
+def gaming_code_tool(spec_json: str) -> str:
+    """
+    Lance le pipeline de codage pour un repo UE5/gaming.
+    Input JSON : même format que skill_coding_agent.
+    """
+    try:
+        spec = json.loads(spec_json)
+        spec["description"] = (
+            f"[UE5/Gaming] {spec['description']}\n\n"
+            "IMPORTANT : Précise toujours Blueprint vs C++. "
+            "Respecte les conventions UE5 (préfixes U/A/F/E)."
+        )
+        result = execute_coding_task(spec)
+        if result["success"]:
+            return f"✅ PR Gaming créée : {result['pr_url']}"
+        return f"❌ Échec : {result['error']}"
+    except Exception as e:
+        return f"❌ Erreur : {e}"
+
+
+class DevGamingAgent:
+    def __init__(self, telegram_notify_fn: Callable[[str], None] | None = None):
+        self.telegram_notify = telegram_notify_fn
+
+        self.agent = Agent(
+            role="Dev Gaming — UE5 Specialist & Tuteur",
+            goal=(
+                "Implémenter les features UE5 de Wyrdheim et Naïa World via Nwiro. "
+                "Guider Emilie dans son apprentissage UE5 en langage naturel. "
+                "Toujours préciser Blueprint vs C++. Pouvoir exécuter directement dans UE5 via Nwiro."
+            ),
+            backstory=(
+                "Tu es le Lead Programmer UE5 d'ALNUA ET le tuteur personnel d'Emilie pour UE5. "
+                "Tu maîtrises Blueprint ET C++ UE5.7+. "
+                "Tu peux EXÉCUTER du code directement dans UE5 via le plugin Nwiro (MCP local port 5353). "
+                "Quand Emilie veut apprendre : tu expliques étape par étape, node par node, "
+                "avec des exemples concrets adaptés à Wyrdheim/Naïa World. "
+                "Quand elle veut que tu fasses : tu utilises nwiro_execute ou nwiro_prompt pour agir directement dans UE5. "
+                "Tu distingues toujours clairement : Blueprint (logique gameplay, UI, animations, prototypage rapide) "
+                "vs C++ (performance critique, systèmes core, plugins, réutilisabilité). "
+                "Tu connais le HoloPlay SDK for Unreal (Looking Glass Portrait). "
+                "Tu respectes les conventions UE5 : préfixes U/A/F/E, UPROPERTY/UFUNCTION documentés, "
+                "pas de heavy logic dans Tick() sans raison. "
+                "Tu connais le lore de Wyrdheim et Naïa World — tes implémentations sont cohérentes avec l'univers."
+            ),
+            tools=[
+                nwiro_execute_tool,
+                nwiro_prompt_tool,
+                ue5_spec_tool,
+                ue5_docs_tool,
+                gaming_code_tool,
+            ],
+            llm=_build_llm(),
+            max_iter=10,
+            verbose=True,
+        )
+
+    def handle_instruction(self, instruction: str) -> str:
+        task = Task(
+            description=(
+                f"{instruction}\n\n"
+                "CONSIGNES :\n"
+                "- Si c'est une demande d'explication/apprentissage : explique clairement, "
+                "étape par étape, avec des exemples concrets liés à Wyrdheim/Naïa World. "
+                "N'exécute pas dans UE5 sauf si demandé explicitement.\n"
+                "- Si c'est une demande d'implémentation directe : utilise nwiro_prompt "
+                "pour envoyer un prompt précis à Nwiro, ou nwiro_execute pour des outils spécifiques.\n"
+                "- Toujours préciser Blueprint ou C++ et pourquoi.\n"
+                "- Toujours vérifier que Nwiro est accessible avant d'exécuter."
+            ),
+            agent=self.agent,
+            expected_output=(
+                "Explication pédagogique, spec UE5 détaillée, "
+                "ou confirmation d'exécution dans UE5 avec résultat Nwiro."
+            ),
+        )
+        crew = Crew(agents=[self.agent], tasks=[task])
+        return str(crew.kickoff())

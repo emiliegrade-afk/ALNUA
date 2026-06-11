@@ -1,0 +1,29 @@
+"""Shared utilities for ALNUA Hub bots."""
+
+from __future__ import annotations
+
+from typing import Any
+
+from database.supabase_client import SupabaseClient, get_supabase
+
+
+def log_bot_action(
+    db: SupabaseClient,
+    bot_name: str,
+    action: str,
+    input_summary: str,
+    output_summary: str,
+    status: str = "success",
+    project_id: str | None = None,
+) -> dict[str, Any]:
+    return db.insert(
+        "agent_logs",
+        {
+            "agent_name": bot_name,
+            "action": action,
+            "project_id": project_id,
+            "input_summary": input_summary[:2000],
+            "output_summary": output_summary[:2000],
+            "status": status,
+        },
+    )
