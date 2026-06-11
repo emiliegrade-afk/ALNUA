@@ -10,6 +10,7 @@ from crewai import Agent, Crew, LLM, Process, Task
 from agents.base import LLMClient, log_agent_action, parse_json_response
 from agents.tools.hub_tools import PM_TOOLS
 from database.supabase_client import SupabaseClient, get_supabase
+from skills.skill_composio import get_composio_tools
 
 logger = logging.getLogger(__name__)
 
@@ -65,11 +66,14 @@ Réponds UNIQUEMENT en JSON valide avec cette structure :
     def _ensure_crew_agent(self) -> Agent:
         if self._crew_agent is None:
             self._crew_llm = self._build_crew_llm()
+            composio_tools = get_composio_tools(
+                agent_name="pm_agent", user_id="alnua_pm"
+            )
             self._crew_agent = Agent(
                 role="PM ALNUA",
                 goal="Gérer roadmap et tickets via l'API Hub ALNUA",
                 backstory=PM_SYSTEM_PROMPT,
-                tools=PM_TOOLS,
+                tools=[*PM_TOOLS, *composio_tools],
                 llm=self._crew_llm,
                 verbose=self.verbose,
                 allow_delegation=False,

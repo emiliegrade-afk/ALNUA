@@ -210,6 +210,8 @@ app.add_middleware(
         "http://127.0.0.1:3000",
         "http://localhost:3001",
         "http://127.0.0.1:3001",
+        "http://localhost:3002",
+        "http://127.0.0.1:3002",
         "http://localhost:5173",
         "http://127.0.0.1:5173",
     ],
@@ -3201,6 +3203,26 @@ def finance_dashboard(
         db, data["recurring_expenses"]
     )
     return data
+
+
+# ---------------------------------------------------------------------------
+# Composio OAuth Gateway
+# ---------------------------------------------------------------------------
+@app.get("/composio/apps")
+async def list_composio_apps(user_id: str = "alnua_coo"):
+    """Liste les apps connectées via Composio OAuth."""
+    from skills.skill_composio import list_connected_apps
+
+    return list_connected_apps(user_id=user_id)
+
+
+@app.post("/composio/connect/{app_name}")
+async def connect_composio_app(app_name: str, user_id: str = "alnua_coo"):
+    """Génère un lien OAuth pour connecter une app. Renvoie le lien à ouvrir."""
+    from skills.skill_composio import get_oauth_link
+
+    link = get_oauth_link(app=app_name.upper(), user_id=user_id)
+    return {"app": app_name, "oauth_url": link}
 
 
 # ---------------------------------------------------------------------------

@@ -25,6 +25,7 @@ from crewai import Agent, Crew, LLM, Task
 from crewai.tools import tool
 
 from skills.skill_browser_use import browse_url, search_web
+from skills.skill_composio import get_composio_tools
 from skills.skill_discord_wyrdheim import get_recent_messages, post_to_discord
 from skills.skill_seo_audit import run_seo_audit
 
@@ -145,6 +146,9 @@ Adapte le ton : {tone} = {tone_desc}"""
 
 class MarketingAgent:
     def __init__(self, telegram_notify_fn: Callable[[str], None] | None = None):
+        composio_tools = get_composio_tools(
+            agent_name="marketing_agent", user_id="alnua_marketing"
+        )
         self.agent = Agent(
             role="Marketing & Community Manager",
             goal=(
@@ -166,6 +170,7 @@ class MarketingAgent:
                 browse_tool,
                 discord_community_tool,
                 content_creator_tool,
+                *composio_tools,
             ],
             llm=_build_llm(),
             max_iter=8,

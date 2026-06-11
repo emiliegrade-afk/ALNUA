@@ -13,6 +13,7 @@ from crewai.tools import tool
 
 from agents.tools.hub_tools import HUB_TOOLS
 from database.supabase_client import SupabaseClient, get_supabase
+from skills.skill_composio import composio_execute, get_oauth_link
 
 logger = logging.getLogger(__name__)
 
@@ -69,6 +70,39 @@ IRREVERSIBLE_KEYWORDS = (
     "publie", "publish", "supprime", "supprimer", "delete", "efface",
     "remove", "envoie le post", "valide la publication",
 )
+
+
+@tool("connect_app_oauth")
+def connect_app_oauth(app_name: str) -> str:
+    """
+    Génère un lien OAuth pour connecter une app externe (Gmail, Notion, Stripe...).
+    Envoie le lien à Emilie via Telegram pour qu'elle autorise l'accès.
+    app_name: ex. GMAIL, GOOGLECALENDAR, NOTION, STRIPE, SLACK, DISCORD
+    """
+    link = get_oauth_link(app=app_name, user_id="alnua_coo")
+    return f"Lien OAuth pour {app_name}: {link}\nOuvre ce lien pour autoriser l'accès."
+
+
+@tool("send_email_via_gmail")
+def send_email_via_gmail(to: str, subject: str, body: str) -> str:
+    """Envoie un email via Gmail. Args: to (destinataire), subject, body."""
+    result = composio_execute(
+        action="GMAIL_SEND_EMAIL",
+        params={"recipient_email": to, "subject": subject, "body": body},
+        user_id="alnua_coo",
+    )
+    return "Email envoyé ✅" if result["success"] else f"Erreur: {result['error']}"
+
+
+@tool("create_calendar_event")
+def create_calendar_event(title: str, date: str, description: str = "") -> str:
+    """Crée un événement Google Calendar. date format: '2026-06-15T14:00:00'"""
+    result = composio_execute(
+        action="GOOGLECALENDAR_CREATE_EVENT",
+        params={"summary": title, "start_datetime": date, "description": description},
+        user_id="alnua_coo",
+    )
+    return "Événement créé ✅" if result["success"] else f"Erreur: {result['error']}"
 
 # Instructions clairement liées à un projet
 PROJECT_SCOPED_KEYWORDS = (
@@ -297,6 +331,9 @@ class COOAgent:
             delegate_content_agent,
             delegate_brainstorm_agent,
             delegate_spec_agent,
+            connect_app_oauth,
+            send_email_via_gmail,
+            create_calendar_event,
         ]
 
     # ------------------------------------------------------------------

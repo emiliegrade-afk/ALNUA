@@ -226,6 +226,40 @@ _AGENTS_STATUS_TEXT = """🏢 *ALNUA — État des agents*
 ⚪ **Admin** — Désactivé (on demand)"""
 
 
+async def cmd_connect(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """/connect <APP> — génère le lien OAuth Composio pour connecter une app."""
+    if not update.message:
+        return
+    if not context.args:
+        await update.message.reply_text("Usage: /connect <APP>\nEx: /connect gmail")
+        return
+    app = context.args[0].upper()
+    from skills.skill_composio import get_oauth_link
+
+    link = get_oauth_link(app=app, user_id="alnua_coo")
+    await update.message.reply_text(
+        f"🔗 Connecte {app} :\n{link}\n\nOuvre ce lien dans ton navigateur."
+    )
+
+
+async def cmd_apps(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """/apps — liste les apps Composio connectées pour le COO."""
+    if not update.message:
+        return
+    from skills.skill_composio import list_connected_apps
+
+    apps = list_connected_apps(user_id="alnua_coo")
+    if not apps:
+        await update.message.reply_text(
+            "Aucune app connectée. Utilise /connect <APP>"
+        )
+        return
+    text = "📱 Apps connectées :\n" + "\n".join(
+        f"• {a['app']} — {a['status']}" for a in apps
+    )
+    await update.message.reply_text(text)
+
+
 async def agents_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """/agents — état de tous les agents ALNUA."""
     keyboard = [
@@ -554,6 +588,8 @@ class TelegramBot:
             app.add_handler(CommandHandler("prs", prs_command))
             app.add_handler(CommandHandler("costs", costs_command))
             app.add_handler(CommandHandler("agents", agents_command))
+            app.add_handler(CommandHandler("connect", cmd_connect))
+            app.add_handler(CommandHandler("apps", cmd_apps))
             app.add_handler(CallbackQueryHandler(button_callback))
             app.add_handler(
                 MessageHandler(filters.TEXT & ~filters.COMMAND, self._handle_text)

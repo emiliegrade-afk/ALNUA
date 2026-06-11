@@ -29,3 +29,5 @@ gitpython>=3.1.40
 playwright>=1.44.0
 pytest>=8.0.0
 pytest-asyncio>=0.23.0
+composio>=0.7.0
+composio_crewai>=0.7.0
