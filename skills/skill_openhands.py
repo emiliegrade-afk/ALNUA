@@ -1,58 +1,73 @@
 """
-OpenHands — agent de codage autonome pour tâches complexes.
-Utiliser pour des features complètes ; Aider pour les fixes rapides.
+Skill OpenHands — envoie une tâche de codage à OpenHands et streame le résultat.
+OpenHands tourne sur localhost:3001 (docker).
 """
+import json
 import os
-import subprocess
+import urllib.request
+
+OPENHANDS_URL = os.getenv("OPENHANDS_URL", "http://localhost:3001")
 
 
 def run_openhands_task(
-    message: str,
+    task: str,
     repo_path: str,
-    timeout: int = 1800,
+    model: str | None = None,
+    api_key: str | None = None,
 ) -> dict:
     """
-    Lance OpenHands en mode headless sur une tâche de codage.
+    Envoie une tâche à OpenHands et retourne le résultat.
 
     Args:
-        message: La tâche à effectuer
-        repo_path: Chemin local du repo
-        timeout: Durée max en secondes (défaut 30 min)
+        task: Description de la tâche en langage naturel
+        repo_path: Chemin local du repo (ex: C:/Dev/naia)
+        model: Modèle LLM à utiliser (défaut: depuis .env)
+        api_key: Clé API LLM (défaut: depuis .env)
 
     Returns:
-        {"success": bool, "output": str}
+        {"success": bool, "result": str, "conversation_id": str | None}
     """
-    cmd = [
-        "openhands",
-        "--headless",
-        "-t",
-        message,
-    ]
+    model = model or os.getenv("OPENROUTER_MODEL", "anthropic/claude-sonnet-4-5")
+    api_key = api_key or os.getenv("OPENROUTER_API_KEY") or os.getenv("ANTHROPIC_API_KEY")
 
-    env = os.environ.copy()
-    api_key = os.getenv("ANTHROPIC_API_KEY") or os.getenv("OPENROUTER_API_KEY")
-    if api_key and not env.get("ANTHROPIC_API_KEY"):
-        env["ANTHROPIC_API_KEY"] = api_key
+    payload = {
+        "initial_user_msg": task,
+        "runtime_container_image": os.getenv(
+            "SANDBOX_RUNTIME_CONTAINER_IMAGE",
+            "ghcr.io/all-hands-ai/runtime:0.39-nikolaik",
+        ),
+        "llm_model": model,
+        "llm_api_key": api_key,
+        "llm_base_url": os.getenv("OPENROUTER_BASE_URL", ""),
+        "selected_repository": repo_path,
+    }
 
     try:
-        result = subprocess.run(
-            cmd,
-            cwd=repo_path,
-            capture_output=True,
-            text=True,
-            timeout=timeout,
-            env=env,
+        data = json.dumps(payload).encode()
+        req = urllib.request.Request(
+            f"{OPENHANDS_URL}/api/conversations",
+            data=data,
+            headers={"Content-Type": "application/json"},
+            method="POST",
         )
-        success = result.returncode == 0
-        combined = (result.stdout or "") + (result.stderr or "")
+        with urllib.request.urlopen(req, timeout=300) as r:
+            result = json.loads(r.read())
         return {
-            "success": success,
-            "output": combined[-2000:] if success else combined[-1000:],
-        }
-    except subprocess.TimeoutExpired:
-        return {
-            "success": False,
-            "output": f"Timeout — tâche non terminée après {timeout}s",
+            "success": True,
+            "conversation_id": result.get("conversation_id"),
+            "result": result.get("final_response", "Tâche terminée"),
         }
     except Exception as e:
-        return {"success": False, "output": str(e)}
+        return {"success": False, "result": str(e), "conversation_id": None}
+
+
+def get_openhands_status(conversation_id: str) -> dict:
+    """Vérifie le statut d'une tâche OpenHands en cours."""
+    try:
+        req = urllib.request.Request(
+            f"{OPENHANDS_URL}/api/conversations/{conversation_id}",
+        )
+        with urllib.request.urlopen(req) as r:
+            return json.loads(r.read())
+    except Exception as e:
+        return {"status": "unknown", "error": str(e)}

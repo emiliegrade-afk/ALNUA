@@ -605,27 +605,14 @@ def health() -> dict[str, str]:
 _pipeline_tasks: dict[str, dict[str, Any]] = {}
 
 
-def is_simple_task(issue_title: str) -> bool:
-    """Tâches simples → Aider. Complexes → OpenHands."""
-    simple_keywords = [
-        "fix",
-        "bug",
-        "typo",
-        "rename",
-        "update",
-        "change",
-        "corriger",
-        "modifier",
-    ]
-    return any(kw in issue_title.lower() for kw in simple_keywords)
-
-
 async def run_pipeline_background(
     task_id: str,
     issue_number: int,
     repo: str | None,
 ) -> None:
     """Runs the coding pipeline independently of the HTTP connection."""
+    from skills.skill_openhands import run_openhands_task
+
     task = _pipeline_tasks[task_id]
     pipeline_input = f"issue #{issue_number} on {repo or 'default'}"
 
@@ -636,7 +623,6 @@ async def run_pipeline_background(
         try:
             task["status"] = "running"
             task["progress"] = 10
-            _log(f"Fetching issue #{issue_number}…")
 
             issue = await asyncio.to_thread(get_issue, issue_number, repo_slug=repo)
             task["progress"] = 25
@@ -648,45 +634,41 @@ async def run_pipeline_background(
                 raise ValueError(
                     f"Issue #{issue_number} sans métadonnée repo — préciser ?repo=hub|naia|nomad"
                 )
-            task_description = f"{issue_title}\n\n{issue.get('body', '') or ''}"
 
+            github_repo = issue.get("_github_repo", "")
+            task_description = f"""Issue GitHub #{issue_number}: {issue_title}
+
+{issue.get('body', '') or ''}
+
+Repo: {github_repo}
+Branche: main
+"""
             task["progress"] = 40
-            if is_simple_task(issue_title):
-                from skills.skill_aider import run_aider_task
+            _log("Envoi à OpenHands...")
 
-                _log("Simple task — routing to Aider")
-                result = await asyncio.to_thread(
-                    run_aider_task, task_description, repo_path
-                )
-            else:
-                from skills.skill_openhands import run_openhands_task
+            result = await asyncio.to_thread(
+                run_openhands_task,
+                task=task_description,
+                repo_path=repo_path,
+            )
 
-                _log("Complex task — routing to OpenHands")
-                result = await asyncio.to_thread(
-                    run_openhands_task, task_description, repo_path
-                )
-
-            if result.get("success"):
+            if result["success"]:
                 task["status"] = "completed"
                 task["progress"] = 100
-                pr_url = result.get("pr_url", "n/a")
-                agent_output = result.get("output", "")
-                _log(f"Pipeline completed — PR: {pr_url}")
-                if agent_output:
-                    _log(agent_output[-500:])
+                summary = result.get("result", "")
+                _log(f"✅ Terminé: {summary[:200]}")
                 if trace:
                     trace.update(output="completed")
             else:
                 task["status"] = "failed"
                 task["progress"] = 100
-                error = result.get("error") or result.get("output", "unknown error")
-                _log(f"Pipeline failed — {error}")
+                _log(f"❌ Erreur: {result['result']}")
                 if trace:
-                    trace.update(output=f"failed: {error}", level="ERROR")
+                    trace.update(output=f"failed: {result['result']}", level="ERROR")
         except Exception as exc:
             task["status"] = "failed"
             task["progress"] = 100
-            _log(f"Error: {exc}")
+            _log(f"❌ Exception: {exc}")
             if trace:
                 trace.update(output=f"failed: {exc}", level="ERROR")
             logger.exception("Pipeline task %s failed", task_id)
