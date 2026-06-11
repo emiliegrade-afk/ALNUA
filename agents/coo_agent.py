@@ -16,6 +16,8 @@ from database.supabase_client import SupabaseClient, get_supabase
 from config.github_repos import get_target_by_slug
 from skills.skill_composio import composio_execute, get_composio_tools, get_oauth_link
 from skills.skill_gh_issues import create_github_issue, get_open_issues
+from skills.skill_langfuse import trace_agent
+from skills.skill_mem0 import recall, remember, should_remember
 from skills.skill_supabase import fetch_project_summary
 
 logger = logging.getLogger(__name__)
@@ -830,6 +832,7 @@ class COOAgent:
         response = self.handle_instruction(message, project)
         return {"response": response, "issue_created": False}
 
+    @trace_agent("coo_agent")
     def handle_instruction(self, instruction: str, project: str | None = None) -> str:
         """
         Analyse l'instruction d'Emilie, délègue aux agents concernés,
@@ -882,13 +885,19 @@ class COOAgent:
             except ValueError:
                 context_block = f"\n\nProjet mentionné : {project_name} (non trouvé en base)."
 
+        memory_block = ""
+        memories = recall(instruction)
+        if memories:
+            memory_block = f"\n\nCONTEXTE MÉMORISÉ :\n{memories}"
+
         crew_agent = self._ensure_crew()
 
         task = Task(
             description=(
                 f"Instruction d'Emilie : {instruction}\n"
                 f"Projet indicatif : {project_name or 'non précisé'}"
-                f"{context_block}\n\n"
+                f"{context_block}"
+                f"{memory_block}\n\n"
                 "Étapes :\n"
                 "1. Consulte Supabase si besoin (get_project_context, get_open_tickets, get_daily_briefing)\n"
                 "2. Pour créer ticket/roadmap : utilise Lister les projets puis Créer un ticket / "
@@ -927,6 +936,10 @@ class COOAgent:
                 summary,
                 project_id,
             )
+
+            if should_remember(instruction):
+                remember(f"Emilie a dit : {instruction}", agent_id="coo")
+
             return summary
 
         except Exception as exc:
