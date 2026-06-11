@@ -8,16 +8,31 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { sendCOOInstruction } from "@/lib/api";
 import type { ChatMessage } from "@/lib/types";
+import { useCooStore } from "@/store/coo-store";
 import { cn } from "@/lib/utils";
 
-const SUGGESTIONS = [
+const DEFAULT_SUGGESTIONS = [
   "Priorise mes tickets Naïa",
   "Génère du contenu pour Wyrdheim",
   "Analyse les feedbacks Eve",
   "Qu'est-ce qui est urgent aujourd'hui ?",
 ];
 
-export function COOChat() {
+const CEO_SUGGESTIONS = [
+  "Lance le pipeline sur une issue Naïa",
+  "Génère le brief de la semaine",
+  "Quel est l'état de mes projets ?",
+  "Connecte Gmail",
+];
+
+interface COOChatProps {
+  variant?: "default" | "ceo";
+}
+
+export function COOChat({ variant = "default" }: COOChatProps) {
+  const consumePrefillMessage = useCooStore((s) => s.consumePrefillMessage);
+  const suggestions =
+    variant === "ceo" ? CEO_SUGGESTIONS : DEFAULT_SUGGESTIONS;
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: "welcome",
@@ -34,6 +49,11 @@ export function COOChat() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  useEffect(() => {
+    const prefill = consumePrefillMessage();
+    if (prefill) setInput(prefill);
+  }, [consumePrefillMessage]);
 
   async function handleSend(text?: string) {
     const content = (text ?? input).trim();
@@ -139,7 +159,7 @@ export function COOChat() {
 
         <div className="shrink-0 space-y-2 border-t border-white/[0.06] p-4">
           <div className="flex flex-wrap gap-1.5">
-            {SUGGESTIONS.map((s) => (
+            {suggestions.map((s) => (
               <button
                 key={s}
                 type="button"

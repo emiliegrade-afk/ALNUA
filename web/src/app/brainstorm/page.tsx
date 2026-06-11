@@ -1,5 +1,5 @@
-import { BrainstormView } from "@/components/brainstorm/brainstorm-view";
+import { redirect } from "next/navigation";
 
 export default function BrainstormPage() {
-  return <BrainstormView />;
+  redirect("/rd");
 }

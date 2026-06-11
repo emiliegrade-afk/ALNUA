@@ -1,0 +1,121 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import { ExternalLink } from "lucide-react";
+import { AgentFeed } from "@/components/dashboard/agent-feed";
+import { COOChat } from "@/components/dashboard/coo-chat";
+import { BackToLobby } from "@/components/shared/back-to-lobby";
+import { DepartmentHeader } from "@/components/shared/department-header";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { fetchBriefToday, fetchGithubPrs } from "@/lib/lobby-api";
+import { fetchAgentLogs } from "@/lib/supabase";
+import type { AgentLog } from "@/lib/types";
+
+export default function CeoPage() {
+  const [brief, setBrief] = useState<{
+    summary?: string;
+    urgent?: string[];
+  } | null>(null);
+  const [prs, setPrs] = useState<
+    Array<{ number: number; title: string; html_url?: string; url?: string }>
+  >([]);
+  const [logs, setLogs] = useState<AgentLog[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const [briefData, prData, logData] = await Promise.all([
+      fetchBriefToday(),
+      fetchGithubPrs(),
+      fetchAgentLogs(5),
+    ]);
+    setBrief(briefData);
+    setPrs(prData.slice(0, 5));
+    setLogs(logData);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  return (
+    <>
+      <BackToLobby />
+      <DepartmentHeader
+        dept="ceo"
+        title="Bureau du CEO"
+        subtitle="Mission Control · Brief · Décisions en attente"
+        breadcrumb="Bureau du CEO"
+      />
+
+      <div className="grid gap-6 lg:grid-cols-5">
+        <div className="lg:col-span-3">
+          <COOChat variant="ceo" />
+        </div>
+
+        <div className="space-y-6 lg:col-span-2">
+          <Card className="border-indigo-500/20 bg-[#111827]/80">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base text-white">Brief du jour</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <p className="text-sm text-gray-500">Chargement…</p>
+              ) : brief?.summary ? (
+                <p className="whitespace-pre-line text-sm leading-relaxed text-gray-300">
+                  {brief.summary}
+                </p>
+              ) : (
+                <p className="text-sm text-gray-500">Brief indisponible.</p>
+              )}
+              {brief?.urgent && brief.urgent.length > 0 ? (
+                <ul className="mt-3 space-y-1 border-t border-white/5 pt-3">
+                  {brief.urgent.map((item) => (
+                    <li key={item} className="text-xs text-amber-400">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </CardContent>
+          </Card>
+
+          <AgentFeed logs={logs} loading={loading} />
+
+          <Card className="border-indigo-500/20 bg-[#111827]/80">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base text-white">
+                Décisions en attente
+              </CardTitle>
+              <p className="text-xs text-gray-500">PRs GitHub ouvertes</p>
+            </CardHeader>
+            <CardContent>
+              {prs.length === 0 ? (
+                <p className="text-sm text-gray-500">Aucune PR en attente.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {prs.map((pr) => (
+                    <li key={pr.number}>
+                      <a
+                        href={pr.html_url ?? pr.url ?? "#"}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-start gap-2 text-sm text-gray-300 transition hover:text-white"
+                      >
+                        <ExternalLink className="mt-0.5 h-3.5 w-3.5 shrink-0 text-indigo-400" />
+                        <span>
+                          #{pr.number} — {pr.title}
+                        </span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </>
+  );
+}

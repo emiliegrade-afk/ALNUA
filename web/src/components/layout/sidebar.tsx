@@ -52,7 +52,7 @@ import { cn } from "@/lib/utils";
 
 const NAV = [
 
-  { href: "/", label: "Mission Control", icon: LayoutDashboard },
+  { href: "/", label: "Lobby", icon: LayoutDashboard },
 
   { href: "/briefing", label: "Briefing", icon: Newspaper, badge: true },
 
@@ -72,7 +72,7 @@ const NAV = [
 
   { href: "/finances", label: "Finances", icon: Wallet },
 
-  { href: "/brainstorm", label: "Brainstorm", icon: Lightbulb },
+  { href: "/rd", label: "R&D", icon: Lightbulb },
 
   { href: "/brand", label: "Brand Kit", icon: Palette },
 
