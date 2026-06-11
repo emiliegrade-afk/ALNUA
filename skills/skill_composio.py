@@ -168,6 +168,35 @@ def composio_execute(
         return {"success": False, "data": None, "error": str(e)}
 
 
+_STALE_CONNECTION_STATUSES = frozenset(
+    {"EXPIRED", "FAILED", "REVOKED", "INITIALIZING", "INITIATED"},
+)
+
+
+def _purge_stale_connections(
+    composio_client: Any,
+    *,
+    user_id: str,
+    toolkit: str,
+) -> None:
+    """Drop abandoned OAuth attempts before creating a fresh link."""
+    connections = composio_client.connected_accounts.list(
+        user_ids=[user_id],
+        toolkit_slugs=[toolkit],
+    )
+    for connection in connections.items:
+        if connection.status not in _STALE_CONNECTION_STATUSES:
+            continue
+        try:
+            composio_client.connected_accounts.delete(nanoid=connection.id)
+        except Exception as exc:
+            logger.warning(
+                "Could not delete stale Composio connection %s: %s",
+                connection.id,
+                exc,
+            )
+
+
 def get_oauth_link(
     app: str,
     user_id: str = "alnua_default",
@@ -190,12 +219,28 @@ def get_oauth_link(
 
         api_key = os.getenv("COMPOSIO_API_KEY")
         composio_client = Composio(api_key=api_key)
-        session = composio_client.create(user_id=user_id)
-        link = session.initiate_connection(
-            app_name=app,
-            redirect_url=redirect_url,
+        toolkit = app.lower()
+        connections = composio_client.connected_accounts.list(
+            user_ids=[user_id],
+            toolkit_slugs=[toolkit],
+            statuses=["ACTIVE"],
         )
-        return link.redirectUrl
+        if connections.items:
+            active = connections.items[0]
+            return f"{app} est déjà connecté ✅ (depuis {active.created_at})"
+
+        _purge_stale_connections(
+            composio_client, user_id=user_id, toolkit=toolkit,
+        )
+        auth_config_id = composio_client.toolkits._get_auth_config_id(
+            toolkit=toolkit,
+        )
+        request = composio_client.connected_accounts.link(
+            user_id=user_id,
+            auth_config_id=auth_config_id,
+            callback_url=redirect_url,
+        )
+        return request.redirect_url or ""
     except Exception as e:
         logger.error(f"Erreur get_oauth_link({app}): {e}")
         return f"Erreur: {e}"
@@ -213,14 +258,17 @@ def list_connected_apps(user_id: str = "alnua_default") -> list[dict]:
 
         api_key = os.getenv("COMPOSIO_API_KEY")
         composio_client = Composio(api_key=api_key)
-        connections = composio_client.connected_accounts.get(user_id=user_id)
+        connections = composio_client.connected_accounts.list(
+            user_ids=[user_id],
+            statuses=["ACTIVE"],
+        )
         return [
             {
-                "app": c.appName,
+                "app": (c.toolkit.slug if c.toolkit else "unknown").upper(),
                 "status": c.status,
-                "connected_at": str(c.createdAt),
+                "connected_at": str(c.created_at),
             }
-            for c in connections
+            for c in connections.items
         ]
     except Exception as e:
         logger.error(f"Erreur list_connected_apps: {e}")
