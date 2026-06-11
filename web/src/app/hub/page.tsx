@@ -138,12 +138,12 @@ export default function HubPage() {
       </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="border-violet-500/20 bg-[#111827]/80">
+        <Card className="border-copper/20 bg-obsidian-2/90">
           <CardHeader>
-            <CardTitle className="text-base text-white">
+            <CardTitle className="font-title text-base text-ivory">
               Pipeline Codage
             </CardTitle>
-            <p className="text-xs text-gray-500">Issues agent-ready</p>
+            <p className="label-caps">Issues agent-ready</p>
           </CardHeader>
           <CardContent className="space-y-4">
             {issues.length === 0 ? (
@@ -153,9 +153,9 @@ export default function HubPage() {
                 {issues.map((issue) => (
                   <li
                     key={issue.number}
-                    className="flex items-center justify-between gap-2 rounded-lg border border-white/5 px-3 py-2"
+                    className="flex items-center justify-between gap-2 rounded-lg border border-copper/10 px-3 py-2"
                   >
-                    <span className="text-sm text-gray-300">
+                    <span className="font-body text-sm text-ivory/80">
                       #{issue.number} — {issue.title}
                     </span>
                     <Button
@@ -163,7 +163,7 @@ export default function HubPage() {
                       variant="outline"
                       disabled={runningIssue === issue.number}
                       onClick={() => handleRun(issue.number)}
-                      className="shrink-0 border-violet-500/30"
+                      className="shrink-0 border-copper/30 hover:border-copper/50"
                     >
                       {runningIssue === issue.number ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -208,14 +208,14 @@ export default function HubPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-violet-500/20 bg-[#111827]/80">
+        <Card className="border-copper/20 bg-obsidian-2/90">
           <CardHeader>
-            <CardTitle className="text-base text-white">
+            <CardTitle className="font-title text-base text-ivory">
               Coûts LLM — 7 jours
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="mb-4 text-2xl font-semibold text-white">
+            <p className="mb-4 font-title text-2xl font-semibold text-ivory">
               ${(costs?.total_usd ?? 0).toFixed(4)}
             </p>
             {costs?.by_day && costs.by_day.length > 0 ? (

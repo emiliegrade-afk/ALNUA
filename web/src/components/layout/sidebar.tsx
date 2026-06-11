@@ -114,7 +114,7 @@ function BriefingNavBadge({ badge }: { badge: BriefingBadge | null }) {
 
           ? "bg-red-500/25 text-red-300"
 
-          : "bg-amber-500/25 text-amber-300"
+          : "bg-copper/25 text-copper-light"
 
       )}
 
@@ -218,7 +218,7 @@ export function Sidebar() {
 
                 active
 
-                  ? "border-copper/45 bg-copper/10 text-copper-glow shadow-[0_0_16px_rgba(192,138,114,0.12)]"
+                  ? "border-copper/45 bg-copper/10 text-copper-light shadow-[0_0_16px_rgba(192,138,98,0.12)]"
 
                   : "border-transparent text-titanium hover:border-copper/20 hover:bg-copper/5 hover:text-ivory"
 
@@ -236,7 +236,7 @@ export function Sidebar() {
 
                     ? "text-copper"
 
-                    : "text-titanium/70 group-hover:text-copper-glow"
+                    : "text-titanium/70 group-hover:text-copper-light"
 
                 )}
 
@@ -278,17 +278,17 @@ export function Sidebar() {
 
           <div className="mt-2 flex gap-1.5">
 
-            <span className="h-1.5 w-1.5 rounded-full bg-naia" title="Naïa" />
+            <span className="h-1.5 w-1.5 rounded-full bg-copper-light" title="Naïa" />
 
             <span
 
-              className="h-1.5 w-1.5 rounded-full bg-wyrdheim"
+              className="h-1.5 w-1.5 rounded-full bg-copper"
 
               title="Wyrdheim"
 
             />
 
-            <span className="h-1.5 w-1.5 rounded-full bg-eve" title="Eve" />
+            <span className="h-1.5 w-1.5 rounded-full bg-copper-dim" title="Eve" />
 
           </div>
 

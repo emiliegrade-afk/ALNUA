@@ -55,24 +55,28 @@ export default function CeoPage() {
         </div>
 
         <div className="space-y-6 lg:col-span-2">
-          <Card className="border-indigo-500/20 bg-[#111827]/80">
+          <Card className="border-copper/20 bg-obsidian-2/90">
             <CardHeader className="pb-2">
-              <CardTitle className="text-base text-white">Brief du jour</CardTitle>
+              <CardTitle className="font-title text-base text-ivory">
+                Brief du jour
+              </CardTitle>
             </CardHeader>
             <CardContent>
               {loading ? (
-                <p className="text-sm text-gray-500">Chargement…</p>
+                <p className="font-body text-sm text-titanium/60">Chargement…</p>
               ) : brief?.summary ? (
-                <p className="whitespace-pre-line text-sm leading-relaxed text-gray-300">
+                <p className="whitespace-pre-line font-body text-sm leading-relaxed text-ivory/90">
                   {brief.summary}
                 </p>
               ) : (
-                <p className="text-sm text-gray-500">Brief indisponible.</p>
+                <p className="font-body text-sm text-titanium/60">
+                  Brief indisponible.
+                </p>
               )}
               {brief?.urgent && brief.urgent.length > 0 ? (
-                <ul className="mt-3 space-y-1 border-t border-white/5 pt-3">
+                <ul className="mt-3 space-y-1 border-t border-copper/10 pt-3">
                   {brief.urgent.map((item) => (
-                    <li key={item} className="text-xs text-amber-400">
+                    <li key={item} className="font-body text-xs text-copper">
                       {item}
                     </li>
                   ))}
@@ -83,16 +87,20 @@ export default function CeoPage() {
 
           <AgentFeed logs={logs} loading={loading} />
 
-          <Card className="border-indigo-500/20 bg-[#111827]/80">
+          <Card className="border-copper/20 bg-obsidian-2/90">
             <CardHeader className="pb-2">
-              <CardTitle className="text-base text-white">
+              <CardTitle className="font-title text-base text-ivory">
                 Décisions en attente
               </CardTitle>
-              <p className="text-xs text-gray-500">PRs GitHub ouvertes</p>
+              <p className="font-body text-xs text-titanium/60">
+                PRs GitHub ouvertes
+              </p>
             </CardHeader>
             <CardContent>
               {prs.length === 0 ? (
-                <p className="text-sm text-gray-500">Aucune PR en attente.</p>
+                <p className="font-body text-sm text-titanium/60">
+                  Aucune PR en attente.
+                </p>
               ) : (
                 <ul className="space-y-2">
                   {prs.map((pr) => (
@@ -101,9 +109,9 @@ export default function CeoPage() {
                         href={pr.html_url ?? pr.url ?? "#"}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-start gap-2 text-sm text-gray-300 transition hover:text-white"
+                        className="flex items-start gap-2 font-body text-sm text-ivory/80 transition hover:text-ivory"
                       >
-                        <ExternalLink className="mt-0.5 h-3.5 w-3.5 shrink-0 text-indigo-400" />
+                        <ExternalLink className="mt-0.5 h-3.5 w-3.5 shrink-0 text-copper" />
                         <span>
                           #{pr.number} — {pr.title}
                         </span>

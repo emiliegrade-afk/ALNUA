@@ -22,27 +22,27 @@ interface AgentFeedProps {
 
 const AGENT_COLORS: Record<string, string> = {
   coo_agent: "text-copper bg-copper/15",
-  pm_agent: "text-violet-400 bg-violet-500/15",
-  qa_agent: "text-red-400 bg-red-500/15",
-  content_agent: "text-emerald-400 bg-emerald-500/15",
-  brainstorm_agent: "text-amber-400 bg-amber-500/15",
-  spec_agent: "text-cyan-400 bg-cyan-500/15",
+  pm_agent: "text-copper bg-copper/15",
+  qa_agent: "text-copper-dim bg-copper/10",
+  content_agent: "text-copper-light bg-copper/15",
+  brainstorm_agent: "text-copper bg-copper/15",
+  spec_agent: "text-copper-light bg-copper/10",
 };
 
 function StatusIcon({ status }: { status: AgentLog["status"] }) {
   switch (status) {
     case "success":
-      return <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />;
+      return <CheckCircle2 className="h-3.5 w-3.5 text-copper-light" />;
     case "error":
       return <AlertCircle className="h-3.5 w-3.5 text-red-400" />;
     case "pending":
-      return <Clock className="h-3.5 w-3.5 text-amber-400" />;
+      return <Clock className="h-3.5 w-3.5 text-copper-dim" />;
   }
 }
 
 export function AgentFeed({ logs, loading }: AgentFeedProps) {
   return (
-    <Card className="border-white/[0.08] bg-surface/80 backdrop-blur-sm">
+    <Card className="border-copper/20 bg-obsidian-2/80 backdrop-blur-sm">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div className="flex items-center gap-2">
           <Activity className="h-4 w-4 text-titanium/80" />

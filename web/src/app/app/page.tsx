@@ -78,9 +78,7 @@ export default function AppPolePage() {
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-sm font-medium uppercase tracking-widest text-gray-500">
-          Projets
-        </h2>
+        <h2 className="label-caps mb-4">Projets</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           {projectStats.length === 0 ? (
             <>
@@ -112,21 +110,19 @@ export default function AppPolePage() {
       </section>
 
       <section>
-        <h2 className="mb-4 text-sm font-medium uppercase tracking-widest text-gray-500">
-          Actions rapides
-        </h2>
+        <h2 className="label-caps mb-4">Actions rapides</h2>
         <div className="flex flex-wrap gap-3">
-          <Button asChild variant="outline" className="border-green-500/30">
+          <Button asChild variant="outline" className="border-copper/30 hover:border-copper/50">
             <Link href="/tickets">Voir les tickets Naïa</Link>
           </Button>
           <Button
             variant="outline"
-            className="border-green-500/30"
+            className="border-copper/30 hover:border-copper/50"
             onClick={launchPipeline}
           >
             Lancer pipeline
           </Button>
-          <Button asChild variant="outline" className="border-green-500/30">
+          <Button asChild variant="outline" className="border-copper/30 hover:border-copper/50">
             <a
               href="https://github.com"
               target="_blank"
@@ -155,16 +151,16 @@ function ProjectCard({
   href: string;
 }) {
   return (
-    <Card className="border-green-500/20 bg-[#111827]/80">
+    <Card className="border-copper/20 bg-obsidian-2/90">
       <CardHeader className="pb-2">
-        <CardTitle className="text-base text-white">{name}</CardTitle>
+        <CardTitle className="font-title text-base text-ivory">{name}</CardTitle>
       </CardHeader>
       <CardContent className="flex items-center justify-between">
         <div className="space-y-1">
-          <span className="rounded-full bg-green-500/10 px-2 py-0.5 text-xs text-green-400">
+          <span className="badge-copper px-2 py-0.5 text-xs">
             {status}
           </span>
-          <p className="text-sm text-gray-400">
+          <p className="font-body text-sm text-titanium">
             {tickets} ticket{tickets !== 1 ? "s" : ""} ouvert{tickets !== 1 ? "s" : ""}
           </p>
         </div>

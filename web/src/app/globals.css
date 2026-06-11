@@ -1,31 +1,41 @@
+@import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+@config "../../tailwind.config.ts";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-heading: var(--font-space-grotesk), "Space Grotesk", ui-sans-serif, sans-serif;
+  --font-sans: var(--font-geist-sans), "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-obsidian: #0e1014;
+  --color-obsidian-2: #16191f;
+  --color-obsidian-3: #1e222a;
+  --color-ivory: #f5f2ea;
+  --color-titanium: #a7adb5;
+  --color-copper: #c08a62;
+  --color-copper-light: #d4a882;
+  --color-copper-dim: #7a5540;
+  --color-surface: #16191f;
+  --color-surface-raised: #1e222a;
+  --color-sidebar: #0b0d11;
 }
 
 @layer base {
-  .theme {
-    --font-heading: var(--font-geist-sans);
-    --font-sans: var(--font-geist-sans);
-  }
-
   :root {
-    /* ALNUA — The Forge */
     --obsidian: #0e1014;
+    --obsidian-2: #16191f;
+    --obsidian-3: #1e222a;
     --ivory: #f5f2ea;
     --titanium: #a7adb5;
-    --copper: #c08a72;
-    --copper-glow: #d4a089;
-    --copper-muted: #6b4f42;
-    --surface: #14171d;
-    --surface-raised: #1a1e26;
+    --copper: #c08a62;
+    --copper-light: #d4a882;
+    --copper-dim: #7a5540;
+    --surface: #16191f;
+    --surface-raised: #1e222a;
 
     --background: var(--obsidian);
     --foreground: var(--ivory);
@@ -35,14 +45,14 @@
     --popover-foreground: var(--ivory);
     --primary: var(--copper);
     --primary-foreground: var(--obsidian);
-    --secondary: #1a1e26;
+    --secondary: var(--obsidian-3);
     --secondary-foreground: var(--ivory);
-    --muted: #1a1e26;
+    --muted: var(--obsidian-3);
     --muted-foreground: var(--titanium);
-    --accent: rgba(192, 138, 114, 0.12);
-    --accent-foreground: var(--copper-glow);
+    --accent: rgba(192, 138, 98, 0.12);
+    --accent-foreground: var(--copper-light);
     --destructive: #ef4444;
-    --border: rgba(245, 242, 234, 0.08);
+    --border: rgba(192, 138, 98, 0.12);
     --input: rgba(245, 242, 234, 0.1);
     --ring: var(--copper);
     --radius: 0.75rem;
@@ -50,9 +60,9 @@
     --sidebar-foreground: var(--ivory);
     --sidebar-primary: var(--copper);
     --sidebar-primary-foreground: var(--obsidian);
-    --sidebar-accent: rgba(192, 138, 114, 0.1);
-    --sidebar-accent-foreground: var(--copper-glow);
-    --sidebar-border: rgba(245, 242, 234, 0.06);
+    --sidebar-accent: rgba(192, 138, 98, 0.1);
+    --sidebar-accent-foreground: var(--copper-light);
+    --sidebar-border: rgba(192, 138, 98, 0.08);
     --sidebar-ring: var(--copper);
   }
 
@@ -63,14 +73,46 @@
   body {
     @apply bg-background text-foreground antialiased;
     background-color: var(--obsidian);
+    font-family: var(--font-geist-sans), "Inter", ui-sans-serif, system-ui, sans-serif;
+    color: var(--ivory);
   }
 
-  html {
-    font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-space-grotesk), "Space Grotesk", sans-serif;
+    color: var(--ivory);
   }
 
   :focus-visible {
     outline-color: var(--copper);
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #0e1014;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #7a5540;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #c08a62;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .label-caps {
+    @apply text-xs uppercase tracking-widest text-titanium/60;
   }
 }
 
@@ -78,36 +120,33 @@
   .forge-grid {
     background-image: linear-gradient(
         to right,
-        rgba(192, 138, 114, 0.035) 1px,
+        rgba(192, 138, 98, 0.035) 1px,
         transparent 1px
       ),
-      linear-gradient(to bottom, rgba(192, 138, 114, 0.035) 1px, transparent 1px);
+      linear-gradient(to bottom, rgba(192, 138, 98, 0.035) 1px, transparent 1px);
     background-size: 48px 48px;
   }
 
   .glow-copper {
-    box-shadow: 0 0 40px -10px rgba(192, 138, 114, 0.35);
+    box-shadow: 0 0 40px -10px rgba(192, 138, 98, 0.35);
   }
 
   .glow-alnua {
-    box-shadow: 0 0 40px -10px rgba(192, 138, 114, 0.35);
+    box-shadow: 0 0 40px -10px rgba(192, 138, 98, 0.35);
   }
 
-  .glow-naia {
-    box-shadow: 0 0 30px -8px rgba(34, 197, 94, 0.25);
+  .alnua-card {
+    @apply relative rounded-xl border border-copper/20 bg-obsidian-2 p-6 transition-all duration-300;
   }
 
-  .glow-wyrdheim {
-    box-shadow: 0 0 30px -8px rgba(245, 158, 11, 0.25);
-  }
-
-  .glow-eve {
-    box-shadow: 0 0 30px -8px rgba(6, 182, 212, 0.25);
+  .alnua-card:hover {
+    @apply border-copper/40 shadow-copper-glow;
+    background-color: var(--obsidian-3);
   }
 
   .forge-card {
-    @apply border border-white/[0.06] backdrop-blur-sm;
-    background-color: rgba(20, 23, 29, 0.85);
+    @apply border border-copper/10 backdrop-blur-sm;
+    background-color: rgba(22, 25, 31, 0.85);
   }
 
   .forge-heading {
@@ -115,24 +154,40 @@
     color: var(--titanium);
   }
 
+  .badge-copper {
+    @apply rounded-full border border-copper/20 bg-copper/10 text-copper;
+  }
+
+  .badge-titanium {
+    @apply rounded-full bg-titanium/10 text-titanium;
+  }
+
+  .btn-primary-alnua {
+    @apply rounded-lg bg-copper px-4 py-2 font-medium text-obsidian transition-colors duration-200 hover:bg-copper-light font-title;
+  }
+
+  .btn-secondary-alnua {
+    @apply rounded-lg border border-copper/40 bg-transparent px-4 py-2 text-copper transition-all duration-200 hover:border-copper hover:text-copper-light;
+  }
+
   .status-dot {
     @apply h-2 w-2 rounded-full;
   }
 
   .status-dot-active {
-    background-color: #7cb88a;
-    box-shadow: 0 0 8px rgba(124, 184, 138, 0.8);
+    background-color: var(--copper-light);
+    box-shadow: 0 0 8px rgba(212, 168, 130, 0.8);
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
   .status-dot-beta {
     background-color: var(--copper);
-    box-shadow: 0 0 8px rgba(192, 138, 114, 0.8);
+    box-shadow: 0 0 8px rgba(192, 138, 98, 0.8);
   }
 
   .status-dot-dev {
-    @apply bg-amber-400;
-    box-shadow: 0 0 8px rgba(251, 191, 36, 0.8);
+    background-color: var(--copper-dim);
+    box-shadow: 0 0 8px rgba(122, 85, 64, 0.8);
   }
 
   .status-dot-paused {

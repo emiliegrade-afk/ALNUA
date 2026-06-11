@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Loader2, Plus, Rocket } from "lucide-react";
+import { Plus, Rocket } from "lucide-react";
 import { toast } from "sonner";
 import { ReleaseDetailPanel } from "@/components/releases/release-detail-panel";
 import { ReleaseGenerateForm } from "@/components/releases/release-generate-form";

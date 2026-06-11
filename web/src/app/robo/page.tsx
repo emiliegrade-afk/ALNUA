@@ -78,22 +78,22 @@ export default function RoboPage() {
       </section>
 
       <div className="mb-8 grid gap-4 sm:grid-cols-2">
-        <Card className="border-blue-500/20 bg-[#111827]/80">
+        <Card className="border-copper/20 bg-obsidian-2/90">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base text-white">Eve Robot</CardTitle>
+            <CardTitle className="font-title text-base text-ivory">Eve Robot</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <span className="rounded-full bg-blue-500/10 px-2 py-0.5 text-xs text-blue-400">
+            <span className="badge-copper px-2 py-0.5 text-xs">
               Prototype
             </span>
             <div className="flex items-center gap-2">
               <span
                 className={cn(
                   "h-2 w-2 rounded-full",
-                  eveStatus.connected ? "bg-emerald-500" : "bg-red-500"
+                  eveStatus.connected ? "bg-copper-light" : "bg-red-500"
                 )}
               />
-              <span className="text-sm text-gray-400">
+              <span className="font-body text-sm text-titanium">
                 Pi {eveStatus.connected ? "online" : "offline"}
               </span>
               {eveStatus.battery != null ? (
@@ -105,12 +105,12 @@ export default function RoboPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-blue-500/20 bg-[#111827]/80">
+        <Card className="border-copper/20 bg-obsidian-2/90">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base text-white">Looking Glass</CardTitle>
+            <CardTitle className="font-title text-base text-ivory">Looking Glass</CardTitle>
           </CardHeader>
           <CardContent>
-            <span className="rounded-full bg-gray-500/10 px-2 py-0.5 text-xs text-gray-400">
+            <span className="badge-titanium px-2 py-0.5 text-xs">
               À démarrer
             </span>
           </CardContent>
@@ -119,17 +119,15 @@ export default function RoboPage() {
 
       <section className="mb-8">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-sm font-medium uppercase tracking-widest text-gray-500">
-            BOM Eve
-          </h2>
-          <Button size="sm" variant="outline" className="border-blue-500/30">
+          <h2 className="label-caps">BOM Eve</h2>
+          <Button size="sm" variant="outline" className="border-copper/30 hover:border-copper/50">
             Ajouter composant
           </Button>
         </div>
-        <div className="overflow-x-auto rounded-xl border border-white/5">
+        <div className="overflow-x-auto rounded-xl border border-copper/10">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-white/5 text-left text-xs text-gray-500">
+              <tr className="border-b border-copper/10 text-left font-body text-xs text-titanium/60">
                 <th className="px-4 py-3">Composant</th>
                 <th className="px-4 py-3">Catégorie</th>
                 <th className="px-4 py-3">Qté</th>
@@ -154,14 +152,14 @@ export default function RoboPage() {
                 bom.map((row) => (
                   <tr
                     key={row.id}
-                    className="border-b border-white/5 text-gray-300"
+                    className="border-b border-copper/10 font-body text-ivory/80"
                   >
                     <td className="px-4 py-3">{row.name}</td>
-                    <td className="px-4 py-3 text-gray-500">{row.category}</td>
+                    <td className="px-4 py-3 text-titanium">{row.category}</td>
                     <td className="px-4 py-3">{row.quantity}</td>
                     <td className="px-4 py-3">${row.unit_cost.toFixed(2)}</td>
                     <td className="px-4 py-3">
-                      <span className="rounded-full bg-blue-500/10 px-2 py-0.5 text-xs text-blue-400">
+                      <span className="badge-copper px-2 py-0.5 text-xs">
                         {row.status}
                       </span>
                     </td>
@@ -173,9 +171,9 @@ export default function RoboPage() {
         </div>
       </section>
 
-      <Card className="border-blue-500/20 bg-[#111827]/80">
+      <Card className="border-copper/20 bg-obsidian-2/90">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base text-white">Pi Status</CardTitle>
+          <CardTitle className="font-title text-base text-ivory">Pi Status</CardTitle>
         </CardHeader>
         <CardContent className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -183,14 +181,14 @@ export default function RoboPage() {
               className={cn(
                 "rounded-full px-2 py-0.5 text-xs font-medium",
                 eveStatus.connected
-                  ? "bg-emerald-500/10 text-emerald-400"
+                  ? "badge-copper"
                   : "bg-red-500/10 text-red-400"
               )}
             >
               {eveStatus.connected ? "Online" : "Offline"}
             </span>
           </div>
-          <p className="text-xs text-gray-500">Dernier ping via API /eve/status</p>
+          <p className="font-body text-xs text-titanium/60">Dernier ping via API /eve/status</p>
         </CardContent>
       </Card>
     </>

@@ -7,7 +7,7 @@ import { Bell } from "lucide-react";
 import Link from "next/link";
 import { AlnuaLogo } from "@/components/brand/alnua-logo";
 import { DepartmentDoor } from "@/components/lobby/department-door";
-import { DEPT_COLORS } from "@/lib/dept-colors";
+import { DEPT_TIERS } from "@/lib/dept-colors";
 import { fetchLobbyStats, type LobbyStats } from "@/lib/lobby-api";
 import { cn } from "@/lib/utils";
 
@@ -42,12 +42,12 @@ export function LobbyView() {
 
   const doors = [
     {
-      icon: "🏢",
+      icon: "👑",
       title: "Bureau du CEO",
       subtitle: "Mission Control · Brief · Décisions en attente",
       description: "1 COO Agent",
-      color: DEPT_COLORS.ceo.main,
       href: "/ceo",
+      tier: DEPT_TIERS.ceo,
       badge:
         stats.ceoNotifications > 0
           ? `${stats.ceoNotifications} notif${stats.ceoNotifications > 1 ? "s" : ""}`
@@ -59,18 +59,18 @@ export function LobbyView() {
       title: "Direction",
       subtitle: "Pipeline codage · PM · QA · Spec",
       description: "4 Agents",
-      color: DEPT_COLORS.hub.main,
       href: "/hub",
+      tier: DEPT_TIERS.hub,
       badge: "4 Agents",
       stats: `4 Agents · ${stats.hubPrCount} PR${stats.hubPrCount !== 1 ? "s" : ""} en attente`,
     },
     {
-      icon: "💚",
+      icon: "📱",
       title: "Pôle App",
       subtitle: "Naïa App · Eve Journey · Dev · Content",
       description: "2 Agents",
-      color: DEPT_COLORS.app.main,
       href: "/app",
+      tier: DEPT_TIERS.app,
       badge: "2 Agents",
       stats: `2 Agents · ${stats.appOpenTickets} ticket${stats.appOpenTickets !== 1 ? "s" : ""} ouvert${stats.appOpenTickets !== 1 ? "s" : ""}`,
     },
@@ -79,8 +79,8 @@ export function LobbyView() {
       title: "Pôle Gaming",
       subtitle: "Wyrdheim Online · Naïa World · UE5 · Lore",
       description: "3 Agents",
-      color: DEPT_COLORS.gaming.main,
       href: "/gaming",
+      tier: DEPT_TIERS.gaming,
       badge: "3 Agents",
       stats: stats.gamingStatus,
     },
@@ -89,8 +89,8 @@ export function LobbyView() {
       title: "Pôle Robotique",
       subtitle: "Eve Robot · Raspberry Pi · Hardware",
       description: "2 Agents",
-      color: DEPT_COLORS.robo.main,
       href: "/robo",
+      tier: DEPT_TIERS.robo,
       badge: "2 Agents",
       stats: stats.roboStatus,
     },
@@ -99,8 +99,8 @@ export function LobbyView() {
       title: "Comptabilité",
       subtitle: "Finances · Coûts LLM · Budget · Transactions",
       description: "Total ce mois",
-      color: DEPT_COLORS.finances.main,
       href: "/finances",
+      tier: DEPT_TIERS.finances,
       badge: stats.financesMonthTotal,
       stats: `Total ce mois : ${stats.financesMonthTotal}`,
     },
@@ -109,8 +109,8 @@ export function LobbyView() {
       title: "Marketing",
       subtitle: "Contenu · SEO · Réseaux · Communauté",
       description: "1 Agent",
-      color: DEPT_COLORS.marketing.main,
       href: "/marketing",
+      tier: DEPT_TIERS.marketing,
       badge: "1 Agent",
       stats: `${stats.marketingPendingPosts} post${stats.marketingPendingPosts !== 1 ? "s" : ""} en attente`,
     },
@@ -119,8 +119,8 @@ export function LobbyView() {
       title: "R&D",
       subtitle: "Brainstorm · Idées · Sessions · Mémoire",
       description: "1 Agent",
-      color: DEPT_COLORS.rd.main,
       href: "/rd",
+      tier: DEPT_TIERS.rd,
       badge: "1 Agent",
       stats:
         stats.rdSessions > 0
@@ -132,8 +132,8 @@ export function LobbyView() {
       title: "Direction Artistique",
       subtitle: "Brand Kit · Assets · Charte graphique",
       description: "Kits disponibles",
-      color: DEPT_COLORS.brand.main,
       href: "/brand",
+      tier: DEPT_TIERS.brand,
       badge:
         stats.brandKits > 0
           ? `${stats.brandKits} kit${stats.brandKits !== 1 ? "s" : ""}`
@@ -148,8 +148,8 @@ export function LobbyView() {
       title: "Reporting",
       subtitle: "Analytics · KPIs · Métriques · Releases",
       description: "Données disponibles",
-      color: DEPT_COLORS.analytics.main,
       href: "/analytics",
+      tier: DEPT_TIERS.analytics,
       stats: "Données disponibles",
     },
     {
@@ -157,8 +157,8 @@ export function LobbyView() {
       title: "IT / Connexions",
       subtitle: "Apps OAuth · Composio · Intégrations",
       description: "Apps connectées",
-      color: DEPT_COLORS.it.main,
       href: "/connections",
+      tier: DEPT_TIERS.it,
       badge: `${stats.connectedApps} app${stats.connectedApps !== 1 ? "s" : ""}`,
       stats: `${stats.connectedApps} app${stats.connectedApps !== 1 ? "s" : ""} connectée${stats.connectedApps !== 1 ? "s" : ""}`,
     },
@@ -166,7 +166,7 @@ export function LobbyView() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-40 border-b border-white/5 bg-obsidian/80 px-6 py-4 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b border-copper/10 bg-obsidian/80 px-6 py-4 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <Link href="/" className="opacity-90 transition hover:opacity-100">
             <AlnuaLogo variant="lockup" height={40} />
@@ -174,19 +174,21 @@ export function LobbyView() {
 
           <div className="flex items-center gap-6">
             <div className="hidden text-right sm:block">
-              <p className="text-sm font-medium text-white">Bonjour Emilie</p>
-              <p className="text-xs text-gray-500">
+              <p className="font-title text-sm font-medium text-ivory">
+                Bonjour Emilie
+              </p>
+              <p className="font-body text-xs text-titanium">
                 {format(now, "EEEE d MMMM yyyy", { locale: fr })}
               </p>
             </div>
             <Link
               href="/ceo"
-              className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-gray-400 transition hover:text-white"
+              className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-copper/20 bg-obsidian-2 text-titanium transition hover:border-copper/40 hover:text-ivory"
               aria-label="Notifications"
             >
               <Bell className="h-4 w-4" />
               {stats.ceoNotifications > 0 ? (
-                <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-indigo-500 px-1 text-[10px] font-bold text-white">
+                <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-copper px-1 text-[10px] font-bold text-obsidian">
                   {stats.ceoNotifications}
                 </span>
               ) : null}
@@ -197,10 +199,13 @@ export function LobbyView() {
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-10">
         <div className="mb-10">
-          <h1 className="text-3xl font-semibold tracking-tight text-white">
-            Siège social ALNUA
+          <h1 className="font-title text-4xl font-light tracking-wide text-ivory">
+            Siège social <span className="text-copper">ALNUA</span>
           </h1>
-          <p className="mt-2 text-gray-400">
+          <p className="mt-2 font-body text-sm tracking-wider text-titanium">
+            IMAGINATION · TECHNOLOGY · CREATION
+          </p>
+          <p className="mt-3 font-body text-sm text-titanium/80">
             Choisis un département pour entrer dans ton espace de travail.
           </p>
         </div>
@@ -210,7 +215,7 @@ export function LobbyView() {
             {Array.from({ length: 11 }).map((_, i) => (
               <div
                 key={i}
-                className="h-40 animate-pulse rounded-xl bg-white/5"
+                className="h-40 animate-pulse rounded-xl bg-obsidian-2"
               />
             ))}
           </div>
@@ -223,13 +228,13 @@ export function LobbyView() {
         )}
       </main>
 
-      <footer className="border-t border-white/5 px-6 py-4">
-        <div className="mx-auto flex max-w-7xl items-center justify-between text-xs text-gray-500">
+      <footer className="border-t border-copper/10 px-6 py-4">
+        <div className="mx-auto flex max-w-7xl items-center justify-between font-body text-xs text-titanium/60">
           <div className="flex items-center gap-2">
             <span
               className={cn(
                 "h-2 w-2 rounded-full",
-                stats.apiOnline ? "bg-emerald-500" : "bg-red-500"
+                stats.apiOnline ? "bg-copper-light" : "bg-red-500"
               )}
             />
             API {stats.apiOnline ? "online" : "offline"}

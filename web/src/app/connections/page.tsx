@@ -60,24 +60,24 @@ export default function ConnectionsPage() {
         subtitle="Apps OAuth · Composio · Intégrations"
       />
 
-      <Card className="mb-8 border-gray-500/20 bg-[#111827]/80">
+      <Card className="mb-8 border-copper-dim/30 bg-obsidian-2/90">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base text-white">
-            <Plug className="h-4 w-4 text-gray-400" />
+          <CardTitle className="flex items-center gap-2 font-title text-base text-ivory">
+            <Plug className="h-4 w-4 text-copper-dim" />
             Apps connectées
           </CardTitle>
-          <p className="text-xs text-gray-500">
+          <p className="label-caps">
             {apps.length} app{apps.length !== 1 ? "s" : ""} via Composio
           </p>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="flex items-center gap-2 text-sm text-gray-500">
+            <div className="flex items-center gap-2 font-body text-sm text-titanium/60">
               <Loader2 className="h-4 w-4 animate-spin" />
               Chargement…
             </div>
           ) : apps.length === 0 ? (
-            <p className="text-sm text-gray-500">
+            <p className="font-body text-sm text-titanium/60">
               Aucune app connectée. Utilise les boutons ci-dessous pour
               connecter Gmail, GitHub, etc.
             </p>
@@ -86,10 +86,10 @@ export default function ConnectionsPage() {
               {apps.map((app) => (
                 <li
                   key={app.app}
-                  className="flex items-center justify-between rounded-lg border border-white/5 px-4 py-3"
+                  className="flex items-center justify-between rounded-lg border border-copper/10 px-4 py-3"
                 >
-                  <span className="text-sm text-white">{app.app}</span>
-                  <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-400">
+                  <span className="font-body text-sm text-ivory">{app.app}</span>
+                  <span className="badge-copper px-2 py-0.5 text-xs">
                     {app.status ?? "connecté"}
                   </span>
                 </li>

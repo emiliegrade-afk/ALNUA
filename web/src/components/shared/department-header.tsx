@@ -20,8 +20,8 @@ export function DepartmentHeader({
 
   return (
     <header className="mb-8 pt-12">
-      <nav className="mb-3 flex items-center gap-2 text-sm text-gray-500">
-        <Link href="/" className="transition hover:text-gray-300">
+      <nav className="mb-3 flex items-center gap-2 font-body text-sm text-titanium/60">
+        <Link href="/" className="transition hover:text-titanium">
           Lobby
         </Link>
         <span>/</span>
@@ -34,9 +34,11 @@ export function DepartmentHeader({
           style={{ backgroundColor: colors.main }}
         />
         <div>
-          <h1 className="text-2xl font-semibold text-white">{title}</h1>
+          <h1 className="font-title text-2xl font-semibold text-ivory">
+            {title}
+          </h1>
           {subtitle ? (
-            <p className="mt-1 text-sm text-gray-400">{subtitle}</p>
+            <p className="mt-1 font-body text-sm text-titanium">{subtitle}</p>
           ) : null}
         </div>
       </div>

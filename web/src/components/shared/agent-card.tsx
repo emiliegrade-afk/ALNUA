@@ -44,7 +44,7 @@ export function AgentCard({
 
   return (
     <Card
-      className="border-white/[0.08] bg-[#111827]/80 backdrop-blur-sm"
+      className="border-copper/20 bg-obsidian-2/90 backdrop-blur-sm transition-all duration-300 hover:border-copper/40 hover:shadow-copper-glow"
       style={{ borderColor: colors.border }}
     >
       <CardHeader className="pb-2">
@@ -61,15 +61,17 @@ export function AgentCard({
               )}
             </div>
             <div>
-              <CardTitle className="text-base text-white">{name}</CardTitle>
-              <p className="text-xs" style={{ color: colors.main }}>
+              <CardTitle className="font-title text-base text-ivory">
+                {name}
+              </CardTitle>
+              <p className="font-body text-xs" style={{ color: colors.main }}>
                 {role}
               </p>
             </div>
           </div>
           {badge ? (
             <span
-              className="shrink-0 rounded-full px-2 py-1 text-[10px] font-medium"
+              className="badge-copper shrink-0 px-2 py-1 text-[10px] font-medium"
               style={{ backgroundColor: colors.bg, color: colors.main }}
             >
               {badge}
@@ -78,13 +80,13 @@ export function AgentCard({
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-sm text-gray-400">{description}</p>
+        <p className="font-body text-sm text-titanium">{description}</p>
         <div className="flex flex-wrap gap-1.5">
           {skills.map((skill) => (
             <span
               key={skill}
               className={cn(
-                "rounded-full px-2 py-0.5 text-[11px] ring-1 ring-white/10 text-gray-400"
+                "rounded-full px-2 py-0.5 font-body text-[11px] text-titanium ring-1 ring-copper/10"
               )}
             >
               {skill}
@@ -95,8 +97,7 @@ export function AgentCard({
           variant="outline"
           size="sm"
           onClick={handleDelegate}
-          className="w-full border-white/10 text-gray-300 hover:bg-white/5"
-          style={{ borderColor: colors.border }}
+          className="w-full border-copper/30 font-body text-titanium hover:border-copper/50 hover:bg-copper/5 hover:text-ivory"
         >
           Déléguer une tâche
         </Button>

@@ -83,27 +83,25 @@ export default function GamingPage() {
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-sm font-medium uppercase tracking-widest text-gray-500">
-          Projets
-        </h2>
+        <h2 className="label-caps mb-4">Projets</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           {displayProjects.map((project) => (
             <Card
               key={project.id}
-              className="border-amber-500/20 bg-[#111827]/80"
+              className="border-copper/20 bg-obsidian-2/90"
             >
               <CardHeader className="pb-2">
-                <CardTitle className="text-base text-white">
+                <CardTitle className="font-title text-base text-ivory">
                   {project.name}
                 </CardTitle>
-                <p className="text-xs text-gray-500">
+                <p className="font-body text-xs text-titanium/60">
                   {"name" in project && project.name === "Wyrdheim Online"
                     ? "MMORPG fantasy nordique"
                     : "Monde 3D ouvert"}
                 </p>
               </CardHeader>
               <CardContent>
-                <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-xs text-amber-400">
+                <span className="badge-copper px-2 py-0.5 text-xs">
                   {project.status === "rd" ? "R&D" : project.status}
                 </span>
               </CardContent>
@@ -113,21 +111,19 @@ export default function GamingPage() {
       </section>
 
       <section>
-        <h2 className="mb-4 text-sm font-medium uppercase tracking-widest text-gray-500">
-          Outils Gaming
-        </h2>
+        <h2 className="label-caps mb-4">Outils Gaming</h2>
         <div className="flex flex-wrap gap-3">
-          <Button asChild variant="outline" className="border-amber-500/30">
+          <Button asChild variant="outline" className="border-copper/30 hover:border-copper/50">
             <Link href="/brainstorm">Lore Database</Link>
           </Button>
           <Button
             variant="outline"
-            className="border-amber-500/30"
+            className="border-copper/30 hover:border-copper/50"
             onClick={generateQuest}
           >
             Générer une quête
           </Button>
-          <Button asChild variant="outline" className="border-amber-500/30">
+          <Button asChild variant="outline" className="border-copper/30 hover:border-copper/50">
             <a
               href="https://discord.gg"
               target="_blank"

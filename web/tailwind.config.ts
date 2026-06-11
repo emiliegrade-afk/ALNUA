@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  darkMode: ["class"],
+  darkMode: "class",
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -15,17 +15,23 @@ const config: Config = {
         ring: "var(--ring)",
         background: "var(--background)",
         foreground: "var(--foreground)",
-        obsidian: "#0E1014",
+        obsidian: {
+          DEFAULT: "#0E1014",
+          2: "#16191F",
+          3: "#1E222A",
+        },
         ivory: "#F5F2EA",
         titanium: "#A7ADB5",
         copper: {
-          DEFAULT: "#C08A72",
-          glow: "#D4A089",
-          muted: "#6B4F42",
+          DEFAULT: "#C08A62",
+          light: "#D4A882",
+          dim: "#7A5540",
+          glow: "#D4A882",
+          muted: "#7A5540",
         },
         surface: {
-          DEFAULT: "#14171D",
-          raised: "#1A1E26",
+          DEFAULT: "#16191F",
+          raised: "#1E222A",
         },
         primary: {
           DEFAULT: "var(--primary)",
@@ -66,25 +72,16 @@ const config: Config = {
           ring: "var(--sidebar-ring)",
         },
         alnua: {
-          DEFAULT: "#C08A72",
-          glow: "#D4A089",
-          muted: "#6B4F42",
+          DEFAULT: "#C08A62",
+          glow: "#D4A882",
+          muted: "#7A5540",
         },
-        naia: {
-          DEFAULT: "#22c55e",
-          glow: "#4ade80",
-          muted: "#14532d",
-        },
-        wyrdheim: {
-          DEFAULT: "#f59e0b",
-          glow: "#fbbf24",
-          muted: "#78350f",
-        },
-        eve: {
-          DEFAULT: "#06b6d4",
-          glow: "#22d3ee",
-          muted: "#164e63",
-        },
+      },
+      fontFamily: {
+        title: ["var(--font-space-grotesk)", "Space Grotesk", "sans-serif"],
+        subtitle: ["Avenir Next", "Nunito", "sans-serif"],
+        body: ["var(--font-geist-sans)", "Inter", "sans-serif"],
+        sans: ["var(--font-geist-sans)", "Inter", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -114,6 +111,10 @@ const config: Config = {
       letterSpacing: {
         forge: "0.35em",
         "forge-sm": "0.2em",
+      },
+      boxShadow: {
+        "copper-glow": "0 0 24px rgba(192, 138, 98, 0.08)",
+        "copper-glow-lg": "0 0 20px rgba(192, 138, 98, 0.15)",
       },
     },
   },
