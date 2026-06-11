@@ -15,6 +15,9 @@ export interface AgentCardProps {
   description: string;
   skills: string[];
   badge?: string;
+  status?: "idle" | "working" | "waiting" | "error";
+  currentTask?: string;
+  onClick?: () => void;
   onDelegate?: () => void;
 }
 
@@ -26,6 +29,9 @@ export function AgentCard({
   description,
   skills,
   badge,
+  status,
+  currentTask,
+  onClick,
   onDelegate,
 }: AgentCardProps) {
   const setPrefillMessage = useCooStore((s) => s.setPrefillMessage);
@@ -42,9 +48,14 @@ export function AgentCard({
   }
 
   return (
+    <div>
     <Card
-      className="border-copper/20 bg-obsidian-2/90 backdrop-blur-sm transition-all duration-300 hover:border-copper/40 hover:shadow-copper-glow"
+      className={cn(
+        "border-copper/20 bg-obsidian-2/90 backdrop-blur-sm transition-all duration-300 hover:border-copper/40 hover:shadow-copper-glow",
+        onClick && "cursor-pointer",
+      )}
       style={{ borderColor: colors.border }}
+      onClick={onClick}
     >
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-2">
@@ -95,12 +106,28 @@ export function AgentCard({
         <Button
           variant="outline"
           size="sm"
-          onClick={handleDelegate}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDelegate();
+          }}
           className="w-full border-copper/30 font-body text-titanium hover:border-copper/50 hover:bg-copper/5 hover:text-ivory"
         >
           Déléguer une tâche
         </Button>
       </CardContent>
     </Card>
+    {status === "working" && (
+      <div className="mt-2 flex items-center gap-2 text-xs text-copper animate-pulse">
+        <span className="h-1.5 w-1.5 rounded-full bg-copper" />
+        {currentTask ?? "En train de coder..."}
+      </div>
+    )}
+    {status === "idle" && (
+      <div className="mt-2 flex items-center gap-2 text-xs text-titanium/40">
+        <span className="h-1.5 w-1.5 rounded-full bg-titanium/20" />
+        Inactif
+      </div>
+    )}
+    </div>
   );
 }

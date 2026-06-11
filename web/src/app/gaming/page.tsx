@@ -5,18 +5,54 @@ import Link from "next/link";
 import { AgentCard } from "@/components/shared/agent-card";
 import { BackToLobby } from "@/components/shared/back-to-lobby";
 import { DepartmentHeader } from "@/components/shared/department-header";
+import { AgentFocusPanel } from "@/components/openroom/agent-focus-panel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchProjects } from "@/lib/api";
 import { checkNwiroHost } from "@/lib/lobby-api";
+import { fetchAgentsStatus, type AgentStatus } from "@/lib/openroom-api";
 import { useCooStore } from "@/store/coo-store";
 import type { Project } from "@/lib/types";
+
+const POLL_MS = 3000;
+
+const GAMING_AGENTS = [
+  {
+    id: "game_dir",
+    icon: "🎬",
+    name: "Game Director",
+    role: "Direction créative",
+    branch: "gaming" as const,
+    description: "Lore, quêtes et vision narrative Wyrdheim.",
+    skills: ["Lore", "Quêtes", "Narration"],
+  },
+  {
+    id: "dev_game",
+    icon: "🕹️",
+    name: "Dev Gaming",
+    role: "Développement UE5",
+    branch: "gaming" as const,
+    description: "Intégration UE5, Nwiro et builds gaming.",
+    skills: ["UE5", "Nwiro", "C++"],
+  },
+  {
+    id: "marketing",
+    icon: "📣",
+    name: "Marketing Gaming",
+    role: "Communauté",
+    branch: "gaming" as const,
+    description: "Discord, trailers et communication Wyrdheim.",
+    skills: ["Discord", "Trailers", "Community"],
+  },
+];
 
 export default function GamingPage() {
   const setPrefillMessage = useCooStore((s) => s.setPrefillMessage);
   const openDrawer = useCooStore((s) => s.openDrawer);
   const [projects, setProjects] = useState<Project[]>([]);
   const [nwiroConnected, setNwiroConnected] = useState(false);
+  const [focusedAgentId, setFocusedAgentId] = useState<string | null>(null);
+  const [agentStatuses, setAgentStatuses] = useState<Record<string, AgentStatus>>({});
 
   useEffect(() => {
     fetchProjects()
@@ -25,38 +61,33 @@ export default function GamingPage() {
     checkNwiroHost().then(setNwiroConnected);
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    async function poll() {
+      const data = await fetchAgentsStatus();
+      if (cancelled) return;
+      setAgentStatuses(data.agents);
+    }
+
+    void poll();
+    const interval = setInterval(() => void poll(), POLL_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, []);
+
   function generateQuest() {
     setPrefillMessage("Génère une quête pour Wyrdheim Online");
     openDrawer();
   }
 
-  const gamingAgents = [
-    {
-      icon: "🎬",
-      name: "Game Director",
-      role: "Direction créative",
-      branch: "gaming" as const,
-      description: "Lore, quêtes et vision narrative Wyrdheim.",
-      skills: ["Lore", "Quêtes", "Narration"],
-    },
-    {
-      icon: "🕹️",
-      name: "Dev Gaming",
-      role: "Développement UE5",
-      branch: "gaming" as const,
-      description: "Intégration UE5, Nwiro et builds gaming.",
-      skills: ["UE5", "Nwiro", "C++"],
-      badge: nwiroConnected ? "🕹️ Nwiro UE5 connecté" : undefined,
-    },
-    {
-      icon: "📣",
-      name: "Marketing Gaming",
-      role: "Communauté",
-      branch: "gaming" as const,
-      description: "Discord, trailers et communication Wyrdheim.",
-      skills: ["Discord", "Trailers", "Community"],
-    },
-  ];
+  const gamingAgents = GAMING_AGENTS.map((agent) =>
+    agent.id === "dev_game" && nwiroConnected
+      ? { ...agent, badge: "🕹️ Nwiro UE5 connecté" }
+      : agent,
+  );
 
   const displayProjects =
     projects.length > 0
@@ -77,7 +108,13 @@ export default function GamingPage() {
 
       <section className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {gamingAgents.map((agent) => (
-          <AgentCard key={agent.name} {...agent} />
+          <AgentCard
+            key={agent.id}
+            {...agent}
+            status={agentStatuses[agent.id]?.status ?? "idle"}
+            currentTask={agentStatuses[agent.id]?.currentTask}
+            onClick={() => setFocusedAgentId(agent.id)}
+          />
         ))}
       </section>
 
@@ -133,6 +170,19 @@ export default function GamingPage() {
           </Button>
         </div>
       </section>
+
+      {focusedAgentId ? (
+        <AgentFocusPanel
+          agent={{
+            id: focusedAgentId,
+            name: GAMING_AGENTS.find((a) => a.id === focusedAgentId)!.name,
+            emoji: GAMING_AGENTS.find((a) => a.id === focusedAgentId)!.icon,
+            role: GAMING_AGENTS.find((a) => a.id === focusedAgentId)!.role,
+          }}
+          status={agentStatuses[focusedAgentId] ?? { status: "idle" }}
+          onClose={() => setFocusedAgentId(null)}
+        />
+      ) : null}
     </>
   );
 }

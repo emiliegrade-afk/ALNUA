@@ -67,6 +67,20 @@ export function TicketsView() {
   }, [searchParams]);
 
   useEffect(() => {
+    const projectParam = searchParams.get("project");
+    if (!projectParam || projects.length === 0) return;
+
+    const normalized = projectParam.toLowerCase();
+    const match = projects.find(
+      (p) =>
+        p.id === projectParam ||
+        p.name.toLowerCase() === normalized ||
+        p.name.toLowerCase().replace(/\s+/g, "-") === normalized
+    );
+    if (match) setProjectFilter(match.id);
+  }, [searchParams, projects]);
+
+  useEffect(() => {
     loadTickets();
   }, [loadTickets]);
 

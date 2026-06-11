@@ -33,7 +33,13 @@ export interface LobbyStats {
   connectedApps: number;
 }
 
-export async function fetchLobbyStats(): Promise<LobbyStats> {
+const LOBBY_STATS_CACHE_TTL_MS = 60_000;
+
+let lobbyStatsCache: LobbyStats | null = null;
+let lobbyStatsCacheAt = 0;
+let lobbyStatsInflight: Promise<LobbyStats> | null = null;
+
+async function fetchLobbyStatsUncached(): Promise<LobbyStats> {
   const [
     apiOnline,
     briefing,
@@ -97,6 +103,36 @@ export async function fetchLobbyStats(): Promise<LobbyStats> {
   };
 }
 
+/** Lobby aggregates — cached 60s client-side to avoid refetch on every visit. */
+export async function fetchLobbyStats(options?: {
+  force?: boolean;
+}): Promise<LobbyStats> {
+  const now = Date.now();
+  if (
+    !options?.force &&
+    lobbyStatsCache &&
+    now - lobbyStatsCacheAt < LOBBY_STATS_CACHE_TTL_MS
+  ) {
+    return lobbyStatsCache;
+  }
+
+  if (!options?.force && lobbyStatsInflight) {
+    return lobbyStatsInflight;
+  }
+
+  lobbyStatsInflight = fetchLobbyStatsUncached()
+    .then((stats) => {
+      lobbyStatsCache = stats;
+      lobbyStatsCacheAt = Date.now();
+      return stats;
+    })
+    .finally(() => {
+      lobbyStatsInflight = null;
+    });
+
+  return lobbyStatsInflight;
+}
+
 export async function fetchBriefToday(): Promise<{
   date?: string;
   summary?: string;
@@ -105,25 +141,63 @@ export async function fetchBriefToday(): Promise<{
   return (await apiGet("/brief/today")) ?? {};
 }
 
-export async function fetchGithubPrs(): Promise<
-  Array<{ number: number; title: string; url?: string; html_url?: string }>
-> {
+export type PipelineIssue = {
+  number: number;
+  title: string;
+  labels?: string[];
+  _repo_slug?: string;
+  _repo_name?: string;
+  _github_repo?: string;
+};
+
+export type GithubPr = {
+  number: number;
+  title: string;
+  url?: string;
+  html_url?: string;
+  repo_slug?: string;
+  repo_name?: string;
+};
+
+export async function fetchGithubPrs(): Promise<GithubPr[]> {
   return (await apiGet("/github/prs")) ?? [];
 }
 
-export async function fetchPipelineIssues(): Promise<
-  Array<{ number: number; title: string; labels?: string[] }>
-> {
+export async function fetchPipelineIssues(): Promise<PipelineIssue[]> {
   return (await apiGet("/pipeline/issues")) ?? [];
 }
 
-export async function runPipelineIssue(issueNumber: number): Promise<void> {
-  const res = await fetch(`${API_URL}/pipeline/run/${issueNumber}`, {
+export type PipelineRunResponse = {
+  status: string;
+  task_id: string;
+  issue: number;
+  repo?: string | null;
+};
+
+export type PipelineStatus = {
+  status: string;
+  log: string[];
+  progress: number;
+};
+
+export async function runPipelineIssue(
+  issueNumber: number,
+  repoSlug?: string,
+): Promise<PipelineRunResponse> {
+  const query = repoSlug ? `?repo=${encodeURIComponent(repoSlug)}` : "";
+  const res = await fetch(`${API_URL}/pipeline/run/${issueNumber}${query}`, {
     method: "POST",
   });
   if (!res.ok) {
     throw new Error(`Pipeline start failed: ${res.status}`);
   }
+  return res.json() as Promise<PipelineRunResponse>;
+}
+
+export async function fetchPipelineStatus(
+  taskId: string,
+): Promise<PipelineStatus | null> {
+  return apiGet(`/pipeline/status/${taskId}`);
 }
 
 export async function fetchWeeklyCosts(): Promise<{

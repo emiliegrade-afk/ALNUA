@@ -1,9 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { ArrowLeft } from "lucide-react";
 
 export function BackToLobby() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.prefetch("/");
+  }, [router]);
+
   return (
     <Link
       href="/"

@@ -4,13 +4,18 @@ import { useCallback, useEffect, useState } from "react";
 import { AgentCard } from "@/components/shared/agent-card";
 import { BackToLobby } from "@/components/shared/back-to-lobby";
 import { DepartmentHeader } from "@/components/shared/department-header";
+import { AgentFocusPanel } from "@/components/openroom/agent-focus-panel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchBomEve, fetchEveStatus } from "@/lib/lobby-api";
+import { fetchAgentsStatus, type AgentStatus } from "@/lib/openroom-api";
 import { cn } from "@/lib/utils";
+
+const POLL_MS = 3000;
 
 const ROBO_AGENTS = [
   {
+    id: "hardware",
     icon: "🔧",
     name: "Hardware Agent",
     role: "Hardware",
@@ -19,6 +24,7 @@ const ROBO_AGENTS = [
     skills: ["BOM", "PCB", "Sourcing"],
   },
   {
+    id: "embedded",
     icon: "⚡",
     name: "Embedded Dev",
     role: "Firmware",
@@ -44,6 +50,8 @@ export default function RoboPage() {
     battery?: number | null;
   }>({ connected: false });
   const [loading, setLoading] = useState(true);
+  const [focusedAgentId, setFocusedAgentId] = useState<string | null>(null);
+  const [agentStatuses, setAgentStatuses] = useState<Record<string, AgentStatus>>({});
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -62,6 +70,23 @@ export default function RoboPage() {
     return () => clearInterval(interval);
   }, [load]);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    async function poll() {
+      const data = await fetchAgentsStatus();
+      if (cancelled) return;
+      setAgentStatuses(data.agents);
+    }
+
+    void poll();
+    const interval = setInterval(() => void poll(), POLL_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, []);
+
   return (
     <>
       <BackToLobby />
@@ -73,7 +98,13 @@ export default function RoboPage() {
 
       <section className="mb-8 grid gap-4 sm:grid-cols-2">
         {ROBO_AGENTS.map((agent) => (
-          <AgentCard key={agent.name} {...agent} />
+          <AgentCard
+            key={agent.id}
+            {...agent}
+            status={agentStatuses[agent.id]?.status ?? "idle"}
+            currentTask={agentStatuses[agent.id]?.currentTask}
+            onClick={() => setFocusedAgentId(agent.id)}
+          />
         ))}
       </section>
 
@@ -191,6 +222,19 @@ export default function RoboPage() {
           <p className="font-body text-xs text-titanium/60">Dernier ping via API /eve/status</p>
         </CardContent>
       </Card>
+
+      {focusedAgentId ? (
+        <AgentFocusPanel
+          agent={{
+            id: focusedAgentId,
+            name: ROBO_AGENTS.find((a) => a.id === focusedAgentId)!.name,
+            emoji: ROBO_AGENTS.find((a) => a.id === focusedAgentId)!.icon,
+            role: ROBO_AGENTS.find((a) => a.id === focusedAgentId)!.role,
+          }}
+          status={agentStatuses[focusedAgentId] ?? { status: "idle" }}
+          onClose={() => setFocusedAgentId(null)}
+        />
+      ) : null}
     </>
   );
 }

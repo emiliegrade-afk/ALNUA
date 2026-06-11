@@ -6,14 +6,19 @@ import { ExternalLink } from "lucide-react";
 import { AgentCard } from "@/components/shared/agent-card";
 import { BackToLobby } from "@/components/shared/back-to-lobby";
 import { DepartmentHeader } from "@/components/shared/department-header";
+import { AgentFocusPanel } from "@/components/openroom/agent-focus-panel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchProjects, fetchTickets } from "@/lib/api";
+import { fetchAgentsStatus, type AgentStatus } from "@/lib/openroom-api";
 import { useCooStore } from "@/store/coo-store";
 import type { Project } from "@/lib/types";
 
+const POLL_MS = 3000;
+
 const APP_AGENTS = [
   {
+    id: "dev_app",
     icon: "💻",
     name: "Dev App Agent",
     role: "Développement",
@@ -22,6 +27,7 @@ const APP_AGENTS = [
     skills: ["React Native", "API", "Pipeline"],
   },
   {
+    id: "content",
     icon: "✍️",
     name: "Content Agent",
     role: "Contenu",
@@ -40,6 +46,8 @@ export default function AppPolePage() {
   const setPrefillMessage = useCooStore((s) => s.setPrefillMessage);
   const openDrawer = useCooStore((s) => s.openDrawer);
   const [projectStats, setProjectStats] = useState<ProjectStat[]>([]);
+  const [focusedAgentId, setFocusedAgentId] = useState<string | null>(null);
+  const [agentStatuses, setAgentStatuses] = useState<Record<string, AgentStatus>>({});
 
   useEffect(() => {
     fetchProjects()
@@ -54,6 +62,23 @@ export default function AppPolePage() {
         setProjectStats(stats);
       })
       .catch(() => setProjectStats([]));
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function poll() {
+      const data = await fetchAgentsStatus();
+      if (cancelled) return;
+      setAgentStatuses(data.agents);
+    }
+
+    void poll();
+    const interval = setInterval(() => void poll(), POLL_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
   }, []);
 
   function launchPipeline() {
@@ -72,7 +97,13 @@ export default function AppPolePage() {
 
       <section className="mb-8 grid gap-4 sm:grid-cols-2">
         {APP_AGENTS.map((agent) => (
-          <AgentCard key={agent.name} {...agent} />
+          <AgentCard
+            key={agent.id}
+            {...agent}
+            status={agentStatuses[agent.id]?.status ?? "idle"}
+            currentTask={agentStatuses[agent.id]?.currentTask}
+            onClick={() => setFocusedAgentId(agent.id)}
+          />
         ))}
       </section>
 
@@ -134,6 +165,19 @@ export default function AppPolePage() {
           </Button>
         </div>
       </section>
+
+      {focusedAgentId ? (
+        <AgentFocusPanel
+          agent={{
+            id: focusedAgentId,
+            name: APP_AGENTS.find((a) => a.id === focusedAgentId)!.name,
+            emoji: APP_AGENTS.find((a) => a.id === focusedAgentId)!.icon,
+            role: APP_AGENTS.find((a) => a.id === focusedAgentId)!.role,
+          }}
+          status={agentStatuses[focusedAgentId] ?? { status: "idle" }}
+          onClose={() => setFocusedAgentId(null)}
+        />
+      ) : null}
     </>
   );
 }
