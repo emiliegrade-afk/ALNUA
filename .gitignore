@@ -18,3 +18,9 @@ supabase/.temp/
 dashboard/.env.local
 web/.env.local
 .DS_Store
+
+# Model weights
+models/
+*.pth
+*.pt
+*.bin
