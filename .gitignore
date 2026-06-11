@@ -24,3 +24,5 @@ models/
 *.pth
 *.pt
 *.bin
+
+web/
