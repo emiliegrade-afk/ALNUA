@@ -11,6 +11,7 @@ from agents.base import LLMClient, log_agent_action, parse_json_response
 from agents.tools.hub_tools import PM_TOOLS
 from database.supabase_client import SupabaseClient, get_supabase
 from skills.skill_composio import get_composio_tools
+from skills.skill_gh_issues import get_open_issues, label_issue
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +74,7 @@ Réponds UNIQUEMENT en JSON valide avec cette structure :
                 role="PM ALNUA",
                 goal="Gérer roadmap et tickets via l'API Hub ALNUA",
                 backstory=PM_SYSTEM_PROMPT,
-                tools=[*PM_TOOLS, *composio_tools],
+                tools=[*PM_TOOLS, *composio_tools, get_open_issues, label_issue],
                 llm=self._crew_llm,
                 verbose=self.verbose,
                 allow_delegation=False,

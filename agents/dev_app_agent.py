@@ -19,19 +19,18 @@ from __future__ import annotations
 import json
 import logging
 import os
-from pathlib import Path
 
 from crewai import Agent, Crew, LLM, Task
 from crewai.tools import tool
 
 from skills.skill_coding_agent import execute_coding_task
-from skills.skill_gh_issues import get_issue, list_ready_issues, process_issue
+from skills.skill_composio import get_composio_tools
+from skills.skill_gh_issues import comment_on_issue, get_issue, get_open_issues, list_ready_issues, process_issue
 from skills.skill_model_usage import format_costs_report
 from skills.skill_playwright import run_and_report
 
 logger = logging.getLogger(__name__)
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent
 _telegram_notify = None
 
 
@@ -83,6 +82,8 @@ def list_issues_tool(dummy: str = "") -> str:
                     "number": i["number"],
                     "title": i["title"],
                     "body": i.get("body", "")[:200],
+                    "repo_slug": i.get("_repo_slug"),
+                    "repo_name": i.get("_repo_name"),
                 }
                 for i in issues
             ],
@@ -129,8 +130,6 @@ class DevAppAgent:
         global _telegram_notify
         _telegram_notify = telegram_notify_fn
         self.telegram_notify = telegram_notify_fn
-        self.repo_path = os.getenv("HUB_REPO_PATH", str(_REPO_ROOT))
-
         self.agent = Agent(
             role="Dev App Agent",
             goal=(
@@ -150,6 +149,9 @@ class DevAppAgent:
                 list_issues_tool,
                 qa_tests_tool,
                 costs_report_tool,
+                *get_composio_tools(agent_name="dev_app_agent", user_id="alnua_dev_app"),
+                get_open_issues,
+                comment_on_issue,
             ],
             llm=_build_llm(),
             max_iter=10,
@@ -181,9 +183,11 @@ class DevAppAgent:
             return
 
         for issue in issues:
-            process_issue(issue, self.repo_path, self.telegram_notify)
+            process_issue(issue, telegram_notify_fn=self.telegram_notify)
 
-    def process_issue_by_number(self, issue_number: int) -> dict:
-        """Traite une issue GitHub spécifique par son numéro."""
-        issue = get_issue(issue_number)
-        return process_issue(issue, self.repo_path, self.telegram_notify)
+    def process_issue_by_number(
+        self, issue_number: int, repo_slug: str | None = None
+    ) -> dict:
+        """Traite une issue GitHub spécifique par son numéro (et repo si fourni)."""
+        issue = get_issue(issue_number, repo_slug=repo_slug)
+        return process_issue(issue, telegram_notify_fn=self.telegram_notify)

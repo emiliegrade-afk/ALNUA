@@ -88,11 +88,18 @@ def run_tests(repo_path: str, branch: str | None = None) -> dict:
     }
 
 
-def post_pr_comment(pr_number: int, test_result: dict) -> None:
+def post_pr_comment(
+    pr_number: int,
+    test_result: dict,
+    *,
+    github_repo: str | None = None,
+) -> None:
     """
     Poste les résultats des tests en commentaire sur la PR GitHub.
     """
-    repo = os.getenv("GITHUB_REPO")
+    repo = github_repo or os.getenv("GITHUB_REPO")
+    if not repo:
+        raise ValueError("github_repo ou GITHUB_REPO requis pour commenter la PR")
     status_icon = "✅" if test_result["passed"] else "❌"
     status_text = "Tests passés" if test_result["passed"] else "Tests échoués"
 
@@ -132,6 +139,8 @@ def run_and_report(
     branch: str,
     pr_number: int,
     telegram_notify_fn=None,
+    *,
+    github_repo: str | None = None,
 ) -> dict:
     """
     Point d'entrée principal : lance les tests et reporte partout.
@@ -140,7 +149,7 @@ def run_and_report(
     result = run_tests(repo_path, branch)
 
     try:
-        post_pr_comment(pr_number, result)
+        post_pr_comment(pr_number, result, github_repo=github_repo)
     except Exception as e:
         logger.warning("[Playwright] Impossible de commenter la PR : %s", e)
 

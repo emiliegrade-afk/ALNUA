@@ -11,6 +11,7 @@ from crewai import Agent, LLM
 from agents.base import LLMClient, log_agent_action, parse_json_response
 from agents.tools.hub_tools import CONTENT_TOOLS
 from database.supabase_client import SupabaseClient, get_supabase
+from skills.skill_composio import get_composio_tools
 
 VALID_PLATFORMS = frozenset({"instagram", "tiktok", "x", "youtube", "linkedin", "website_blog"})
 VALID_CONTENT_TYPES = frozenset({
@@ -91,7 +92,10 @@ Respecte STRICTEMENT les contraintes de chaque plateforme."""
                 role="Content ALNUA",
                 goal="Générer et suivre le contenu social via l'API Hub",
                 backstory=self.SYSTEM_PROMPT,
-                tools=CONTENT_TOOLS,
+                tools=[
+                    *CONTENT_TOOLS,
+                    *get_composio_tools(agent_name="content_agent", user_id="alnua_content"),
+                ],
                 llm=self._crew_llm,
                 allow_delegation=False,
                 max_iter=10,

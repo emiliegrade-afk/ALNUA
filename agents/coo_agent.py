@@ -14,7 +14,9 @@ from crewai.tools import tool
 from agents.tools.hub_tools import HUB_TOOLS
 from database.supabase_client import SupabaseClient, get_supabase
 from config.github_repos import get_target_by_slug
-from skills.skill_composio import composio_execute, get_oauth_link
+from skills.skill_composio import composio_execute, get_composio_tools, get_oauth_link
+from skills.skill_gh_issues import create_github_issue, get_open_issues
+from skills.skill_supabase import fetch_project_summary
 
 logger = logging.getLogger(__name__)
 
@@ -298,9 +300,16 @@ class COOAgent:
     def _build_crew_agent(self) -> Agent:
         assert self._tools is not None and self._llm is not None
         return Agent(
-            role="COO ALNUA",
-            goal="Orchestrer les agents ALNUA et protéger le temps d'Emilie",
-            backstory=COO_SYSTEM_PROMPT,
+            role="COO — Directeur des Opérations",
+            goal=(
+                "Coordonner les projets ALNUA, répondre aux demandes d'Emilie avec des données "
+                "réelles, déléguer au bon agent."
+            ),
+            backstory=(
+                "Tu diriges ALNUA. Tu as accès aux projets, tickets, GitHub et coûts. "
+                "Tu agis, tu ne demandes pas de clarifications inutiles.\n\n"
+                + COO_SYSTEM_PROMPT
+            ),
             tools=self._tools,
             llm=self._llm,
             verbose=self.verbose,
@@ -393,6 +402,10 @@ class COOAgent:
 
         return [
             *HUB_TOOLS,
+            *get_composio_tools(agent_name="coo_agent", user_id="alnua_coo"),
+            get_open_issues,
+            create_github_issue,
+            fetch_project_summary,
             get_project_context,
             get_open_tickets,
             create_task_log,
