@@ -72,14 +72,17 @@ export function COOChat({ variant = "default", embedded = false }: COOChatProps)
     setLoading(true);
 
     try {
-      const response = await sendCOOInstruction(content);
+      const result = await sendCOOInstruction(content);
       setMessages((prev) => [
         ...prev,
         {
           id: crypto.randomUUID(),
           role: "assistant",
-          content: response,
+          content: result.response,
           timestamp: new Date(),
+          issueCreated: result.issue_created,
+          issueNumber: result.issue_number,
+          issueUrl: result.issue_url,
         },
       ]);
     } catch {
@@ -153,6 +156,22 @@ export function COOChat({ variant = "default", embedded = false }: COOChatProps)
                   )}
                 >
                   <p className="whitespace-pre-line">{msg.content}</p>
+                  {msg.issueCreated && msg.issueUrl ? (
+                    <div className="mt-2 rounded-lg border border-copper/20 bg-copper/5 p-3">
+                      <p className="text-xs font-medium text-copper">Issue créée ✓</p>
+                      <a
+                        href={msg.issueUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-titanium transition-colors hover:text-copper"
+                      >
+                        #{msg.issueNumber} — voir sur GitHub →
+                      </a>
+                      <p className="mt-1 text-xs text-titanium/60">
+                        Pipeline démarre dans ~30s
+                      </p>
+                    </div>
+                  ) : null}
                 </div>
               </div>
             ))}

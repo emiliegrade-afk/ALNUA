@@ -17,7 +17,6 @@ from typing import Any
 
 import sentry_sdk
 from fastapi import (
-    BackgroundTasks,
     Depends,
     FastAPI,
     File,
@@ -174,13 +173,14 @@ async def lifespan(app: FastAPI):
     _briefing_scheduler.start()
     logger.info("Daily briefing scheduler started (08:00)")
 
-    repo_path = os.getenv("HUB_REPO_PATH", str(Path(__file__).resolve().parent.parent))
-    if os.getenv("GITHUB_TOKEN") and os.getenv("GITHUB_REPO"):
-        asyncio.create_task(poll_issues_loop(repo_path))
-        logger.info("GitHub Issues polling started (agent-ready)")
+    from config.github_repos import pipeline_enabled
+
+    if pipeline_enabled():
+        asyncio.create_task(poll_issues_loop())
+        logger.info("GitHub Issues polling started (multi-repo, agent-ready)")
     else:
         logger.warning(
-            "GitHub Issues polling disabled — GITHUB_TOKEN or GITHUB_REPO not set"
+            "GitHub Issues polling disabled — GITHUB_TOKEN or repo config missing"
         )
 
     yield
@@ -212,8 +212,6 @@ app.add_middleware(
         "http://127.0.0.1:3001",
         "http://localhost:3002",
         "http://127.0.0.1:3002",
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -412,6 +410,14 @@ class COOInstruction(BaseModel):
     project: str | None = None
 
 
+class COOInstructionResponse(BaseModel):
+    response: str
+    issue_created: bool = False
+    issue_number: int | None = None
+    issue_url: str | None = None
+    repo: str | None = None
+
+
 class ContentGenerateRequest(BaseModel):
     project_id: str
     dev_log: str
@@ -595,6 +601,46 @@ def health() -> dict[str, str]:
 # ---------------------------------------------------------------------------
 # Autonomous coding pipeline (Phase 2)
 # ---------------------------------------------------------------------------
+_pipeline_tasks: dict[str, dict[str, Any]] = {}
+
+
+async def run_pipeline_background(
+    task_id: str,
+    issue_number: int,
+    repo: str | None,
+) -> None:
+    """Runs the coding pipeline independently of the HTTP connection."""
+    task = _pipeline_tasks[task_id]
+
+    def _log(message: str) -> None:
+        task["log"].append(message)
+
+    try:
+        task["status"] = "running"
+        task["progress"] = 10
+        _log(f"Fetching issue #{issue_number}…")
+
+        issue = await asyncio.to_thread(get_issue, issue_number, repo_slug=repo)
+        task["progress"] = 25
+        _log(f"Issue #{issue_number}: {issue.get('title', '')}")
+
+        result = await asyncio.to_thread(process_issue, issue, None, None)
+
+        if result.get("success"):
+            task["status"] = "completed"
+            task["progress"] = 100
+            _log(f"Pipeline completed — PR: {result.get('pr_url', 'n/a')}")
+        else:
+            task["status"] = "failed"
+            task["progress"] = 100
+            _log(f"Pipeline failed — {result.get('error', 'unknown error')}")
+    except Exception as exc:
+        task["status"] = "failed"
+        task["progress"] = 100
+        _log(f"Error: {exc}")
+        logger.exception("Pipeline task %s failed", task_id)
+
+
 @app.get("/pipeline/issues")
 async def get_ready_issues():
     """Liste les issues GitHub prêtes à être traitées."""
@@ -605,16 +651,36 @@ async def get_ready_issues():
 
 
 @app.post("/pipeline/run/{issue_number}")
-async def run_pipeline(issue_number: int, background_tasks: BackgroundTasks):
-    """Déclenche le pipeline sur une issue spécifique."""
-    repo_path = os.getenv("HUB_REPO_PATH", str(Path(__file__).resolve().parent.parent))
+async def run_pipeline(issue_number: int, repo: str | None = None):
+    """Déclenche le pipeline sur une issue spécifique (repo=hub|naia|nomad)."""
+    task_id = str(uuid.uuid4())
+    _pipeline_tasks[task_id] = {
+        "status": "starting",
+        "log": [f"Pipeline queued for issue #{issue_number}"],
+        "progress": 0,
+        "issue_number": issue_number,
+        "repo": repo,
+    }
+    asyncio.create_task(run_pipeline_background(task_id, issue_number, repo))
+    return {
+        "status": "started",
+        "task_id": task_id,
+        "issue": issue_number,
+        "repo": repo,
+    }
 
-    def _run():
-        issue = get_issue(issue_number)
-        process_issue(issue, repo_path, None)
 
-    background_tasks.add_task(_run)
-    return {"status": "started", "issue": issue_number}
+@app.get("/pipeline/status/{task_id}")
+async def pipeline_status(task_id: str):
+    """Retourne l'état d'une exécution pipeline (polling côté client)."""
+    task = _pipeline_tasks.get(task_id)
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return {
+        "status": task["status"],
+        "log": task["log"],
+        "progress": task["progress"],
+    }
 
 
 @app.get("/costs/today")
@@ -1683,11 +1749,10 @@ def coo_briefing() -> dict[str, str]:
     return {"briefing": briefing}
 
 
-@app.post("/agents/coo/instruction")
-def coo_instruction(body: COOInstruction) -> dict[str, str]:
-    agent = COOAgent()
-    response = agent.handle_instruction(body.instruction, body.project)
-    return {"response": response}
+@app.post("/agents/coo/instruction", response_model=COOInstructionResponse)
+def coo_instruction(body: COOInstruction) -> COOInstructionResponse:
+    result = _get_coo_agent().process_message(body.instruction, body.project)
+    return COOInstructionResponse(**result)
 
 
 @app.post("/webhook/telegram")

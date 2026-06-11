@@ -13,9 +13,80 @@ from crewai.tools import tool
 
 from agents.tools.hub_tools import HUB_TOOLS
 from database.supabase_client import SupabaseClient, get_supabase
+from config.github_repos import get_target_by_slug
 from skills.skill_composio import composio_execute, get_oauth_link
 
 logger = logging.getLogger(__name__)
+
+CODING_KEYWORDS = (
+    "code", "crée", "cree", "développe", "developpe", "ajoute", "implémente",
+    "implemente", "fix", "corrige", "répare", "repare", "refactorise",
+    "optimise", "feature", "fonctionnalité", "fonctionnalite", "écran", "ecran",
+    "page", "composant",
+)
+
+
+def detect_coding_intent(message: str) -> bool:
+    """True when the message looks like a dev/coding request."""
+    msg = message.lower()
+    return any(kw in msg for kw in CODING_KEYWORDS)
+
+
+def detect_target_repo(message: str) -> str:
+    """Resolve repo slug (hub / naia / nomad) from message context."""
+    msg = message.lower()
+    if "naïa" in msg or "naia" in msg:
+        return "naia"
+    if "nomad" in msg:
+        return "nomad"
+    return "hub"
+
+
+def create_github_issue_via_composio(
+    title: str,
+    body: str,
+    repo: str,
+    labels: list[str] | None = None,
+    user_id: str = "alnua_coo",
+) -> dict[str, Any]:
+    """Create a GitHub issue via Composio; returns {number, url, success}."""
+    owner, _, repo_name = repo.partition("/")
+    if not repo_name:
+        return {"success": False, "error": f"Invalid repo slug: {repo}"}
+
+    result = composio_execute(
+        action="GITHUB_CREATE_ISSUE",
+        params={
+            "owner": owner,
+            "repo": repo_name,
+            "title": title,
+            "body": body or "Issue créée par le COO ALNUA.",
+            "labels": labels or ["agent-ready"],
+        },
+        user_id=user_id,
+    )
+    if not result["success"]:
+        return {"success": False, "error": result.get("error")}
+
+    data = result.get("data") or {}
+    if not isinstance(data, dict):
+        data = {}
+
+    number = data.get("number")
+    url = data.get("html_url")
+    if number is None or not url:
+        nested = data.get("response_data") or data.get("data") or {}
+        if isinstance(nested, dict):
+            number = number or nested.get("number")
+            url = url or nested.get("html_url")
+
+    if number is None or not url:
+        return {
+            "success": False,
+            "error": "GitHub issue created but response missing number/url",
+        }
+
+    return {"number": number, "url": url, "success": True}
 
 # ---------------------------------------------------------------------------
 # System prompt officiel du COO
@@ -693,6 +764,59 @@ class COOAgent:
     # ------------------------------------------------------------------
     # Point d'entrée principal
     # ------------------------------------------------------------------
+    def process_message(self, message: str, project: str | None = None) -> dict[str, Any]:
+        """
+        Handle a COO chat message: auto-create a GitHub issue for coding requests,
+        otherwise delegate to the LLM agent.
+        """
+        message = message.strip()
+        if not message:
+            return {
+                "response": "Instruction vide — dis-moi ce que tu veux faire.",
+                "issue_created": False,
+            }
+
+        if detect_coding_intent(message):
+            repo_slug = detect_target_repo(message)
+            target = get_target_by_slug(repo_slug) or get_target_by_slug("hub")
+            if target:
+                issue = create_github_issue_via_composio(
+                    title=message[:80],
+                    body=(
+                        f"**Demande COO :** {message}\n\n"
+                        "*Issue créée automatiquement par le Hub ALNUA.*"
+                    ),
+                    repo=target.github_repo,
+                    labels=["agent-ready"],
+                )
+                if issue.get("success"):
+                    self.create_task_log(
+                        self.AGENT_NAME,
+                        "create_github_issue",
+                        message,
+                        f"Issue #{issue['number']} on {target.github_repo}",
+                    )
+                    return {
+                        "response": (
+                            f"✅ Issue #{issue['number']} créée sur "
+                            f"`{target.github_repo}` avec le label `agent-ready`.\n"
+                            f"Le pipeline va démarrer dans ~30 secondes.\n"
+                            f"→ Voir l'issue : {issue['url']}"
+                        ),
+                        "issue_created": True,
+                        "issue_number": issue["number"],
+                        "issue_url": issue["url"],
+                        "repo": repo_slug,
+                    }
+                logger.warning(
+                    "COO issue creation failed for %s: %s",
+                    target.github_repo,
+                    issue.get("error"),
+                )
+
+        response = self.handle_instruction(message, project)
+        return {"response": response, "issue_created": False}
+
     def handle_instruction(self, instruction: str, project: str | None = None) -> str:
         """
         Analyse l'instruction d'Emilie, délègue aux agents concernés,

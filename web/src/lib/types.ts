@@ -46,6 +46,9 @@ export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
+  issueCreated?: boolean;
+  issueNumber?: number;
+  issueUrl?: string;
 }
 
 export type RoadmapStatus = "idea" | "planned" | "in_progress" | "done";

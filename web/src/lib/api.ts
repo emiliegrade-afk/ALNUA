@@ -47,15 +47,22 @@ export async function fetchBriefing(): Promise<string> {
   return data.briefing;
 }
 
+export interface COOInstructionResult {
+  response: string;
+  issue_created: boolean;
+  issue_number?: number;
+  issue_url?: string;
+  repo?: string;
+}
+
 export async function sendCOOInstruction(
   instruction: string,
   project?: string
-): Promise<string> {
-  const data = await apiFetch<{ response: string }>("/agents/coo/instruction", {
+): Promise<COOInstructionResult> {
+  return apiFetch<COOInstructionResult>("/agents/coo/instruction", {
     method: "POST",
     body: JSON.stringify({ instruction, project: project ?? null }),
   });
-  return data.response;
 }
 
 export async function fetchProjects(): Promise<Project[]> {
