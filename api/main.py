@@ -660,6 +660,7 @@ async def run_pipeline(issue_number: int, repo: str | None = None):
         "progress": 0,
         "issue_number": issue_number,
         "repo": repo,
+        "started_at": datetime.now(timezone.utc).isoformat(),
     }
     asyncio.create_task(run_pipeline_background(task_id, issue_number, repo))
     return {
@@ -680,6 +681,169 @@ async def pipeline_status(task_id: str):
         "status": task["status"],
         "log": task["log"],
         "progress": task["progress"],
+    }
+
+
+_OPENROOM_AGENT_IDS = (
+    "coo",
+    "pm",
+    "qa",
+    "spec",
+    "dev_app",
+    "content",
+    "marketing",
+    "game_dir",
+    "dev_game",
+    "hardware",
+)
+
+_LOG_NAME_TO_OPENROOM: dict[str, str] = {
+    "coo_agent": "coo",
+    "pm_agent": "pm",
+    "qa_agent": "qa",
+    "spec_agent": "spec",
+    "content_agent": "content",
+    "marketing_agent": "marketing",
+    "marketing": "marketing",
+    "DevApp": "dev_app",
+    "dev_app_agent": "dev_app",
+    "game_director": "game_dir",
+    "GameDirector": "game_dir",
+    "dev_gaming": "dev_game",
+    "DevGaming": "dev_game",
+    "hardware": "hardware",
+    "Hardware": "hardware",
+    "HardwareAgent": "hardware",
+}
+
+_OPENROOM_DISPLAY: dict[str, str] = {
+    "coo": "COO",
+    "pm": "PM",
+    "qa": "QA",
+    "spec": "SPEC",
+    "dev_app": "DEV",
+    "content": "CONTENT",
+    "marketing": "MKT",
+    "game_dir": "GAME",
+    "dev_game": "DEV-G",
+    "hardware": "HW",
+}
+
+
+def _openroom_idle_agents() -> dict[str, dict[str, str | None]]:
+    return {agent_id: {"status": "idle", "currentTask": None} for agent_id in _OPENROOM_AGENT_IDS}
+
+
+def _set_openroom_status(
+    agents: dict[str, dict[str, str | None]],
+    agent_id: str,
+    status: str,
+    current_task: str | None = None,
+) -> None:
+    if agent_id not in agents:
+        return
+    priority = {"idle": 0, "waiting": 1, "working": 2, "error": 3}
+    current = agents[agent_id]["status"] or "idle"
+    if priority.get(status, 0) >= priority.get(current, 0):
+        agents[agent_id]["status"] = status
+        if current_task:
+            agents[agent_id]["currentTask"] = current_task
+
+
+def _format_log_time(value: str | None) -> str:
+    if not value:
+        return "--:--"
+    try:
+        dt = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        return dt.astimezone(timezone.utc).strftime("%H:%M")
+    except ValueError:
+        return value[-8:-3] if len(value) >= 8 else "--:--"
+
+
+@app.get("/agents/status")
+async def agents_status() -> dict[str, Any]:
+    """Statut OpenRoom — agents + 20 derniers logs."""
+    agents = _openroom_idle_agents()
+    recent_logs: list[dict[str, str]] = []
+
+    active_tasks = [
+        task
+        for task in _pipeline_tasks.values()
+        if task.get("status") in {"starting", "running"}
+    ]
+    pipeline_active = len(active_tasks) > 0
+
+    for task in active_tasks:
+        last_log = task.get("log", [""])[-1]
+        issue = task.get("issue_number")
+        _set_openroom_status(agents, "dev_app", "working", last_log or None)
+        _set_openroom_status(
+            agents,
+            "pm",
+            "waiting",
+            f"Issue #{issue} en cours" if issue else "Pipeline en cours",
+        )
+        started_at = task.get("started_at")
+        for line in task.get("log", [])[-4:]:
+            recent_logs.append(
+                {
+                    "time": _format_log_time(started_at),
+                    "agent": "DEV",
+                    "message": line,
+                }
+            )
+
+    try:
+        db = get_supabase()
+        db_logs = db.select(
+            "agent_logs",
+            order_by="created_at",
+            ascending=False,
+            limit=20,
+        )
+    except Exception:
+        db_logs = []
+
+    cutoff = datetime.now(timezone.utc) - timedelta(minutes=15)
+    for entry in db_logs:
+        raw_name = str(entry.get("agent_name", ""))
+        agent_id = _LOG_NAME_TO_OPENROOM.get(raw_name)
+        display = _OPENROOM_DISPLAY.get(agent_id or "", raw_name[:8].upper())
+        action = str(entry.get("action", ""))
+        output = str(entry.get("output_summary", "") or entry.get("input_summary", ""))
+        message = output or action
+        created_at = str(entry.get("created_at", ""))
+        recent_logs.append(
+            {
+                "time": _format_log_time(created_at),
+                "agent": display,
+                "message": message,
+            }
+        )
+
+        if not agent_id:
+            continue
+
+        try:
+            created_dt = datetime.fromisoformat(created_at.replace("Z", "+00:00"))
+        except ValueError:
+            continue
+        if created_dt < cutoff:
+            continue
+
+        log_status = str(entry.get("status", "success"))
+        task_summary = output or action
+        if log_status == "pending":
+            _set_openroom_status(agents, agent_id, "working", task_summary or None)
+        elif log_status == "error":
+            _set_openroom_status(agents, agent_id, "error", task_summary or None)
+
+    recent_logs = recent_logs[:20]
+
+    return {
+        "agents": agents,
+        "recentLogs": recent_logs,
+        "pipelineActive": pipeline_active,
     }
 
 

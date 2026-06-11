@@ -9,6 +9,10 @@ import { AlnuaLogo } from "@/components/brand/alnua-logo";
 import { DepartmentDoor } from "@/components/lobby/department-door";
 import { DEPT_TIERS } from "@/lib/dept-colors";
 import { fetchLobbyStats, type LobbyStats } from "@/lib/lobby-api";
+import {
+  countActiveAgents,
+  fetchAgentsStatus,
+} from "@/lib/openroom-api";
 import { cn } from "@/lib/utils";
 
 const DEFAULT_STATS: LobbyStats = {
@@ -27,20 +31,39 @@ const DEFAULT_STATS: LobbyStats = {
 
 export function LobbyView() {
   const [stats, setStats] = useState<LobbyStats>(DEFAULT_STATS);
-  const [loading, setLoading] = useState(true);
+  const [activeAgents, setActiveAgents] = useState(0);
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
     fetchLobbyStats()
       .then(setStats)
-      .catch(() => setStats(DEFAULT_STATS))
-      .finally(() => setLoading(false));
+      .catch(() => setStats(DEFAULT_STATS));
+
+    fetchAgentsStatus()
+      .then((data) => setActiveAgents(countActiveAgents(data.agents)))
+      .catch(() => setActiveAgents(0));
 
     const clock = setInterval(() => setNow(new Date()), 60_000);
     return () => clearInterval(clock);
   }, []);
 
   const doors = [
+    {
+      icon: "🏢",
+      title: "OpenRoom",
+      subtitle: "War room · Agents live",
+      description: "Vue temps réel",
+      href: "/openroom",
+      tier: DEPT_TIERS.hub,
+      badge:
+        activeAgents > 0
+          ? `${activeAgents} actif${activeAgents > 1 ? "s" : ""}`
+          : "War room",
+      stats:
+        activeAgents > 0
+          ? `${activeAgents} agent${activeAgents > 1 ? "s" : ""} en activité`
+          : "Tous les agents au repos",
+    },
     {
       icon: "👑",
       title: "Bureau du CEO",
@@ -210,22 +233,11 @@ export function LobbyView() {
           </p>
         </div>
 
-        {loading ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 11 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-40 animate-pulse rounded-xl bg-obsidian-2"
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {doors.map((door) => (
-              <DepartmentDoor key={door.href} {...door} />
-            ))}
-          </div>
-        )}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {doors.map((door) => (
+            <DepartmentDoor key={door.href} {...door} />
+          ))}
+        </div>
       </main>
 
       <footer className="border-t border-copper/10 px-6 py-4">

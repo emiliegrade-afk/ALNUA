@@ -1,6 +1,7 @@
-/** Department portal routes — no sidebar, lobby-style navigation. */
+/** Department portal routes — lobby-style navigation with their own BackToLobby. */
 export const DEPARTMENT_ROUTES = [
   "/",
+  "/openroom",
   "/ceo",
   "/hub",
   "/app",
