@@ -643,10 +643,11 @@ async def run_pipeline_background(
             issue_title = issue.get("title", "")
             _log(f"Issue #{issue_number}: {issue_title}")
 
-            from config.github_repos import issue_target
-
-            target = issue_target(issue)
-            repo_path = str(target.local_path)
+            repo_path = issue.get("_repo_path")
+            if not repo_path:
+                raise ValueError(
+                    f"Issue #{issue_number} sans métadonnée repo — préciser ?repo=hub|naia|nomad"
+                )
             task_description = f"{issue_title}\n\n{issue.get('body', '') or ''}"
 
             task["progress"] = 40
