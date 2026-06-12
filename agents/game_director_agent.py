@@ -25,7 +25,12 @@ from collections.abc import Callable
 from crewai import Agent, Crew, LLM, Task
 from crewai.tools import tool
 
-from skills.skill_discord_wyrdheim import get_recent_messages, post_to_discord
+from skills.skill_discord_wyrdheim import (
+    DISCORD_NOT_CONFIGURED,
+    discord_is_configured,
+    get_recent_messages,
+    post_to_discord,
+)
 from skills.skill_langfuse import trace_agent
 from skills.skill_lore_database import add_lore_entry, search_lore
 
@@ -119,8 +124,13 @@ def discord_post_tool(message_json: str) -> str:
     Input JSON : channel, content, embed (optionnel).
     """
     try:
+        if not discord_is_configured():
+            return DISCORD_NOT_CONFIGURED
+
         data = json.loads(message_json)
-        post_to_discord(data["channel"], data["content"], data.get("embed", False))
+        result = post_to_discord(data["channel"], data["content"], data.get("embed", False))
+        if not result.get("success"):
+            return f"Discord indisponible : {result.get('error', 'erreur inconnue')}"
         return f"✅ Posté dans #{data['channel']}"
     except Exception as e:
         return f"❌ Erreur Discord : {e}"
@@ -133,6 +143,9 @@ def discord_read_tool(channel: str = "général") -> str:
     Utile pour suivre les retours communautaires.
     """
     try:
+        if not discord_is_configured():
+            return DISCORD_NOT_CONFIGURED
+
         messages = get_recent_messages(channel, limit=20)
         if not messages:
             return f"Aucun message récent dans #{channel}"

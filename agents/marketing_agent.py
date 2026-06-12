@@ -26,7 +26,12 @@ from crewai.tools import tool
 
 from skills.skill_browser_use import browse_url, search_web
 from skills.skill_composio import get_composio_tools
-from skills.skill_discord_wyrdheim import get_recent_messages, post_to_discord
+from skills.skill_discord_wyrdheim import (
+    DISCORD_NOT_CONFIGURED,
+    discord_is_configured,
+    get_recent_messages,
+    post_to_discord,
+)
 from skills.skill_langfuse import trace_agent
 from skills.skill_seo_audit import run_seo_audit
 
@@ -92,11 +97,16 @@ def discord_community_tool(action_json: str) -> str:
     Input JSON : action (post|read|stats|announce), channel, content, pin.
     """
     try:
+        if not discord_is_configured():
+            return DISCORD_NOT_CONFIGURED
+
         data = json.loads(action_json)
         action = data.get("action", "read")
 
         if action == "post":
-            post_to_discord(data["channel"], data["content"], data.get("embed", False))
+            result = post_to_discord(data["channel"], data["content"], data.get("embed", False))
+            if not result.get("success"):
+                return f"Discord indisponible : {result.get('error', 'erreur inconnue')}"
             return f"✅ Posté dans #{data['channel']}"
 
         if action == "read":
