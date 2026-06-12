@@ -31,6 +31,10 @@ import httpx
 
 logger = logging.getLogger(__name__)
 
+UE5_NOT_CONNECTED = (
+    "UE5 non connecté — ouvre Unreal Engine avec le plugin Nwiro (port 5353)."
+)
+
 
 def get_nwiro_url() -> str:
     host = os.getenv("NWIRO_HOST", "localhost")
@@ -56,17 +60,25 @@ def nwiro_list_tools() -> list[dict[str, Any]]:
     Liste tous les outils MCP disponibles dans Nwiro.
     Retourne [{"name": "blueprint_create_actor", "description": "...", "inputSchema": {...}}, ...]
     """
+    if not nwiro_is_available():
+        logger.debug("[Nwiro] tools/list skipped — %s", UE5_NOT_CONNECTED)
+        return []
+
     payload = {
         "jsonrpc": "2.0",
         "id": 1,
         "method": "tools/list",
         "params": {},
     }
-    with httpx.Client(timeout=10) as client:
-        resp = client.post(get_nwiro_url(), json=payload)
-        resp.raise_for_status()
-        data = resp.json()
-        return data.get("result", {}).get("tools", [])
+    try:
+        with httpx.Client(timeout=10) as client:
+            resp = client.post(get_nwiro_url(), json=payload)
+            resp.raise_for_status()
+            data = resp.json()
+            return data.get("result", {}).get("tools", [])
+    except Exception as exc:
+        logger.warning("[Nwiro] tools/list failed: %s", exc)
+        return []
 
 
 def nwiro_call(tool_name: str, params: dict | None = None) -> str:
@@ -85,10 +97,7 @@ def nwiro_call(tool_name: str, params: dict | None = None) -> str:
         ValueError : si l'outil n'existe pas ou les params sont invalides
     """
     if not nwiro_is_available():
-        raise ConnectionError(
-            "Nwiro non accessible sur le port 5353. "
-            "Vérifie que UE5 est ouvert avec le plugin Nwiro Integration Kit actif."
-        )
+        raise ConnectionError(UE5_NOT_CONNECTED)
 
     payload = {
         "jsonrpc": "2.0",

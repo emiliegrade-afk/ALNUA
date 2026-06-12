@@ -27,7 +27,7 @@ from crewai.tools import tool
 
 from skills.skill_coding_agent import execute_coding_task
 from skills.skill_langfuse import trace_agent
-from skills.skill_nwiro import nwiro_call, nwiro_is_available
+from skills.skill_nwiro import UE5_NOT_CONNECTED, nwiro_call, nwiro_is_available
 from skills.skill_retry_loop import retry_with_learning
 
 logger = logging.getLogger(__name__)
@@ -43,9 +43,12 @@ def execute_ue5_task_with_retry(
 ) -> str:
     """Run a Nwiro prompt with intelligent retry on UE5 failures."""
 
+    if not nwiro_is_available():
+        return UE5_NOT_CONNECTED
+
     def _attempt(learning_context: str) -> str:
         if not nwiro_is_available():
-            raise ConnectionError("Nwiro non accessible — UE5 doit être ouvert")
+            raise ConnectionError(UE5_NOT_CONNECTED)
 
         enriched_prompt = prompt
         if learning_context:
@@ -99,15 +102,16 @@ def nwiro_execute_tool(request_json: str) -> str:
     Input JSON : {"tool": "blueprint_create_actor", "params": {...}}
     """
     try:
+        if not nwiro_is_available():
+            return UE5_NOT_CONNECTED
+
         data = json.loads(request_json)
         tool_name = data["tool"]
         params = data.get("params", {})
 
         def _attempt(learning_context: str) -> str:
             if not nwiro_is_available():
-                raise ConnectionError(
-                    "Nwiro non accessible — UE5 doit être ouvert avec le plugin Nwiro (port 5353)"
-                )
+                raise ConnectionError(UE5_NOT_CONNECTED)
             result = nwiro_call(tool_name, params)
             if result and any(
                 kw in str(result).lower() for kw in ("error", "failed", "cannot", "invalid")
@@ -140,12 +144,15 @@ def nwiro_prompt_tool(prompt: str) -> str:
     Nwiro interprète le prompt et exécute les outils UE5 nécessaires automatiquement.
     """
     try:
+        if not nwiro_is_available():
+            return UE5_NOT_CONNECTED
+
         result = execute_ue5_task_with_retry(
             agent_name="DevGaming",
             prompt=prompt,
             telegram_notify_fn=_telegram_notify,
         )
-        if result.startswith("❌"):
+        if result == UE5_NOT_CONNECTED or result.startswith("❌"):
             return result
         return f"✅ Nwiro AI : {result}"
     except Exception as e:
