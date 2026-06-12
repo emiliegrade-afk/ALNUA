@@ -2587,11 +2587,12 @@ async def brand_asset(path: str = Query(..., min_length=1)) -> FileResponse:
     if ".." in normalized.split("/"):
         raise HTTPException(status_code=400, detail="Chemin invalide")
 
-    repo_root = BRAND_KITS_ROOT.parent.resolve()
+    brand_root = BRAND_KITS_ROOT.resolve()
+    repo_root = brand_root.parent
     file_path = (repo_root / normalized).resolve()
 
-    if not str(file_path).startswith(str(repo_root)):
-        raise HTTPException(status_code=400, detail="Chemin invalide")
+    if not str(file_path).startswith(str(brand_root)):
+        raise HTTPException(status_code=403, detail="Acces refuse")
     if not file_path.is_file():
         raise HTTPException(status_code=404, detail="Asset introuvable")
 
