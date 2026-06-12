@@ -10,16 +10,14 @@ brand_kits/uploads/
 *.log
 node_modules/
 web/.next/
-dashboard/dist/
-dashboard/node_modules/
 worktrees/
 .cursor/
 supabase/.temp/
-dashboard/.env.local
 web/.env.local
 .DS_Store
 .composio/
 composio_cache/
+data/chroma/
 
 # Model weights
 models/

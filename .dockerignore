@@ -11,8 +11,6 @@ __pycache__/
 node_modules/
 web/.next/
 web/node_modules/
-dashboard/node_modules/
-dashboard/.next/
 brand_kits/uploads/
 logs/
 worktrees/

@@ -66,6 +66,41 @@ def _resolve_config_path() -> Path:
     return _repo_root() / configured
 
 
+def _patch_transformers_bert_compat() -> None:
+    """Patch Grounding DINO BertModelWarper for transformers>=4.46 API changes."""
+    try:
+        from groundingdino.models.GroundingDINO import bertwarper as bw  # noqa: PLC0415
+    except ImportError:
+        return
+
+    if getattr(bw, "_alnua_bert_compat_patched", False):
+        return
+
+    original_init = bw.BertModelWarper.__init__
+
+    def compat_init(self, bert_model):  # type: ignore[no-untyped-def]
+        if not hasattr(bert_model, "get_head_mask"):
+
+            def get_head_mask(head_mask, num_hidden_layers=None, is_attention_chunked=False):
+                return head_mask
+
+            bert_model.get_head_mask = get_head_mask  # type: ignore[method-assign]
+        original_init(self, bert_model)
+
+        # bertwarper passes `device` as 3rd positional arg; transformers>=4.46 expects `dtype`.
+        original_geam = self.get_extended_attention_mask
+
+        def compat_geam(attention_mask, input_shape, third_arg=None):  # type: ignore[no-untyped-def]
+            if isinstance(third_arg, torch.device):
+                return original_geam(attention_mask, input_shape, None)
+            return original_geam(attention_mask, input_shape, third_arg)
+
+        self.get_extended_attention_mask = compat_geam  # type: ignore[method-assign]
+
+    bw.BertModelWarper.__init__ = compat_init  # type: ignore[method-assign]
+    bw._alnua_bert_compat_patched = True
+
+
 def _pick_device() -> str:
     settings = get_settings()
     requested = settings.grounding_dino_device.strip().lower()
@@ -121,7 +156,18 @@ def _load_detection_model() -> tuple[Any, str]:
         config_path,
         weights_path,
     )
-    model = load_model(str(config_path), str(weights_path), device=device)
+    _patch_transformers_bert_compat()
+    try:
+        model = load_model(str(config_path), str(weights_path), device=device)
+    except AttributeError as exc:
+        logger.exception("Grounding DINO failed to load (transformers compatibility)")
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "Grounding DINO incompatible avec la version de transformers installée. "
+                f"Détail: {exc}"
+            ),
+        ) from exc
     return model, device
 
 
@@ -184,14 +230,21 @@ def detect_brand_elements(image_path: str) -> list[BrandElement]:
     model, device = _load_detection_model()
     _, image_tensor = load_image(str(path))
 
-    boxes, logits, phrases = predict(
-        model=model,
-        image=image_tensor,
-        caption=DETECTION_CAPTION,
-        box_threshold=BOX_THRESHOLD,
-        text_threshold=TEXT_THRESHOLD,
-        device=device,
-    )
+    try:
+        boxes, logits, phrases = predict(
+            model=model,
+            image=image_tensor,
+            caption=DETECTION_CAPTION,
+            box_threshold=BOX_THRESHOLD,
+            text_threshold=TEXT_THRESHOLD,
+            device=device,
+        )
+    except Exception as exc:
+        logger.exception("Grounding DINO inference failed")
+        raise HTTPException(
+            status_code=503,
+            detail=f"Détection Grounding DINO échouée: {exc}",
+        ) from exc
 
     detections: list[tuple[float, BrandElement]] = []
     label_counts: dict[str, int] = {}

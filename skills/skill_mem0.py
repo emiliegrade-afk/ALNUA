@@ -35,10 +35,24 @@ def recall(query: str, agent_id: str = "coo", user_id: str = "emilie") -> str:
     m = get_mem0()
     if not m:
         return ""
-    results = m.search(query, agent_id=agent_id, user_id=user_id, limit=5)
+    try:
+        results = m.search(
+            query, filters={"agent_id": agent_id, "user_id": user_id}, limit=5
+        )
+    except Exception as exc:
+        # Mem0 must never block the COO — API shape changes are common.
+        logger.warning("Mem0 recall failed: %s", exc)
+        return ""
     if not results:
         return ""
-    return "\n".join(f"- {r['memory']}" for r in results)
+    items = results if isinstance(results, list) else results.get("results", [])
+    parts = []
+    for r in items:
+        if isinstance(r, str):
+            parts.append(f"- {r}")
+        elif isinstance(r, dict):
+            parts.append(f"- {r.get('memory') or r.get('text') or str(r)}")
+    return "\n".join(parts)
 
 
 def should_remember(message: str) -> bool:

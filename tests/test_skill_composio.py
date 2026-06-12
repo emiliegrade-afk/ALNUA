@@ -9,7 +9,7 @@ def test_import():
 
 
 def test_no_api_key(monkeypatch):
-    monkeypatch.delenv("COMPOSIO_API_KEY", raising=False)
+    monkeypatch.setattr("skills.skill_composio._get_composio_api_key", lambda: "")
     from skills.skill_composio import get_composio_tools
     tools = get_composio_tools(apps=["GMAIL"])
     assert tools == []  # graceful fallback

@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     supabase_url: str = Field(..., alias="SUPABASE_URL")
     supabase_key: str = Field(..., alias="SUPABASE_KEY")
     openrouter_api_key: str = Field(..., alias="OPENROUTER_API_KEY")
+    composio_api_key: str = Field(default="", alias="COMPOSIO_API_KEY")
     discord_token: str = Field(default="", alias="DISCORD_TOKEN")
     telegram_bot_token: str = Field(default="", alias="TELEGRAM_BOT_TOKEN")
     telegram_chat_id: str = Field(default="", alias="TELEGRAM_CHAT_ID")
@@ -47,10 +48,14 @@ class Settings(BaseSettings):
 
     github_token: str = Field(default="", alias="GITHUB_TOKEN")
     github_repo: str = Field(default="", alias="GITHUB_REPO")
+    github_repo_naia: str = Field(default="", alias="GITHUB_REPO_NAIA")
+    github_repo_nomad: str = Field(default="", alias="GITHUB_REPO_NOMAD")
     hub_repo_path: str = Field(
         default="",
         alias="HUB_REPO_PATH",
     )
+    repo_path_naia: str = Field(default="", alias="REPO_PATH_NAIA")
+    repo_path_nomad: str = Field(default="", alias="REPO_PATH_NOMAD")
     test_command: str = Field(
         default="pytest tests/ -v --tb=short",
         alias="TEST_COMMAND",
@@ -58,6 +63,10 @@ class Settings(BaseSettings):
     agent_model: str = Field(
         default="openrouter/minimax/minimax-m1",
         alias="AGENT_MODEL",
+    )
+    hub_api_key: str = Field(
+        default="alnua_dev_7f3a9c2e1b4d8f6a0c5e9b2d7f1a4c8",
+        alias="HUB_API_KEY",
     )
 
 

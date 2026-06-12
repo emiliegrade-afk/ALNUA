@@ -29,7 +29,7 @@ from agents.dev_app_agent import DevAppAgent
 from bots.base import log_bot_action
 from config.settings import get_settings
 from database.supabase_client import get_supabase
-from skills.skill_gh_issues import list_ready_issues
+from skills.skill_gh_issues import get_open_prs, list_ready_issues
 from skills.skill_model_usage import format_costs_report
 
 logger = logging.getLogger(__name__)
@@ -76,13 +76,14 @@ async def pipeline_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
     if args and args[0].startswith("#"):
         issue_num = int(args[0][1:])
+        repo_slug = args[1] if len(args) > 1 else None
         await update.message.reply_text(
             f"🔧 *Pipeline lancé*\nIssue #{issue_num} en cours de traitement...",
             parse_mode="Markdown",
         )
         agent = DevAppAgent(telegram_notify_fn=_telegram_notify(context, chat_id))
         context.application.create_task(
-            asyncio.to_thread(agent.process_issue_by_number, issue_num)
+            asyncio.to_thread(agent.process_issue_by_number, issue_num, repo_slug)
         )
         return
 
@@ -102,12 +103,17 @@ async def pipeline_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
     keyboard = []
     for issue in issues[:8]:
+        repo_name = issue.get("_repo_name", "Hub")
         keyboard.append(
             [
                 InlineKeyboardButton(
-                    f"#{issue['number']} — {issue['title'][:40]}",
+                    f"[{repo_name}] #{issue['number']} — {issue['title'][:32]}",
                     callback_data=json.dumps(
-                        {"action": "run_issue", "number": issue["number"]}
+                        {
+                            "action": "run_issue",
+                            "number": issue["number"],
+                            "repo": issue.get("_repo_slug"),
+                        }
                     ),
                 )
             ]
@@ -125,39 +131,26 @@ async def pipeline_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
 
 async def prs_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """/prs — liste les PRs ouvertes sur le repo avec boutons actions."""
+    """/prs — liste les PRs ouvertes (tous repos) avec boutons actions."""
     if not update.message:
         return
 
-    repo = os.getenv("GITHUB_REPO")
-    token = os.getenv("GITHUB_TOKEN")
-
-    if not repo or not token:
-        await update.message.reply_text("❌ GITHUB_REPO ou GITHUB_TOKEN non configuré.")
+    if not os.getenv("GITHUB_TOKEN"):
+        await update.message.reply_text("❌ GITHUB_TOKEN non configuré.")
         return
 
     try:
-        with httpx.Client() as client:
-            resp = client.get(
-                f"https://api.github.com/repos/{repo}/pulls",
-                headers={
-                    "Authorization": f"Bearer {token}",
-                    "Accept": "application/vnd.github+json",
-                },
-                params={"state": "open", "per_page": 8},
-            )
-            resp.raise_for_status()
-            prs = resp.json()
+        prs = get_open_prs()
 
         if not prs:
             await update.message.reply_text("✅ Aucune PR ouverte.")
             return
 
-        for pr in prs:
+        for pr in prs[:12]:
             number = pr["number"]
             title = pr["title"]
-            labels = [label["name"] for label in pr.get("labels", [])]
-            auto_tag = "🤖 Auto" if "auto-generated" in labels else "👤"
+            repo_name = pr.get("repo_name", "Hub")
+            auto_tag = "🤖 Auto" if pr.get("auto") else "👤"
 
             keyboard = [
                 [
@@ -168,7 +161,9 @@ async def prs_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
                             {
                                 "action": "run_tests",
                                 "pr": number,
-                                "branch": pr["head"]["ref"],
+                                "branch": pr["branch"],
+                                "repo_path": pr.get("repo_path"),
+                                "github_repo": pr.get("github_repo"),
                             }
                         ),
                     ),
@@ -176,7 +171,7 @@ async def prs_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
             ]
 
             await update.message.reply_text(
-                f"{auto_tag} *PR #{number}*\n{title}\n`{pr['head']['ref']}`",
+                f"{auto_tag} *[{repo_name}] PR #{number}*\n{title}\n`{pr['branch']}`",
                 reply_markup=InlineKeyboardMarkup(keyboard),
                 parse_mode="Markdown",
             )
@@ -237,6 +232,12 @@ async def cmd_connect(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     from skills.skill_composio import get_oauth_link
 
     link = get_oauth_link(app=app, user_id="alnua_coo")
+    if link.startswith("Erreur:"):
+        await update.message.reply_text(f"❌ {link}")
+        return
+    if "déjà connecté" in link:
+        await update.message.reply_text(f"✅ {link}")
+        return
     await update.message.reply_text(
         f"🔗 Connecte {app} :\n{link}\n\nOuvre ce lien dans ton navigateur."
     )
@@ -298,6 +299,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
     elif action == "run_issue":
         issue_num = data["number"]
+        repo_slug = data.get("repo")
         await query.edit_message_text(
             f"🔧 *Pipeline démarré*\nIssue #{issue_num} en cours de traitement...\n"
             f"Je te notifie quand c'est prêt.",
@@ -306,12 +308,16 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         if chat_id is not None:
             agent = DevAppAgent(telegram_notify_fn=_telegram_notify(context, chat_id))
             context.application.create_task(
-                asyncio.to_thread(agent.process_issue_by_number, issue_num)
+                asyncio.to_thread(
+                    agent.process_issue_by_number, issue_num, repo_slug
+                )
             )
 
     elif action == "run_tests":
         branch = data.get("branch")
         pr_num = data.get("pr")
+        repo_path = data.get("repo_path") or _hub_repo_path()
+        github_repo = data.get("github_repo")
         await query.edit_message_text(
             f"🧪 *Tests QA lancés*\nBranche : `{branch}`\nPR #{pr_num}\n"
             f"Résultats dans quelques minutes...",
@@ -323,10 +329,11 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             context.application.create_task(
                 asyncio.to_thread(
                     run_and_report,
-                    _hub_repo_path(),
+                    repo_path,
                     branch,
                     pr_num,
                     _telegram_notify(context, chat_id),
+                    github_repo=github_repo,
                 )
             )
 
