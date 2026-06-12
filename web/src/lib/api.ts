@@ -1,4 +1,5 @@
 import type { Project, Ticket } from "./types";
+import { hubApiKeyHeaders } from "./hub-api-key";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
@@ -16,10 +17,10 @@ async function apiFetch<T>(
     const res = await fetch(`${API_URL}${path}`, {
       ...fetchOptions,
       signal: controller.signal,
-      headers: {
+      headers: hubApiKeyHeaders({
         "Content-Type": "application/json",
         ...fetchOptions.headers,
-      },
+      }),
       cache: "no-store",
     });
 
@@ -62,6 +63,7 @@ export async function sendCOOInstruction(
   return apiFetch<COOInstructionResult>("/agents/coo/instruction", {
     method: "POST",
     body: JSON.stringify({ instruction, project: project ?? null }),
+    timeoutMs: 120_000,
   });
 }
 

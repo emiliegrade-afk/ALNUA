@@ -31,7 +31,7 @@ from fastapi import (
     WebSocketDisconnect,
 )
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, RedirectResponse, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
 from agents.brainstorm_agent import BrainstormAgent, BRAINSTORM_NOTES_ROOT, WELCOME_MESSAGE
@@ -218,6 +218,27 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+def _is_hub_api_key_exempt(path: str) -> bool:
+    return path == "/health" or path.startswith("/beta/")
+
+
+@app.middleware("http")
+async def hub_api_key_middleware(request: Request, call_next):
+    """Require X-Hub-Key on all routes except health checks and beta portal."""
+    path = request.url.path
+    if _is_hub_api_key_exempt(path) or request.method == "OPTIONS":
+        return await call_next(request)
+
+    expected = get_settings().hub_api_key
+    provided = request.headers.get("X-Hub-Key")
+    if not provided or provided != expected:
+        return JSONResponse(
+            status_code=401,
+            content={"detail": "Cle API invalide ou absente"},
+        )
+    return await call_next(request)
 
 
 # ---------------------------------------------------------------------------

@@ -1,3 +1,5 @@
+import { hubApiKeyHeaders } from "./hub-api-key";
+
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
   "http://localhost:8000";
@@ -39,10 +41,10 @@ async function releasesFetch<T>(
     const res = await fetch(`${API_URL}${path}`, {
       ...fetchOptions,
       signal: controller.signal,
-      headers: {
+      headers: hubApiKeyHeaders({
         "Content-Type": "application/json",
         ...fetchOptions.headers,
-      },
+      }),
       cache: "no-store",
     });
 

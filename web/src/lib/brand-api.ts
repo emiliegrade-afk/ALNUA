@@ -1,3 +1,5 @@
+import { hubApiKeyHeaders } from "./hub-api-key";
+
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
   "http://localhost:8000";
@@ -187,10 +189,10 @@ async function brandFetch<T>(
       ...fetchOptions,
       signal: controller.signal,
       cache: "no-store",
-      headers: {
+      headers: hubApiKeyHeaders({
         "Content-Type": "application/json",
         ...fetchOptions.headers,
-      },
+      }),
     });
 
     if (!res.ok) {
@@ -200,6 +202,11 @@ async function brandFetch<T>(
 
     return res.json() as Promise<T>;
   } catch (err) {
+    if (err instanceof Error && err.message === "Failed to fetch") {
+      throw new Error(
+        "Impossible de joindre l'API (localhost:8000). Vérifie que le backend tourne."
+      );
+    }
     if (err instanceof Error && err.name === "AbortError") {
       throw new Error("Requête interrompue — le serveur met trop de temps à répondre.");
     }
@@ -226,6 +233,7 @@ export async function analyzeImage(
       body: form,
       signal: controller.signal,
       cache: "no-store",
+      headers: hubApiKeyHeaders(),
     });
 
     if (!res.ok) {
@@ -235,6 +243,11 @@ export async function analyzeImage(
 
     return res.json() as Promise<BrandAnalyzeResult>;
   } catch (err) {
+    if (err instanceof Error && err.message === "Failed to fetch") {
+      throw new Error(
+        "Impossible de joindre l'API (localhost:8000). Vérifie que le backend tourne."
+      );
+    }
     if (err instanceof Error && err.name === "AbortError") {
       throw new Error(
         "Analyse interrompue — GPT-4V met trop de temps à répondre."
@@ -286,7 +299,10 @@ export async function fetchBrandKit(kitId: string): Promise<BrandKitDetail> {
 }
 
 export async function downloadKitZip(kitId: string, brandName: string): Promise<void> {
-  const response = await fetch(brandKitDownloadUrl(kitId), { cache: "no-store" });
+  const response = await fetch(brandKitDownloadUrl(kitId), {
+    cache: "no-store",
+    headers: hubApiKeyHeaders(),
+  });
   if (!response.ok) {
     const text = await response.text().catch(() => response.statusText);
     throw new Error(`Téléchargement impossible (${response.status}): ${text}`);
@@ -312,7 +328,10 @@ export async function openKitFolder(kitId: string): Promise<void> {
 }
 
 export async function fetchBrandReport(reportPath: string): Promise<string> {
-  const response = await fetch(brandAssetUrl(reportPath), { cache: "no-store" });
+  const response = await fetch(brandAssetUrl(reportPath), {
+    cache: "no-store",
+    headers: hubApiKeyHeaders(),
+  });
   if (!response.ok) {
     throw new Error(`Impossible de charger le rapport (${response.status})`);
   }
@@ -349,7 +368,9 @@ export async function refineSegments(
 }
 
 export async function downloadAsset(formatName: string, filePath: string): Promise<void> {
-  const response = await fetch(brandAssetUrl(filePath));
+  const response = await fetch(brandAssetUrl(filePath), {
+    headers: hubApiKeyHeaders(),
+  });
   if (!response.ok) {
     throw new Error(`Téléchargement impossible (${response.status})`);
   }

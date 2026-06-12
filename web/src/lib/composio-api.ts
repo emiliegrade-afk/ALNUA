@@ -1,3 +1,5 @@
+import { hubApiKeyHeaders } from "./hub-api-key";
+
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
   "http://localhost:8000";
@@ -19,10 +21,10 @@ async function composioFetch<T>(
 ): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, {
     ...options,
-    headers: {
+    headers: hubApiKeyHeaders({
       "Content-Type": "application/json",
       ...options?.headers,
-    },
+    }),
     cache: "no-store",
   });
 

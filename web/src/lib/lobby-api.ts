@@ -5,13 +5,18 @@ import { fetchBrandKits } from "@/lib/brand-api";
 import { fetchPosts } from "@/lib/content";
 import { getSupabase } from "@/lib/supabase";
 
+import { hubApiKeyHeaders } from "./hub-api-key";
+
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
   "http://localhost:8000";
 
 async function apiGet<T>(path: string): Promise<T | null> {
   try {
-    const res = await fetch(`${API_URL}${path}`, { cache: "no-store" });
+    const res = await fetch(`${API_URL}${path}`, {
+      cache: "no-store",
+      headers: hubApiKeyHeaders(),
+    });
     if (!res.ok) return null;
     return res.json() as Promise<T>;
   } catch {
@@ -187,6 +192,7 @@ export async function runPipelineIssue(
   const query = repoSlug ? `?repo=${encodeURIComponent(repoSlug)}` : "";
   const res = await fetch(`${API_URL}/pipeline/run/${issueNumber}${query}`, {
     method: "POST",
+    headers: hubApiKeyHeaders(),
   });
   if (!res.ok) {
     throw new Error(`Pipeline start failed: ${res.status}`);
