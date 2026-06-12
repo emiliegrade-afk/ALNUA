@@ -15,6 +15,12 @@ import os
 import subprocess
 from typing import Any
 
+PI_NOT_CONFIGURED = "Raspberry Pi non configuré — renseigne PI_HOST dans .env"
+
+
+def pi_is_configured() -> bool:
+    return bool(os.getenv("PI_HOST", "").strip())
+
 
 def run_pi_command(command: str, timeout: int = 30) -> dict[str, Any]:
     """
@@ -30,7 +36,7 @@ def run_pi_command(command: str, timeout: int = 30) -> dict[str, Any]:
     if not pi_host:
         return {
             "success": False,
-            "output": "PI_HOST non configuré dans .env",
+            "output": PI_NOT_CONFIGURED,
             "host": "",
             "command": command,
         }

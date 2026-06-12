@@ -28,7 +28,7 @@ from crewai.tools import tool
 from skills.skill_coding_agent import execute_coding_task
 from skills.skill_naia_embodied import call_naia_embodied
 from skills.skill_langfuse import trace_agent
-from skills.skill_pi_ssh import run_pi_command
+from skills.skill_pi_ssh import PI_NOT_CONFIGURED, pi_is_configured, run_pi_command
 from skills.skill_retry_loop import retry_with_learning
 
 logger = logging.getLogger(__name__)
@@ -42,6 +42,17 @@ def execute_pi_ssh_with_retry(
     telegram_notify_fn: Callable[[str], None] | None = None,
 ) -> dict:
     """Run an SSH command on Eve Pi with retry on unstable connections."""
+    if not pi_is_configured():
+        return {
+            "success": False,
+            "error": PI_NOT_CONFIGURED,
+            "result": {
+                "success": False,
+                "output": PI_NOT_CONFIGURED,
+                "host": "",
+                "command": command,
+            },
+        }
 
     def _attempt(learning_context: str) -> dict:
         result = run_pi_command(command, timeout)
@@ -85,6 +96,9 @@ def pi_ssh_tool(command_json: str) -> str:
     Utilise les variables d'env PI_HOST, PI_USER, PI_SSH_KEY.
     """
     try:
+        if not pi_is_configured():
+            return PI_NOT_CONFIGURED
+
         data = json.loads(command_json)
         retry_result = execute_pi_ssh_with_retry(
             data["command"],
@@ -129,7 +143,7 @@ def deploy_pi_tool(deploy_json: str) -> str:
         source = data.get("source_path", "./eve/")
 
         if not pi_host:
-            return "❌ PI_HOST non configuré"
+            return PI_NOT_CONFIGURED
 
         result = subprocess.run(
             [
