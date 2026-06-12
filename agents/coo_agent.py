@@ -42,7 +42,7 @@ def detect_target_repo(message: str) -> str:
     msg = message.lower()
     if "naïa" in msg or "naia" in msg:
         return "naia"
-    if "nomad" in msg:
+    if "nomad" in msg or "nuaway" in msg:
         return "nomad"
     return "hub"
 
@@ -60,7 +60,7 @@ def create_github_issue_via_composio(
         return {"success": False, "error": f"Invalid repo slug: {repo}"}
 
     result = composio_execute(
-        action="GITHUB_CREATE_ISSUE",
+        action="GITHUB_CREATE_AN_ISSUE",
         params={
             "owner": owner,
             "repo": repo_name,
