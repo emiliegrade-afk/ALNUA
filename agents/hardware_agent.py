@@ -75,11 +75,19 @@ Documentation : [lien datasheet]
 Bibliothèque Python : [pip install ...]"""
 
 
+BOM_CATEGORIES = (
+    "vision", "audio", "moteur", "alimentation",
+    "microcontroleur", "chassis", "compute", "autre",
+)
+
+
 @tool("bom_manager")
 def bom_manager_tool(action_json: str) -> str:
     """
     Gère le BOM (Bill of Materials) d'Eve robot dans Supabase.
     Input JSON : action (add|list|update|total), component, category, quantity, etc.
+    category MUST be one of: vision, audio, moteur, alimentation, microcontroleur,
+    chassis, compute (Pi/SBC/main board), autre.
     """
     try:
         data = json.loads(action_json)
@@ -96,9 +104,16 @@ def bom_manager_tool(action_json: str) -> str:
             return f"💰 BOM Eve Robot — Total estimé : {total:.2f}€ ({len(rows)} composants)"
 
         if action == "add":
+            category = data.get("category", "autre")
+            if category not in BOM_CATEGORIES:
+                allowed = ", ".join(BOM_CATEGORIES)
+                return (
+                    f"Catégorie BOM invalide : '{category}'. "
+                    f"Utilise uniquement : {allowed}"
+                )
             row = {
                 "component": data["component"],
-                "category": data.get("category", "autre"),
+                "category": category,
                 "quantity": data.get("quantity", 1),
                 "unit_price": data.get("unit_price"),
                 "supplier": data.get("supplier"),
