@@ -62,7 +62,7 @@ def seo_audit_tool(url: str) -> str:
     try:
         return run_seo_audit(url)
     except Exception as e:
-        return f"❌ Erreur audit SEO : {e}"
+        return f"[ERREUR] Erreur audit SEO : {e}"
 
 
 @tool("web_search")
@@ -76,7 +76,7 @@ def web_search_tool(query: str) -> str:
             [f"**{r['title']}**\n{r['url']}\n{r['snippet']}" for r in results]
         )
     except Exception as e:
-        return f"❌ Erreur recherche : {e}"
+        return f"[ERREUR] Erreur recherche : {e}"
 
 
 @tool("browse_page")
@@ -87,7 +87,7 @@ def browse_tool(url: str) -> str:
     try:
         return browse_url(url)[:2000]
     except Exception as e:
-        return f"❌ Erreur navigation : {e}"
+        return f"[ERREUR] Erreur navigation : {e}"
 
 
 @tool("discord_community")
@@ -107,7 +107,7 @@ def discord_community_tool(action_json: str) -> str:
             result = post_to_discord(data["channel"], data["content"], data.get("embed", False))
             if not result.get("success"):
                 return f"Discord indisponible : {result.get('error', 'erreur inconnue')}"
-            return f"✅ Posté dans #{data['channel']}"
+            return f"[OK] Posté dans #{data['channel']}"
 
         if action == "read":
             messages = get_recent_messages(data.get("channel", "général"), limit=20)
@@ -118,7 +118,7 @@ def discord_community_tool(action_json: str) -> str:
 
         return f"Action Discord '{action}' non reconnue."
     except Exception as e:
-        return f"❌ Erreur Discord : {e}"
+        return f"[ERREUR] Erreur Discord : {e}"
 
 
 @tool("create_content")
@@ -152,7 +152,7 @@ Pour changelog : format version, date, sections Added/Changed/Fixed
 
 Adapte le ton : {tone} = {tone_desc}"""
     except Exception as e:
-        return f"❌ Erreur génération contenu : {e}"
+        return f"[ERREUR] Erreur génération contenu : {e}"
 
 
 class MarketingAgent:

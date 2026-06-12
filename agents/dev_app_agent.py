@@ -61,10 +61,10 @@ def coding_agent_tool(spec_json: str) -> str:
         spec = json.loads(spec_json)
         result = execute_coding_task(spec, telegram_notify_fn=_telegram_notify)
         if result["success"]:
-            return f"✅ PR créée : {result['pr_url']}"
-        return f"❌ Échec : {result['error']}"
+            return f"[OK] PR créée : {result['pr_url']}"
+        return f"[ERREUR] Échec : {result['error']}"
     except Exception as e:
-        return f"❌ Erreur tool coding_agent : {e}"
+        return f"[ERREUR] Erreur tool coding_agent : {e}"
 
 
 @tool("list_ready_issues")
@@ -92,7 +92,7 @@ def list_issues_tool(dummy: str = "") -> str:
             indent=2,
         )
     except Exception as e:
-        return f"❌ Erreur : {e}"
+        return f"[ERREUR] Erreur : {e}"
 
 
 @tool("run_qa_tests")
@@ -108,13 +108,13 @@ def qa_tests_tool(input_json: str) -> str:
             branch=data["branch"],
             pr_number=data["pr_number"],
         )
-        status = "✅ Passés" if result["passed"] else "❌ Échoués"
+        status = "[OK] Passés" if result["passed"] else "[ERREUR] Échoués"
         return (
             f"{status} — {result['passed_count']}/{result['total']} tests "
             f"en {result['duration_s']}s"
         )
     except Exception as e:
-        return f"❌ Erreur tests : {e}"
+        return f"[ERREUR] Erreur tests : {e}"
 
 
 @tool("get_costs_report")

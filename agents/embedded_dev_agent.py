@@ -106,13 +106,13 @@ def pi_ssh_tool(command_json: str) -> str:
             telegram_notify_fn=_telegram_notify,
         )
         if not retry_result["success"]:
-            return f"❌ SSH échoué après 3 tentatives : {retry_result['error']}"
+            return f"[ERREUR] SSH échoué après 3 tentatives : {retry_result['error']}"
         result = retry_result["result"]
         if not result["success"] and result["host"] == "":
-            return f"❌ {result['output']}"
+            return f"[ERREUR] {result['output']}"
         return f"Pi [{result['host']}] $ {result['command']}\n{result['output']}"
     except Exception as e:
-        return f"❌ Erreur SSH : {e}"
+        return f"[ERREUR] Erreur SSH : {e}"
 
 
 @tool("naia_embodied_call")
@@ -126,7 +126,7 @@ def naia_embodied_tool(action_json: str) -> str:
         result = call_naia_embodied(data["action"], data.get("params", {}))
         return f"naia-embodied → {result['status_code']} : {result['body'][:200]}"
     except Exception as e:
-        return f"❌ Erreur naia-embodied : {e}"
+        return f"[ERREUR] Erreur naia-embodied : {e}"
 
 
 @tool("deploy_to_pi")
@@ -162,9 +162,9 @@ def deploy_pi_tool(deploy_json: str) -> str:
         )
 
         if result.returncode != 0:
-            return f"❌ rsync échoué : {result.stderr}"
+            return f"[ERREUR] rsync échoué : {result.stderr}"
 
-        output = f"✅ Code déployé sur Pi ({pi_host})"
+        output = f"[OK] Code déployé sur Pi ({pi_host})"
 
         if data.get("restart_service"):
             restart = subprocess.run(
@@ -183,7 +183,7 @@ def deploy_pi_tool(deploy_json: str) -> str:
 
         return output
     except Exception as e:
-        return f"❌ Erreur déploiement : {e}"
+        return f"[ERREUR] Erreur déploiement : {e}"
 
 
 @tool("eve_coding_agent")
@@ -206,10 +206,10 @@ def eve_code_tool(spec_json: str) -> str:
         )
         result = execute_coding_task(spec, telegram_notify_fn=_telegram_notify)
         if result["success"]:
-            return f"✅ PR Eve créée : {result['pr_url']}"
-        return f"❌ Échec : {result['error']}"
+            return f"[OK] PR Eve créée : {result['pr_url']}"
+        return f"[ERREUR] Échec : {result['error']}"
     except Exception as e:
-        return f"❌ Erreur : {e}"
+        return f"[ERREUR] Erreur : {e}"
 
 
 class EmbeddedDevAgent:

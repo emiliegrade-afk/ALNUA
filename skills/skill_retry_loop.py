@@ -103,7 +103,7 @@ def retry_with_learning(
 
             if telegram_notify_fn and attempt > 1:
                 telegram_notify_fn(
-                    f"✅ **{agent_name}** — Tâche `{task_id}` réussie après {attempt} tentative(s)"
+                    f"[OK] **{agent_name}** — Tâche `{task_id}` réussie après {attempt} tentative(s)"
                 )
 
             return {

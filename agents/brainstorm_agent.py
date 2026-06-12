@@ -73,7 +73,7 @@ tags: [2-4 mots-clés]
 
 ---
 
-## ✅ Idées retenues
+## [OK] Idees retenues
 [Seulement les idées validées ou intéressantes, avec une phrase d'explication chacune]
 - **[Idée]** → [Pourquoi c'est retenu]
 
@@ -422,7 +422,7 @@ Génère la fiche complète en markdown en suivant EXACTEMENT le template fourni
         )
 
         title = self._extract_markdown_title(summary_md)
-        key_ideas = self._parse_section_items(summary_md, "✅ Idées retenues")
+        key_ideas = self._parse_section_items(summary_md, "[OK] Idees retenues")
         if not key_ideas:
             key_ideas = self._parse_section_items(summary_md, "💡 Idées explorées")[:10]
 

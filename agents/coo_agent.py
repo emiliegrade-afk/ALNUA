@@ -167,7 +167,7 @@ def send_email_via_gmail(to: str, subject: str, body: str) -> str:
         params={"recipient_email": to, "subject": subject, "body": body},
         user_id="alnua_coo",
     )
-    return "Email envoyé ✅" if result["success"] else f"Erreur: {result['error']}"
+    return "Email envoyé [OK]" if result["success"] else f"Erreur: {result['error']}"
 
 
 @tool("create_calendar_event")
@@ -178,7 +178,7 @@ def create_calendar_event(title: str, date: str, description: str = "") -> str:
         params={"summary": title, "start_datetime": date, "description": description},
         user_id="alnua_coo",
     )
-    return "Événement créé ✅" if result["success"] else f"Erreur: {result['error']}"
+    return "Événement créé [OK]" if result["success"] else f"Erreur: {result['error']}"
 
 
 @tool("search_knowledge_base")
@@ -666,7 +666,7 @@ class COOAgent:
         from skills.skill_error_journal import get_open_errors_summary
 
         errors_summary = get_open_errors_summary()
-        if not errors_summary.startswith("✅"):
+        if not errors_summary.startswith("[OK]"):
             summary_lines.append("")
             summary_lines.append("🔴 Journal d'erreurs agents :")
             summary_lines.append(errors_summary)
@@ -824,7 +824,7 @@ class COOAgent:
                     )
                     return {
                         "response": (
-                            f"✅ Issue #{issue['number']} créée sur "
+                            f"[OK] Issue #{issue['number']} créée sur "
                             f"`{target.github_repo}` avec le label `agent-ready`.\n"
                             f"Le pipeline va démarrer dans ~30 secondes.\n"
                             f"→ Voir l'issue : {issue['url']}"
@@ -985,7 +985,7 @@ def main() -> None:
     try:
         coo = COOAgent(verbose=True)
     except Exception as exc:
-        print(f"\n❌ Impossible d'initialiser le COO : {exc}")
+        print(f"\n[ERREUR] Impossible d'initialiser le COO : {exc}")
         print("Vérifie ton fichier .env (SUPABASE_URL, SUPABASE_KEY, OPENROUTER_API_KEY).")
         return
 

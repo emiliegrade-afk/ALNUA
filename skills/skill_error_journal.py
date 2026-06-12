@@ -133,7 +133,7 @@ def build_retry_context(similar_errors: list[dict[str, Any]]) -> str:
         lines.append(f"Erreur #{i} ({err.get('error_type', '?')}) :")
         lines.append(f"  Problème : {err.get('error_message', '?')[:200]}")
         if err.get("solution"):
-            lines.append(f"  ✅ Solution qui a fonctionné : {err['solution'][:300]}")
+            lines.append(f"  [OK] Solution qui a fonctionné : {err['solution'][:300]}")
         lines.append("")
 
     lines.append("→ Tiens compte de ces expériences passées pour éviter les mêmes erreurs.\n")
@@ -155,7 +155,7 @@ def get_open_errors_summary(agent_name: str | None = None) -> str:
         results = query.order("created_at", desc=True).limit(10).execute()
 
         if not results.data:
-            return "✅ Aucune erreur ouverte dans le journal."
+            return "[OK] Aucune erreur ouverte dans le journal."
 
         lines = [f"⚠️ {len(results.data)} erreur(s) non résolue(s) :"]
         for err in results.data:
@@ -166,4 +166,4 @@ def get_open_errors_summary(agent_name: str | None = None) -> str:
         return "\n".join(lines)
 
     except Exception as exc:
-        return f"❌ Erreur lecture journal : {exc}"
+        return f"[ERREUR] Erreur lecture journal : {exc}"

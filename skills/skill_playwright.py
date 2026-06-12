@@ -100,7 +100,7 @@ def post_pr_comment(
     repo = github_repo or os.getenv("GITHUB_REPO")
     if not repo:
         raise ValueError("github_repo ou GITHUB_REPO requis pour commenter la PR")
-    status_icon = "✅" if test_result["passed"] else "❌"
+    status_icon = "[OK]" if test_result["passed"] else "[ERREUR]"
     status_text = "Tests passés" if test_result["passed"] else "Tests échoués"
 
     body = f"""## {status_icon} QA Agent — Rapport de tests
@@ -154,7 +154,7 @@ def run_and_report(
         logger.warning("[Playwright] Impossible de commenter la PR : %s", e)
 
     if telegram_notify_fn:
-        icon = "✅" if result["passed"] else "❌"
+        icon = "[OK]" if result["passed"] else "[ERREUR]"
         telegram_notify_fn(
             f"{icon} **Tests QA — PR #{pr_number}**\n"
             f"{result['passed_count']}/{result['total']} tests passés\n"

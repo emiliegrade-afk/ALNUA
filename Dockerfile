@@ -32,6 +32,8 @@ RUN curl -fsSL https://claude.ai/install.sh | sh || \
 # Répertoire de travail
 WORKDIR /app
 
+ENV PYTHONUTF8=1
+
 # Copier requirements en premier (cache Docker)
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt

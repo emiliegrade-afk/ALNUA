@@ -233,11 +233,11 @@ def _execute_coding_task_core(spec: dict) -> dict:
         pr_url = pr_out.strip().split("\n")[-1]
         result["pr_url"] = pr_url
         result["success"] = True
-        logger.info("[CodingAgent] ✅ PR créée : %s", pr_url)
+        logger.info("[CodingAgent] [OK] PR créée : %s", pr_url)
 
     except Exception as e:
         result["error"] = str(e)
-        logger.error("[CodingAgent] ❌ Erreur : %s", e)
+        logger.error("[CodingAgent] [ERREUR] Erreur : %s", e)
         raise
 
     finally:

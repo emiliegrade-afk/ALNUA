@@ -1,5 +1,6 @@
 # ALNUA Hub — démarre le frontend Next.js (un seul serveur)
 $ErrorActionPreference = "Stop"
+$env:PYTHONUTF8 = "1"
 $webRoot = (Join-Path (Join-Path $PSScriptRoot "..") "web") | Resolve-Path
 
 # Libère le port 3000 si un ancien next dev traîne

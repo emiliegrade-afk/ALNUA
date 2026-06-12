@@ -86,9 +86,9 @@ def lore_add_tool(entry_json: str) -> str:
     try:
         entry = json.loads(entry_json)
         result = add_lore_entry(entry)
-        return f"✅ Entrée lore créée : '{entry['title']}' (ID: {result.get('id', '?')})"
+        return f"[OK] Entrée lore créée : '{entry['title']}' (ID: {result.get('id', '?')})"
     except Exception as e:
-        return f"❌ Erreur : {e}"
+        return f"[ERREUR] Erreur : {e}"
 
 
 @tool("quest_generator")
@@ -114,7 +114,7 @@ def quest_generator_tool(context_json: str) -> str:
 
 Note : Développe chaque section en cohérence avec le lore existant via lore_search."""
     except Exception as e:
-        return f"❌ Erreur : {e}"
+        return f"[ERREUR] Erreur : {e}"
 
 
 @tool("discord_wyrdheim_post")
@@ -131,9 +131,9 @@ def discord_post_tool(message_json: str) -> str:
         result = post_to_discord(data["channel"], data["content"], data.get("embed", False))
         if not result.get("success"):
             return f"Discord indisponible : {result.get('error', 'erreur inconnue')}"
-        return f"✅ Posté dans #{data['channel']}"
+        return f"[OK] Posté dans #{data['channel']}"
     except Exception as e:
-        return f"❌ Erreur Discord : {e}"
+        return f"[ERREUR] Erreur Discord : {e}"
 
 
 @tool("discord_read_community")
@@ -151,7 +151,7 @@ def discord_read_tool(channel: str = "général") -> str:
             return f"Aucun message récent dans #{channel}"
         return "\n".join([f"[{m['author']}] {m['content']}" for m in messages])
     except Exception as e:
-        return f"❌ Erreur lecture Discord : {e}"
+        return f"[ERREUR] Erreur lecture Discord : {e}"
 
 
 class GameDirectorAgent:

@@ -33,7 +33,7 @@ def run_seo_audit(url: str) -> str:
         )
 
         if result.returncode != 0:
-            return f"❌ Lighthouse échoué : {result.stderr[:300]}"
+            return f"[ERREUR] Lighthouse échoué : {result.stderr[:300]}"
 
         data = json.loads(result.stdout)
         cats = data.get("categories", {})
@@ -66,6 +66,6 @@ def run_seo_audit(url: str) -> str:
         return report
 
     except FileNotFoundError:
-        return "❌ Lighthouse non installé. Exécute : npm install -g lighthouse"
+        return "[ERREUR] Lighthouse non installé. Exécute : npm install -g lighthouse"
     except Exception as e:
-        return f"❌ Erreur audit : {e}"
+        return f"[ERREUR] Erreur audit : {e}"

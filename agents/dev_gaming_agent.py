@@ -77,7 +77,7 @@ def execute_ue5_task_with_retry(
 
     if retry_result["success"]:
         return retry_result["result"]
-    return "❌ Échec après 3 tentatives — escaladé au COO"
+    return "[ERREUR] Échec après 3 tentatives — escaladé au COO"
 
 
 def _build_llm() -> LLM:
@@ -129,12 +129,12 @@ def nwiro_execute_tool(request_json: str) -> str:
             telegram_notify_fn=_telegram_notify,
         )
         if retry_result["success"]:
-            return f"✅ Nwiro [{tool_name}] : {retry_result['result']}"
-        return f"❌ Erreur Nwiro après 3 tentatives : {retry_result['error']}"
+            return f"[OK] Nwiro [{tool_name}] : {retry_result['result']}"
+        return f"[ERREUR] Erreur Nwiro après 3 tentatives : {retry_result['error']}"
     except json.JSONDecodeError as e:
-        return f"❌ JSON invalide : {e}"
+        return f"[ERREUR] JSON invalide : {e}"
     except Exception as e:
-        return f"❌ Erreur Nwiro : {e}"
+        return f"[ERREUR] Erreur Nwiro : {e}"
 
 
 @tool("nwiro_prompt")
@@ -152,11 +152,11 @@ def nwiro_prompt_tool(prompt: str) -> str:
             prompt=prompt,
             telegram_notify_fn=_telegram_notify,
         )
-        if result == UE5_NOT_CONNECTED or result.startswith("❌"):
+        if result == UE5_NOT_CONNECTED or result.startswith("[ERREUR]"):
             return result
-        return f"✅ Nwiro AI : {result}"
+        return f"[OK] Nwiro AI : {result}"
     except Exception as e:
-        return f"❌ Erreur : {e}"
+        return f"[ERREUR] Erreur : {e}"
 
 
 @tool("ue5_blueprint_spec")
@@ -236,10 +236,10 @@ def gaming_code_tool(spec_json: str) -> str:
         )
         result = execute_coding_task(spec, telegram_notify_fn=_telegram_notify)
         if result["success"]:
-            return f"✅ PR Gaming créée : {result['pr_url']}"
-        return f"❌ Échec : {result['error']}"
+            return f"[OK] PR Gaming créée : {result['pr_url']}"
+        return f"[ERREUR] Échec : {result['error']}"
     except Exception as e:
-        return f"❌ Erreur : {e}"
+        return f"[ERREUR] Erreur : {e}"
 
 
 class DevGamingAgent:

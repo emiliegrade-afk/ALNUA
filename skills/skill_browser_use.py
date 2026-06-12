@@ -28,9 +28,9 @@ def browse_url(url: str, wait_for: str | None = None) -> str:
             browser.close()
             return content[:3000]
     except ModuleNotFoundError:
-        return "❌ Playwright non installé — exécute : pip install playwright && playwright install chromium"
+        return "[ERREUR] Playwright non installé — exécute : pip install playwright && playwright install chromium"
     except Exception as e:
-        return f"❌ Erreur navigation {url} : {e}"
+        return f"[ERREUR] Erreur navigation {url} : {e}"
 
 
 def search_web(query: str, limit: int = 5) -> list[dict[str, str]]:

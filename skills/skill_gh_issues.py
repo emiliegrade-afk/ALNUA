@@ -333,7 +333,7 @@ def process_issue(
     )
     post_comment(
         number,
-        f"🤖 **Dev App Agent** prend en charge cette issue ({target.name}).\n\n"
+        f"[BOT] **Dev App Agent** prend en charge cette issue ({target.name}).\n\n"
         f"Pipeline démarré à {datetime.now().strftime('%H:%M')}...",
         github_repo=github_repo,
     )
@@ -357,7 +357,7 @@ def process_issue(
         short_sha = commit_sha[:7] if commit_sha else "n/a"
         post_comment(
             number,
-            f"✅ **PR créée avec succès !**\n\n"
+            f"[OK] **PR créée avec succès !**\n\n"
             f"**PR :** {result['pr_url']}\n"
             f"**Branch :** `{result['branch']}`\n"
             f"**Commit :** `{short_sha}`\n\n"
@@ -366,7 +366,7 @@ def process_issue(
         )
         if telegram_notify_fn:
             telegram_notify_fn(
-                f"✅ **Pipeline terminé** ({target.name})\n"
+                f"[OK] **Pipeline terminé** ({target.name})\n"
                 f"Issue #{number} : {title}\n"
                 f"PR : {result['pr_url']}"
             )
@@ -392,12 +392,12 @@ def process_issue(
         )
         post_comment(
             number,
-            f"❌ **Pipeline échoué**\n\nErreur : `{result['error']}`\n\nIntervention humaine requise.",
+            f"[ERREUR] **Pipeline échoué**\n\nErreur : `{result['error']}`\n\nIntervention humaine requise.",
             github_repo=github_repo,
         )
         if telegram_notify_fn:
             telegram_notify_fn(
-                f"❌ **Pipeline échoué** ({target.name})\n"
+                f"[ERREUR] **Pipeline échoué** ({target.name})\n"
                 f"Issue #{number} : {title}\n"
                 f"Erreur : {result['error']}"
             )

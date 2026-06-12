@@ -1,4 +1,4 @@
-"""ALNUA Hub — FastAPI REST API."""
+﻿"""ALNUA Hub â€” FastAPI REST API."""
 
 from __future__ import annotations
 
@@ -181,7 +181,7 @@ async def lifespan(app: FastAPI):
         logger.info("GitHub Issues polling started (multi-repo, agent-ready)")
     else:
         logger.warning(
-            "GitHub Issues polling disabled — GITHUB_TOKEN or repo config missing"
+            "GitHub Issues polling disabled â€” GITHUB_TOKEN or repo config missing"
         )
 
     yield
@@ -199,7 +199,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="ALNUA Hub",
-    description="Backend IA pour ALNUA — agents, bots et données centralisées",
+    description="Backend IA pour ALNUA â€” agents, bots et donnÃ©es centralisÃ©es",
     version="0.1.0",
     lifespan=lifespan,
 )
@@ -463,7 +463,7 @@ class BetaFeedbackRequest(BaseModel):
     description: str = ""
     severity: str | None = Field(
         default=None,
-        pattern="^(bloquant|majeur|mineur|cosmétique)$",
+        pattern="^(bloquant|majeur|mineur|cosmÃ©tique)$",
     )
     screenshot_base64: str | None = None
 
@@ -632,7 +632,7 @@ async def run_pipeline_background(
             repo_path = issue.get("_repo_path")
             if not repo_path:
                 raise ValueError(
-                    f"Issue #{issue_number} sans métadonnée repo — préciser ?repo=hub|naia|nomad"
+                    f"Issue #{issue_number} sans mÃ©tadonnÃ©e repo â€” prÃ©ciser ?repo=hub|naia|nomad"
                 )
 
             github_repo = issue.get("_github_repo", "")
@@ -644,7 +644,7 @@ Repo: {github_repo}
 Branche: main
 """
             task["progress"] = 40
-            _log("Envoi à OpenHands...")
+            _log("Envoi Ã  OpenHands...")
 
             result = await asyncio.to_thread(
                 run_openhands_task,
@@ -656,19 +656,19 @@ Branche: main
                 task["status"] = "completed"
                 task["progress"] = 100
                 summary = result.get("result", "")
-                _log(f"✅ Terminé: {summary[:200]}")
+                _log(f"[OK] Termine: {summary[:200]}")
                 if trace:
                     trace.update(output="completed")
             else:
                 task["status"] = "failed"
                 task["progress"] = 100
-                _log(f"❌ Erreur: {result['result']}")
+                _log(f"[ERREUR] Erreur: {result['result']}")
                 if trace:
                     trace.update(output=f"failed: {result['result']}", level="ERROR")
         except Exception as exc:
             task["status"] = "failed"
             task["progress"] = 100
-            _log(f"❌ Exception: {exc}")
+            _log(f"[ERREUR] Exception: {exc}")
             if trace:
                 trace.update(output=f"failed: {exc}", level="ERROR")
             logger.exception("Pipeline task %s failed", task_id)
@@ -676,7 +676,7 @@ Branche: main
 
 @app.get("/pipeline/issues")
 async def get_ready_issues():
-    """Liste les issues GitHub prêtes à être traitées."""
+    """Liste les issues GitHub prÃªtes Ã  Ãªtre traitÃ©es."""
     try:
         return list_ready_issues()
     except ValueError as exc:
@@ -685,7 +685,7 @@ async def get_ready_issues():
 
 @app.post("/pipeline/run/{issue_number}")
 async def run_pipeline(issue_number: int, repo: str | None = None):
-    """Déclenche le pipeline sur une issue spécifique (repo=hub|naia|nomad)."""
+    """DÃ©clenche le pipeline sur une issue spÃ©cifique (repo=hub|naia|nomad)."""
     task_id = str(uuid.uuid4())
     _pipeline_tasks[task_id] = {
         "status": "starting",
@@ -706,7 +706,7 @@ async def run_pipeline(issue_number: int, repo: str | None = None):
 
 @app.get("/pipeline/status/{task_id}")
 async def pipeline_status(task_id: str):
-    """Retourne l'état d'une exécution pipeline (polling côté client)."""
+    """Retourne l'Ã©tat d'une exÃ©cution pipeline (polling cÃ´tÃ© client)."""
     task = _pipeline_tasks.get(task_id)
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
@@ -838,7 +838,7 @@ def _format_log_time(value: str | None) -> str:
 
 @app.get("/agents/status")
 async def agents_status() -> dict[str, Any]:
-    """Statut OpenRoom — agents + 20 derniers logs."""
+    """Statut OpenRoom â€” agents + 20 derniers logs."""
     agents = _openroom_idle_agents()
     recent_logs: list[dict[str, str]] = []
 
@@ -960,7 +960,7 @@ async def costs_week():
 
 
 # ---------------------------------------------------------------------------
-# Dashboard — WebSocket live updates
+# Dashboard â€” WebSocket live updates
 # ---------------------------------------------------------------------------
 class ConnectionManager:
     def __init__(self):
@@ -999,7 +999,7 @@ async def websocket_coo(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_json()
-            await websocket.send_json({"type": "thinking", "message": "Analyse en cours…"})
+            await websocket.send_json({"type": "thinking", "message": "Analyse en coursâ€¦"})
             response = await asyncio.to_thread(
                 _get_coo_agent().handle_instruction,
                 data.get("message", ""),
@@ -1017,7 +1017,7 @@ async def websocket_pipeline(websocket: WebSocket):
         while True:
             await asyncio.sleep(5)
             await websocket.send_json(
-                {"type": "heartbeat", "message": "Pipeline actif — polling GitHub"}
+                {"type": "heartbeat", "message": "Pipeline actif â€” polling GitHub"}
             )
     except WebSocketDisconnect:
         ws_manager.disconnect(websocket)
@@ -1025,7 +1025,7 @@ async def websocket_pipeline(websocket: WebSocket):
 
 @app.get("/brief/today")
 async def get_brief_today():
-    """Brief matinal formaté pour le dashboard."""
+    """Brief matinal formatÃ© pour le dashboard."""
     try:
         briefing = await asyncio.to_thread(_get_coo_agent().get_daily_briefing)
     except Exception as exc:
@@ -1162,7 +1162,7 @@ def get_project(project_id: str) -> dict[str, Any]:
 
 @app.post("/projects")
 def create_project(body: ProjectCreate) -> dict[str, Any]:
-    """Crée un projet ALNUA et son dossier brainstorm_notes/[slug]."""
+    """CrÃ©e un projet ALNUA et son dossier brainstorm_notes/[slug]."""
     db = get_supabase()
     try:
         row = db.insert(
@@ -1182,8 +1182,8 @@ def create_project(body: ProjectCreate) -> dict[str, Any]:
             raise HTTPException(
                 status_code=503,
                 detail=(
-                    "Supabase RLS bloque la création. Utilise la clé service_role "
-                    "ou exécute database/fix_rls_dev.sql."
+                    "Supabase RLS bloque la crÃ©ation. Utilise la clÃ© service_role "
+                    "ou exÃ©cute database/fix_rls_dev.sql."
                 ),
             ) from exc
         logger.exception("create_project failed")
@@ -1269,7 +1269,7 @@ def list_tickets(
         allowed_types = set(ticket_type)
         tickets = [t for t in tickets if t.get("type") in allowed_types]
 
-    # Priorité critique d'abord, puis date desc (tri stable)
+    # PrioritÃ© critique d'abord, puis date desc (tri stable)
     tickets.sort(key=lambda t: t.get("created_at") or "", reverse=True)
     tickets.sort(key=lambda t: PRIORITY_ORDER.get(t.get("priority", "medium"), 9))
 
@@ -1289,7 +1289,7 @@ def update_ticket(ticket_id: str, body: TicketUpdate) -> dict[str, Any]:
 
     values = body.model_dump(exclude_none=True)
     if not values:
-        raise HTTPException(status_code=400, detail="Aucun champ à mettre à jour")
+        raise HTTPException(status_code=400, detail="Aucun champ Ã  mettre Ã  jour")
     return db.update("tickets", ticket_id, values)
 
 
@@ -1481,7 +1481,7 @@ def update_roadmap_item(item_id: str, body: RoadmapUpdate) -> dict[str, Any]:
     if "due_date" in values and values["due_date"] is not None:
         values["due_date"] = values["due_date"].isoformat()
     if not values:
-        raise HTTPException(status_code=400, detail="Aucun champ à mettre à jour")
+        raise HTTPException(status_code=400, detail="Aucun champ Ã  mettre Ã  jour")
 
     updated = db.update("roadmap", item_id, values)
     return _enrich_roadmap_items(db, [updated])[0]
@@ -1512,7 +1512,7 @@ def quick_capture(body: QuickCaptureRequest) -> dict[str, Any]:
     db = get_supabase()
     content = body.content.strip()
     if not content:
-        raise HTTPException(status_code=400, detail="Le contenu ne peut pas être vide")
+        raise HTTPException(status_code=400, detail="Le contenu ne peut pas Ãªtre vide")
 
     title = _quick_capture_title(content)
     priority = body.priority or "medium"
@@ -1604,7 +1604,7 @@ def create_roadmap_from_ticket(ticket_id: str) -> dict[str, Any]:
     if existing:
         raise HTTPException(
             status_code=409,
-            detail="Un item roadmap existe déjà pour ce ticket",
+            detail="Un item roadmap existe dÃ©jÃ  pour ce ticket",
         )
 
     priority = ticket.get("priority", "medium")
@@ -1699,7 +1699,7 @@ def _kpi_metric(
     project_id: str | None,
     use_sum_in_month: bool = False,
 ) -> dict[str, Any]:
-    """Calcule valeur du mois courant + variation vs mois précédent."""
+    """Calcule valeur du mois courant + variation vs mois prÃ©cÃ©dent."""
     cur_start, cur_end = month_bounds()
     prev_start, prev_end = previous_month_bounds()
 
@@ -1913,7 +1913,7 @@ def briefing_generate() -> dict[str, Any]:
 
 
 # ---------------------------------------------------------------------------
-# Releases — App Store / Google Play / CHANGELOG generator
+# Releases â€” App Store / Google Play / CHANGELOG generator
 # ---------------------------------------------------------------------------
 def _enrich_releases_with_project_names(
     db: Any, releases: list[dict[str, Any]]
@@ -2009,7 +2009,7 @@ def coo_instruction(body: COOInstruction) -> COOInstructionResponse:
 
 @app.post("/webhook/telegram")
 async def telegram_webhook(request: Request) -> dict[str, bool]:
-    """Receives Telegram updates (webhook mode — production)."""
+    """Receives Telegram updates (webhook mode â€” production)."""
     settings = get_settings()
     if not settings.telegram_bot_token:
         raise HTTPException(status_code=503, detail="Telegram bot not configured")
@@ -2069,7 +2069,7 @@ def brainstorm_chat(body: BrainstormChatRequest) -> dict[str, Any]:
     if not settings.openrouter_api_key.strip():
         raise HTTPException(
             status_code=503,
-            detail="OPENROUTER_API_KEY manquante — ajoute-la dans c:\\Dev\\ALNUA_HUB\\.env",
+            detail="OPENROUTER_API_KEY manquante â€” ajoute-la dans c:\\Dev\\ALNUA_HUB\\.env",
         )
     if not settings.supabase_url.strip() or not settings.supabase_key.strip():
         raise HTTPException(
@@ -2085,8 +2085,8 @@ def brainstorm_chat(body: BrainstormChatRequest) -> dict[str, Any]:
             raise HTTPException(
                 status_code=503,
                 detail=(
-                    "Supabase RLS bloque l'écriture. Utilise la clé service_role dans "
-                    "SUPABASE_KEY, ou exécute database/fix_rls_dev.sql dans Supabase."
+                    "Supabase RLS bloque l'Ã©criture. Utilise la clÃ© service_role dans "
+                    "SUPABASE_KEY, ou exÃ©cute database/fix_rls_dev.sql dans Supabase."
                 ),
             ) from exc
         logger.exception("brainstorm_chat failed")
@@ -2108,7 +2108,7 @@ def brainstorm_sessions(limit: int = Query(default=30, le=100)) -> list[dict[str
 
 @app.post("/brainstorm/sessions/{session_id}/summarize")
 def brainstorm_summarize(session_id: str) -> dict[str, Any]:
-    """Génère une fiche markdown, l'exporte et la sauvegarde en base."""
+    """GÃ©nÃ¨re une fiche markdown, l'exporte et la sauvegarde en base."""
     settings = get_settings()
     if not settings.openrouter_api_key.strip():
         raise HTTPException(status_code=503, detail="OPENROUTER_API_KEY manquante")
@@ -2144,7 +2144,7 @@ def reveal_summary_file(body: RevealFileRequest) -> dict[str, bool]:
     try:
         path.relative_to(root)
     except ValueError as exc:
-        raise HTTPException(status_code=403, detail="Chemin non autorisé") from exc
+        raise HTTPException(status_code=403, detail="Chemin non autorisÃ©") from exc
     if not path.is_file():
         raise HTTPException(status_code=404, detail="Fichier introuvable")
     subprocess.Popen(["explorer", "/select,", str(path)])
@@ -2256,7 +2256,7 @@ async def brand_analyze(
     project = projects[0]
 
     if not file.content_type or not file.content_type.startswith("image/"):
-        raise HTTPException(status_code=400, detail="Le fichier doit être une image")
+        raise HTTPException(status_code=400, detail="Le fichier doit Ãªtre une image")
 
     ensure_brand_kit_dirs()
 
@@ -2314,7 +2314,7 @@ async def brand_analyze(
         )
         kit_id = kit_row["id"]
     except Exception as exc:
-        # Table may not exist yet — analysis still usable in UI
+        # Table may not exist yet â€” analysis still usable in UI
         logger.warning("brand_kits persist skipped: %s", exc)
 
     return {
@@ -2489,7 +2489,7 @@ def brand_download_kit(kit_id: str) -> StreamingResponse:
     analysis = kit["analysis"]
     assets: dict[str, str] = analysis.get("generated_assets") or analysis.get("isolated_assets") or {}
     if not assets:
-        raise HTTPException(status_code=404, detail="Aucun asset généré pour ce kit")
+        raise HTTPException(status_code=404, detail="Aucun asset gÃ©nÃ©rÃ© pour ce kit")
 
     report_path = analysis.get("report_path")
     buffer = _create_kit_zip(assets, report_path)
@@ -2508,7 +2508,7 @@ def brand_refine_segments(
     kit_id: str,
     body: BrandRefineSegmentsRequest,
 ) -> dict[str, Any]:
-    """Re-crop segments after manual bbox adjustment — no LLM re-run."""
+    """Re-crop segments after manual bbox adjustment â€” no LLM re-run."""
     kit = _load_brand_kit(kit_id)
     analysis_raw: dict[str, Any] = dict(kit["analysis"])
     upload_path = analysis_raw.get("upload_path")
@@ -2673,7 +2673,7 @@ def beta_submit_feedback(
 
     tester = get_tester_or_404(db, auth["tester_id"])
     if tester["project_id"] != project["id"]:
-        raise HTTPException(status_code=403, detail="Testeuse non inscrite à ce projet")
+        raise HTTPException(status_code=403, detail="Testeuse non inscrite Ã  ce projet")
 
     screenshot_url: str | None = None
     if body.screenshot_base64:
@@ -2681,7 +2681,7 @@ def beta_submit_feedback(
             screenshot_url = upload_screenshot(db, body.screenshot_base64, project["id"])
         except Exception as exc:
             logger.exception("beta screenshot upload failed")
-            raise HTTPException(status_code=400, detail="Échec upload screenshot") from exc
+            raise HTTPException(status_code=400, detail="Ã‰chec upload screenshot") from exc
 
     ticket = create_feedback_ticket(
         db,
@@ -2752,7 +2752,7 @@ def beta_export_testers(project_id: str | None = None) -> StreamingResponse:
     buffer = io.StringIO()
     writer = csv.writer(buffer)
     writer.writerow([
-        "prénom", "email", "projet", "appareil", "os", "version_app",
+        "prÃ©nom", "email", "projet", "appareil", "os", "version_app",
         "feedbacks", "inscription",
     ])
     for t in testers:
@@ -2833,7 +2833,7 @@ def beta_stats(project_id: str | None = None) -> dict[str, Any]:
 
         fb_type = row.get("type") or "autre"
         by_type[fb_type] = by_type.get(fb_type, 0) + 1
-        sev = row.get("severity") or "non_renseigné"
+        sev = row.get("severity") or "non_renseignÃ©"
         by_severity[sev] = by_severity.get(sev, 0) + 1
 
     # Last 7 days timeline (fill gaps)
@@ -2865,7 +2865,7 @@ def beta_invite(body: BetaInviteRequest) -> dict[str, str]:
 
 
 # ---------------------------------------------------------------------------
-# Waitlist — pre-launch email collection
+# Waitlist â€” pre-launch email collection
 # ---------------------------------------------------------------------------
 @app.get("/waitlist/info/{project_slug}")
 def waitlist_info(project_slug: str) -> dict[str, Any]:
@@ -3020,7 +3020,7 @@ def waitlist_export(project_id: str) -> StreamingResponse:
     )
     buffer = io.StringIO()
     writer = csv.writer(buffer)
-    writer.writerow(["email", "prénom", "source", "date"])
+    writer.writerow(["email", "prÃ©nom", "source", "date"])
     for row in rows:
         writer.writerow([
             row.get("email") or "",
@@ -3127,7 +3127,7 @@ def update_partner(partner_id: str, body: PartnerUpdate) -> dict[str, Any]:
         raise HTTPException(status_code=404, detail="Partenaire introuvable")
     values = body.model_dump(exclude_none=True)
     if not values:
-        raise HTTPException(status_code=400, detail="Aucun champ à mettre à jour")
+        raise HTTPException(status_code=400, detail="Aucun champ Ã  mettre Ã  jour")
     updated = db.update("partners", partner_id, _serialize_partner_dates(values))
     return _partner_row_to_api(updated)
 
@@ -3228,7 +3228,7 @@ def open_partner_contract(partner_id: str) -> dict[str, bool]:
         raise HTTPException(status_code=404, detail="Partenaire introuvable")
     path = rows[0].get("contract_path")
     if not path:
-        raise HTTPException(status_code=404, detail="Aucun contrat enregistré")
+        raise HTTPException(status_code=404, detail="Aucun contrat enregistrÃ©")
     try:
         open_contract_file(path)
     except FileNotFoundError as exc:
@@ -3297,10 +3297,10 @@ def update_affiliate_link(link_id: str, body: AffiliateLinkUpdate) -> dict[str, 
     db = get_supabase()
     rows = db.select("affiliate_links", filters={"id": link_id})
     if not rows:
-        raise HTTPException(status_code=404, detail="Lien affilié introuvable")
+        raise HTTPException(status_code=404, detail="Lien affiliÃ© introuvable")
     values = body.model_dump(exclude_none=True)
     if not values:
-        raise HTTPException(status_code=400, detail="Aucun champ à mettre à jour")
+        raise HTTPException(status_code=400, detail="Aucun champ Ã  mettre Ã  jour")
     return db.update("affiliate_links", link_id, values)
 
 
@@ -3311,7 +3311,7 @@ def affiliate_link_timeline_endpoint(
 ) -> list[dict[str, Any]]:
     db = get_supabase()
     if not db.select("affiliate_links", filters={"id": link_id}):
-        raise HTTPException(status_code=404, detail="Lien affilié introuvable")
+        raise HTTPException(status_code=404, detail="Lien affiliÃ© introuvable")
     return affiliate_link_timeline(db, link_id, days)
 
 
@@ -3338,7 +3338,7 @@ def affiliate_conversion(code: str, body: AffiliateConversionBody) -> dict[str, 
     db = get_supabase()
     rows = db.select("affiliate_links", filters={"code": code.upper()})
     if not rows:
-        raise HTTPException(status_code=404, detail="Lien affilié introuvable")
+        raise HTTPException(status_code=404, detail="Lien affiliÃ© introuvable")
     return record_affiliate_conversion(db, rows[0], body.revenue)
 
 
@@ -3376,7 +3376,7 @@ def update_partnership_request(
         raise HTTPException(status_code=404, detail="Demande introuvable")
     values = body.model_dump(exclude_none=True)
     if not values:
-        raise HTTPException(status_code=400, detail="Aucun champ à mettre à jour")
+        raise HTTPException(status_code=400, detail="Aucun champ Ã  mettre Ã  jour")
     return db.update("partnership_requests", request_id, values)
 
 
@@ -3528,7 +3528,7 @@ def finance_dashboard(
 # ---------------------------------------------------------------------------
 @app.get("/composio/apps")
 async def list_composio_apps(user_id: str = "alnua_coo"):
-    """Liste les apps connectées via Composio OAuth."""
+    """Liste les apps connectÃ©es via Composio OAuth."""
     from skills.skill_composio import list_connected_apps
 
     return list_connected_apps(user_id=user_id)
@@ -3536,7 +3536,7 @@ async def list_composio_apps(user_id: str = "alnua_coo"):
 
 @app.post("/composio/connect/{app_name}")
 async def connect_composio_app(app_name: str, user_id: str = "alnua_coo"):
-    """Génère un lien OAuth pour connecter une app. Renvoie le lien à ouvrir."""
+    """GÃ©nÃ¨re un lien OAuth pour connecter une app. Renvoie le lien Ã  ouvrir."""
     from skills.skill_composio import get_oauth_link
 
     link = get_oauth_link(app=app_name.upper(), user_id=user_id)

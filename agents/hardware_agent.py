@@ -67,7 +67,7 @@ Option Budget (délai 2-4 semaines) :
 - Avantages : économique pour prototype
 - Lien : https://www.aliexpress.com/
 
-Compatibilité Raspberry Pi 4/5 : ✅/⚠️/❌
+Compatibilité Raspberry Pi 4/5 : [OK]/[WARN]/[ERREUR]
 GPIO requis : [liste pins]
 Alimentation : [voltage/amperage]
 
@@ -123,7 +123,7 @@ def bom_manager_tool(action_json: str) -> str:
             }
             sb.insert("bom_eve", row)
             return (
-                f"✅ Composant ajouté au BOM : {data.get('component')} "
+                f"[OK] Composant ajouté au BOM : {data.get('component')} "
                 f"x{data.get('quantity', 1)} — {data.get('unit_price', '?')}€ "
                 f"chez {data.get('supplier', '?')}"
             )
@@ -160,11 +160,11 @@ def bom_manager_tool(action_json: str) -> str:
                 if k in data
             }
             sb.update("bom_eve", data["id"], updates)
-            return f"✅ Composant BOM mis à jour : {data['id']}"
+            return f"[OK] Composant BOM mis à jour : {data['id']}"
 
         return f"Action BOM '{action}' exécutée."
     except Exception as e:
-        return f"❌ Erreur BOM : {e}"
+        return f"[ERREUR] Erreur BOM : {e}"
 
 
 @tool("hardware_architecture")

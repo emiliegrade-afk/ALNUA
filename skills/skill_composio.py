@@ -309,7 +309,7 @@ def get_oauth_link(
         )
         if connections.items:
             active = connections.items[0]
-            return f"{app} est déjà connecté ✅ (depuis {active.created_at})"
+            return f"{app} est déjà connecté [OK] (depuis {active.created_at})"
 
         _purge_stale_connections(
             composio_client, user_id=user_id, toolkit=toolkit,
