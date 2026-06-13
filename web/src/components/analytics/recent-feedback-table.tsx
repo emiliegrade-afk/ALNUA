@@ -48,7 +48,7 @@ export function RecentFeedbackTable({ feedback, projects }: RecentFeedbackTableP
           Derniers avis
         </CardTitle>
         <Link
-          href="/tickets?source=reviews_bot"
+          href="/beta"
           className="flex items-center gap-1 text-xs text-copper-glow hover:underline"
         >
           Voir tous

@@ -77,5 +77,7 @@ class SupabaseClient:
 @lru_cache
 def get_supabase() -> SupabaseClient:
     cfg = get_settings()
-    client = create_client(cfg.supabase_url, cfg.supabase_key)
+    # Backend writes (BOM, etc.) need service_role — anon key is read-only on several tables.
+    key = cfg.supabase_service_role_key.strip() or cfg.supabase_key
+    client = create_client(cfg.supabase_url, key)
     return SupabaseClient(client)

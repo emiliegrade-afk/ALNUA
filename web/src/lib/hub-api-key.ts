@@ -3,10 +3,7 @@ export function isHubApiKeyConfigured(): boolean {
   if (typeof window !== "undefined") {
     return true;
   }
-  return Boolean(
-    process.env.HUB_API_KEY?.trim() ||
-      process.env.NEXT_PUBLIC_HUB_API_KEY?.trim()
-  );
+  return Boolean(process.env.HUB_API_KEY?.trim());
 }
 
 function mergeHeaders(
@@ -41,9 +38,7 @@ export function hubApiKeyHeaders(
   const headers: Record<string, string> = {};
 
   if (typeof window === "undefined") {
-    const key =
-      process.env.HUB_API_KEY?.trim() ||
-      process.env.NEXT_PUBLIC_HUB_API_KEY?.trim();
+    const key = process.env.HUB_API_KEY?.trim();
     if (key) {
       headers["X-Hub-Key"] = key;
     }

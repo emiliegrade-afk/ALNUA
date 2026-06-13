@@ -22,6 +22,10 @@ data/agent_scores.json
 data/rnd_dossiers/
 data/rnd_ideas.json
 data/rnd_concepts/
+data/rnd_competitive/
+data/agent_models.json
+brand_kits/
+logs/
 
 # Model weights
 models/

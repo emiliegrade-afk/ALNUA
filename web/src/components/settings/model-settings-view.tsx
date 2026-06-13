@@ -5,8 +5,7 @@ import { Loader2, RefreshCw, RotateCcw, Check, ChevronDown } from "lucide-react"
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ModelGuideCard } from "@/components/settings/model-guide-card";
-import { hubApiUrl } from "@/lib/hub-api-config";
-import { hubApiKeyHeaders } from "@/lib/hub-api-key";
+import { hubFetch } from "@/lib/hub-fetch";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -27,13 +26,7 @@ interface AvailableModel {
 }
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(hubApiUrl(path), {
-    ...options,
-    headers: hubApiKeyHeaders({ "Content-Type": "application/json", ...options?.headers as Record<string, string> }),
-    cache: "no-store",
-  });
-  if (!res.ok) throw new Error(`API ${res.status}`);
-  return res.json();
+  return hubFetch<T>(path, options);
 }
 
 // ---------------------------------------------------------------------------

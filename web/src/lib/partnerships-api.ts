@@ -1,54 +1,16 @@
-import { hubApiBase, hubApiUrl } from "./hub-api-config";
-import { hubApiKeyHeaders } from "./hub-api-key";
+import { hubApiBase, hubApiUrl, hubBackendBaseUrl } from "./hub-api-config";
+import { hubFetch } from "./hub-fetch";
 
-const AFFILIATE_BASE =
-  process.env.NEXT_PUBLIC_AFFILIATE_BASE_URL?.replace(/\/$/, "") ?? hubApiBase();
-
-async function apiFetch<T>(
-  path: string,
-  options?: RequestInit & { timeoutMs?: number }
-): Promise<T> {
-  const { timeoutMs = 30_000, ...fetchOptions } = options ?? {};
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-  const isFormData = fetchOptions.body instanceof FormData;
-
-  try {
-    const res = await fetch(hubApiUrl(path), {
-      ...fetchOptions,
-      signal: controller.signal,
-      headers: isFormData
-        ? hubApiKeyHeaders(fetchOptions.headers)
-        : hubApiKeyHeaders({
-            "Content-Type": "application/json",
-            ...fetchOptions.headers,
-          }),
-      cache: "no-store",
-    });
-
-    if (!res.ok) {
-      const text = await res.text().catch(() => res.statusText);
-      try {
-        const json = JSON.parse(text) as { detail?: string };
-        if (json.detail) throw new Error(json.detail);
-      } catch (e) {
-        if (e instanceof Error && e.message !== text) throw e;
-      }
-      throw new Error(`API ${res.status}: ${text}`);
-    }
-
-    if (res.status === 204) return undefined as T;
-    return res.json() as Promise<T>;
-  } catch (err) {
-    if (err instanceof Error && err.name === "AbortError") {
-      throw new Error("API timeout — le serveur met trop de temps à répondre.");
-    }
-    throw err;
-  } finally {
-    clearTimeout(timer);
+function resolveAffiliateBase(): string {
+  const configured = process.env.NEXT_PUBLIC_AFFILIATE_BASE_URL?.replace(/\/$/, "");
+  if (configured) return configured;
+  if (typeof window !== "undefined") {
+    return `${window.location.origin}/api/hub`;
   }
+  return hubBackendBaseUrl() || hubApiBase();
 }
+
+const AFFILIATE_BASE = resolveAffiliateBase();
 
 export type PartnerType =
   | "influencer"
@@ -166,17 +128,17 @@ export async function fetchPartners(params?: {
   if (params?.direction) qs.set("direction", params.direction);
   if (params?.project_id) qs.set("project_id", params.project_id);
   const q = qs.toString();
-  return apiFetch<Partner[]>(`/partners${q ? `?${q}` : ""}`);
+  return hubFetch<Partner[]>(`/partners${q ? `?${q}` : ""}`);
 }
 
 export async function fetchPartnershipStats(): Promise<PartnershipStats> {
-  return apiFetch<PartnershipStats>("/partners/stats");
+  return hubFetch<PartnershipStats>("/partners/stats");
 }
 
 export async function createPartner(
   body: Partial<Partner> & { name: string; type: string; direction: PartnerDirection }
 ): Promise<Partner> {
-  return apiFetch<Partner>("/partners", {
+  return hubFetch<Partner>("/partners", {
     method: "POST",
     body: JSON.stringify(body),
   });
@@ -186,27 +148,27 @@ export async function updatePartner(
   id: string,
   body: Partial<Partner>
 ): Promise<Partner> {
-  return apiFetch<Partner>(`/partners/${id}`, {
+  return hubFetch<Partner>(`/partners/${id}`, {
     method: "PATCH",
     body: JSON.stringify(body),
   });
 }
 
 export async function deletePartner(id: string): Promise<void> {
-  await apiFetch(`/partners/${id}`, { method: "DELETE" });
+  await hubFetch(`/partners/${id}`, { method: "DELETE" });
 }
 
 export async function fetchPartnerInteractions(
   partnerId: string
 ): Promise<PartnerInteraction[]> {
-  return apiFetch<PartnerInteraction[]>(`/partners/${partnerId}/interactions`);
+  return hubFetch<PartnerInteraction[]>(`/partners/${partnerId}/interactions`);
 }
 
 export async function createPartnerInteraction(
   partnerId: string,
   body: { type?: string; note?: string }
 ): Promise<PartnerInteraction> {
-  return apiFetch<PartnerInteraction>(`/partners/${partnerId}/interactions`, {
+  return hubFetch<PartnerInteraction>(`/partners/${partnerId}/interactions`, {
     method: "POST",
     body: JSON.stringify(body),
   });
@@ -218,25 +180,25 @@ export async function uploadPartnerContract(
 ): Promise<Partner> {
   const form = new FormData();
   form.append("file", file);
-  return apiFetch<Partner>(`/partners/${partnerId}/contract`, {
+  return hubFetch<Partner>(`/partners/${partnerId}/contract`, {
     method: "POST",
     body: form,
   });
 }
 
 export async function openPartnerContract(partnerId: string): Promise<void> {
-  await apiFetch(`/partners/${partnerId}/contract/open`, { method: "GET" });
+  await hubFetch(`/partners/${partnerId}/contract/open`, { method: "GET" });
 }
 
 export async function openContractsFolder(): Promise<void> {
-  await apiFetch("/partners/contracts/open-folder", { method: "POST" });
+  await hubFetch("/partners/contracts/open-folder", { method: "POST" });
 }
 
 export async function fetchAffiliateLinks(
   partnerId?: string
 ): Promise<AffiliateLink[]> {
   const q = partnerId ? `?partner_id=${partnerId}` : "";
-  return apiFetch<AffiliateLink[]>(`/affiliate-links${q}`);
+  return hubFetch<AffiliateLink[]>(`/affiliate-links${q}`);
 }
 
 export async function createAffiliateLink(body: {
@@ -247,7 +209,7 @@ export async function createAffiliateLink(body: {
   commission_type?: string;
   commission_value?: number;
 }): Promise<AffiliateLink> {
-  return apiFetch<AffiliateLink>("/affiliate-links", {
+  return hubFetch<AffiliateLink>("/affiliate-links", {
     method: "POST",
     body: JSON.stringify(body),
   });
@@ -257,7 +219,7 @@ export async function fetchAffiliateTimeline(
   linkId: string,
   days = 30
 ): Promise<AffiliateTimelinePoint[]> {
-  return apiFetch<AffiliateTimelinePoint[]>(
+  return hubFetch<AffiliateTimelinePoint[]>(
     `/affiliate-links/${linkId}/timeline?days=${days}`
   );
 }
@@ -273,7 +235,7 @@ export async function submitPartnershipRequest(body: {
   audience_size?: string;
   project_interest?: string;
 }): Promise<PartnershipRequest> {
-  return apiFetch<PartnershipRequest>("/partnerships/request", {
+  return hubFetch<PartnershipRequest>("/partnerships/request", {
     method: "POST",
     body: JSON.stringify(body),
   });
@@ -283,14 +245,14 @@ export async function fetchPartnershipRequests(
   status?: string
 ): Promise<PartnershipRequest[]> {
   const q = status ? `?status=${status}` : "";
-  return apiFetch<PartnershipRequest[]>(`/partnerships/requests${q}`);
+  return hubFetch<PartnershipRequest[]>(`/partnerships/requests${q}`);
 }
 
 export async function updatePartnershipRequest(
   id: string,
   body: { status: string }
 ): Promise<PartnershipRequest> {
-  return apiFetch<PartnershipRequest>(`/partnerships/requests/${id}`, {
+  return hubFetch<PartnershipRequest>(`/partnerships/requests/${id}`, {
     method: "PATCH",
     body: JSON.stringify(body),
   });
@@ -300,5 +262,5 @@ export async function convertPartnershipRequest(id: string): Promise<{
   partner: Partner;
   request_id: string;
 }> {
-  return apiFetch(`/partnerships/requests/${id}/convert`, { method: "POST" });
+  return hubFetch(`/partnerships/requests/${id}/convert`, { method: "POST" });
 }

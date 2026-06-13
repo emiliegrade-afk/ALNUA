@@ -1,5 +1,6 @@
 import { hubApiUrl } from "./hub-api-config";
 import { hubApiKeyHeaders } from "./hub-api-key";
+import { hubFetch } from "./hub-fetch";
 
 export interface BoundingBox {
   x1: number;
@@ -177,39 +178,15 @@ async function brandFetch<T>(
   path: string,
   options?: RequestInit & { timeoutMs?: number }
 ): Promise<T> {
-  const { timeoutMs = 120_000, ...fetchOptions } = options ?? {};
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-
   try {
-    const res = await fetch(hubApiUrl(path), {
-      ...fetchOptions,
-      signal: controller.signal,
-      cache: "no-store",
-      headers: hubApiKeyHeaders({
-        "Content-Type": "application/json",
-        ...fetchOptions.headers,
-      }),
-    });
-
-    if (!res.ok) {
-      const text = await res.text().catch(() => res.statusText);
-      throw new Error(`API ${res.status}: ${text}`);
-    }
-
-    return res.json() as Promise<T>;
+    return await hubFetch<T>(path, { timeoutMs: 120_000, ...options });
   } catch (err) {
     if (err instanceof Error && err.message === "Failed to fetch") {
       throw new Error(
         "Impossible de joindre l'API Hub. Vérifie que le backend tourne."
       );
     }
-    if (err instanceof Error && err.name === "AbortError") {
-      throw new Error("Requête interrompue — le serveur met trop de temps à répondre.");
-    }
     throw err;
-  } finally {
-    clearTimeout(timer);
   }
 }
 

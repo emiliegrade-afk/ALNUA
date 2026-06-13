@@ -1,42 +1,6 @@
 import type { PostPlatform, PostStatus } from "@/components/content/content.constants";
 
-import { hubApiUrl } from "./hub-api-config";
-import { hubApiKeyHeaders } from "./hub-api-key";
-
-async function apiFetch<T>(
-  path: string,
-  options?: RequestInit & { timeoutMs?: number }
-): Promise<T> {
-  const { timeoutMs = 60_000, ...fetchOptions } = options ?? {};
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    const res = await fetch(hubApiUrl(path), {
-      ...fetchOptions,
-      signal: controller.signal,
-      headers: hubApiKeyHeaders({
-        "Content-Type": "application/json",
-        ...fetchOptions.headers,
-      }),
-      cache: "no-store",
-    });
-
-    if (!res.ok) {
-      const text = await res.text().catch(() => res.statusText);
-      throw new Error(`API ${res.status}: ${text}`);
-    }
-
-    return res.json() as Promise<T>;
-  } catch (err) {
-    if (err instanceof Error && err.name === "AbortError") {
-      throw new Error("Génération trop longue — réessaie dans un instant.");
-    }
-    throw err;
-  } finally {
-    clearTimeout(timer);
-  }
-}
+import { hubFetch } from "./hub-fetch";
 
 export interface Post {
   id: string;
@@ -65,7 +29,7 @@ export async function generatePosts(body: {
   platforms: string[];
   alnua_global?: boolean;
 }): Promise<GeneratePostsResponse> {
-  return apiFetch<GeneratePostsResponse>("/agents/content/generate", {
+  return hubFetch<GeneratePostsResponse>("/agents/content/generate", {
     method: "POST",
     body: JSON.stringify(body),
     timeoutMs: 120_000,
@@ -82,7 +46,7 @@ export async function fetchPosts(params?: {
   if (params?.project_id) qs.set("project_id", params.project_id);
   if (params?.platform) qs.set("platform", params.platform);
   const query = qs.toString();
-  return apiFetch<Post[]>(`/posts${query ? `?${query}` : ""}`);
+  return hubFetch<Post[]>(`/posts${query ? `?${query}` : ""}`);
 }
 
 export async function updatePost(
@@ -94,7 +58,7 @@ export async function updatePost(
     scheduled_at?: string;
   }
 ): Promise<Post> {
-  return apiFetch<Post>(`/posts/${postId}`, {
+  return hubFetch<Post>(`/posts/${postId}`, {
     method: "PATCH",
     body: JSON.stringify(body),
   });

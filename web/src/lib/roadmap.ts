@@ -8,6 +8,8 @@ import type {
   RoadmapStatus,
 } from "@/lib/types";
 
+import { hubFetch } from "./hub-fetch";
+
 function normalizeRoadmapItem(raw: RoadmapItem): RoadmapItem {
   return {
     ...raw,
@@ -15,51 +17,6 @@ function normalizeRoadmapItem(raw: RoadmapItem): RoadmapItem {
     priority: normalizePriority(raw.priority),
     phase: raw.phase ?? (raw as RoadmapItem & { sprint?: string }).sprint ?? null,
   };
-}
-
-import { hubApiUrl } from "./hub-api-config";
-import { hubApiKeyHeaders } from "./hub-api-key";
-
-async function apiFetch<T>(
-  path: string,
-  options?: RequestInit & { timeoutMs?: number }
-): Promise<T> {
-  const { timeoutMs = 30_000, ...fetchOptions } = options ?? {};
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    const res = await fetch(hubApiUrl(path), {
-      ...fetchOptions,
-      signal: controller.signal,
-      headers: hubApiKeyHeaders({
-        "Content-Type": "application/json",
-        ...fetchOptions.headers,
-      }),
-      cache: "no-store",
-    });
-
-    if (!res.ok) {
-      const text = await res.text().catch(() => res.statusText);
-      try {
-        const json = JSON.parse(text) as { detail?: string };
-        if (json.detail) throw new Error(json.detail);
-      } catch (e) {
-        if (e instanceof Error && e.message !== text) throw e;
-      }
-      throw new Error(`API ${res.status}: ${text}`);
-    }
-
-    if (res.status === 204) return undefined as T;
-    return res.json() as Promise<T>;
-  } catch (err) {
-    if (err instanceof Error && err.name === "AbortError") {
-      throw new Error("API timeout — le serveur met trop de temps à répondre.");
-    }
-    throw err;
-  } finally {
-    clearTimeout(timer);
-  }
 }
 
 export interface FetchRoadmapParams {
@@ -78,7 +35,7 @@ export async function fetchRoadmapItems(
   params.priority?.forEach((p) => qs.append("priority", p));
   if (params.phase) qs.set("phase", params.phase);
   const query = qs.toString();
-  const rows = await apiFetch<RoadmapItem[]>(
+  const rows = await hubFetch<RoadmapItem[]>(
     `/roadmap${query ? `?${query}` : ""}`
   );
   return rows.map(normalizeRoadmapItem);
@@ -97,7 +54,7 @@ export interface CreateRoadmapPayload {
 export async function createRoadmapItem(
   data: CreateRoadmapPayload
 ): Promise<RoadmapItem> {
-  const row = await apiFetch<RoadmapItem>("/roadmap", {
+  const row = await hubFetch<RoadmapItem>("/roadmap", {
     method: "POST",
     body: JSON.stringify({
       title: data.title,
@@ -127,7 +84,7 @@ export async function updateRoadmapItem(
   id: string,
   data: UpdateRoadmapPayload
 ): Promise<RoadmapItem> {
-  const row = await apiFetch<RoadmapItem>(`/roadmap/${id}`, {
+  const row = await hubFetch<RoadmapItem>(`/roadmap/${id}`, {
     method: "PATCH",
     body: JSON.stringify(data),
   });
@@ -135,7 +92,7 @@ export async function updateRoadmapItem(
 }
 
 export async function deleteRoadmapItem(id: string): Promise<void> {
-  await apiFetch(`/roadmap/${id}`, { method: "DELETE" });
+  await hubFetch(`/roadmap/${id}`, { method: "DELETE" });
 }
 
 export function exportRoadmapCsv(items: RoadmapItem[]): void {

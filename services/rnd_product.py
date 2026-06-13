@@ -17,9 +17,9 @@ from services.rnd_social import SOCIAL_UNLOCK_STATUSES, is_social_pipeline_unloc
 
 logger = logging.getLogger(__name__)
 
-RND_DOSSIERS_ROOT = Path(
-    __import__("os").getenv("HUB_REPO_PATH", "C:/Dev/ALUNA_HUB")
-) / "data" / "rnd_dossiers"
+from config.paths import get_hub_repo_path
+
+RND_DOSSIERS_ROOT = get_hub_repo_path() / "data" / "rnd_dossiers"
 
 
 class ProductPipelineLockedError(ValueError):

@@ -143,6 +143,12 @@ AGENT_TIERS: dict[str, str] = {
     "level_designer":   "standard",
     "analyst_business": "standard",
     "analyst_data":     "standard",
+    "rnd_dossier":      "premium",
+    "rnd_ceo":          "premium",
+    "rnd_committee":    "premium",
+    "rnd_social":       "standard",
+    "rnd_visual":       "standard",
+    "rnd_product":      "standard",
 }
 
 # Modèle par défaut par tier
@@ -152,7 +158,9 @@ TIER_DEFAULTS: dict[str, str] = {
     "fast":     "anthropic/claude-haiku-4-5",
 }
 
-_CONFIG_FILE = Path(os.getenv("HUB_REPO_PATH", "C:/Dev/ALUNA_HUB")) / "data" / "agent_models.json"
+from config.paths import get_hub_repo_path
+
+_CONFIG_FILE = get_hub_repo_path() / "data" / "agent_models.json"
 
 
 # ---------------------------------------------------------------------------

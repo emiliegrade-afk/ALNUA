@@ -1,40 +1,4 @@
-import { hubApiUrl } from "./hub-api-config";
-import { hubApiKeyHeaders } from "./hub-api-key";
-
-async function apiFetch<T>(
-  path: string,
-  options?: RequestInit & { timeoutMs?: number }
-): Promise<T> {
-  const { timeoutMs = 30_000, ...fetchOptions } = options ?? {};
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    const res = await fetch(hubApiUrl(path), {
-      ...fetchOptions,
-      signal: controller.signal,
-      headers: hubApiKeyHeaders({
-        "Content-Type": "application/json",
-        ...fetchOptions.headers,
-      }),
-      cache: "no-store",
-    });
-
-    if (!res.ok) {
-      const text = await res.text().catch(() => res.statusText);
-      throw new Error(`API ${res.status}: ${text}`);
-    }
-
-    return res.json() as Promise<T>;
-  } catch (err) {
-    if (err instanceof Error && err.name === "AbortError") {
-      throw new Error("API timeout — le serveur met trop de temps à répondre.");
-    }
-    throw err;
-  } finally {
-    clearTimeout(timer);
-  }
-}
+import { hubFetch } from "./hub-fetch";
 
 export type AnalyticsPeriod = "7d" | "30d" | "3m" | "6m" | "1y";
 
@@ -106,7 +70,7 @@ export async function fetchAnalyticsSummary(
   projectId?: string
 ): Promise<AnalyticsSummary> {
   const qs = projectId ? `?project_id=${projectId}` : "";
-  return apiFetch<AnalyticsSummary>(`/analytics/summary${qs}`);
+  return hubFetch<AnalyticsSummary>(`/analytics/summary${qs}`);
 }
 
 export async function fetchAnalytics(params: {
@@ -119,7 +83,7 @@ export async function fetchAnalytics(params: {
   if (params.metric_name) qs.set("metric_name", params.metric_name);
   if (params.period) qs.set("period", params.period);
   const query = qs.toString();
-  return apiFetch<AnalyticsRow[]>(`/analytics${query ? `?${query}` : ""}`);
+  return hubFetch<AnalyticsRow[]>(`/analytics${query ? `?${query}` : ""}`);
 }
 
 export async function fetchAnalyticsRevenue(params: {
@@ -130,7 +94,7 @@ export async function fetchAnalyticsRevenue(params: {
   if (params.project_id) qs.set("project_id", params.project_id);
   if (params.period) qs.set("period", params.period);
   const query = qs.toString();
-  return apiFetch<RevenueResponse>(
+  return hubFetch<RevenueResponse>(
     `/analytics/revenue${query ? `?${query}` : ""}`
   );
 }
@@ -138,7 +102,7 @@ export async function fetchAnalyticsRevenue(params: {
 export async function createAnalyticsMetric(
   data: CreateMetricPayload
 ): Promise<AnalyticsRow> {
-  return apiFetch<AnalyticsRow>("/analytics", {
+  return hubFetch<AnalyticsRow>("/analytics", {
     method: "POST",
     body: JSON.stringify({
       project_id: data.project_id,
@@ -158,7 +122,7 @@ export async function fetchFeedback(params?: {
   if (params?.project_id) qs.set("project_id", params.project_id);
   if (params?.limit) qs.set("limit", String(params.limit));
   const query = qs.toString();
-  return apiFetch<FeedbackRow[]>(`/feedback${query ? `?${query}` : ""}`);
+  return hubFetch<FeedbackRow[]>(`/feedback${query ? `?${query}` : ""}`);
 }
 
 export function formatKpiValue(

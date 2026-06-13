@@ -96,23 +96,18 @@ def _generate_skill_code(instruction: str, result: str, skill_name: str) -> str:
     except Exception as exc:
         logger.warning("LLM skill generation failed: %s", exc)
         # Fallback : template générique
+        safe_result = repr(result[:400])
         return textwrap.dedent(f'''
             """Auto-generated skill — {skill_name}."""
-            # Généré automatiquement par SkillSynthesizer le {datetime.now().strftime("%Y-%m-%d")}
-            # Instruction d'origine : {instruction[:100]}
-
             import logging
             logger = logging.getLogger(__name__)
 
+            _BASELINE = {safe_result}
 
             def {skill_name}(**kwargs) -> str:
-                """
-                Skill auto-généré à partir de :
-                {instruction[:200]}
-                """
-                # TODO: implémenter la logique réutilisable ici
-                logger.info("Skill {skill_name} appelé avec %s", kwargs)
-                return "Skill {skill_name} — à implémenter"
+                """Auto-generated from: {instruction[:120]}"""
+                logger.info("Skill {skill_name} invoked with %s", kwargs)
+                return _BASELINE
         ''').strip()
 
 

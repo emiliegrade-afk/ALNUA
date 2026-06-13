@@ -9,8 +9,9 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from agents.base import LLMClient, log_agent_action
+from agents.base import LLMClient, log_agent_action, parse_json_response
 from database.supabase_client import get_supabase
+from skills.skill_agent_learning import inject_learning_context, record_task_learning
 from services.rnd_finance_estimate import (
     estimate_rnd_project,
     finance_json_to_markdown,
@@ -30,7 +31,7 @@ RÈGLES :
 
 
 class AccountantAgent:
-    AGENT_NAME = "accountant_agent"
+    AGENT_NAME = "accounting"
 
     def __init__(self) -> None:
         self.db = get_supabase()
@@ -118,6 +119,59 @@ class AccountantAgent:
         except Exception:
             pass
         return {"finance_json": finance, "business_case_md": md}
+
+    @trace_agent("accountant_agent")
+    def financial_advice(
+        self,
+        month: str,
+        financial_summary: dict[str, Any],
+        question: str,
+    ) -> dict[str, Any]:
+        """Conseil comptable sur la période (transactions, trésorerie, charges)."""
+        prompt = inject_learning_context(
+            f"""Période : {month}
+
+Résumé financier :
+{financial_summary}
+
+Question d'Emilie :
+{question}
+
+Réponds en JSON :
+{{
+  "synthese": "2-3 phrases sur la situation",
+  "alertes": ["point d'attention"],
+  "recommandations": ["action concrète"],
+  "prochaine_etape": "une seule action prioritaire"
+}}""",
+            self.AGENT_NAME,
+            month,
+        )
+        raw = self.llm.complete(
+            SYSTEM_PROMPT,
+            prompt,
+            agent_id=self.AGENT_NAME,
+            temperature=0.3,
+            max_tokens=800,
+        )
+        result = parse_json_response(raw)
+        log_agent_action(
+            self.db,
+            self.AGENT_NAME,
+            "financial_advice",
+            input_summary=f"{month} | {question[:80]}",
+            output_summary=str(result.get("synthese", ""))[:100],
+        )
+        try:
+            record_task_learning(
+                self.AGENT_NAME,
+                f"conseil {month}",
+                str(result)[:300],
+                success=True,
+            )
+        except Exception:
+            pass
+        return result
 
 
 def _dossier_section_text(dossier: dict[str, Any]) -> str:

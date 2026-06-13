@@ -1,0 +1,70 @@
+{
+  "name": "ALNUA — Content Sprint",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 17 * * 5"
+            }
+          ]
+        }
+      },
+      "id": "d0e1f2a3-content-cron",
+      "name": "Friday 17:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:8000/orchestration/content-sprint",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Hub-Key",
+              "value": "alnua_dev_7f3a9c2e1b4d8f6a0c5e9b2d7f1a4c8"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ brief: 'Sprint contenu hebdomadaire ALNUA', platforms: ['linkedin', 'discord', 'twitter'], project: 'ALNUA' }) }}"
+      },
+      "id": "e1f2a3b4-content-http",
+      "name": "Hub Content Sprint",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 300]
+    }
+  ],
+  "connections": {
+    "Friday 17:00": {
+      "main": [
+        [
+          {
+            "node": "Hub Content Sprint",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}
+

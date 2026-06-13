@@ -304,3 +304,140 @@ def learn_from_failure(agent_id: str, task: str, error: str) -> None:
         outcome=f"ÉCHEC : {error}",
         success=False,
     )
+
+
+# ---------------------------------------------------------------------------
+# Session Compression — inspiré de claude-mem
+# ---------------------------------------------------------------------------
+# Quand un agent accumule trop de mémoires, on les compresse en un digest
+# synthétique. Évite le bloat Mem0 et améliore la pertinence des leçons injectées.
+
+_COMPRESS_SYSTEM = """Tu es un système de compression de mémoire pour un agent IA.
+Tu reçois une liste de leçons apprises par un agent sur une période donnée.
+Tu les synthétises en 3-5 règles comportementales durables, concises et actionnables.
+Format : chaque règle commence par "→ " et tient en une phrase.
+Pas d'intro. Pas de conclusion. Juste les règles."""
+
+
+def compress_agent_memory(
+    agent_id: str,
+    raw_memories: list[str],
+    blocking: bool = True,
+) -> str | None:
+    """
+    Compresse une liste de mémoires brutes en un digest synthétique.
+    Écrit le digest compressé dans Mem0 sous un tag spécial [DIGEST].
+
+    Args:
+        agent_id:    ID de l'agent
+        raw_memories: Liste de leçons brutes récupérées depuis Mem0
+        blocking:    True = attend la completion (défaut pour compression)
+
+    Returns:
+        Le digest compressé (string) ou None si erreur.
+    """
+    if not raw_memories:
+        return None
+
+    canonical_id = memory_agent_id(agent_id)
+    memories_text = "\n".join(f"- {m}" for m in raw_memories[:50])  # cap 50
+
+    payload = json.dumps({
+        "model": LEARN_MODEL or "anthropic/claude-haiku-4-5",
+        "messages": [
+            {"role": "system", "content": _COMPRESS_SYSTEM},
+            {
+                "role": "user",
+                "content": (
+                    f"Agent : {canonical_id}\n"
+                    f"Nombre de leçons : {len(raw_memories)}\n\n"
+                    f"Leçons à synthétiser :\n{memories_text}"
+                ),
+            },
+        ],
+        "temperature": 0.2,
+        "max_tokens": 300,
+    }).encode()
+
+    req = urllib.request.Request(
+        OPENROUTER_BASE,
+        data=payload,
+        headers={
+            "Authorization": f"Bearer {_openrouter_api_key()}",
+            "Content-Type": "application/json",
+        },
+    )
+
+    def _run() -> str | None:
+        try:
+            with urllib.request.urlopen(req, timeout=30) as r:
+                data = json.loads(r.read())
+                digest = data["choices"][0]["message"].get("content", "").strip()
+
+            if not digest:
+                return None
+
+            # Écrire le digest dans Mem0 avec tag [DIGEST]
+            try:
+                from skills.skill_mem0 import remember
+                date = datetime.now().strftime("%Y-%m-%d")
+                remember(
+                    f"[DIGEST {date}] Règles durables {canonical_id} :\n{digest}",
+                    agent_id=canonical_id,
+                )
+                logger.info(
+                    "skill_agent_learning: digest écrit pour %s (%d leçons → digest)",
+                    canonical_id, len(raw_memories),
+                )
+            except Exception as exc:
+                logger.warning("compress_agent_memory: Mem0 write failed: %s", exc)
+
+            return digest
+        except Exception as exc:
+            logger.warning("compress_agent_memory: LLM call failed: %s", exc)
+            return None
+
+    if blocking:
+        return _run()
+    else:
+        threading.Thread(target=_run, daemon=True).start()
+        return None
+
+
+def auto_compress_if_needed(
+    agent_id: str,
+    threshold: int = 20,
+    blocking: bool = False,
+) -> bool:
+    """
+    Vérifie si l'agent a trop de mémoires et compresse si nécessaire.
+    Appelable en fin de session pour maintenir la base Mem0 propre.
+
+    Args:
+        agent_id:  ID de l'agent
+        threshold: Nombre de mémoires avant compression (défaut: 20)
+        blocking:  Attendre la compression ou non
+
+    Returns:
+        True si compression lancée, False si pas nécessaire.
+    """
+    try:
+        from skills.skill_mem0 import recall
+
+        canonical_id = memory_agent_id(agent_id)
+        # Récupère un échantillon large pour compter
+        raw = recall(query="leçons apprises", agent_id=canonical_id)
+        if not raw:
+            return False
+
+        # Heuristique : si la réponse Mem0 dépasse 2000 chars, on compresse
+        if len(str(raw)) < threshold * 80:
+            return False
+
+        memories = str(raw).split("\n") if isinstance(raw, str) else [str(raw)]
+        compress_agent_memory(canonical_id, memories, blocking=blocking)
+        return True
+
+    except Exception as exc:
+        logger.debug("auto_compress_if_needed failed for %s: %s", agent_id, exc)
+        return False

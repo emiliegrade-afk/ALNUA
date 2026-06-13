@@ -92,7 +92,7 @@ export function COOChat({ variant = "default", embedded = false }: COOChatProps)
           id: crypto.randomUUID(),
           role: "assistant",
           content:
-            "Impossible de joindre le COO. Vérifie que l'API tourne sur localhost:8000.",
+            "Impossible de joindre le COO. Vérifie que le backend Hub est accessible (proxy /api/hub ou uvicorn :8000).",
           timestamp: new Date(),
         },
       ]);

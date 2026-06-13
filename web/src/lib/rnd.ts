@@ -1,22 +1,4 @@
-import { hubApiUrl } from "./hub-api-config";
-import { hubApiKeyHeaders } from "./hub-api-key";
-import { parseHubApiError } from "./hub-api-error";
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(hubApiUrl(path), {
-    ...options,
-    headers: hubApiKeyHeaders({
-      "Content-Type": "application/json",
-      ...options?.headers,
-    }),
-    cache: "no-store",
-  });
-  if (!res.ok) {
-    const text = await res.text().catch(() => res.statusText);
-    throw new Error(parseHubApiError(text, res.status));
-  }
-  return res.json() as Promise<T>;
-}
+import { hubFetch } from "./hub-fetch";
 
 export interface RndIdea {
   id: string;
@@ -52,37 +34,37 @@ export interface RndCompetitive {
 
 export async function fetchRndIdeas(verdict?: string): Promise<RndIdea[]> {
   const params = verdict ? `?verdict=${verdict}&limit=50` : "?limit=50";
-  return apiFetch<RndIdea[]>(`/rnd/ideas${params}`);
+  return hubFetch<RndIdea[]>(`/rnd/ideas${params}`);
 }
 
 export async function fetchRndIdea(ideaId: string): Promise<RndIdea> {
-  return apiFetch<RndIdea>(`/rnd/ideas/${encodeURIComponent(ideaId)}`);
+  return hubFetch<RndIdea>(`/rnd/ideas/${encodeURIComponent(ideaId)}`);
 }
 
 export async function fetchRndVision(): Promise<string> {
-  const data = await apiFetch<{ vision: string }>("/rnd/vision");
+  const data = await hubFetch<{ vision: string }>("/rnd/vision");
   return data.vision;
 }
 
 export async function setRndVision(vision: string): Promise<void> {
-  await apiFetch("/rnd/vision", {
+  await hubFetch("/rnd/vision", {
     method: "POST",
     body: JSON.stringify({ vision }),
   });
 }
 
 export async function injectRndIdea(idea: string): Promise<RndIdea> {
-  return apiFetch<RndIdea>("/rnd/inject", {
+  return hubFetch<RndIdea>("/rnd/inject", {
     method: "POST",
     body: JSON.stringify({ idea, source: "Emilie" }),
   });
 }
 
 export async function triggerRndCycle(): Promise<string> {
-  const data = await apiFetch<{ status: string }>("/rnd/cycle", { method: "POST" });
+  const data = await hubFetch<{ status: string }>("/rnd/cycle", { method: "POST" });
   return data.status;
 }
 
 export async function fetchRndCompetitive(): Promise<RndCompetitive[]> {
-  return apiFetch<RndCompetitive[]>("/rnd/competitive");
+  return hubFetch<RndCompetitive[]>("/rnd/competitive");
 }

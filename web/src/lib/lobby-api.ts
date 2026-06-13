@@ -3,8 +3,8 @@ import { fetchComposioApps } from "@/lib/composio-api";
 import { fetchProjects, fetchTickets } from "@/lib/api";
 import { fetchBrandKits } from "@/lib/brand-api";
 import { fetchPosts } from "@/lib/content";
-import { getSupabase } from "@/lib/supabase";
 import { checkApiHealth } from "@/lib/hub-health";
+import { hubFetch } from "@/lib/hub-fetch";
 
 import { hubApiUrl } from "./hub-api-config";
 import { hubApiKeyHeaders } from "./hub-api-key";
@@ -230,38 +230,44 @@ export async function fetchBomEve(): Promise<
     status: string;
   }>
 > {
-  const supabase = getSupabase();
-  if (!supabase) return [];
-
-  const { data, error } = await supabase
-    .from("bom_eve")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (error) return [];
-
-  return (data ?? []).map((row) => ({
-    id: String(row.id),
-    name: String(row.component ?? row.name ?? "—"),
-    category: String(row.category ?? "autre"),
-    quantity: Number(row.quantity ?? 1),
-    unit_cost:
-      row.unit_price != null
-        ? Number(row.unit_price)
-        : row.unit_cost != null
-          ? Number(row.unit_cost)
-          : null,
-    status: String(row.status ?? "a_commander"),
-  }));
+  try {
+    const data = await hubFetch<{ items: Array<Record<string, unknown>> }>("/bom/eve");
+    return (data.items ?? []).map((row) => ({
+      id: String(row.id),
+      name: String(row.component ?? row.name ?? "—"),
+      category: String(row.category ?? "autre"),
+      quantity: Number(row.quantity ?? 1),
+      unit_cost:
+        row.unit_price != null
+          ? Number(row.unit_price)
+          : row.unit_cost != null
+            ? Number(row.unit_cost)
+            : null,
+      status: String(row.status ?? "a_commander"),
+    }));
+  } catch {
+    return [];
+  }
 }
 
 export async function checkNwiroHost(): Promise<boolean> {
-  const host = process.env.NEXT_PUBLIC_NWIRO_HOST;
+  const host = process.env.NEXT_PUBLIC_NWIRO_HOST?.replace(/\/$/, "");
   if (!host) return false;
   try {
-    const res = await fetch(host, { method: "HEAD", mode: "no-cors" });
-    return res.ok || res.type === "opaque";
+    const res = await fetch(`${host}/health`, {
+      method: "GET",
+      signal: AbortSignal.timeout(5000),
+    });
+    return res.ok;
   } catch {
-    return false;
+    try {
+      const res = await fetch(host, {
+        method: "GET",
+        signal: AbortSignal.timeout(5000),
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
   }
 }

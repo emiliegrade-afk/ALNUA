@@ -1,5 +1,4 @@
-import { hubApiUrl } from "./hub-api-config";
-import { hubApiKeyHeaders } from "./hub-api-key";
+import { hubFetch } from "./hub-fetch";
 
 export interface ComposioApp {
   app: string;
@@ -16,21 +15,7 @@ async function composioFetch<T>(
   path: string,
   options?: RequestInit
 ): Promise<T> {
-  const res = await fetch(hubApiUrl(path), {
-    ...options,
-    headers: hubApiKeyHeaders({
-      "Content-Type": "application/json",
-      ...options?.headers,
-    }),
-    cache: "no-store",
-  });
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => res.statusText);
-    throw new Error(`API ${res.status}: ${text}`);
-  }
-
-  return res.json() as Promise<T>;
+  return hubFetch<T>(path, options);
 }
 
 export async function fetchComposioApps(

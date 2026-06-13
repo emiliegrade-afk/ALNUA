@@ -1,5 +1,4 @@
-import { hubApiUrl } from "./hub-api-config";
-import { hubApiKeyHeaders } from "./hub-api-key";
+import { hubFetch } from "./hub-fetch";
 
 export interface BriefingTicket {
   id: string;
@@ -65,35 +64,7 @@ async function briefingFetch<T>(
   path: string,
   options?: RequestInit & { timeoutMs?: number }
 ): Promise<T> {
-  const { timeoutMs = 60_000, ...fetchOptions } = options ?? {};
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    const res = await fetch(hubApiUrl(path), {
-      ...fetchOptions,
-      signal: controller.signal,
-      headers: hubApiKeyHeaders({
-        "Content-Type": "application/json",
-        ...fetchOptions.headers,
-      }),
-      cache: "no-store",
-    });
-
-    if (!res.ok) {
-      const text = await res.text().catch(() => res.statusText);
-      throw new Error(`API ${res.status}: ${text}`);
-    }
-
-    return res.json() as Promise<T>;
-  } catch (err) {
-    if (err instanceof Error && err.name === "AbortError") {
-      throw new Error("API timeout — le serveur met trop de temps à répondre.");
-    }
-    throw err;
-  } finally {
-    clearTimeout(timer);
-  }
+  return hubFetch<T>(path, { timeoutMs: 60_000, ...options });
 }
 
 export async function fetchTodayBriefing(): Promise<DailyBriefing> {

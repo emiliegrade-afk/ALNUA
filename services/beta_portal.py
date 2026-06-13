@@ -37,7 +37,11 @@ SEVERITY_TO_PRIORITY: dict[str, str] = {
 
 def _jwt_secret() -> str:
     settings = get_settings()
-    return settings.supabase_key
+    secret = settings.jwt_secret.strip()
+    if secret:
+        return secret
+    # Server-only fallback — never use the public Supabase anon key.
+    return settings.hub_api_key
 
 
 def create_tester_token(tester_id: str, project_id: str) -> str:

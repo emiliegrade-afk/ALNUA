@@ -1,47 +1,4 @@
-import { hubApiUrl } from "./hub-api-config";
-import { hubApiKeyHeaders } from "./hub-api-key";
-
-async function apiFetch<T>(
-  path: string,
-  options?: RequestInit & { timeoutMs?: number }
-): Promise<T> {
-  const { timeoutMs = 30_000, ...fetchOptions } = options ?? {};
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    const res = await fetch(hubApiUrl(path), {
-      ...fetchOptions,
-      signal: controller.signal,
-      headers: hubApiKeyHeaders({
-        "Content-Type": "application/json",
-        ...fetchOptions.headers,
-      }),
-      cache: "no-store",
-    });
-
-    if (!res.ok) {
-      const text = await res.text().catch(() => res.statusText);
-      try {
-        const json = JSON.parse(text) as { detail?: string };
-        if (json.detail) throw new Error(json.detail);
-      } catch (e) {
-        if (e instanceof Error && e.message !== text) throw e;
-      }
-      throw new Error(`API ${res.status}: ${text}`);
-    }
-
-    if (res.status === 204) return undefined as T;
-    return res.json() as Promise<T>;
-  } catch (err) {
-    if (err instanceof Error && err.name === "AbortError") {
-      throw new Error("API timeout — le serveur met trop de temps à répondre.");
-    }
-    throw err;
-  } finally {
-    clearTimeout(timer);
-  }
-}
+import { hubFetch } from "./hub-fetch";
 
 export type TransactionType = "income" | "expense";
 
@@ -137,7 +94,7 @@ export function fetchFinanceTransactions(filters?: {
   category?: string;
   project_id?: string;
 }): Promise<FinanceTransaction[]> {
-  return apiFetch(
+  return hubFetch(
     `/finances/transactions${qs({
       month: filters?.month,
       type: filters?.type,
@@ -150,7 +107,7 @@ export function fetchFinanceTransactions(filters?: {
 export function createFinanceTransaction(
   body: FinanceTransactionInput
 ): Promise<FinanceTransaction> {
-  return apiFetch("/finances/transactions", {
+  return hubFetch("/finances/transactions", {
     method: "POST",
     body: JSON.stringify(body),
   });
@@ -160,22 +117,22 @@ export function updateFinanceTransaction(
   id: string,
   body: Partial<FinanceTransactionInput>
 ): Promise<FinanceTransaction> {
-  return apiFetch(`/finances/transactions/${id}`, {
+  return hubFetch(`/finances/transactions/${id}`, {
     method: "PATCH",
     body: JSON.stringify(body),
   });
 }
 
 export function deleteFinanceTransaction(id: string): Promise<{ ok: boolean }> {
-  return apiFetch(`/finances/transactions/${id}`, { method: "DELETE" });
+  return hubFetch(`/finances/transactions/${id}`, { method: "DELETE" });
 }
 
 export function fetchFinanceSummary(month: string): Promise<FinancialSummary> {
-  return apiFetch(`/finances/summary/${month}`, { timeoutMs: 90_000 });
+  return hubFetch(`/finances/summary/${month}`, { timeoutMs: 90_000 });
 }
 
 export function regenerateFinanceSummary(month: string): Promise<FinancialSummary> {
-  return apiFetch("/finances/summary/generate", {
+  return hubFetch("/finances/summary/generate", {
     method: "POST",
     body: JSON.stringify({ month }),
     timeoutMs: 90_000,
@@ -183,7 +140,7 @@ export function regenerateFinanceSummary(month: string): Promise<FinancialSummar
 }
 
 export function fetchFinanceDashboard(month?: string): Promise<FinanceDashboard> {
-  return apiFetch(
+  return hubFetch(
     `/finances/dashboard${qs({ month })}`
   );
 }

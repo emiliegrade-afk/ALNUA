@@ -1,7 +1,7 @@
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import Field
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Toujours charger .env à la racine du projet, quel que soit le cwd
@@ -18,9 +18,14 @@ class Settings(BaseSettings):
 
     supabase_url: str = Field(..., alias="SUPABASE_URL")
     supabase_key: str = Field(..., alias="SUPABASE_KEY")
+    supabase_service_role_key: str = Field(
+        default="",
+        alias="SUPABASE_SERVICE_ROLE_KEY",
+    )
     openrouter_api_key: str = Field(..., alias="OPENROUTER_API_KEY")
     composio_api_key: str = Field(default="", alias="COMPOSIO_API_KEY")
     discord_token: str = Field(default="", alias="DISCORD_TOKEN")
+    discord_bot_token: str = Field(default="", alias="DISCORD_BOT_TOKEN")
     telegram_bot_token: str = Field(default="", alias="TELEGRAM_BOT_TOKEN")
     telegram_chat_id: str = Field(default="", alias="TELEGRAM_CHAT_ID")
     sentry_dsn: str = Field(default="", alias="SENTRY_DSN")
@@ -64,10 +69,40 @@ class Settings(BaseSettings):
         default="",
         alias="AGENT_MODEL",
     )
-    hub_api_key: str = Field(
-        default="alnua_dev_7f3a9c2e1b4d8f6a0c5e9b2d7f1a4c8",
-        alias="HUB_API_KEY",
-    )
+    hub_api_key: str = Field(default="", alias="HUB_API_KEY")
+    jwt_secret: str = Field(default="", alias="JWT_SECRET")
+    environment: str = Field(default="development", alias="ENVIRONMENT")
+
+    @model_validator(mode="after")
+    def _validate_security(self) -> "Settings":
+        env = self.environment.strip().lower()
+        is_prod = env in {"production", "prod", "staging"}
+
+        if not self.hub_api_key.strip():
+            if is_prod:
+                raise ValueError(
+                    "HUB_API_KEY is required when ENVIRONMENT is production/staging"
+                )
+            raise ValueError(
+                "HUB_API_KEY is missing — copy .env.example to .env and set a key"
+            )
+
+        if is_prod and not self.jwt_secret.strip():
+            raise ValueError(
+                "JWT_SECRET is required when ENVIRONMENT is production/staging"
+            )
+
+        if not self.hub_repo_path.strip():
+            object.__setattr__(
+                self,
+                "hub_repo_path",
+                str(Path(__file__).resolve().parent.parent),
+            )
+
+        if not self.discord_token.strip() and self.discord_bot_token.strip():
+            object.__setattr__(self, "discord_token", self.discord_bot_token.strip())
+
+        return self
 
 
 @lru_cache

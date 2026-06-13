@@ -5,6 +5,7 @@ uvicorn[standard]>=0.34.0
 python-dotenv>=1.0.0
 pydantic-settings>=2.7.0
 httpx>=0.28.0
+requests>=2.32.0
 Pillow>=11.0.0
 numpy>=2.0.0
 scikit-learn>=1.6.0
@@ -27,12 +28,14 @@ apscheduler>=3.11.0
 PyJWT>=2.9.0
 gitpython>=3.1.40
 playwright>=1.44.0
+google-play-scraper>=1.2.7
 pytest>=8.0.0
 pytest-asyncio>=0.23.0
 composio>=0.7.0
 composio_crewai>=0.7.0
 langfuse>=4.0.0
-mem0ai
-aider-chat
+mem0ai>=0.1.0
+aider-chat>=0.82.0
 chromadb>=0.5.0
 sentence-transformers>=3.0.0
+fastapi-mcp>=0.3.0

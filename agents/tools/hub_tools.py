@@ -15,11 +15,19 @@ BASE_URL = os.getenv(
 )
 
 
+def _hub_headers() -> dict[str, str]:
+    return {"X-Hub-Key": get_settings().hub_api_key}
+
+
 def _api_json(method: str, path: str, **kwargs: object) -> str:
     """Execute an HTTP call and return JSON text or an error message."""
     url = f"{BASE_URL.rstrip('/')}{path}"
+    headers = dict(kwargs.pop("headers", {}) or {})
+    headers.update(_hub_headers())
     try:
-        response = requests.request(method, url, timeout=30, **kwargs)
+        response = requests.request(
+            method, url, timeout=30, headers=headers, **kwargs
+        )
         response.raise_for_status()
         return str(response.json())
     except requests.RequestException as exc:

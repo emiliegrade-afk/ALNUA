@@ -19,11 +19,7 @@ const HOP_BY_HOP = new Set([
 ]);
 
 function resolveHubApiKey(): string {
-  return (
-    process.env.HUB_API_KEY?.trim() ||
-    process.env.NEXT_PUBLIC_HUB_API_KEY?.trim() ||
-    ""
-  );
+  return process.env.HUB_API_KEY?.trim() || "";
 }
 
 async function proxyHubRequest(

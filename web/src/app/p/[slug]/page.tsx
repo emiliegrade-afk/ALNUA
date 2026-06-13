@@ -13,13 +13,10 @@ async function fetchProductMeta(slug: string): Promise<{
   seo_description?: string;
 } | null> {
   const base = hubBackendBaseUrl();
-  const key =
-    process.env.HUB_API_KEY?.trim() ||
-    process.env.NEXT_PUBLIC_HUB_API_KEY?.trim() ||
-    "";
+  const key = process.env.HUB_API_KEY?.trim() ?? "";
   try {
     const res = await fetch(`${base}/rnd/product/${encodeURIComponent(slug)}`, {
-      headers: key ? { "X-Hub-Key": key } : {},
+      headers: key ? { "X-Hub-Key": key } : undefined,
       next: { revalidate: 120 },
     });
     if (!res.ok) return null;

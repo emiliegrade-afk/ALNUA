@@ -9,18 +9,23 @@ import urllib.request
 
 from crewai.tools import tool
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+from config.settings import get_settings
+
+
+def _supabase_credentials() -> tuple[str, str]:
+    settings = get_settings()
+    return settings.supabase_url, settings.supabase_key
 
 
 def _sb_get(endpoint: str) -> list:
-    if not SUPABASE_URL or not SUPABASE_KEY:
+    supabase_url, supabase_key = _supabase_credentials()
+    if not supabase_url or not supabase_key:
         raise RuntimeError("SUPABASE_URL / SUPABASE_KEY manquantes dans .env")
     req = urllib.request.Request(
-        f"{SUPABASE_URL}/rest/v1/{endpoint}",
+        f"{supabase_url}/rest/v1/{endpoint}",
         headers={
-            "apikey": SUPABASE_KEY,
-            "Authorization": f"Bearer {SUPABASE_KEY}",
+            "apikey": supabase_key,
+            "Authorization": f"Bearer {supabase_key}",
         },
     )
     with urllib.request.urlopen(req) as r:

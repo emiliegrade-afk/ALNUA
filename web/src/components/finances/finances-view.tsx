@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Loader2, Plus, Wallet } from "lucide-react";
+import { FinancesAccountingPanel } from "@/components/finances/finances-accounting-panel";
+import { FinancesControllerPanel } from "@/components/finances/finances-controller-panel";
 import { FinancesCharts } from "@/components/finances/finances-charts";
 import { FinancesKpiCards } from "@/components/finances/finances-kpi-cards";
 import { FinancesMonthNav } from "@/components/finances/finances-month-nav";
@@ -183,6 +185,26 @@ export function FinancesView() {
           <FinancesRecurringSection
             items={dashboard?.recurring_expenses ?? []}
             onManage={openEditModal}
+          />
+
+          <FinancesAccountingPanel
+            month={month}
+            dashboardData={{
+              total_income: currentTotals.total_income,
+              total_expenses: currentTotals.total_expenses,
+              balance: currentTotals.balance,
+              by_category: currentTotals.by_category,
+            }}
+          />
+
+          <FinancesControllerPanel
+            month={month}
+            dashboardData={{
+              total_income: currentTotals.total_income,
+              total_expenses: currentTotals.total_expenses,
+              balance: currentTotals.balance,
+              by_category: currentTotals.by_category,
+            }}
           />
         </>
       )}

@@ -1,5 +1,5 @@
 import { hubApiUrl } from "./hub-api-config";
-import { hubApiKeyHeaders } from "./hub-api-key";
+import { hubFetch } from "./hub-fetch";
 
 export type BetaFeedbackType = "bug" | "suggestion" | "crash" | "ux" | "autre";
 export type BetaSeverity = "bloquant" | "majeur" | "mineur" | "cosmétique";
@@ -68,41 +68,7 @@ async function betaFetch<T>(
   path: string,
   options?: RequestInit & { timeoutMs?: number }
 ): Promise<T> {
-  const { timeoutMs = 30_000, ...fetchOptions } = options ?? {};
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    const res = await fetch(hubApiUrl(path), {
-      ...fetchOptions,
-      signal: controller.signal,
-      headers: hubApiKeyHeaders({
-        "Content-Type": "application/json",
-        ...fetchOptions.headers,
-      }),
-      cache: "no-store",
-    });
-
-    if (!res.ok) {
-      const text = await res.text().catch(() => res.statusText);
-      try {
-        const json = JSON.parse(text) as { detail?: string };
-        if (json.detail) throw new Error(json.detail);
-      } catch (e) {
-        if (e instanceof Error && e.message !== text) throw e;
-      }
-      throw new Error(`API ${res.status}: ${text}`);
-    }
-
-    return res.json() as Promise<T>;
-  } catch (err) {
-    if (err instanceof Error && err.name === "AbortError") {
-      throw new Error("API timeout — réessaie dans un instant.");
-    }
-    throw err;
-  } finally {
-    clearTimeout(timer);
-  }
+  return hubFetch<T>(path, options);
 }
 
 export function betaStorageKey(projectSlug: string) {

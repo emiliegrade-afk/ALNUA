@@ -1,0 +1,66 @@
+{
+  "name": "ALNUA — Spec QA Chain",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "alnua-spec-qa",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "f6a7b8c9-spec-webhook",
+      "name": "Spec Ready Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "alnua-spec-qa"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:8000/orchestration/spec-qa-chain",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Hub-Key",
+              "value": "alnua_dev_7f3a9c2e1b4d8f6a0c5e9b2d7f1a4c8"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ spec_text: $json.body.spec_text, context: $json.body.context || '', rounds: $json.body.rounds || 2, stop_on_approve: true }) }}"
+      },
+      "id": "a7b8c9d0-spec-qa",
+      "name": "Hub Spec QA Chain",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 300]
+    }
+  ],
+  "connections": {
+    "Spec Ready Webhook": {
+      "main": [
+        [
+          {
+            "node": "Hub Spec QA Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

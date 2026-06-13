@@ -1,13 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import { AgentFeed } from "@/components/dashboard/agent-feed";
 import { COOChat } from "@/components/dashboard/coo-chat";
 import { BackToLobby } from "@/components/shared/back-to-lobby";
 import { DepartmentHeader } from "@/components/shared/department-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { fetchBriefToday, fetchGithubPrs } from "@/lib/lobby-api";
+import { fetchTodayBriefing } from "@/lib/briefing-api";
+import { fetchGithubPrs } from "@/lib/lobby-api";
 import { fetchAgentLogs } from "@/lib/supabase";
 import type { AgentLog } from "@/lib/types";
 
@@ -21,18 +23,39 @@ export default function CeoPage() {
   >([]);
   const [logs, setLogs] = useState<AgentLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [briefData, prData, logData] = await Promise.all([
-      fetchBriefToday(),
-      fetchGithubPrs(),
-      fetchAgentLogs(5),
-    ]);
-    setBrief(briefData);
-    setPrs(prData.slice(0, 5));
-    setLogs(logData);
-    setLoading(false);
+    setError(null);
+    try {
+      const [briefing, prData, logData] = await Promise.all([
+        fetchTodayBriefing(),
+        fetchGithubPrs(),
+        fetchAgentLogs(5),
+      ]);
+      const urgent = briefing.raw_data.tickets
+        .filter(
+          (ticket) =>
+            ticket.priority === "critical" || ticket.priority === "high"
+        )
+        .map(
+          (ticket) =>
+            `[${ticket.project_name ?? "?"}] ${ticket.title}`
+        );
+      setBrief({
+        summary: briefing.summary,
+        urgent: urgent.length > 0 ? urgent : undefined,
+      });
+      setPrs(prData.slice(0, 5));
+      setLogs(logData);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Impossible de charger le brief."
+      );
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -57,13 +80,23 @@ export default function CeoPage() {
         <div className="space-y-6 lg:col-span-2">
           <Card className="border-copper/20 bg-obsidian-2/90">
             <CardHeader className="pb-2">
-              <CardTitle className="font-title text-base text-ivory">
-                Brief du jour
-              </CardTitle>
+              <div className="flex items-center justify-between gap-2">
+                <CardTitle className="font-title text-base text-ivory">
+                  Brief du jour
+                </CardTitle>
+                <Link
+                  href="/briefing"
+                  className="font-body text-xs text-copper hover:underline"
+                >
+                  Historique →
+                </Link>
+              </div>
             </CardHeader>
             <CardContent>
               {loading ? (
                 <p className="font-body text-sm text-titanium/60">Chargement…</p>
+              ) : error ? (
+                <p className="font-body text-sm text-red-400">{error}</p>
               ) : brief?.summary ? (
                 <p className="whitespace-pre-line font-body text-sm leading-relaxed text-ivory/90">
                   {brief.summary}

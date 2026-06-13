@@ -1,52 +1,8 @@
 import type { Project, Ticket } from "./types";
-import { hubApiUrl } from "./hub-api-config";
-import { hubApiKeyHeaders } from "./hub-api-key";
+import { hubFetch } from "./hub-fetch";
 
 export type { ApiHealthStatus } from "./hub-health";
 export { checkApiHealth } from "./hub-health";
-
-async function apiFetch<T>(
-  path: string,
-  options?: RequestInit & { timeoutMs?: number }
-): Promise<T> {
-  const { timeoutMs = 30_000, ...fetchOptions } = options ?? {};
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    const res = await fetch(hubApiUrl(path), {
-      ...fetchOptions,
-      signal: controller.signal,
-      headers: hubApiKeyHeaders({
-        "Content-Type": "application/json",
-        ...fetchOptions.headers,
-      }),
-      cache: "no-store",
-    });
-
-    if (!res.ok) {
-      const text = await res.text().catch(() => res.statusText);
-      throw new Error(`API ${res.status}: ${text}`);
-    }
-
-    return res.json() as Promise<T>;
-  } catch (err) {
-    if (err instanceof Error && err.name === "AbortError") {
-      throw new Error("API timeout — le serveur met trop de temps à répondre.");
-    }
-    throw err;
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-export async function fetchBriefing(): Promise<string> {
-  const data = await apiFetch<{ briefing: string }>("/agents/coo/briefing", {
-    method: "POST",
-    timeoutMs: 15_000,
-  });
-  return data.briefing;
-}
 
 export interface COOInstructionResult {
   response: string;
@@ -60,7 +16,7 @@ export async function sendCOOInstruction(
   instruction: string,
   project?: string
 ): Promise<COOInstructionResult> {
-  return apiFetch<COOInstructionResult>("/agents/coo/instruction", {
+  return hubFetch<COOInstructionResult>("/agents/coo/instruction", {
     method: "POST",
     body: JSON.stringify({ instruction, project: project ?? null }),
     timeoutMs: 120_000,
@@ -68,7 +24,7 @@ export async function sendCOOInstruction(
 }
 
 export async function fetchProjects(): Promise<Project[]> {
-  return apiFetch<Project[]>("/projects");
+  return hubFetch<Project[]>("/projects");
 }
 
 export interface ProjectCreatePayload {
@@ -81,7 +37,7 @@ export interface ProjectCreatePayload {
 export async function createProject(
   data: ProjectCreatePayload
 ): Promise<Project> {
-  return apiFetch<Project>("/projects", {
+  return hubFetch<Project>("/projects", {
     method: "POST",
     body: JSON.stringify({
       name: data.name,
@@ -100,5 +56,5 @@ export async function fetchTickets(
   if (projectId) params.set("project_id", projectId);
   if (status) params.set("status", status);
   const qs = params.toString();
-  return apiFetch<Ticket[]>(`/tickets${qs ? `?${qs}` : ""}`);
+  return hubFetch<Ticket[]>(`/tickets${qs ? `?${qs}` : ""}`);
 }

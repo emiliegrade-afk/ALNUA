@@ -1,34 +1,5 @@
 import { hubApiUrl } from "./hub-api-config";
-import { hubApiKeyHeaders } from "./hub-api-key";
-import { parseHubApiError } from "./hub-api-error";
-
-async function apiFetch<T>(
-  path: string,
-  options?: RequestInit & { timeoutMs?: number }
-): Promise<T> {
-  const timeoutMs = options?.timeoutMs ?? 30_000;
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  const { timeoutMs: _timeout, ...fetchOptions } = options ?? {};
-  try {
-    const res = await fetch(hubApiUrl(path), {
-      ...fetchOptions,
-      signal: controller.signal,
-      headers: hubApiKeyHeaders({
-        "Content-Type": "application/json",
-        ...fetchOptions.headers,
-      }),
-      cache: "no-store",
-    });
-    if (!res.ok) {
-      const text = await res.text().catch(() => res.statusText);
-      throw new Error(parseHubApiError(text, res.status));
-    }
-    return res.json() as Promise<T>;
-  } finally {
-    clearTimeout(timer);
-  }
-}
+import { hubFetch } from "./hub-fetch";
 
 export type DossierStatus =
   | "draft"
@@ -195,7 +166,7 @@ export async function createRndDossier(
   options?: { enrich?: boolean }
 ): Promise<PromoteResponse> {
   const qs = options?.enrich === false ? "?enrich=false" : "";
-  return apiFetch<PromoteResponse>(`/rnd/dossiers${qs}`, {
+  return hubFetch<PromoteResponse>(`/rnd/dossiers${qs}`, {
     method: "POST",
     body: JSON.stringify({ idea_id: ideaId }),
   });
@@ -209,29 +180,29 @@ export async function fetchRndDossiers(params?: {
   if (params?.status) qs.set("status", params.status);
   if (params?.domain) qs.set("domain", params.domain);
   const q = qs.toString();
-  return apiFetch<RndDossierListItem[]>(`/rnd/dossiers${q ? `?${q}` : ""}`);
+  return hubFetch<RndDossierListItem[]>(`/rnd/dossiers${q ? `?${q}` : ""}`);
 }
 
 export async function fetchRndDossier(dossierId: string): Promise<RndDossierDetail> {
-  return apiFetch<RndDossierDetail>(`/rnd/dossiers/${dossierId}`);
+  return hubFetch<RndDossierDetail>(`/rnd/dossiers/${dossierId}`);
 }
 
 export async function fetchRndDossierBySlug(slug: string): Promise<RndDossierDetail> {
-  return apiFetch<RndDossierDetail>(`/rnd/dossiers/slug/${slug}`);
+  return hubFetch<RndDossierDetail>(`/rnd/dossiers/slug/${slug}`);
 }
 
 export async function promoteRndIdea(ideaId: string): Promise<PromoteResponse> {
-  return apiFetch<PromoteResponse>(`/rnd/ideas/${encodeURIComponent(ideaId)}/promote`, {
+  return hubFetch<PromoteResponse>(`/rnd/ideas/${encodeURIComponent(ideaId)}/promote`, {
     method: "POST",
   });
 }
 
 export async function fetchRndDossierEvents(dossierId: string): Promise<RndDossierEvent[]> {
-  return apiFetch<RndDossierEvent[]>(`/rnd/dossiers/${dossierId}/events`);
+  return hubFetch<RndDossierEvent[]>(`/rnd/dossiers/${dossierId}/events`);
 }
 
 export async function enrichRndDossier(dossierId: string): Promise<RndDossierDetail> {
-  const data = await apiFetch<{ dossier: RndDossierDetail }>(
+  const data = await hubFetch<{ dossier: RndDossierDetail }>(
     `/rnd/dossiers/${dossierId}/enrich`,
     { method: "POST" }
   );
@@ -243,7 +214,7 @@ export async function validateDossierSection(
   sectionKey: string,
   note?: string
 ): Promise<RndDossierDetail> {
-  return apiFetch<RndDossierDetail>(`/rnd/dossiers/${dossierId}/validate-section`, {
+  return hubFetch<RndDossierDetail>(`/rnd/dossiers/${dossierId}/validate-section`, {
     method: "POST",
     body: JSON.stringify({ section_key: sectionKey, note }),
   });
@@ -254,7 +225,7 @@ export async function requestSectionRevision(
   sectionKey: string,
   revisionNote: string
 ): Promise<RndDossierDetail> {
-  return apiFetch<RndDossierDetail>(`/rnd/dossiers/${dossierId}/request-revision`, {
+  return hubFetch<RndDossierDetail>(`/rnd/dossiers/${dossierId}/request-revision`, {
     method: "POST",
     body: JSON.stringify({ section_key: sectionKey, revision_note: revisionNote }),
   });
@@ -265,7 +236,7 @@ export async function regenerateDossierSection(
   sectionKey: string,
   body: { revision_note: string }
 ): Promise<RndDossierDetail> {
-  return apiFetch<RndDossierDetail>(`/rnd/dossiers/${dossierId}/regenerate-section`, {
+  return hubFetch<RndDossierDetail>(`/rnd/dossiers/${dossierId}/regenerate-section`, {
     method: "POST",
     body: JSON.stringify({ section_key: sectionKey, revision_note: body.revision_note }),
   });
@@ -275,7 +246,7 @@ export async function estimateDossierFinance(
   dossierId: string,
   body?: { constraint?: string }
 ): Promise<{ finance_json: RndFinanceJson; business_case_md: string }> {
-  return apiFetch(`/rnd/dossiers/${dossierId}/finance/estimate`, {
+  return hubFetch(`/rnd/dossiers/${dossierId}/finance/estimate`, {
     method: "POST",
     body: JSON.stringify(body ?? {}),
   });
@@ -285,7 +256,7 @@ export async function fetchDossierFinance(dossierId: string): Promise<{
   finance_json: RndFinanceJson | null;
   business_case: string | null;
 }> {
-  return apiFetch(`/rnd/dossiers/${dossierId}/finance`);
+  return hubFetch(`/rnd/dossiers/${dossierId}/finance`);
 }
 
 export async function patchRndDossier(
@@ -298,7 +269,7 @@ export async function patchRndDossier(
     ceo_note: string;
   }>
 ): Promise<RndDossierDetail> {
-  return apiFetch<RndDossierDetail>(`/rnd/dossiers/${dossierId}`, {
+  return hubFetch<RndDossierDetail>(`/rnd/dossiers/${dossierId}`, {
     method: "PATCH",
     body: JSON.stringify(body),
   });
@@ -345,7 +316,7 @@ export async function startCommitteeSession(
   messages: CommitteeMessage[];
   resumed: boolean;
 }> {
-  return apiFetch(`/rnd/dossiers/${dossierId}/committee/start`, {
+  return hubFetch(`/rnd/dossiers/${dossierId}/committee/start`, {
     method: "POST",
     body: JSON.stringify(body ?? {}),
     timeoutMs: 120_000,
@@ -356,7 +327,7 @@ export async function fetchCommitteeSession(
   dossierId: string,
   sessionId: string
 ): Promise<{ session: CommitteeSession; messages: CommitteeMessage[] }> {
-  return apiFetch(`/rnd/dossiers/${dossierId}/committee/${sessionId}`);
+  return hubFetch(`/rnd/dossiers/${dossierId}/committee/${sessionId}`);
 }
 
 export async function sendCommitteeMessage(
@@ -365,7 +336,7 @@ export async function sendCommitteeMessage(
   message: string,
   targetSpeaker?: string
 ): Promise<{ user_message: CommitteeMessage; responses: CommitteeMessage[] }> {
-  return apiFetch(`/rnd/dossiers/${dossierId}/committee/${sessionId}/message`, {
+  return hubFetch(`/rnd/dossiers/${dossierId}/committee/${sessionId}/message`, {
     method: "POST",
     body: JSON.stringify({ message, target_speaker: targetSpeaker }),
     timeoutMs: 120_000,
@@ -376,7 +347,7 @@ export async function generateCommitteeReport(
   dossierId: string,
   sessionId: string
 ): Promise<{ committee_report_md: string; message: CommitteeMessage }> {
-  return apiFetch(`/rnd/dossiers/${dossierId}/committee/${sessionId}/report`, {
+  return hubFetch(`/rnd/dossiers/${dossierId}/committee/${sessionId}/report`, {
     method: "POST",
     timeoutMs: 180_000,
   });
@@ -394,7 +365,7 @@ export async function closeCommitteeSession(
   dossier_status: string;
   ceo_package?: { message: string } | null;
 }> {
-  return apiFetch(`/rnd/dossiers/${dossierId}/committee/${sessionId}/close`, {
+  return hubFetch(`/rnd/dossiers/${dossierId}/committee/${sessionId}/close`, {
     method: "POST",
     body: JSON.stringify({
       apply_sections: options?.applySections ?? true,
@@ -420,14 +391,14 @@ export interface CeoPackageResponse {
 }
 
 export async function fetchCeoPackage(dossierId: string): Promise<CeoPackageResponse> {
-  return apiFetch(`/rnd/dossiers/${dossierId}/ceo/package`);
+  return hubFetch(`/rnd/dossiers/${dossierId}/ceo/package`);
 }
 
 export async function generateCeoPackage(
   dossierId: string,
   options?: { force?: boolean }
 ): Promise<{ message: string; package?: Record<string, unknown>; markdown?: string }> {
-  return apiFetch(`/rnd/dossiers/${dossierId}/ceo/generate`, {
+  return hubFetch(`/rnd/dossiers/${dossierId}/ceo/generate`, {
     method: "POST",
     body: JSON.stringify({ force: options?.force ?? false }),
     timeoutMs: 120_000,
@@ -438,7 +409,7 @@ export async function decideCeoPackage(
   dossierId: string,
   body: { ceo_status: "approved" | "rejected" | "pivot_requested"; ceo_note?: string }
 ): Promise<{ message: string; ceo_status: string; dossier_status: string }> {
-  return apiFetch(`/rnd/dossiers/${dossierId}/ceo/decide`, {
+  return hubFetch(`/rnd/dossiers/${dossierId}/ceo/decide`, {
     method: "POST",
     body: JSON.stringify(body),
   });
@@ -447,7 +418,7 @@ export async function decideCeoPackage(
 export async function dispatchToCoo(
   dossierId: string
 ): Promise<{ message: string; roadmap_items?: Array<{ id: string; title: string }> }> {
-  return apiFetch(`/rnd/dossiers/${dossierId}/ceo/dispatch`, {
+  return hubFetch(`/rnd/dossiers/${dossierId}/ceo/dispatch`, {
     method: "POST",
     timeoutMs: 60_000,
   });
@@ -470,7 +441,7 @@ export interface RndDossierAsset {
 }
 
 export async function fetchDossierAssets(dossierId: string): Promise<RndDossierAsset[]> {
-  return apiFetch(`/rnd/dossiers/${dossierId}/assets`);
+  return hubFetch(`/rnd/dossiers/${dossierId}/assets`);
 }
 
 export async function generateDossierAssets(
@@ -483,7 +454,7 @@ export async function generateDossierAssets(
   expected: number;
   message: string;
 }> {
-  return apiFetch(`/rnd/dossiers/${dossierId}/assets/generate`, {
+  return hubFetch(`/rnd/dossiers/${dossierId}/assets/generate`, {
     method: "POST",
     body: JSON.stringify({ force: options?.force ?? false }),
     timeoutMs: 120_000,
@@ -537,7 +508,7 @@ export interface RndProductStatusResponse {
 export async function fetchProductStatus(
   dossierId: string
 ): Promise<RndProductStatusResponse> {
-  return apiFetch(`/rnd/dossiers/${dossierId}/product/status`);
+  return hubFetch(`/rnd/dossiers/${dossierId}/product/status`);
 }
 
 export async function fetchProductPage(dossierId: string): Promise<{
@@ -545,14 +516,14 @@ export async function fetchProductPage(dossierId: string): Promise<{
   page: RndProductPage | null;
   message: string;
 }> {
-  return apiFetch(`/rnd/dossiers/${dossierId}/product`);
+  return hubFetch(`/rnd/dossiers/${dossierId}/product`);
 }
 
 export async function generateProductPage(
   dossierId: string,
   options?: { force?: boolean; waitlistEnabled?: boolean }
 ): Promise<{ page: RndProductPage; message: string; created: boolean }> {
-  return apiFetch(`/rnd/dossiers/${dossierId}/product/generate`, {
+  return hubFetch(`/rnd/dossiers/${dossierId}/product/generate`, {
     method: "POST",
     body: JSON.stringify({
       force: options?.force ?? false,
@@ -565,7 +536,7 @@ export async function generateProductPage(
 export async function publishProductPage(
   dossierId: string
 ): Promise<{ page: RndProductPage; message: string; public_url: string }> {
-  return apiFetch(`/rnd/dossiers/${dossierId}/product/publish`, {
+  return hubFetch(`/rnd/dossiers/${dossierId}/product/publish`, {
     method: "POST",
     timeoutMs: 60_000,
   });
@@ -574,13 +545,13 @@ export async function publishProductPage(
 export async function unpublishProductPage(
   dossierId: string
 ): Promise<{ page: RndProductPage; message: string }> {
-  return apiFetch(`/rnd/dossiers/${dossierId}/product/unpublish`, {
+  return hubFetch(`/rnd/dossiers/${dossierId}/product/unpublish`, {
     method: "POST",
   });
 }
 
 export async function fetchPublicProductPage(slug: string): Promise<RndProductPage> {
-  return apiFetch<RndProductPage>(`/rnd/product/${encodeURIComponent(slug)}`);
+  return hubFetch<RndProductPage>(`/rnd/product/${encodeURIComponent(slug)}`);
 }
 
 export type RndPipelineStageStatus =
@@ -617,7 +588,7 @@ export interface RndPipelineResponse {
 export async function fetchDossierPipeline(
   dossierId: string
 ): Promise<RndPipelineResponse> {
-  return apiFetch(`/rnd/dossiers/${dossierId}/pipeline`);
+  return hubFetch(`/rnd/dossiers/${dossierId}/pipeline`);
 }
 
 export async function fetchRndModuleHealth(): Promise<{
@@ -625,14 +596,14 @@ export async function fetchRndModuleHealth(): Promise<{
   module: string;
   checks: Record<string, unknown>;
 }> {
-  return apiFetch("/rnd/health");
+  return hubFetch("/rnd/health");
 }
 
 export async function generateDossierDeck(
   dossierId: string,
   options?: { exportPdf?: boolean }
 ): Promise<RndDeckGenerateResult> {
-  return apiFetch<RndDeckGenerateResult>(`/rnd/dossiers/${dossierId}/deck/generate`, {
+  return hubFetch<RndDeckGenerateResult>(`/rnd/dossiers/${dossierId}/deck/generate`, {
     method: "POST",
     body: JSON.stringify({ export_pdf: options?.exportPdf ?? true }),
     timeoutMs: 120_000,
@@ -695,11 +666,11 @@ export async function fetchSocialStatus(dossierId: string): Promise<{
   ceo_status: string;
   message: string;
 }> {
-  return apiFetch(`/rnd/dossiers/${dossierId}/social/status`);
+  return hubFetch(`/rnd/dossiers/${dossierId}/social/status`);
 }
 
 export async function fetchSocialCalendar(dossierId: string): Promise<RndSocialCalendarItem[]> {
-  return apiFetch(`/rnd/dossiers/${dossierId}/social/calendar`);
+  return hubFetch(`/rnd/dossiers/${dossierId}/social/calendar`);
 }
 
 export async function generateSocialCalendar(
@@ -711,7 +682,7 @@ export async function generateSocialCalendar(
   message: string;
   social_strategy_md?: string;
 }> {
-  return apiFetch(`/rnd/dossiers/${dossierId}/social/calendar/generate`, {
+  return hubFetch(`/rnd/dossiers/${dossierId}/social/calendar/generate`, {
     method: "POST",
     body: JSON.stringify(body ?? {}),
     timeoutMs: 120_000,
@@ -722,7 +693,7 @@ export async function generateSocialPost(
   dossierId: string,
   itemId: string
 ): Promise<{ post: Record<string, unknown>; message: string }> {
-  return apiFetch(`/rnd/dossiers/${dossierId}/social/calendar/${itemId}/generate-post`, {
+  return hubFetch(`/rnd/dossiers/${dossierId}/social/calendar/${itemId}/generate-post`, {
     method: "POST",
     body: JSON.stringify({}),
     timeoutMs: 120_000,
@@ -733,7 +704,7 @@ export async function generateAllSocialPosts(dossierId: string): Promise<{
   generated_count: number;
   message: string;
 }> {
-  return apiFetch(`/rnd/dossiers/${dossierId}/social/generate-all`, {
+  return hubFetch(`/rnd/dossiers/${dossierId}/social/generate-all`, {
     method: "POST",
     timeoutMs: 300_000,
   });

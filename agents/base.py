@@ -60,6 +60,7 @@ class LLMClient:
         user: str,
         model: str | None = None,
         agent_id: str | None = None,
+        method_name: str = "",
         temperature: float = 0.7,
         max_tokens: int = 4096,
     ) -> str:
@@ -68,6 +69,7 @@ class LLMClient:
             messages=[{"role": "user", "content": user}],
             model=model,
             agent_id=agent_id,
+            method_name=method_name,
             temperature=temperature,
             max_tokens=max_tokens,
         )
@@ -78,11 +80,24 @@ class LLMClient:
         messages: list[dict[str, str]],
         model: str | None = None,
         agent_id: str | None = None,
+        method_name: str = "",
         temperature: float = 0.7,
         max_tokens: int = 4096,
     ) -> str:
-        # Résolution : explicit > agent_id config > global .env
+        # Résolution : explicit > llm_router > agent_id config > global .env
         resolved_model = to_api_model_slug(model) if model else None
+        if not resolved_model and agent_id and method_name:
+            try:
+                from services.llm_router import route_to_model
+
+                user_text = " ".join(
+                    m.get("content", "") for m in messages if m.get("role") == "user"
+                )
+                resolved_model = to_api_model_slug(
+                    route_to_model(agent_id, user_text, method_name)
+                )
+            except Exception:
+                pass
         if not resolved_model:
             if agent_id:
                 try:
@@ -127,7 +142,69 @@ class LLMClient:
             )
             response.raise_for_status()
             data = response.json()
-        return data["choices"][0]["message"]["content"]
+        content = data["choices"][0]["message"]["content"]
+        self._record_usage(
+            data=data,
+            agent_id=agent_id,
+            model=resolved_model,
+            method_name=method_name,
+        )
+        return content
+
+    def _record_usage(
+        self,
+        *,
+        data: dict[str, Any],
+        agent_id: str | None,
+        model: str,
+        method_name: str,
+    ) -> None:
+        """Track LLM usage in cost_monitor (+ optional Supabase legacy)."""
+        try:
+            usage = data.get("usage") or {}
+            prompt_tokens = int(usage.get("prompt_tokens") or 0)
+            completion_tokens = int(usage.get("completion_tokens") or 0)
+            if not prompt_tokens and not completion_tokens:
+                return
+
+            from services.cost_monitor import check_budget_alert, record_call
+
+            cost_usd = record_call(
+                agent_id=agent_id or "unknown",
+                model=model,
+                prompt_tokens=prompt_tokens,
+                completion_tokens=completion_tokens,
+                method=method_name,
+            )
+            try:
+                from skills.skill_model_usage import log_usage
+
+                log_usage(
+                    agent_name=agent_id or "unknown",
+                    model=model,
+                    tokens_in=prompt_tokens,
+                    tokens_out=completion_tokens,
+                    cost_usd=cost_usd,
+                    task_id=method_name or None,
+                )
+            except Exception:
+                pass
+
+            alert = check_budget_alert()
+            if alert.get("alert"):
+                from services.event_bus import emit
+
+                emit(
+                    "budget_alert",
+                    {
+                        "severity": alert.get("severity"),
+                        "spent_usd": alert.get("spent_usd"),
+                        "daily_budget_usd": alert.get("daily_budget_usd"),
+                    },
+                    source_agent=agent_id or "system",
+                )
+        except Exception:
+            pass
 
 
 def run_with_learning(
@@ -167,12 +244,36 @@ def run_with_learning(
             add_points(agent_id, "task_completed", note=f"{task[:80]}")
         except Exception:
             pass
+        try:
+            from services.event_bus import emit
+
+            emit(
+                "task_completed",
+                {"task": task[:200], "agent_id": agent_id},
+                source_agent=agent_id,
+            )
+        except Exception:
+            pass
         return result
     except Exception as exc:
         error_str = f"{type(exc).__name__}: {exc}\n{traceback.format_exc()[-500:]}"
         try:
             from skills.skill_agent_learning import learn_from_failure
             learn_from_failure(agent_id=agent_id, task=task, error=error_str)
+        except Exception:
+            pass
+        try:
+            from services.event_bus import emit
+
+            emit(
+                "task_failed",
+                {
+                    "task": task[:200],
+                    "agent_id": agent_id,
+                    "error": error_str[:300],
+                },
+                source_agent=agent_id,
+            )
         except Exception:
             pass
         raise

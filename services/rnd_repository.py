@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 from uuid import UUID
 
+from config.paths import data_dir, get_hub_repo_path
 from database.supabase_client import SupabaseClient, get_supabase
 from services.rnd_schemas import (
     DOMAIN_TO_BRANCH,
@@ -26,8 +27,8 @@ from services.rnd_schemas import (
 
 logger = logging.getLogger(__name__)
 
-RND_IDEAS_FILE = Path(os.getenv("HUB_REPO_PATH", "C:/Dev/ALUNA_HUB")) / "data" / "rnd_ideas.json"
-RND_DOSSIERS_ROOT = Path(os.getenv("HUB_REPO_PATH", "C:/Dev/ALUNA_HUB")) / "data" / "rnd_dossiers"
+RND_IDEAS_FILE = get_hub_repo_path() / "data" / "rnd_ideas.json"
+RND_DOSSIERS_ROOT = data_dir("rnd_dossiers")
 
 
 def _slugify(text: str) -> str:
@@ -526,7 +527,7 @@ class RndRepository:
 
     def load_competitive_context(self, limit_chars: int = 3000) -> str:
         """Load latest competitive anti-patterns from data/rnd_competitive/."""
-        comp_dir = Path(os.getenv("HUB_REPO_PATH", "C:/Dev/ALUNA_HUB")) / "data" / "rnd_competitive"
+        comp_dir = data_dir("rnd_competitive")
         if not comp_dir.exists():
             return ""
         parts: list[str] = []

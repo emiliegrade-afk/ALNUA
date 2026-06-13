@@ -79,9 +79,6 @@ export function AnalyticsView() {
       <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="forge-heading text-[11px] text-copper/80">Pilotage</p>
-          <h1 className="mt-1 text-2xl font-semibold tracking-wide text-ivory">
-            Analytics
-          </h1>
           <p className="mt-1 text-sm text-titanium">
             Téléchargements, abonnements, revenus et avis — tous tes projets en
             un coup d&apos;œil.

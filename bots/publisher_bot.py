@@ -35,15 +35,44 @@ class PublisherBot:
         return due
 
     def publish_post(self, post: dict[str, Any]) -> bool:
-        """Publish a single post. Override platform integrations here."""
-        platform = post["platform"]
-        logger.info(
-            "Publishing to %s: %s",
-            platform,
-            post["text_content"][:80],
-        )
-        # Platform API integrations (Instagram, TikTok, etc.) go here.
-        # For now we mark as published once logged.
+        """Publish a single post to the configured platform."""
+        platform = (post.get("platform") or "").lower()
+        text = post.get("text_content") or ""
+        logger.info("Publishing to %s: %s", platform, text[:80])
+
+        if platform == "discord":
+            from skills.skill_discord_wyrdheim import discord_is_configured, post_to_discord
+
+            if not discord_is_configured():
+                raise RuntimeError("Discord non configuré (DISCORD_BOT_TOKEN)")
+            channel = post.get("channel") or "général"
+            result = post_to_discord(channel, text, embed=False)
+            if not result.get("success"):
+                raise RuntimeError(result.get("error", "Échec post Discord"))
+
+        elif platform in ("twitter", "x", "linkedin", "instagram"):
+            try:
+                from skills.skill_composio import composio_execute
+
+                action_map = {
+                    "twitter": "TWITTER_CREATION_OF_A_POST",
+                    "x": "TWITTER_CREATION_OF_A_POST",
+                    "linkedin": "LINKEDIN_CREATE_LINKED_IN_POST",
+                }
+                action = action_map.get(platform)
+                if action:
+                    composio_execute(
+                        action,
+                        {"text": text},
+                        agent_name="marketing_agent",
+                        user_id="alnua_marketing",
+                    )
+                else:
+                    logger.info("Platform %s — logged only (no Composio action)", platform)
+            except Exception as exc:
+                logger.warning("Composio publish failed for %s: %s", platform, exc)
+                raise
+
         self.db.update(
             "posts_queue",
             post["id"],

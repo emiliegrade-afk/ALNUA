@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Play, Loader2 } from "lucide-react";
+import { HubAutomationPanel } from "@/components/hub/hub-automation-panel";
 import { BackToLobby } from "@/components/shared/back-to-lobby";
 import { BureauAgentsSection } from "@/components/shared/bureau-agents-section";
 import { DepartmentHeader } from "@/components/shared/department-header";
@@ -32,16 +33,26 @@ export default function HubPage() {
   const [pipelineStatus, setPipelineStatus] = useState<string | null>(null);
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
   const [runningIssue, setRunningIssue] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const [issueData, prData, costData] = await Promise.all([
-      fetchPipelineIssues(),
-      fetchGithubPrs(),
-      fetchWeeklyCosts(),
-    ]);
-    setIssues(issueData);
-    setPrs(prData);
-    setCosts(costData);
+    setLoading(true);
+    setError(null);
+    try {
+      const [issueData, prData, costData] = await Promise.all([
+        fetchPipelineIssues(),
+        fetchGithubPrs(),
+        fetchWeeklyCosts(),
+      ]);
+      setIssues(issueData);
+      setPrs(prData);
+      setCosts(costData);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Impossible de charger le hub.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -121,6 +132,15 @@ export default function HubPage() {
         bureau="hub"
         className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
       />
+
+      <HubAutomationPanel />
+
+      {loading ? (
+        <p className="mb-4 font-body text-sm text-titanium/60">Chargement…</p>
+      ) : null}
+      {error ? (
+        <p className="mb-4 font-body text-sm text-red-400">{error}</p>
+      ) : null}
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card className="border-copper/20 bg-obsidian-2/90">

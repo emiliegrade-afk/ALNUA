@@ -5,6 +5,7 @@ import Link from "next/link";
 import { BackToLobby } from "@/components/shared/back-to-lobby";
 import { BureauAgentsSection } from "@/components/shared/bureau-agents-section";
 import { DepartmentHeader } from "@/components/shared/department-header";
+import { MarketingConsole } from "@/components/marketing/marketing-console";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchPosts } from "@/lib/content";
@@ -31,29 +32,21 @@ export default function MarketingPage() {
 
       <BureauAgentsSection bureau="marketing" />
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="mb-8">
         <Card className="border-copper/20 bg-obsidian-2/90">
           <CardHeader>
-            <CardTitle className="font-title text-base text-ivory">
-              Posts en attente
-            </CardTitle>
+            <CardTitle className="font-title text-base text-ivory">Posts en attente</CardTitle>
             <p className="label-caps">
-              {pendingPosts.length} post{pendingPosts.length !== 1 ? "s" : ""}{" "}
-              pending
+              {pendingPosts.length} post{pendingPosts.length !== 1 ? "s" : ""} pending
             </p>
           </CardHeader>
           <CardContent>
             {pendingPosts.length === 0 ? (
-              <p className="font-body text-sm text-titanium/60">
-                Aucun post en attente.
-              </p>
+              <p className="font-body text-sm text-titanium/60">Aucun post en attente.</p>
             ) : (
               <ul className="space-y-3">
                 {pendingPosts.map((post) => (
-                  <li
-                    key={post.id}
-                    className="rounded-lg border border-copper/10 p-3"
-                  >
+                  <li key={post.id} className="rounded-lg border border-copper/10 p-3">
                     <span className="font-body text-xs text-copper">{post.platform}</span>
                     <p className="mt-1 line-clamp-2 font-body text-sm text-ivory/80">
                       {post.text_content}
@@ -67,43 +60,9 @@ export default function MarketingPage() {
             </Button>
           </CardContent>
         </Card>
-
-        <div className="space-y-6">
-          <Card className="border-copper/20 bg-obsidian-2/90">
-            <CardHeader>
-              <CardTitle className="font-title text-base text-ivory">SEO</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="font-body text-sm text-titanium">
-                Dernier audit SEO via skill_seo_audit — disponible via le COO.
-              </p>
-              <Button asChild size="sm" variant="outline" className="mt-3 border-copper/30 hover:border-copper/50">
-                <Link href="/ceo">Demander un audit SEO</Link>
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="border-copper/20 bg-obsidian-2/90">
-            <CardHeader>
-              <CardTitle className="font-title text-base text-ivory">Réseaux</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-wrap gap-2">
-              <Button asChild size="sm" variant="outline" className="border-copper/30 hover:border-copper/50">
-                <a
-                  href="https://discord.gg"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Discord Wyrdheim
-                </a>
-              </Button>
-              <Button asChild size="sm" variant="outline" className="border-copper/30 hover:border-copper/50">
-                <Link href="/content">Comptes sociaux</Link>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
       </div>
+
+      <MarketingConsole />
     </>
   );
 }

@@ -261,6 +261,27 @@ export function LobbyView() {
             <DepartmentDoor key={door.href} {...door} />
           ))}
         </div>
+
+        <section className="mt-12 border-t border-copper/10 pt-8">
+          <h2 className="label-caps mb-4">Outils admin</h2>
+          <div className="flex flex-wrap gap-3">
+            {[
+              { href: "/briefing", label: "Briefing" },
+              { href: "/beta", label: "Beta testeurs" },
+              { href: "/waitlist", label: "Waitlist" },
+              { href: "/releases", label: "Releases" },
+              { href: "/partnerships/manage", label: "Partenariats" },
+            ].map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="rounded-lg border border-copper/20 bg-obsidian-2/60 px-4 py-2 font-body text-sm text-titanium transition hover:border-copper/40 hover:text-ivory"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        </section>
       </main>
 
       <footer className="border-t border-copper/10 px-6 py-4">

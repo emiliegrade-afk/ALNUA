@@ -1,3 +1,4 @@
+import { AnalyticsAgentsPanel } from "@/components/analytics/analytics-agents-panel";
 import { AnalyticsView } from "@/components/analytics/analytics-view";
 import { BackToLobby } from "@/components/shared/back-to-lobby";
 import { BureauAgentsSection } from "@/components/shared/bureau-agents-section";
@@ -13,6 +14,7 @@ export default function AnalyticsPage() {
         subtitle="Layla · Axel · KPIs · Métriques · Releases"
       />
       <BureauAgentsSection bureau="analytics" />
+      <AnalyticsAgentsPanel />
       <AnalyticsView />
     </>
   );

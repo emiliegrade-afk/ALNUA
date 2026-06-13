@@ -1,47 +1,5 @@
 import type { Project } from "./types";
-
-import { hubApiUrl } from "./hub-api-config";
-import { hubApiKeyHeaders } from "./hub-api-key";
-
-async function apiFetch<T>(path: string, options?: RequestInit & { timeoutMs?: number }): Promise<T> {
-  const timeoutMs = options?.timeoutMs ?? 30_000;
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  const { timeoutMs: _timeout, ...fetchOptions } = options ?? {};
-  void _timeout;
-
-  try {
-    const res = await fetch(hubApiUrl(path), {
-      ...fetchOptions,
-      signal: controller.signal,
-      headers: hubApiKeyHeaders({
-        "Content-Type": "application/json",
-        ...fetchOptions?.headers,
-      }),
-      cache: "no-store",
-    });
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => res.statusText);
-    try {
-      const json = JSON.parse(text) as { detail?: string };
-      if (json.detail) throw new Error(json.detail);
-    } catch (e) {
-      if (e instanceof Error && e.message !== text) throw e;
-    }
-    throw new Error(`API ${res.status}: ${text}`);
-  }
-
-  return res.json() as Promise<T>;
-  } catch (err) {
-    if (err instanceof Error && err.name === "AbortError") {
-      throw new Error("API timeout — le serveur met trop de temps à répondre.");
-    }
-    throw err;
-  } finally {
-    clearTimeout(timer);
-  }
-}
+import { hubFetch } from "./hub-fetch";
 
 export interface BrainstormMessage {
   id: string;
@@ -78,7 +36,7 @@ export async function sendBrainstormMessage(
   projectId: string | null,
   sessionId: string | null
 ): Promise<{ response: string; session_id: string }> {
-  return apiFetch("/agents/brainstorm/chat", {
+  return hubFetch("/agents/brainstorm/chat", {
     method: "POST",
     body: JSON.stringify({
       message,
@@ -89,13 +47,13 @@ export async function sendBrainstormMessage(
 }
 
 export async function fetchBrainstormSessions(): Promise<BrainstormSession[]> {
-  return apiFetch<BrainstormSession[]>("/brainstorm/sessions");
+  return hubFetch<BrainstormSession[]>("/brainstorm/sessions");
 }
 
 export async function fetchBrainstormSession(
   sessionId: string
 ): Promise<BrainstormSessionDetail> {
-  return apiFetch<BrainstormSessionDetail>(`/brainstorm/sessions/${sessionId}`);
+  return hubFetch<BrainstormSessionDetail>(`/brainstorm/sessions/${sessionId}`);
 }
 
 export interface SummarizeResult {
@@ -110,7 +68,7 @@ export interface SummarizeResult {
 export async function summarizeBrainstormSession(
   sessionId: string
 ): Promise<SummarizeResult> {
-  return apiFetch<SummarizeResult>(
+  return hubFetch<SummarizeResult>(
     `/brainstorm/sessions/${sessionId}/summarize`,
     { method: "POST", timeoutMs: 120_000 }
   );
@@ -119,7 +77,7 @@ export async function summarizeBrainstormSession(
 export async function fetchSessionSummary(
   sessionId: string
 ): Promise<{ summary: string; title: string; file_path?: string }> {
-  const data = await apiFetch<{
+  const data = await hubFetch<{
     summary: string;
     title: string;
     file_path?: string;
@@ -128,7 +86,7 @@ export async function fetchSessionSummary(
 }
 
 export async function revealSummaryFile(filePath: string): Promise<void> {
-  await apiFetch("/brainstorm/summaries/reveal", {
+  await hubFetch("/brainstorm/summaries/reveal", {
     method: "POST",
     body: JSON.stringify({ file_path: filePath }),
   });
@@ -142,7 +100,7 @@ export async function createRoadmapItem(data: {
   phase?: string;
   status?: "idea" | "planned";
 }): Promise<unknown> {
-  return apiFetch("/roadmap", {
+  return hubFetch("/roadmap", {
     method: "POST",
     body: JSON.stringify({
       project_id: data.project_id,
@@ -156,7 +114,7 @@ export async function createRoadmapItem(data: {
 }
 
 export async function fetchProjects(): Promise<Project[]> {
-  return apiFetch<Project[]>("/projects");
+  return hubFetch<Project[]>("/projects");
 }
 
 export type { Project };

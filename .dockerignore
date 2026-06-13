@@ -16,3 +16,6 @@ logs/
 worktrees/
 *.log
 .DS_Store
+data/
+brand_kits/
+models/
