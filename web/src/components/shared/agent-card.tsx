@@ -3,7 +3,7 @@
 import { Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DEPT_COLORS } from "@/lib/dept-colors";
+import { DEPT_COLORS, type DeptKey } from "@/lib/dept-colors";
 import { useCooStore } from "@/store/coo-store";
 import { cn } from "@/lib/utils";
 
@@ -11,7 +11,7 @@ export interface AgentCardProps {
   icon?: string;
   name: string;
   role: string;
-  branch: "hub" | "app" | "gaming" | "robo" | "marketing" | "rd";
+  branch: DeptKey;
   description: string;
   skills: string[];
   badge?: string;

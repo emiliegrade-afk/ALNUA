@@ -3,39 +3,14 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
-import { AgentCard } from "@/components/shared/agent-card";
 import { BackToLobby } from "@/components/shared/back-to-lobby";
+import { BureauAgentsSection } from "@/components/shared/bureau-agents-section";
 import { DepartmentHeader } from "@/components/shared/department-header";
-import { AgentFocusPanel } from "@/components/openroom/agent-focus-panel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchProjects, fetchTickets } from "@/lib/api";
-import { fetchAgentsStatus, type AgentStatus } from "@/lib/openroom-api";
 import { useCooStore } from "@/store/coo-store";
 import type { Project } from "@/lib/types";
-
-const POLL_MS = 3000;
-
-const APP_AGENTS = [
-  {
-    id: "dev_app",
-    icon: "💻",
-    name: "Dev App Agent",
-    role: "Développement",
-    branch: "app" as const,
-    description: "Développement Naïa App et Eve Journey.",
-    skills: ["React Native", "API", "Pipeline"],
-  },
-  {
-    id: "content",
-    icon: "✍️",
-    name: "Content Agent",
-    role: "Contenu",
-    branch: "app" as const,
-    description: "Posts, dev logs et contenu produit.",
-    skills: ["Copywriting", "SEO", "Social"],
-  },
-];
 
 interface ProjectStat {
   project: Project;
@@ -46,8 +21,6 @@ export default function AppPolePage() {
   const setPrefillMessage = useCooStore((s) => s.setPrefillMessage);
   const openDrawer = useCooStore((s) => s.openDrawer);
   const [projectStats, setProjectStats] = useState<ProjectStat[]>([]);
-  const [focusedAgentId, setFocusedAgentId] = useState<string | null>(null);
-  const [agentStatuses, setAgentStatuses] = useState<Record<string, AgentStatus>>({});
 
   useEffect(() => {
     fetchProjects()
@@ -64,23 +37,6 @@ export default function AppPolePage() {
       .catch(() => setProjectStats([]));
   }, []);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function poll() {
-      const data = await fetchAgentsStatus();
-      if (cancelled) return;
-      setAgentStatuses(data.agents);
-    }
-
-    void poll();
-    const interval = setInterval(() => void poll(), POLL_MS);
-    return () => {
-      cancelled = true;
-      clearInterval(interval);
-    };
-  }, []);
-
   function launchPipeline() {
     setPrefillMessage("Lance le pipeline sur une issue Naïa");
     openDrawer();
@@ -92,20 +48,10 @@ export default function AppPolePage() {
       <DepartmentHeader
         dept="app"
         title="Pôle App"
-        subtitle="Naïa App · Eve Journey · Dev · Content"
+        subtitle="Naïa App · Eve Journey · Dev mobile & backend"
       />
 
-      <section className="mb-8 grid gap-4 sm:grid-cols-2">
-        {APP_AGENTS.map((agent) => (
-          <AgentCard
-            key={agent.id}
-            {...agent}
-            status={agentStatuses[agent.id]?.status ?? "idle"}
-            currentTask={agentStatuses[agent.id]?.currentTask}
-            onClick={() => setFocusedAgentId(agent.id)}
-          />
-        ))}
-      </section>
+      <BureauAgentsSection bureau="app" />
 
       <section className="mb-8">
         <h2 className="label-caps mb-4">Projets</h2>
@@ -165,19 +111,6 @@ export default function AppPolePage() {
           </Button>
         </div>
       </section>
-
-      {focusedAgentId ? (
-        <AgentFocusPanel
-          agent={{
-            id: focusedAgentId,
-            name: APP_AGENTS.find((a) => a.id === focusedAgentId)!.name,
-            emoji: APP_AGENTS.find((a) => a.id === focusedAgentId)!.icon,
-            role: APP_AGENTS.find((a) => a.id === focusedAgentId)!.role,
-          }}
-          status={agentStatuses[focusedAgentId] ?? { status: "idle" }}
-          onClose={() => setFocusedAgentId(null)}
-        />
-      ) : null}
     </>
   );
 }

@@ -2,31 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { AgentCard } from "@/components/shared/agent-card";
 import { BackToLobby } from "@/components/shared/back-to-lobby";
+import { BureauAgentsSection } from "@/components/shared/bureau-agents-section";
 import { DepartmentHeader } from "@/components/shared/department-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchPosts } from "@/lib/content";
-
-const MARKETING_AGENTS = [
-  {
-    icon: "📣",
-    name: "Marketing Agent",
-    role: "Marketing",
-    branch: "marketing" as const,
-    description: "Stratégie contenu, SEO et réseaux sociaux.",
-    skills: ["SEO", "Social", "Campagnes"],
-  },
-  {
-    icon: "✍️",
-    name: "Content Agent",
-    role: "Support contenu",
-    branch: "marketing" as const,
-    description: "Rédaction posts et validation éditoriale.",
-    skills: ["Copywriting", "Posts", "Dev logs"],
-  },
-];
 
 export default function MarketingPage() {
   const [pendingPosts, setPendingPosts] = useState<
@@ -45,14 +26,10 @@ export default function MarketingPage() {
       <DepartmentHeader
         dept="marketing"
         title="Marketing"
-        subtitle="Contenu · SEO · Réseaux · Communauté"
+        subtitle="Lena · Eliot · Contenu · SEO · Réseaux"
       />
 
-      <section className="mb-8 grid gap-4 sm:grid-cols-2">
-        {MARKETING_AGENTS.map((agent) => (
-          <AgentCard key={agent.name} {...agent} />
-        ))}
-      </section>
+      <BureauAgentsSection bureau="marketing" />
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card className="border-copper/20 bg-obsidian-2/90">

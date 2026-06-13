@@ -33,18 +33,9 @@ logger = logging.getLogger(__name__)
 
 
 def _build_llm() -> LLM:
-    from config.settings import get_settings
+    from agents.base import build_crewai_llm
 
-    settings = get_settings()
-    model = os.getenv("AGENT_MODEL", "openrouter/minimax/minimax-m1")
-    if not model.startswith("openrouter/"):
-        model = f"openrouter/{model}"
-    return LLM(
-        model=model,
-        base_url=settings.openrouter_base_url,
-        api_key=settings.openrouter_api_key,
-        temperature=0.3,
-    )
+    return build_crewai_llm("hardware", temperature=0.3)
 
 
 @tool("component_search")
@@ -238,10 +229,17 @@ class HardwareAgent:
 
     @trace_agent("hardware_agent")
     def handle_instruction(self, instruction: str) -> str:
+        from skills.skill_agent_learning import inject_learning_context, record_task_learning
+
         task = Task(
-            description=instruction,
+            description=inject_learning_context(instruction, "hardware", instruction),
             agent=self.agent,
             expected_output="Spec hardware, BOM mis à jour, ou recommandations composants.",
         )
         crew = Crew(agents=[self.agent], tasks=[task])
-        return str(crew.kickoff())
+        _result = str(crew.kickoff())
+        try:
+            record_task_learning(agent_id="hardware", task=instruction, outcome=_result)
+        except Exception:
+            pass
+        return _result

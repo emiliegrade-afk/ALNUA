@@ -1,0 +1,132 @@
+"""
+accountant_agent.py — Agent comptable ALNUA pour dossiers R&D.
+
+Wraps rule-based estimates + optional LLM commentary.
+"""
+
+from __future__ import annotations
+
+import logging
+from typing import Any
+
+from agents.base import LLMClient, log_agent_action
+from database.supabase_client import get_supabase
+from services.rnd_finance_estimate import (
+    estimate_rnd_project,
+    finance_json_to_markdown,
+)
+from skills.skill_langfuse import trace_agent
+
+logger = logging.getLogger(__name__)
+
+SYSTEM_PROMPT = """Tu es l'agent comptable d'Emilie, fondatrice solo d'ALNUA.
+Tu analyses des dossiers R&D et produis des commentaires financiers concis en français.
+
+RÈGLES :
+- Chiffres concrets, pas de "marché énorme"
+- Signale les risques de trésorerie pour une solopreneuse
+- Propose 1 recommandation actionnable (réduire scope, différer, autofinancer)
+- Max 150 mots en prose, après les chiffres fournis"""
+
+
+class AccountantAgent:
+    AGENT_NAME = "accountant_agent"
+
+    def __init__(self) -> None:
+        self.db = get_supabase()
+        self.llm = LLMClient()
+
+    @trace_agent("accountant_agent")
+    def estimate_for_dossier(
+        self,
+        dossier: dict[str, Any],
+        idea: dict[str, Any] | None = None,
+        *,
+        constraint: str | None = None,
+        add_commentary: bool = False,
+    ) -> dict[str, Any]:
+        """Return finance_json + markdown business case."""
+        idea = idea or {}
+        section_text = _dossier_section_text(dossier)
+        finance = estimate_rnd_project(
+            title=dossier.get("title", ""),
+            description=idea.get("description") or dossier.get("tagline") or "",
+            domain=dossier.get("domain"),
+            effort=idea.get("effort"),
+            db=self.db,
+            constraint=constraint,
+            section_text=section_text,
+        )
+
+        md = finance_json_to_markdown(finance)
+
+        if add_commentary and self.llm._settings.openrouter_api_key.strip():
+            try:
+                from skills.skill_agent_learning import inject_learning_context, record_task_learning
+
+                rev = finance.get("revenue_hypothesis") or {}
+                pricing = rev.get("pricing_model") or {}
+                commentary_prompt = inject_learning_context(
+                    f"Dossier: {dossier.get('title')}\n"
+                    f"Domaine: {dossier.get('domain')}\n"
+                    f"CAPEX: {finance['capex_eur']} EUR\n"
+                    f"OPEX: {finance['opex_monthly_eur']} EUR/mois\n"
+                    f"Pricing: {pricing.get('price_range_eur')} ARPU={rev.get('blended_arpu_eur')} EUR\n"
+                    f"Abonnés M12: {(rev.get('paying_subscribers') or {}).get('m12')}\n"
+                    f"MRR M12: {rev.get('m12_monthly_run_rate_eur')} EUR/mois\n"
+                    f"Verdict: {finance['verdict_finance']}\n"
+                    f"Contrainte: {constraint or 'aucune'}\n\n"
+                    "Ajoute un paragraphe d'analyse et une recommandation.",
+                    "accounting",
+                    dossier.get("title", "estimate"),
+                )
+                commentary = self.llm.complete(
+                    SYSTEM_PROMPT,
+                    commentary_prompt,
+                    agent_id="accounting",
+                    temperature=0.3,
+                    max_tokens=400,
+                )
+                md += f"\n\n### Analyse comptable\n\n{commentary.strip()}"
+                finance["accountant_commentary"] = commentary.strip()
+            except Exception as exc:
+                logger.warning("accountant_agent: LLM commentary failed: %s", exc)
+
+        log_agent_action(
+            self.db,
+            self.AGENT_NAME,
+            "estimate_dossier",
+            input_summary=dossier.get("title", "")[:80],
+            output_summary=f"verdict={finance.get('verdict_finance')} capex={finance.get('capex_eur')}",
+            status="success",
+        )
+        try:
+            from skills.skill_agent_learning import record_task_learning
+
+            outcome = (
+                f"verdict={finance.get('verdict_finance')} "
+                f"capex={finance.get('capex_eur')}"
+            )
+            if finance.get("accountant_commentary"):
+                outcome += f" | {finance['accountant_commentary'][:200]}"
+            record_task_learning(
+                agent_id="accounting",
+                task=f"estimate {dossier.get('title', '')}",
+                outcome=outcome,
+                success=True,
+            )
+        except Exception:
+            pass
+        return {"finance_json": finance, "business_case_md": md}
+
+
+def _dossier_section_text(dossier: dict[str, Any]) -> str:
+    """Concatenate market/mvp/solution sections for pricing extraction."""
+    parts: list[str] = []
+    for sec in dossier.get("sections") or []:
+        key = sec.get("section_key") if isinstance(sec, dict) else getattr(sec, "section_key", None)
+        if key in ("market", "mvp", "solution", "business_case"):
+            content = sec.get("content_md") if isinstance(sec, dict) else getattr(sec, "content_md", "")
+            if content:
+                parts.append(str(content))
+    return "\n\n".join(parts)

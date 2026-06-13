@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { Crop, Loader2, Move } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { brandAssetUrl, type BoundingBox, type BrandElement } from "@/lib/brand-api";
+import { BrandAssetImage } from "@/components/brand/brand-asset-image";
+import { type BoundingBox, type BrandElement } from "@/lib/brand-api";
 
 const MIN_BBOX_SIZE = 24;
 
@@ -179,9 +180,8 @@ export function BboxEditor({
         ref={canvasRef}
         className="relative w-full overflow-hidden rounded-xl border border-copper/20 bg-black/40"
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={brandAssetUrl(uploadPath)}
+        <BrandAssetImage
+          filePath={uploadPath}
           alt="Image source brand"
           className="block h-auto w-full select-none"
           draggable={false}

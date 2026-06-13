@@ -1,30 +1,53 @@
-/** Shared X-Hub-Key header for authenticated Hub API calls. */
-export function hubApiKeyHeaders(
+/** Browser calls go through /api/hub — the key is injected server-side. */
+export function isHubApiKeyConfigured(): boolean {
+  if (typeof window !== "undefined") {
+    return true;
+  }
+  return Boolean(
+    process.env.HUB_API_KEY?.trim() ||
+      process.env.NEXT_PUBLIC_HUB_API_KEY?.trim()
+  );
+}
+
+function mergeHeaders(
+  base: Record<string, string>,
   extra?: HeadersInit
 ): Record<string, string> {
-  const headers: Record<string, string> = {};
-  const key = process.env.NEXT_PUBLIC_HUB_API_KEY;
-  if (key) {
-    headers["X-Hub-Key"] = key;
-  }
-
   if (!extra) {
-    return headers;
+    return base;
   }
 
   if (extra instanceof Headers) {
     extra.forEach((value, name) => {
-      headers[name] = value;
+      base[name] = value;
     });
-    return headers;
+    return base;
   }
 
   if (Array.isArray(extra)) {
     for (const [name, value] of extra) {
-      headers[name] = value;
+      base[name] = value;
     }
-    return headers;
+    return base;
   }
 
-  return { ...headers, ...extra };
+  return { ...base, ...extra };
+}
+
+/** Attach X-Hub-Key only for direct backend calls (SSR). Browser uses the proxy. */
+export function hubApiKeyHeaders(
+  extra?: HeadersInit
+): Record<string, string> {
+  const headers: Record<string, string> = {};
+
+  if (typeof window === "undefined") {
+    const key =
+      process.env.HUB_API_KEY?.trim() ||
+      process.env.NEXT_PUBLIC_HUB_API_KEY?.trim();
+    if (key) {
+      headers["X-Hub-Key"] = key;
+    }
+  }
+
+  return mergeHeaders(headers, extra);
 }

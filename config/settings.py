@@ -61,7 +61,7 @@ class Settings(BaseSettings):
         alias="TEST_COMMAND",
     )
     agent_model: str = Field(
-        default="openrouter/minimax/minimax-m1",
+        default="",
         alias="AGENT_MODEL",
     )
     hub_api_key: str = Field(

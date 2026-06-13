@@ -417,6 +417,7 @@ Génère la fiche complète en markdown en suivant EXACTEMENT le template fourni
         summary_md = self.llm.complete(
             SUMMARIZE_SYSTEM_PROMPT,
             user_prompt,
+            agent_id="brainstorm",
             temperature=0.35,
             max_tokens=4096,
         )
@@ -577,7 +578,13 @@ Contexte projet actif :
 
         system = CHAT_SYSTEM_PROMPT + self._build_project_context(project_id)
 
-        # Injecter la mémoire cross-sessions au premier message d'une nouvelle session
+        from skills.skill_agent_learning import get_learning_context, record_task_learning
+
+        mem0_block = get_learning_context("brainstorm", message)
+        if mem0_block:
+            system += mem0_block
+
+        # Mémoire cross-sessions Supabase au premier message
         if is_new:
             memory = self.get_project_memory(project_id)
             if memory:
@@ -590,6 +597,7 @@ Contexte projet actif :
             response = self.llm.chat(
                 system=system,
                 messages=history,
+                agent_id="brainstorm",
                 temperature=0.85,
                 max_tokens=4096,
             )
@@ -607,6 +615,15 @@ Contexte projet actif :
                     "status": "success",
                 },
             )
+            try:
+                record_task_learning(
+                    agent_id="brainstorm",
+                    task=f"brainstorm {session_id}",
+                    outcome=str({"response": response[:500], "session_id": session_id}),
+                    success=True,
+                )
+            except Exception:
+                pass
             return {"response": response, "session_id": session_id}
         except Exception as exc:
             log_agent_action(
@@ -652,7 +669,9 @@ Feedback récent : {recent_feedback}
 Génère 5 à 8 idées originales."""
 
         try:
-            raw = self.llm.complete(self.SYSTEM_PROMPT, user_prompt, temperature=0.9)
+            raw = self.llm.complete(
+                self.SYSTEM_PROMPT, user_prompt, agent_id="brainstorm", temperature=0.9
+            )
             result = parse_json_response(raw)
             log_agent_action(
                 self.db,

@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { BackToLobby } from "@/components/shared/back-to-lobby";
 import { CooDrawer } from "@/components/shared/coo-drawer";
+import { HubAuthBanner } from "@/components/shared/hub-auth-banner";
 import { QuickCaptureButton } from "@/components/shared/quick-capture-button";
 import { Toaster } from "@/components/ui/sonner";
 import { isDepartmentRoute, isPublicPortalRoute } from "@/lib/routes";
@@ -13,6 +14,8 @@ export function HubShell({ children }: { children: React.ReactNode }) {
   const isPublic = isPublicPortalRoute(pathname);
   const isLobby = pathname === "/";
   const showBackToLobby = !isPublic && !isLobby && !isDepartmentRoute(pathname);
+  const showAuthBanner = !isPublic;
+  const isRdRoute = pathname === "/rd";
 
   if (isPublic) {
     return (
@@ -33,6 +36,7 @@ export function HubShell({ children }: { children: React.ReactNode }) {
 
   return (
     <>
+      {showAuthBanner ? <HubAuthBanner /> : null}
       {showBackToLobby ? <BackToLobby /> : null}
       <main
         className={
@@ -46,8 +50,8 @@ export function HubShell({ children }: { children: React.ReactNode }) {
       >
         {children}
       </main>
-      {!isLobby ? <QuickCaptureButton /> : null}
-      {!isLobby ? <CooDrawer /> : null}
+      {!isLobby && !isRdRoute ? <QuickCaptureButton /> : null}
+      {!isLobby && !isRdRoute ? <CooDrawer /> : null}
       <Toaster
         theme="dark"
         position="bottom-left"

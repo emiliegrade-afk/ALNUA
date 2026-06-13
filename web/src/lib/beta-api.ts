@@ -1,8 +1,5 @@
+import { hubApiUrl } from "./hub-api-config";
 import { hubApiKeyHeaders } from "./hub-api-key";
-
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
-  "http://localhost:8000";
 
 export type BetaFeedbackType = "bug" | "suggestion" | "crash" | "ux" | "autre";
 export type BetaSeverity = "bloquant" | "majeur" | "mineur" | "cosmétique";
@@ -76,7 +73,7 @@ async function betaFetch<T>(
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const res = await fetch(`${API_URL}${path}`, {
+    const res = await fetch(hubApiUrl(path), {
       ...fetchOptions,
       signal: controller.signal,
       headers: hubApiKeyHeaders({
@@ -197,5 +194,5 @@ export async function createBetaInvite(projectId: string): Promise<{
 
 export function betaTestersCsvUrl(projectId?: string): string {
   const qs = projectId ? `?project_id=${encodeURIComponent(projectId)}` : "";
-  return `${API_URL}/beta/testers/export${qs}`;
+  return hubApiUrl(`/beta/testers/export${qs}`);
 }

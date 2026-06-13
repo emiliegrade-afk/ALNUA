@@ -1,8 +1,5 @@
+import { hubApiUrl } from "./hub-api-config";
 import { hubApiKeyHeaders } from "./hub-api-key";
-
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
-  "http://localhost:8000";
 
 export interface BoundingBox {
   x1: number;
@@ -169,11 +166,11 @@ export const FORMAT_DIMENSIONS: Record<string, string> = {
 
 export function brandAssetUrl(relativePath: string): string {
   const params = new URLSearchParams({ path: relativePath });
-  return `${API_URL}/brand/assets?${params.toString()}`;
+  return hubApiUrl(`/brand/assets?${params.toString()}`);
 }
 
 export function brandKitDownloadUrl(kitId: string): string {
-  return `${API_URL}/brand/kits/${kitId}/download`;
+  return hubApiUrl(`/brand/kits/${kitId}/download`);
 }
 
 async function brandFetch<T>(
@@ -185,7 +182,7 @@ async function brandFetch<T>(
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const res = await fetch(`${API_URL}${path}`, {
+    const res = await fetch(hubApiUrl(path), {
       ...fetchOptions,
       signal: controller.signal,
       cache: "no-store",
@@ -204,7 +201,7 @@ async function brandFetch<T>(
   } catch (err) {
     if (err instanceof Error && err.message === "Failed to fetch") {
       throw new Error(
-        "Impossible de joindre l'API (localhost:8000). Vérifie que le backend tourne."
+        "Impossible de joindre l'API Hub. Vérifie que le backend tourne."
       );
     }
     if (err instanceof Error && err.name === "AbortError") {
@@ -228,7 +225,7 @@ export async function analyzeImage(
   const timer = setTimeout(() => controller.abort(), 300_000);
 
   try {
-    const res = await fetch(`${API_URL}/brand/analyze`, {
+    const res = await fetch(hubApiUrl("/brand/analyze"), {
       method: "POST",
       body: form,
       signal: controller.signal,
@@ -245,7 +242,7 @@ export async function analyzeImage(
   } catch (err) {
     if (err instanceof Error && err.message === "Failed to fetch") {
       throw new Error(
-        "Impossible de joindre l'API (localhost:8000). Vérifie que le backend tourne."
+        "Impossible de joindre l'API Hub. Vérifie que le backend tourne."
       );
     }
     if (err instanceof Error && err.name === "AbortError") {

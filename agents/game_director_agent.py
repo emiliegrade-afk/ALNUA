@@ -38,18 +38,9 @@ logger = logging.getLogger(__name__)
 
 
 def _build_llm() -> LLM:
-    from config.settings import get_settings
+    from agents.base import build_crewai_llm
 
-    settings = get_settings()
-    model = os.getenv("AGENT_MODEL", "openrouter/minimax/minimax-m1")
-    if not model.startswith("openrouter/"):
-        model = f"openrouter/{model}"
-    return LLM(
-        model=model,
-        base_url=settings.openrouter_base_url,
-        api_key=settings.openrouter_api_key,
-        temperature=0.3,
-    )
+    return build_crewai_llm("game_director", temperature=0.8)
 
 
 @tool("lore_search")
@@ -186,12 +177,19 @@ class GameDirectorAgent:
 
     @trace_agent("game_director_agent")
     def handle_instruction(self, instruction: str) -> str:
+        from skills.skill_agent_learning import inject_learning_context, record_task_learning
+
         task = Task(
-            description=instruction,
+            description=inject_learning_context(instruction, "game_director", instruction),
             agent=self.agent,
             expected_output=(
                 "Contenu lore, spec de quête, design document, ou post Discord selon la demande."
             ),
         )
         crew = Crew(agents=[self.agent], tasks=[task])
-        return str(crew.kickoff())
+        _result = str(crew.kickoff())
+        try:
+            record_task_learning(agent_id="game_director", task=instruction, outcome=_result)
+        except Exception:
+            pass
+        return _result

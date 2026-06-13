@@ -5,10 +5,18 @@ from __future__ import annotations
 import importlib
 from typing import Any
 
-from agents.base import LLMClient, log_agent_action, parse_json_response
+from agents.base import (
+    LLMClient,
+    build_crewai_llm,
+    log_agent_action,
+    parse_json_response,
+    resolve_openrouter_model,
+)
 
 __all__ = [
     "LLMClient",
+    "build_crewai_llm",
+    "resolve_openrouter_model",
     "log_agent_action",
     "parse_json_response",
     "COOAgent",

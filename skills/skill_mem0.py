@@ -24,20 +24,29 @@ def get_mem0():
 
 
 def remember(content: str, agent_id: str = "coo", user_id: str = "emilie") -> None:
-    """Store a fact in long-term memory."""
+    """Store a fact in long-term memory.
+
+    Mem0 v3 sépare agent_id et user_id en namespaces distincts.
+    On utilise agent_id uniquement — plus simple et filtrage fiable.
+    """
+    from config.agent_models import memory_agent_id
+
     m = get_mem0()
     if m:
-        m.add(content, agent_id=agent_id, user_id=user_id)
+        m.add(content, agent_id=memory_agent_id(agent_id))
 
 
 def recall(query: str, agent_id: str = "coo", user_id: str = "emilie") -> str:
     """Retrieve relevant memories for a query."""
+    from config.agent_models import memory_agent_id
+
     m = get_mem0()
     if not m:
         return ""
+    canonical_id = memory_agent_id(agent_id)
     try:
         results = m.search(
-            query, filters={"agent_id": agent_id, "user_id": user_id}, limit=5
+            query, filters={"agent_id": canonical_id}, limit=5
         )
     except Exception as exc:
         # Mem0 must never block the COO — API shape changes are common.

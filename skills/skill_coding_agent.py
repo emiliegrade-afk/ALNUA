@@ -272,7 +272,7 @@ def execute_coding_task(
         return _execute_coding_task_core(enriched_spec)
 
     retry_result = retry_with_learning(
-        agent_name="DevApp",
+        agent_name=spec.get("agent_id", "dev_app"),
         task_fn=_attempt,
         task_id=spec.get("task_id"),
         task_context=f"Tâche : {spec.get('title')}\nRepo : {spec.get('repo_path')}",

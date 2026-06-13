@@ -52,18 +52,9 @@ Réponds UNIQUEMENT en JSON valide avec cette structure :
         self._crew_agent: Agent | None = None
 
     def _build_crew_llm(self) -> LLM:
-        from config.settings import get_settings
+        from agents.base import build_crewai_llm
 
-        settings = get_settings()
-        model = settings.default_llm_model
-        if not model.startswith("openrouter/"):
-            model = f"openrouter/{model}"
-        return LLM(
-            model=model,
-            base_url=settings.openrouter_base_url,
-            api_key=settings.openrouter_api_key,
-            temperature=0.3,
-        )
+        return build_crewai_llm("pm", temperature=0.3)
 
     def _ensure_crew_agent(self) -> Agent:
         if self._crew_agent is None:
@@ -98,12 +89,18 @@ Réponds UNIQUEMENT en JSON valide avec cette structure :
                     f"\nProjet cible : {rows[0]['name']} (project_id={project_id})"
                 )
 
+        from skills.skill_agent_learning import inject_learning_context, record_task_learning
+
         crew_agent = self._ensure_crew_agent()
         task = Task(
-            description=(
-                f"Instruction : {instruction}{project_hint}\n\n"
-                "Exécute les actions via les outils Hub. "
-                "Confirme ce qui a été créé ou modifié."
+            description=inject_learning_context(
+                (
+                    f"Instruction : {instruction}{project_hint}\n\n"
+                    "Exécute les actions via les outils Hub. "
+                    "Confirme ce qui a été créé ou modifié."
+                ),
+                "pm",
+                instruction,
             ),
             expected_output="Résumé en 3-5 lignes des actions réellement exécutées via l'API.",
             agent=crew_agent,
@@ -127,9 +124,26 @@ Réponds UNIQUEMENT en JSON valide avec cette structure :
                 status="success",
                 project_id=project_id,
             )
+            try:
+                record_task_learning(
+                    agent_id="pm",
+                    task=instruction,
+                    outcome=str(summary),
+                )
+            except Exception:
+                pass
             return summary
         except Exception as exc:
             logger.exception("PM handle_instruction failed")
+            try:
+                record_task_learning(
+                    agent_id="pm",
+                    task=instruction,
+                    outcome=str(exc),
+                    success=False,
+                )
+            except Exception:
+                pass
             log_agent_action(
                 self.db,
                 self.AGENT_NAME,
@@ -159,8 +173,16 @@ Roadmap : {roadmap}
 
 Propose un triage et plan de sprint."""
 
+        from skills.skill_agent_learning import inject_learning_context, record_task_learning
+
+        user_prompt = inject_learning_context(
+            user_prompt, "pm", f"triage project {project_id}"
+        )
+
         try:
-            raw = self.llm.complete(self.SYSTEM_PROMPT, user_prompt, temperature=0.3)
+            raw = self.llm.complete(
+                self.SYSTEM_PROMPT, user_prompt, agent_id="pm", temperature=0.3
+            )
             result = parse_json_response(raw)
 
             for action in result.get("ticket_actions", []):
@@ -178,6 +200,15 @@ Propose un triage et plan de sprint."""
                 status="success",
                 project_id=project_id,
             )
+            try:
+                record_task_learning(
+                    agent_id="pm",
+                    task=f"triage project {project_id}",
+                    outcome=str(result.get("summary", "")),
+                    success=True,
+                )
+            except Exception:
+                pass
             return result
         except Exception as exc:
             log_agent_action(

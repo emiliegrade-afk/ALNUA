@@ -140,6 +140,46 @@ def build_retry_context(similar_errors: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
+def add_attempt_note(entry_id: str, attempt: int, note: str) -> None:
+    """Ajoute une note de tentative dans le contexte de l'erreur (apprentissage itératif)."""
+    try:
+        db = _get_db()
+        existing = (
+            db.raw.table("agent_error_journal")
+            .select("context")
+            .eq("id", entry_id)
+            .single()
+            .execute()
+        )
+        old_ctx = (existing.data or {}).get("context") or ""
+        new_ctx = f"{old_ctx}\n[Tentative {attempt+1}] {note}"[-2000:]
+        db.raw.table("agent_error_journal").update({"context": new_ctx}).eq("id", entry_id).execute()
+    except Exception as exc:
+        logger.warning("[ErrorJournal] add_attempt_note failed: %s", exc)
+
+
+def get_error_history(agent_name: str, error_type: str, limit: int = 10) -> list[dict]:
+    """
+    Récupère l'historique complet des erreurs similaires (résolues + en cours).
+    Utilisé par fix_pipeline pour enrichir le contexte des retries.
+    """
+    try:
+        db = _get_db()
+        results = (
+            db.raw.table("agent_error_journal")
+            .select("error_type, error_message, context, solution, attempts, status, created_at")
+            .eq("agent_name", agent_name)
+            .eq("error_type", error_type)
+            .order("created_at", desc=True)
+            .limit(limit)
+            .execute()
+        )
+        return results.data or []
+    except Exception as exc:
+        logger.warning("[ErrorJournal] get_error_history failed: %s", exc)
+        return []
+
+
 def get_open_errors_summary(agent_name: str | None = None) -> str:
     """Return a summary of unresolved errors for the COO morning brief."""
     try:

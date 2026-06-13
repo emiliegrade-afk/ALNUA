@@ -1,38 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { AgentCard } from "@/components/shared/agent-card";
 import { BackToLobby } from "@/components/shared/back-to-lobby";
+import { BureauAgentsSection } from "@/components/shared/bureau-agents-section";
 import { DepartmentHeader } from "@/components/shared/department-header";
-import { AgentFocusPanel } from "@/components/openroom/agent-focus-panel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchBomEve, fetchEveStatus } from "@/lib/lobby-api";
-import { fetchAgentsStatus, type AgentStatus } from "@/lib/openroom-api";
 import { cn } from "@/lib/utils";
-
-const POLL_MS = 3000;
-
-const ROBO_AGENTS = [
-  {
-    id: "hardware",
-    icon: "🔧",
-    name: "Hardware Agent",
-    role: "Hardware",
-    branch: "robo" as const,
-    description: "BOM, composants et architecture matérielle Eve.",
-    skills: ["BOM", "PCB", "Sourcing"],
-  },
-  {
-    id: "embedded",
-    icon: "⚡",
-    name: "Embedded Dev",
-    role: "Firmware",
-    branch: "robo" as const,
-    description: "Raspberry Pi, firmware et déploiements.",
-    skills: ["Python", "Pi", "SSH"],
-  },
-];
 
 export default function RoboPage() {
   const [bom, setBom] = useState<
@@ -41,7 +16,7 @@ export default function RoboPage() {
       name: string;
       category: string;
       quantity: number;
-      unit_cost: number;
+      unit_cost: number | null;
       status: string;
     }>
   >([]);
@@ -50,8 +25,6 @@ export default function RoboPage() {
     battery?: number | null;
   }>({ connected: false });
   const [loading, setLoading] = useState(true);
-  const [focusedAgentId, setFocusedAgentId] = useState<string | null>(null);
-  const [agentStatuses, setAgentStatuses] = useState<Record<string, AgentStatus>>({});
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -70,23 +43,6 @@ export default function RoboPage() {
     return () => clearInterval(interval);
   }, [load]);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function poll() {
-      const data = await fetchAgentsStatus();
-      if (cancelled) return;
-      setAgentStatuses(data.agents);
-    }
-
-    void poll();
-    const interval = setInterval(() => void poll(), POLL_MS);
-    return () => {
-      cancelled = true;
-      clearInterval(interval);
-    };
-  }, []);
-
   return (
     <>
       <BackToLobby />
@@ -96,17 +52,7 @@ export default function RoboPage() {
         subtitle="Eve Robot · Raspberry Pi · Hardware"
       />
 
-      <section className="mb-8 grid gap-4 sm:grid-cols-2">
-        {ROBO_AGENTS.map((agent) => (
-          <AgentCard
-            key={agent.id}
-            {...agent}
-            status={agentStatuses[agent.id]?.status ?? "idle"}
-            currentTask={agentStatuses[agent.id]?.currentTask}
-            onClick={() => setFocusedAgentId(agent.id)}
-          />
-        ))}
-      </section>
+      <BureauAgentsSection bureau="robo" />
 
       <div className="mb-8 grid gap-4 sm:grid-cols-2">
         <Card className="border-copper/20 bg-obsidian-2/90">
@@ -188,7 +134,9 @@ export default function RoboPage() {
                     <td className="px-4 py-3">{row.name}</td>
                     <td className="px-4 py-3 text-titanium">{row.category}</td>
                     <td className="px-4 py-3">{row.quantity}</td>
-                    <td className="px-4 py-3">${row.unit_cost.toFixed(2)}</td>
+                    <td className="px-4 py-3">
+                      {row.unit_cost != null ? `$${row.unit_cost.toFixed(2)}` : "—"}
+                    </td>
                     <td className="px-4 py-3">
                       <span className="badge-copper px-2 py-0.5 text-xs">
                         {row.status}
@@ -222,19 +170,6 @@ export default function RoboPage() {
           <p className="font-body text-xs text-titanium/60">Dernier ping via API /eve/status</p>
         </CardContent>
       </Card>
-
-      {focusedAgentId ? (
-        <AgentFocusPanel
-          agent={{
-            id: focusedAgentId,
-            name: ROBO_AGENTS.find((a) => a.id === focusedAgentId)!.name,
-            emoji: ROBO_AGENTS.find((a) => a.id === focusedAgentId)!.icon,
-            role: ROBO_AGENTS.find((a) => a.id === focusedAgentId)!.role,
-          }}
-          status={agentStatuses[focusedAgentId] ?? { status: "idle" }}
-          onClose={() => setFocusedAgentId(null)}
-        />
-      ) : null}
     </>
   );
 }

@@ -1,8 +1,5 @@
+import { hubApiUrl } from "./hub-api-config";
 import { hubApiKeyHeaders } from "./hub-api-key";
-
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
-  "http://localhost:8000";
 
 export type AgentStatusKind = "idle" | "working" | "waiting" | "error";
 
@@ -29,7 +26,7 @@ export interface AgentsStatusResponse {
 
 export async function fetchAgentsStatus(): Promise<AgentsStatusResponse> {
   try {
-    const res = await fetch(`${API_URL}/agents/status`, {
+    const res = await fetch(hubApiUrl("/agents/status"), {
       cache: "no-store",
       headers: hubApiKeyHeaders(),
     });

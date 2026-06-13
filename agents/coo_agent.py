@@ -30,6 +30,46 @@ CODING_KEYWORDS = (
     "page", "composant",
 )
 
+RESEARCH_KEYWORDS = ("recherche", "veille", "renseigne", "cherche sur", "trouve des infos", "mets à jour", "apprends")
+TEACH_KEYWORDS = ("apprends à", "enseigne", "dis à", "informe", "leçon pour", "donne cette info")
+RND_KEYWORDS = ("explore l'idée", "idée r&d", "lance un cycle r&d", "rapport r&d", "meilleures idées", "fil conducteur r&d", "change le focus r&d")
+
+
+def _detect_research_intent(msg: str) -> tuple[bool, str | None]:
+    """Détecte si l'instruction est une demande de recherche web. Retourne (bool, agent_cible)."""
+    msg_lower = msg.lower()
+    if not any(kw in msg_lower for kw in RESEARCH_KEYWORDS):
+        return False, None
+    # Cherche un agent cible dans le message
+    agent_map = {
+        "marketing": "marketing_agent", "contenu": "content_agent", "content": "content_agent",
+        "hardware": "hardware_agent", "embedded": "embedded_dev", "comptable": "accountant_agent",
+        "dev app": "dev_app", "dev gaming": "dev_gaming", "game director": "game_director",
+        "rnd": "rnd_agent", "r&d": "rnd_agent", "pm": "pm_agent",
+    }
+    for keyword, agent_id in agent_map.items():
+        if keyword in msg_lower:
+            return True, agent_id
+    return True, None  # recherche générale
+
+
+def _detect_teach_intent(msg: str) -> tuple[bool, str | None, str | None]:
+    """Détecte si l'instruction est une leçon à injecter. Retourne (bool, agent_cible, contenu)."""
+    msg_lower = msg.lower()
+    if not any(kw in msg_lower for kw in TEACH_KEYWORDS):
+        return False, None, None
+    agent_map = {
+        "marketing": "marketing_agent", "contenu": "content_agent",
+        "hardware": "hardware_agent", "embedded": "embedded_dev",
+        "comptable": "accountant_agent", "dev": "dev_app",
+    }
+    target = None
+    for keyword, agent_id in agent_map.items():
+        if keyword in msg_lower:
+            target = agent_id
+            break
+    return True, target, msg
+
 
 def detect_coding_intent(message: str) -> bool:
     """True when the message looks like a dev/coding request."""
@@ -296,18 +336,9 @@ class COOAgent:
     # Configuration CrewAI
     # ------------------------------------------------------------------
     def _build_llm(self) -> LLM:
-        from config.settings import get_settings
+        from agents.base import build_crewai_llm
 
-        settings = get_settings()
-        model = settings.default_llm_model
-        if not model.startswith("openrouter/"):
-            model = f"openrouter/{model}"
-        return LLM(
-            model=model,
-            base_url=settings.openrouter_base_url,
-            api_key=settings.openrouter_api_key,
-            temperature=0.3,
-        )
+        return build_crewai_llm("coo", temperature=0.3)
 
     def _build_crew_agent(self) -> Agent:
         assert self._tools is not None and self._llm is not None
@@ -853,6 +884,47 @@ class COOAgent:
         if not instruction:
             return "Instruction vide — dis-moi ce que tu veux faire."
 
+        # Commandes R&D
+        msg_lower = instruction.lower()
+        if any(kw in msg_lower for kw in RND_KEYWORDS):
+            from agents.rnd_center import run_rnd_cycle, inject_idea, set_vision, get_top_ideas
+            if "explore l'idée" in msg_lower or "idée r&d" in msg_lower:
+                inject_idea(instruction, source="Emilie via COO")
+                return f"💡 Idée ajoutée au pipeline R&D : \"{instruction[:80]}...\" — sera évaluée au prochain cycle."
+            elif "fil conducteur" in msg_lower or "focus r&d" in msg_lower:
+                set_vision(instruction)
+                return "🎯 Fil conducteur R&D mis à jour."
+            elif "meilleures idées" in msg_lower or "rapport r&d" in msg_lower:
+                top = get_top_ideas(limit=5)
+                if not top:
+                    return "Aucune idée R&D évaluée pour l'instant. Lance un cycle : 'lance un cycle R&D'."
+                lines = ["🏆 Top idées R&D ALNUA :"]
+                for i, idea in enumerate(top, 1):
+                    lines.append(f"{i}. [{idea.get('domain','?').upper()}] {idea['title']} — score {idea.get('score','?')}/30 ({idea.get('verdict','?')})")
+                    lines.append(f"   {idea.get('description','')[:100]}")
+                return "\n".join(lines)
+            else:
+                run_rnd_cycle(blocking=False)
+                return "🧪 Cycle R&D lancé — rapport dans quelques minutes sur Telegram."
+
+        # Commande de veille web — "recherche les tendances marketing pour marketing_agent"
+        is_research, research_agent = _detect_research_intent(instruction)
+        if is_research:
+            from skills.skill_web_research import research_domain, research_all_agents
+            if research_agent:
+                research_domain(research_agent, blocking=False)
+                return f"🔍 Veille web lancée pour {research_agent} — résultats dans Mem0 dans quelques minutes."
+            else:
+                research_all_agents(blocking=False)
+                return "🔍 Veille web lancée pour tous les agents — résultats dans Mem0 dans quelques minutes."
+
+        # Commande d'injection de leçon — "apprends au marketing_agent que les Reels < 30s performent mieux"
+        is_teach, teach_agent_id, teach_content = _detect_teach_intent(instruction)
+        if is_teach and teach_agent_id and teach_content:
+            from skills.skill_web_research import teach_agent
+            teach_agent(teach_agent_id, teach_content, source="COO/Emilie")
+            return f"✅ Leçon injectée pour {teach_agent_id} : \"{teach_content[:100]}...\""
+
         if blocked := self._check_irreversible(instruction):
             self.create_task_log(
                 self.AGENT_NAME, "handle_instruction", instruction, blocked, status="pending"
@@ -897,9 +969,14 @@ class COOAgent:
                 context_block = f"\n\nProjet mentionné : {project_name} (non trouvé en base)."
 
         memory_block = ""
-        memories = recall(instruction)
-        if memories:
-            memory_block = f"\n\nCONTEXTE MÉMORISÉ :\n{memories}"
+        try:
+            from skills.skill_agent_learning import get_learning_context
+
+            memory_block = get_learning_context("coo", instruction)
+        except Exception:
+            memories = recall(instruction)
+            if memories:
+                memory_block = f"\n\nCONTEXTE MÉMORISÉ :\n{memories}"
 
         crew_agent = self._ensure_crew()
 
@@ -950,6 +1027,30 @@ class COOAgent:
 
             if should_remember(instruction):
                 remember(f"Emilie a dit : {instruction}", agent_id="coo")
+
+            # Auto-skill generation — boucle d'apprentissage (non-bloquant)
+            try:
+                from agents.skill_synthesizer import maybe_synthesize_skill
+                import threading
+                threading.Thread(
+                    target=maybe_synthesize_skill,
+                    args=(instruction, summary),
+                    daemon=True,
+                ).start()
+            except Exception:
+                pass  # Never block the COO for this
+
+            # Apprentissage COO — distille une leçon de chaque instruction traitée
+            try:
+                from skills.skill_agent_learning import learn_from_outcome
+                learn_from_outcome(
+                    agent_id="coo",
+                    task=instruction,
+                    outcome=summary,
+                    success=True,
+                )
+            except Exception:
+                pass  # Never block the COO for this
 
             return summary
 

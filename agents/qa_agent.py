@@ -38,18 +38,9 @@ Ne crée pas de doublons évidents. Sois précis et actionnable."""
         self._crew_agent: Agent | None = None
 
     def _build_crew_llm(self) -> LLM:
-        from config.settings import get_settings
+        from agents.base import build_crewai_llm
 
-        settings = get_settings()
-        model = settings.default_llm_model
-        if not model.startswith("openrouter/"):
-            model = f"openrouter/{model}"
-        return LLM(
-            model=model,
-            base_url=settings.openrouter_base_url,
-            api_key=settings.openrouter_api_key,
-            temperature=0.2,
-        )
+        return build_crewai_llm("qa", temperature=0.2)
 
     def _ensure_crew_agent(self) -> Agent:
         if self._crew_agent is None:
@@ -87,8 +78,16 @@ Ne crée pas de doublons évidents. Sois précis et actionnable."""
 Tickets ouverts existants (éviter doublons) :
 {existing_tickets}"""
 
+        from skills.skill_agent_learning import inject_learning_context, record_task_learning
+
+        user_prompt = inject_learning_context(
+            user_prompt, "qa", f"analyze feedback project {project_id}"
+        )
+
         try:
-            raw = self.llm.complete(self.SYSTEM_PROMPT, user_prompt, temperature=0.2)
+            raw = self.llm.complete(
+                self.SYSTEM_PROMPT, user_prompt, agent_id="qa", temperature=0.2
+            )
             result = parse_json_response(raw)
             created: list[dict[str, Any]] = []
 
@@ -119,6 +118,17 @@ Tickets ouverts existants (éviter doublons) :
                 status="success",
                 project_id=project_id,
             )
+            try:
+                record_task_learning(
+                    agent_id="qa",
+                    task=f"analyze feedback {project_id}",
+                    outcome=str(
+                        {"created_tickets": created, "summary": result.get("summary", "")}
+                    ),
+                    success=True,
+                )
+            except Exception:
+                pass
             return {"created_tickets": created, "summary": result.get("summary", "")}
         except Exception as exc:
             log_agent_action(

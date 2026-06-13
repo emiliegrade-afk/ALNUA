@@ -67,7 +67,7 @@ def execute_ue5_task_with_retry(
         return result
 
     retry_result = retry_with_learning(
-        agent_name=agent_name,
+        agent_name="dev_gaming",
         task_fn=_attempt,
         task_id=task_id,
         task_context=f"Prompt Nwiro : {prompt[:200]}",
@@ -81,18 +81,9 @@ def execute_ue5_task_with_retry(
 
 
 def _build_llm() -> LLM:
-    from config.settings import get_settings
+    from agents.base import build_crewai_llm
 
-    settings = get_settings()
-    model = os.getenv("AGENT_MODEL", "openrouter/minimax/minimax-m1")
-    if not model.startswith("openrouter/"):
-        model = f"openrouter/{model}"
-    return LLM(
-        model=model,
-        base_url=settings.openrouter_base_url,
-        api_key=settings.openrouter_api_key,
-        temperature=0.3,
-    )
+    return build_crewai_llm("dev_gaming", temperature=0.3)
 
 
 @tool("nwiro_execute")
@@ -121,7 +112,7 @@ def nwiro_execute_tool(request_json: str) -> str:
             return str(result)
 
         retry_result = retry_with_learning(
-            agent_name="DevGaming",
+            agent_name="dev_gaming",
             task_fn=_attempt,
             task_id=tool_name,
             task_context=f"Nwiro tool: {tool_name}, params: {json.dumps(params)[:200]}",
@@ -283,6 +274,9 @@ class DevGamingAgent:
 
     @trace_agent("dev_gaming_agent")
     def handle_instruction(self, instruction: str) -> str:
+        from skills.skill_agent_learning import get_learning_context, record_task_learning
+
+        memory_block = get_learning_context("dev_gaming", instruction)
         task = Task(
             description=(
                 f"{instruction}\n\n"
@@ -294,6 +288,7 @@ class DevGamingAgent:
                 "pour envoyer un prompt précis à Nwiro, ou nwiro_execute pour des outils spécifiques.\n"
                 "- Toujours préciser Blueprint ou C++ et pourquoi.\n"
                 "- Toujours vérifier que Nwiro est accessible avant d'exécuter."
+                f"{memory_block}"
             ),
             agent=self.agent,
             expected_output=(
@@ -302,4 +297,9 @@ class DevGamingAgent:
             ),
         )
         crew = Crew(agents=[self.agent], tasks=[task])
-        return str(crew.kickoff())
+        _result = str(crew.kickoff())
+        try:
+            record_task_learning(agent_id="dev_gaming", task=instruction, outcome=_result)
+        except Exception:
+            pass
+        return _result

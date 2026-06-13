@@ -1,11 +1,8 @@
+import { hubApiBase, hubApiUrl } from "./hub-api-config";
 import { hubApiKeyHeaders } from "./hub-api-key";
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
-  "http://localhost:8000";
-
 const AFFILIATE_BASE =
-  process.env.NEXT_PUBLIC_AFFILIATE_BASE_URL?.replace(/\/$/, "") ?? API_URL;
+  process.env.NEXT_PUBLIC_AFFILIATE_BASE_URL?.replace(/\/$/, "") ?? hubApiBase();
 
 async function apiFetch<T>(
   path: string,
@@ -18,7 +15,7 @@ async function apiFetch<T>(
   const isFormData = fetchOptions.body instanceof FormData;
 
   try {
-    const res = await fetch(`${API_URL}${path}`, {
+    const res = await fetch(hubApiUrl(path), {
       ...fetchOptions,
       signal: controller.signal,
       headers: isFormData

@@ -1,5 +1,6 @@
 import { FinancesView } from "@/components/finances/finances-view";
 import { BackToLobby } from "@/components/shared/back-to-lobby";
+import { BureauAgentsSection } from "@/components/shared/bureau-agents-section";
 import { DepartmentHeader } from "@/components/shared/department-header";
 
 export default function FinancesPage() {
@@ -9,9 +10,10 @@ export default function FinancesPage() {
       <DepartmentHeader
         dept="finances"
         title="Comptabilité"
-        subtitle="Finances · Coûts LLM · Budget · Transactions"
+        subtitle="Jules · Rémi · Finances · Coûts LLM · Budget"
         breadcrumb="Comptabilité"
       />
+      <BureauAgentsSection bureau="finances" />
       <FinancesView />
     </>
   );

@@ -67,9 +67,19 @@ def retry_with_learning(
 
     task_fn receives a learning_context string to inject into the next prompt.
     """
+    from skills.skill_agent_learning import (
+        get_learning_context,
+        learn_from_failure,
+        learn_from_outcome,
+        memory_agent_id,
+    )
+
+    canonical_agent = memory_agent_id(agent_name)
     last_error_id: str | None = None
     last_exception: Exception | None = None
-    learning_context = ""
+    learning_context = get_learning_context(
+        canonical_agent, task_context or task_id or agent_name
+    )
 
     for attempt in range(1, max_attempts + 1):
         logger.info(
@@ -105,6 +115,13 @@ def retry_with_learning(
                 telegram_notify_fn(
                     f"[OK] **{agent_name}** — Tâche `{task_id}` réussie après {attempt} tentative(s)"
                 )
+
+            learn_from_outcome(
+                agent_id=canonical_agent,
+                task=task_context or str(task_id or agent_name),
+                outcome=str(result)[:600],
+                success=True,
+            )
 
             return {
                 "success": True,
@@ -155,6 +172,19 @@ def retry_with_learning(
                     f"→ Essaie une approche différente pour éviter cette erreur.\n"
                 )
 
+            mem0_block = get_learning_context(
+                canonical_agent,
+                f"{error_type} {error_message[:200]}",
+            )
+            if mem0_block:
+                learning_context = mem0_block + learning_context
+
+            learn_from_failure(
+                agent_id=canonical_agent,
+                task=task_context or str(task_id or agent_name),
+                error=f"{error_type}: {error_message[:400]}",
+            )
+
             if telegram_notify_fn and attempt < max_attempts:
                 next_delay = (
                     RETRY_DELAY_SECONDS[attempt]
@@ -187,6 +217,12 @@ def retry_with_learning(
 
     if telegram_notify_fn:
         telegram_notify_fn(escalation_msg)
+
+    learn_from_failure(
+        agent_id=canonical_agent,
+        task=task_context or str(task_id or agent_name),
+        error=str(last_exception)[:500],
+    )
 
     logger.error("[RetryLoop] Escalation: %s", escalation_msg)
 

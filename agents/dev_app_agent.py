@@ -36,18 +36,9 @@ _telegram_notify = None
 
 
 def _build_llm() -> LLM:
-    from config.settings import get_settings
+    from agents.base import build_crewai_llm
 
-    settings = get_settings()
-    model = os.getenv("AGENT_MODEL", "openrouter/minimax/minimax-m1")
-    if not model.startswith("openrouter/"):
-        model = f"openrouter/{model}"
-    return LLM(
-        model=model,
-        base_url=settings.openrouter_base_url,
-        api_key=settings.openrouter_api_key,
-        temperature=0.3,
-    )
+    return build_crewai_llm("dev_app", temperature=0.3)
 
 
 @tool("coding_agent")
@@ -164,15 +155,25 @@ class DevAppAgent:
         """
         Point d'entrée : reçoit une instruction en langage naturel du COO ou de Telegram.
         """
+        from skills.skill_agent_learning import (
+            get_learning_context,
+            record_task_learning,
+        )
+
+        memory_block = get_learning_context("dev_app", instruction)
         task = Task(
-            description=instruction,
+            description=instruction + memory_block,
             agent=self.agent,
             expected_output="Résultat de la tâche avec liens PR/commit si applicable.",
         )
 
         crew = Crew(agents=[self.agent], tasks=[task])
-        result = crew.kickoff()
-        return str(result)
+        result = str(crew.kickoff())
+        try:
+            record_task_learning(agent_id="dev_app", task=instruction, outcome=result)
+        except Exception:
+            pass
+        return result
 
     def process_ready_issues(self):
         """

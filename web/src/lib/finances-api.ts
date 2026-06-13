@@ -1,8 +1,5 @@
+import { hubApiUrl } from "./hub-api-config";
 import { hubApiKeyHeaders } from "./hub-api-key";
-
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
-  "http://localhost:8000";
 
 async function apiFetch<T>(
   path: string,
@@ -13,7 +10,7 @@ async function apiFetch<T>(
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const res = await fetch(`${API_URL}${path}`, {
+    const res = await fetch(hubApiUrl(path), {
       ...fetchOptions,
       signal: controller.signal,
       headers: hubApiKeyHeaders({

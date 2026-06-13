@@ -1,6 +1,6 @@
 "use client";
 
-import { DEPT_COLORS } from "@/lib/dept-colors";
+import { DEPT_COLORS, type DeptKey } from "@/lib/dept-colors";
 import type { AgentStatusKind } from "@/lib/openroom-api";
 import { cn } from "@/lib/utils";
 
@@ -10,7 +10,7 @@ export interface AgentAvatarProps {
   emoji: string;
   status: AgentStatusKind;
   currentTask?: string;
-  branch: "hub" | "app" | "gaming" | "robo";
+  branch: DeptKey;
   onClick?: () => void;
 }
 

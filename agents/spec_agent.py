@@ -53,18 +53,9 @@ Ne mets pas de blabla — uniquement du contenu actionnable prêt à coller dans
         self._crew_agent: Agent | None = None
 
     def _build_crew_llm(self) -> LLM:
-        from config.settings import get_settings
+        from agents.base import build_crewai_llm
 
-        settings = get_settings()
-        model = settings.default_llm_model
-        if not model.startswith("openrouter/"):
-            model = f"openrouter/{model}"
-        return LLM(
-            model=model,
-            base_url=settings.openrouter_base_url,
-            api_key=settings.openrouter_api_key,
-            temperature=0.25,
-        )
+        return build_crewai_llm("spec", temperature=0.25)
 
     def _ensure_crew_agent(self) -> Agent:
         if self._crew_agent is None:
@@ -100,9 +91,15 @@ Ne mets pas de blabla — uniquement du contenu actionnable prêt à coller dans
         """Génère un prompt Cursor à partir d'un ticket complet (sans sauvegarde)."""
         project_info = project_info or {}
         user_prompt = self._build_user_prompt(ticket, project_info)
+        from skills.skill_agent_learning import inject_learning_context
+
+        user_prompt = inject_learning_context(
+            user_prompt, "spec", ticket.get("title", "") or "cursor prompt"
+        )
         return self.llm.complete(
             self.SYSTEM_PROMPT,
             user_prompt,
+            agent_id="spec",
             temperature=0.25,
             max_tokens=8192,
         )
@@ -127,12 +124,18 @@ Génère le prompt Cursor complet en suivant EXACTEMENT la structure demandée."
         project_info: dict[str, Any],
     ) -> dict[str, Any]:
         ticket_id = ticket["id"]
+        from skills.skill_agent_learning import inject_learning_context, record_task_learning
+
         user_prompt = self._build_user_prompt(ticket, project_info)
+        user_prompt = inject_learning_context(
+            user_prompt, "spec", ticket.get("title", "") or str(ticket_id)
+        )
 
         try:
             cursor_prompt = self.llm.complete(
                 self.SYSTEM_PROMPT,
                 user_prompt,
+                agent_id="spec",
                 temperature=0.25,
                 max_tokens=8192,
             )
@@ -150,6 +153,15 @@ Génère le prompt Cursor complet en suivant EXACTEMENT la structure demandée."
                 status="success",
                 project_id=ticket.get("project_id"),
             )
+            try:
+                record_task_learning(
+                    agent_id="spec",
+                    task=f"generate cursor prompt {ticket_id}",
+                    outcome=str(updated),
+                    success=True,
+                )
+            except Exception:
+                pass
             return updated
         except Exception as exc:
             log_agent_action(

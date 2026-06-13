@@ -1,9 +1,9 @@
 import type { Project, Ticket } from "./types";
+import { hubApiUrl } from "./hub-api-config";
 import { hubApiKeyHeaders } from "./hub-api-key";
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
-  "http://localhost:8000";
+export type { ApiHealthStatus } from "./hub-health";
+export { checkApiHealth } from "./hub-health";
 
 async function apiFetch<T>(
   path: string,
@@ -14,7 +14,7 @@ async function apiFetch<T>(
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const res = await fetch(`${API_URL}${path}`, {
+    const res = await fetch(hubApiUrl(path), {
       ...fetchOptions,
       signal: controller.signal,
       headers: hubApiKeyHeaders({
@@ -101,13 +101,4 @@ export async function fetchTickets(
   if (status) params.set("status", status);
   const qs = params.toString();
   return apiFetch<Ticket[]>(`/tickets${qs ? `?${qs}` : ""}`);
-}
-
-export async function checkApiHealth(): Promise<boolean> {
-  try {
-    const data = await apiFetch<{ status: string }>("/health");
-    return data.status === "ok";
-  } catch {
-    return false;
-  }
 }

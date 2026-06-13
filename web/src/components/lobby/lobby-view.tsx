@@ -8,6 +8,7 @@ import Link from "next/link";
 import { AlnuaLogo } from "@/components/brand/alnua-logo";
 import { DepartmentDoor } from "@/components/lobby/department-door";
 import { DEPT_TIERS } from "@/lib/dept-colors";
+import { countAgentsForBureau } from "@/lib/agent-bureau";
 import { fetchLobbyStats, type LobbyStats } from "@/lib/lobby-api";
 import {
   countActiveAgents,
@@ -17,6 +18,7 @@ import { cn } from "@/lib/utils";
 
 const DEFAULT_STATS: LobbyStats = {
   apiOnline: false,
+  apiAuthenticated: false,
   ceoNotifications: 0,
   hubPrCount: 0,
   appOpenTickets: 0,
@@ -68,43 +70,53 @@ export function LobbyView() {
       icon: "👑",
       title: "Bureau du CEO",
       subtitle: "Mission Control · Brief · Décisions en attente",
-      description: "1 COO Agent",
+      description: "CEO · Emilie",
       href: "/ceo",
       tier: DEPT_TIERS.ceo,
       badge:
         stats.ceoNotifications > 0
           ? `${stats.ceoNotifications} notif${stats.ceoNotifications > 1 ? "s" : ""}`
-          : "1 COO Agent",
-      stats: `1 COO Agent · ${stats.ceoNotifications} notification${stats.ceoNotifications !== 1 ? "s" : ""}`,
+          : "CEO",
+      stats: `Brief & décisions · ${stats.ceoNotifications} notification${stats.ceoNotifications !== 1 ? "s" : ""}`,
+    },
+    {
+      icon: "📎",
+      title: "Secrétariat",
+      subtitle: "Nadia Faure · Emails · Agenda · Contrats",
+      description: `${countAgentsForBureau("secretary")} Agent`,
+      href: "/secretary",
+      tier: DEPT_TIERS.secretary,
+      badge: `${countAgentsForBureau("secretary")} Agent`,
+      stats: "Filtrage & coordination exécutive",
     },
     {
       icon: "🏛️",
       title: "Direction",
-      subtitle: "Pipeline codage · PM · QA · Spec",
-      description: "4 Agents",
+      subtitle: "Aria · Sam · Léon · Alex · Pipeline",
+      description: `${countAgentsForBureau("hub")} Agents`,
       href: "/hub",
       tier: DEPT_TIERS.hub,
-      badge: "4 Agents",
-      stats: `4 Agents · ${stats.hubPrCount} PR${stats.hubPrCount !== 1 ? "s" : ""} en attente`,
+      badge: `${countAgentsForBureau("hub")} Agents`,
+      stats: `${countAgentsForBureau("hub")} Agents · ${stats.hubPrCount} PR${stats.hubPrCount !== 1 ? "s" : ""} en attente`,
     },
     {
       icon: "📱",
       title: "Pôle App",
-      subtitle: "Naïa App · Eve Journey · Dev · Content",
-      description: "2 Agents",
+      subtitle: "Naïa App · Eve Journey · Dev mobile & backend",
+      description: `${countAgentsForBureau("app")} Agents`,
       href: "/app",
       tier: DEPT_TIERS.app,
-      badge: "2 Agents",
-      stats: `2 Agents · ${stats.appOpenTickets} ticket${stats.appOpenTickets !== 1 ? "s" : ""} ouvert${stats.appOpenTickets !== 1 ? "s" : ""}`,
+      badge: `${countAgentsForBureau("app")} Agents`,
+      stats: `${countAgentsForBureau("app")} Agents · ${stats.appOpenTickets} ticket${stats.appOpenTickets !== 1 ? "s" : ""} ouvert${stats.appOpenTickets !== 1 ? "s" : ""}`,
     },
     {
       icon: "🎮",
       title: "Pôle Gaming",
       subtitle: "Wyrdheim Online · Naïa World · UE5 · Lore",
-      description: "3 Agents",
+      description: `${countAgentsForBureau("gaming")} Agents`,
       href: "/gaming",
       tier: DEPT_TIERS.gaming,
-      badge: "3 Agents",
+      badge: `${countAgentsForBureau("gaming")} Agents`,
       stats: stats.gamingStatus,
     },
     {
@@ -120,8 +132,8 @@ export function LobbyView() {
     {
       icon: "💰",
       title: "Comptabilité",
-      subtitle: "Finances · Coûts LLM · Budget · Transactions",
-      description: "Total ce mois",
+      subtitle: "Jules · Rémi · Finances · Coûts LLM · Budget",
+      description: `${countAgentsForBureau("finances")} Agents`,
       href: "/finances",
       tier: DEPT_TIERS.finances,
       badge: stats.financesMonthTotal,
@@ -130,21 +142,21 @@ export function LobbyView() {
     {
       icon: "📣",
       title: "Marketing",
-      subtitle: "Contenu · SEO · Réseaux · Communauté",
-      description: "1 Agent",
+      subtitle: "Lena · Eliot · Contenu · SEO · Réseaux",
+      description: `${countAgentsForBureau("marketing")} Agents`,
       href: "/marketing",
       tier: DEPT_TIERS.marketing,
-      badge: "1 Agent",
+      badge: `${countAgentsForBureau("marketing")} Agents`,
       stats: `${stats.marketingPendingPosts} post${stats.marketingPendingPosts !== 1 ? "s" : ""} en attente`,
     },
     {
       icon: "🔬",
       title: "R&D",
-      subtitle: "Brainstorm · Idées · Sessions · Mémoire",
-      description: "1 Agent",
+      subtitle: "Nova · Mira · Brainstorm · Dossiers · Comité",
+      description: `${countAgentsForBureau("rd")} Agents`,
       href: "/rd",
       tier: DEPT_TIERS.rd,
-      badge: "1 Agent",
+      badge: `${countAgentsForBureau("rd")} Agents`,
       stats:
         stats.rdSessions > 0
           ? `${stats.rdSessions} session${stats.rdSessions !== 1 ? "s" : ""} disponibles`
@@ -169,10 +181,11 @@ export function LobbyView() {
     {
       icon: "📊",
       title: "Reporting",
-      subtitle: "Analytics · KPIs · Métriques · Releases",
-      description: "Données disponibles",
+      subtitle: "Layla · Axel · KPIs · Métriques · Releases",
+      description: `${countAgentsForBureau("analytics")} Agents`,
       href: "/analytics",
       tier: DEPT_TIERS.analytics,
+      badge: `${countAgentsForBureau("analytics")} Agents`,
       stats: "Données disponibles",
     },
     {
@@ -184,6 +197,16 @@ export function LobbyView() {
       tier: DEPT_TIERS.it,
       badge: `${stats.connectedApps} app${stats.connectedApps !== 1 ? "s" : ""}`,
       stats: `${stats.connectedApps} app${stats.connectedApps !== 1 ? "s" : ""} connectée${stats.connectedApps !== 1 ? "s" : ""}`,
+    },
+    {
+      icon: "⚙️",
+      title: "Paramètres",
+      subtitle: "Modèles LLM · Config agents",
+      description: "Choisir le modèle IA par agent",
+      href: "/settings",
+      tier: DEPT_TIERS.hub,
+      badge: "Modèles",
+      stats: "Sélection modèle par agent",
     },
   ];
 
@@ -246,10 +269,18 @@ export function LobbyView() {
             <span
               className={cn(
                 "h-2 w-2 rounded-full",
-                stats.apiOnline ? "bg-copper-light" : "bg-red-500"
+                !stats.apiOnline
+                  ? "bg-red-500"
+                  : stats.apiAuthenticated
+                    ? "bg-copper-light"
+                    : "bg-amber-500"
               )}
             />
-            API {stats.apiOnline ? "online" : "offline"}
+            {!stats.apiOnline
+              ? "API offline"
+              : stats.apiAuthenticated
+                ? "API connectée"
+                : "Clé API Hub invalide ou absente"}
           </div>
           <span>{format(now, "HH:mm")}</span>
         </div>

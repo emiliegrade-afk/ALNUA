@@ -64,7 +64,7 @@ def execute_pi_ssh_with_retry(
         return result
 
     return retry_with_learning(
-        agent_name="EmbeddedDev",
+        agent_name="embedded_dev",
         task_fn=_attempt,
         task_id=command[:80],
         task_context=f"SSH: {command}",
@@ -74,18 +74,9 @@ def execute_pi_ssh_with_retry(
 
 
 def _build_llm() -> LLM:
-    from config.settings import get_settings
+    from agents.base import build_crewai_llm
 
-    settings = get_settings()
-    model = os.getenv("AGENT_MODEL", "openrouter/minimax/minimax-m1")
-    if not model.startswith("openrouter/"):
-        model = f"openrouter/{model}"
-    return LLM(
-        model=model,
-        base_url=settings.openrouter_base_url,
-        api_key=settings.openrouter_api_key,
-        temperature=0.3,
-    )
+    return build_crewai_llm("embedded_dev", temperature=0.3)
 
 
 @tool("pi_ssh_command")
@@ -243,10 +234,18 @@ class EmbeddedDevAgent:
 
     @trace_agent("embedded_dev_agent")
     def handle_instruction(self, instruction: str) -> str:
+        from skills.skill_agent_learning import get_learning_context, record_task_learning
+
+        memory_block = get_learning_context("embedded_dev", instruction)
         task = Task(
-            description=instruction,
+            description=instruction + memory_block,
             agent=self.agent,
             expected_output="Code déployé sur Pi, PR créée, ou rapport de statut Eve.",
         )
         crew = Crew(agents=[self.agent], tasks=[task])
-        return str(crew.kickoff())
+        _result = str(crew.kickoff())
+        try:
+            record_task_learning(agent_id="embedded_dev", task=instruction, outcome=_result)
+        except Exception:
+            pass
+        return _result

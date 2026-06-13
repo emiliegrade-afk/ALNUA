@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { BackToLobby } from "@/components/shared/back-to-lobby";
 import { AgentAvatar } from "@/components/openroom/agent-avatar";
 import { AgentFocusPanel } from "@/components/openroom/agent-focus-panel";
+import { BUREAU_AGENTS } from "@/lib/agent-bureau";
 import {
   countActiveAgents,
   fetchAgentsStatus,
@@ -11,78 +12,13 @@ import {
   type OpenRoomLogEntry,
 } from "@/lib/openroom-api";
 
-const AGENTS = [
-  {
-    id: "coo",
-    name: "COO",
-    emoji: "👑",
-    role: "Direction",
-    branch: "hub" as const,
-  },
-  {
-    id: "pm",
-    name: "PM",
-    emoji: "📋",
-    role: "Pipeline",
-    branch: "hub" as const,
-  },
-  {
-    id: "qa",
-    name: "QA",
-    emoji: "🔍",
-    role: "Qualité",
-    branch: "hub" as const,
-  },
-  {
-    id: "spec",
-    name: "Spec",
-    emoji: "📐",
-    role: "Architecture",
-    branch: "hub" as const,
-  },
-  {
-    id: "dev_app",
-    name: "Dev App",
-    emoji: "💻",
-    role: "Pôle App",
-    branch: "app" as const,
-  },
-  {
-    id: "content",
-    name: "Content",
-    emoji: "✍️",
-    role: "Pôle App",
-    branch: "app" as const,
-  },
-  {
-    id: "marketing",
-    name: "Marketing",
-    emoji: "📣",
-    role: "Marketing",
-    branch: "hub" as const,
-  },
-  {
-    id: "game_dir",
-    name: "Game Dir.",
-    emoji: "🎮",
-    role: "Pôle Gaming",
-    branch: "gaming" as const,
-  },
-  {
-    id: "dev_game",
-    name: "Dev Gaming",
-    emoji: "🕹️",
-    role: "Pôle Gaming",
-    branch: "gaming" as const,
-  },
-  {
-    id: "hardware",
-    name: "Hardware",
-    emoji: "🤖",
-    role: "Pôle Robo",
-    branch: "robo" as const,
-  },
-];
+const OPENROOM_AGENTS = BUREAU_AGENTS.map((agent) => ({
+  id: agent.id,
+  name: agent.name.split(" ")[0],
+  emoji: agent.icon,
+  role: agent.role.split("—")[0]?.trim() ?? agent.role,
+  branch: agent.branch,
+}));
 
 const POLL_MS = 3000;
 
@@ -134,7 +70,7 @@ export default function OpenRoomPage() {
       </header>
 
       <div className="mb-12 grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-5">
-        {AGENTS.map((agent) => (
+        {OPENROOM_AGENTS.map((agent) => (
           <AgentAvatar
             key={agent.id}
             name={agent.name}
@@ -168,7 +104,7 @@ export default function OpenRoomPage() {
 
       {focusedAgent ? (
         <AgentFocusPanel
-          agent={AGENTS.find((a) => a.id === focusedAgent)!}
+          agent={OPENROOM_AGENTS.find((a) => a.id === focusedAgent)!}
           status={agentStatuses[focusedAgent] ?? { status: "idle" }}
           onClose={() => setFocusedAgent(null)}
         />

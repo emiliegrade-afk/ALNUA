@@ -42,11 +42,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
+from agents.analyst_business_agent import BusinessAnalystAgent
+from agents.analyst_data_agent import DataAnalystAgent
 from agents.brainstorm_agent import BrainstormAgent, BRAINSTORM_NOTES_ROOT, WELCOME_MESSAGE
 from agents.content_agent import ContentAgent
+from agents.controller_agent import ControllerAgent
 from agents.coo_agent import COOAgent
+from agents.dev_backend_agent import DevBackendAgent
+from agents.level_designer_agent import LevelDesignerAgent
 from agents.pm_agent import PMAgent
 from agents.qa_agent import QAAgent
+from agents.secretary_agent import SecretaryAgent
 from agents.spec_agent import SpecAgent
 from api.analytics_helpers import (
     filter_by_date_range,
@@ -109,6 +115,14 @@ from services.waitlist import (
     markdown_to_html,
     waitlist_stats,
     waitlist_url_for_slug,
+)
+from services.competition import (
+    add_points,
+    get_leaderboard,
+    get_scores,
+    get_team_leaderboard,
+    check_and_archive_if_new_month,
+    POINT_VALUES,
 )
 from services.finance_agent import (
     attach_project_names,
@@ -192,6 +206,64 @@ async def lifespan(app: FastAPI):
             "GitHub Issues polling disabled — GITHUB_TOKEN or repo config missing"
         )
 
+    # === PROJECT SCANNER — auto-discovery GitHub + fichiers locaux → Chroma + Mem0 ===
+    try:
+        from agents.project_scanner import scan_all_projects
+        import threading
+        threading.Thread(target=scan_all_projects, daemon=True).start()
+        _briefing_scheduler.add_job(
+            scan_all_projects,
+            "interval",
+            hours=6,
+            id="project_scanner",
+            replace_existing=True,
+        )
+        logger.info("ProjectScanner: démarré (scan immédiat + toutes les 6h)")
+    except Exception:
+        logger.exception("ProjectScanner: impossible de démarrer")
+
+    # === BUG WATCHDOG — surveillance erreurs + auto-fix autonome ===
+    try:
+        from agents.bug_watchdog import start_watchdog
+        start_watchdog()
+        logger.info("BugWatchdog: démarré (poll toutes les 60s)")
+    except Exception:
+        logger.exception("BugWatchdog: impossible de démarrer")
+
+    # === VEILLE WEB — chaque agent fait sa veille dans son domaine ===
+    try:
+        from skills.skill_web_research import research_all_agents
+        # Premier cycle au démarrage (décalé de 2min pour ne pas surcharger)
+        import threading, time
+        def _delayed_research():
+            time.sleep(120)
+            research_all_agents(blocking=False)
+        threading.Thread(target=_delayed_research, daemon=True).start()
+        # Puis toutes les semaines le lundi à 7h
+        _briefing_scheduler.add_job(
+            research_all_agents,
+            CronTrigger(day_of_week="mon", hour=7, minute=0),
+            id="weekly_research",
+            replace_existing=True,
+        )
+        logger.info("Veille web: démarrée (cycle immédiat + lundi 07:00)")
+    except Exception:
+        logger.exception("Veille web: impossible de démarrer")
+
+    # === CENTRE R&D — cycle hebdomadaire autonome ===
+    try:
+        from agents.rnd_center import run_rnd_cycle
+        # Chaque vendredi à 18h — rapport R&D de la semaine
+        _briefing_scheduler.add_job(
+            lambda: run_rnd_cycle(blocking=False),
+            CronTrigger(day_of_week="fri", hour=18, minute=0),
+            id="weekly_rnd",
+            replace_existing=True,
+        )
+        logger.info("Centre R&D: démarré (vendredi 18:00)")
+    except Exception:
+        logger.exception("Centre R&D: impossible de démarrer")
+
     yield
 
     if settings.telegram_bot_token:
@@ -252,6 +324,178 @@ async def hub_api_key_middleware(request: Request, call_next):
 # ---------------------------------------------------------------------------
 # Pydantic models
 # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# New agent request models
+# ---------------------------------------------------------------------------
+class SecretaryDraftEmailRequest(BaseModel):
+    subject: str
+    context: str
+    recipient: str
+    tone: str = "professionnel"
+    language: str = "fr"
+
+
+class SecretaryTriageRequest(BaseModel):
+    emails: list[dict[str, str]]
+
+
+class SecretaryDraftContractRequest(BaseModel):
+    contract_type: str
+    party_name: str
+    scope: str
+    duration: str
+    compensation: str = ""
+    special_clauses: str = ""
+
+
+class SecretaryPlanMeetingRequest(BaseModel):
+    participants: list[str]
+    topic: str
+    duration_minutes: int = 60
+    constraints: str = ""
+
+
+class SecretaryMeetingNotesRequest(BaseModel):
+    meeting_title: str
+    raw_notes: str
+    participants: list[str]
+
+
+class ScoreAddRequest(BaseModel):
+    agent_id: str
+    action: str = Field(
+        pattern="^(task_completed|task_validated|feature_shipped|bug_found_critical|bug_fixed|review_approved|document_produced|insight_actioned|custom)$"
+    )
+    points: int | None = Field(default=None, ge=1, le=500)
+    note: str = ""
+
+
+class DevBackendDesignAPIRequest(BaseModel):
+    feature: str
+    project: str
+    constraints: str = ""
+
+
+class DevBackendImplementRequest(BaseModel):
+    feature: str
+    project: str
+    api_spec: str = ""
+    tech_stack: str = "FastAPI + Supabase"
+
+
+class DevBackendReviewRequest(BaseModel):
+    code: str
+    context: str = ""
+
+
+class DevBackendDebugRequest(BaseModel):
+    error: str
+    context: str
+    code_snippet: str = ""
+
+
+class LevelDesignerQuestRequest(BaseModel):
+    quest_name: str
+    game: str
+    lore_context: str = ""
+    player_level_range: str = "1-10"
+    quest_type: str = "main"
+
+
+class LevelDesignerLevelRequest(BaseModel):
+    level_name: str
+    game: str
+    biome: str = ""
+    difficulty: str = "medium"
+    special_mechanics: str = ""
+
+
+class LevelDesignerLoreRequest(BaseModel):
+    subject: str
+    game: str
+    lore_type: str = "history"
+    length: str = "medium"
+
+
+class LevelDesignerBalanceRequest(BaseModel):
+    system: str
+    current_values: dict[str, Any]
+    player_feedback: str = ""
+
+
+class ControllerCostsRequest(BaseModel):
+    period: str
+    costs_data: dict[str, Any]
+    budget: dict[str, float] | None = None
+
+
+class ControllerForecastRequest(BaseModel):
+    project: str
+    horizon_months: int = 6
+    assumptions: str
+    historical_data: dict[str, Any] | None = None
+
+
+class ControllerLLMAlertRequest(BaseModel):
+    daily_spend: float
+    monthly_budget: float
+
+
+class ControllerMonthlyReportRequest(BaseModel):
+    month: str
+    all_data: dict[str, Any]
+
+
+class BusinessAnalystMarketRequest(BaseModel):
+    product: str
+    market: str
+    competitors: list[str] | None = None
+
+
+class BusinessAnalystKPIsRequest(BaseModel):
+    project: str
+    stage: str
+    business_goal: str
+
+
+class BusinessAnalystUserResearchRequest(BaseModel):
+    product: str
+    research_question: str
+    user_segment: str = ""
+
+
+class BusinessAnalystBriefRequest(BaseModel):
+    topic: str
+    context: str
+    decision_needed: str
+
+
+class DataAnalystSQLRequest(BaseModel):
+    question: str
+    schema_context: str
+    db_type: str = "postgresql"
+
+
+class DataAnalystFunnelRequest(BaseModel):
+    funnel_name: str
+    steps: list[str]
+    data: dict[str, Any]
+
+
+class DataAnalystAnomalyRequest(BaseModel):
+    metric: str
+    recent_values: list[float]
+    baseline: float
+    period: str = "7 jours"
+
+
+class DataAnalystDashboardRequest(BaseModel):
+    dashboard_name: str
+    audience: str
+    kpis: list[str]
+    data_sources: list[str]
+
+
 class DevLogCreate(BaseModel):
     project_id: str
     content: str
@@ -1660,6 +1904,7 @@ def create_roadmap_from_ticket(ticket_id: str) -> dict[str, Any]:
 @app.get("/posts")
 def list_posts(
     project_id: str | None = None,
+    rnd_dossier_id: str | None = None,
     status: str | None = None,
     platform: str | None = None,
 ) -> list[dict[str, Any]]:
@@ -1667,6 +1912,8 @@ def list_posts(
     filters: dict[str, Any] = {}
     if project_id:
         filters["project_id"] = project_id
+    if rnd_dossier_id:
+        filters["rnd_dossier_id"] = rnd_dossier_id
     if status:
         filters["status"] = status
     if platform:
@@ -2211,6 +2458,216 @@ def spec_generate(ticket_id: str) -> dict[str, Any]:
 def agent_logs(limit: int = Query(default=50, le=200)) -> list[dict[str, Any]]:
     db = get_supabase()
     return db.select("agent_logs", order_by="created_at", ascending=False, limit=limit)
+
+
+# ---------------------------------------------------------------------------
+# Agent competition / scores
+# ---------------------------------------------------------------------------
+@app.get("/agents/scores")
+def competition_scores(
+    month: str | None = Query(default=None, pattern=r"^\d{4}-\d{2}$"),
+) -> dict[str, int]:
+    check_and_archive_if_new_month()
+    return get_scores(month)
+
+
+@app.post("/agents/scores")
+def competition_add_score(body: ScoreAddRequest) -> dict[str, Any]:
+    check_and_archive_if_new_month()
+    if body.action == "custom" and body.points is None:
+        raise HTTPException(status_code=400, detail="points required for custom action")
+    return add_points(body.agent_id, body.action, body.points, body.note)
+
+
+@app.get("/agents/leaderboard")
+def competition_leaderboard(
+    month: str | None = Query(default=None, pattern=r"^\d{4}-\d{2}$"),
+) -> list[dict[str, Any]]:
+    check_and_archive_if_new_month()
+    return get_leaderboard(month)
+
+
+@app.get("/agents/leaderboard/teams")
+def competition_team_leaderboard(
+    month: str | None = Query(default=None, pattern=r"^\d{4}-\d{2}$"),
+) -> list[dict[str, Any]]:
+    check_and_archive_if_new_month()
+    return get_team_leaderboard(month)
+
+
+# ---------------------------------------------------------------------------
+# Secretary (Nadia Faure) endpoints
+# ---------------------------------------------------------------------------
+@app.post("/agents/secretary/draft-email")
+def secretary_draft_email(body: SecretaryDraftEmailRequest) -> dict[str, Any]:
+    return SecretaryAgent().draft_email(
+        body.subject, body.context, body.recipient, body.tone, body.language
+    )
+
+
+@app.post("/agents/secretary/triage-emails")
+def secretary_triage_emails(body: SecretaryTriageRequest) -> dict[str, Any]:
+    return SecretaryAgent().triage_emails(body.emails)
+
+
+@app.post("/agents/secretary/draft-contract")
+def secretary_draft_contract(body: SecretaryDraftContractRequest) -> dict[str, Any]:
+    return SecretaryAgent().draft_contract(
+        body.contract_type, body.party_name, body.scope,
+        body.duration, body.compensation, body.special_clauses,
+    )
+
+
+@app.post("/agents/secretary/plan-meeting")
+def secretary_plan_meeting(body: SecretaryPlanMeetingRequest) -> dict[str, Any]:
+    return SecretaryAgent().plan_meeting(
+        body.participants, body.topic, body.duration_minutes, body.constraints
+    )
+
+
+@app.post("/agents/secretary/meeting-notes")
+def secretary_meeting_notes(body: SecretaryMeetingNotesRequest) -> dict[str, Any]:
+    return SecretaryAgent().write_meeting_notes(
+        body.meeting_title, body.raw_notes, body.participants
+    )
+
+
+# ---------------------------------------------------------------------------
+# Dev Backend (Hao Chen) endpoints
+# ---------------------------------------------------------------------------
+@app.post("/agents/dev-backend/design-api")
+def dev_backend_design_api(body: DevBackendDesignAPIRequest) -> dict[str, Any]:
+    return DevBackendAgent().design_api(body.feature, body.project, body.constraints)
+
+
+@app.post("/agents/dev-backend/implement")
+def dev_backend_implement(body: DevBackendImplementRequest) -> dict[str, str]:
+    result = DevBackendAgent().implement_feature(
+        body.feature, body.project, body.api_spec, body.tech_stack
+    )
+    return {"result": result}
+
+
+@app.post("/agents/dev-backend/review")
+def dev_backend_review(body: DevBackendReviewRequest) -> dict[str, Any]:
+    return DevBackendAgent().review_code(body.code, body.context)
+
+
+@app.post("/agents/dev-backend/debug")
+def dev_backend_debug(body: DevBackendDebugRequest) -> dict[str, Any]:
+    return DevBackendAgent().debug(body.error, body.context, body.code_snippet)
+
+
+# ---------------------------------------------------------------------------
+# Level Designer (Finn Larsen) endpoints
+# ---------------------------------------------------------------------------
+@app.post("/agents/level-designer/quest")
+def level_designer_quest(body: LevelDesignerQuestRequest) -> dict[str, Any]:
+    return LevelDesignerAgent().design_quest(
+        body.quest_name, body.game, body.lore_context,
+        body.player_level_range, body.quest_type,
+    )
+
+
+@app.post("/agents/level-designer/level")
+def level_designer_level(body: LevelDesignerLevelRequest) -> dict[str, Any]:
+    return LevelDesignerAgent().design_level(
+        body.level_name, body.game, body.biome,
+        body.difficulty, body.special_mechanics,
+    )
+
+
+@app.post("/agents/level-designer/lore")
+def level_designer_lore(body: LevelDesignerLoreRequest) -> dict[str, Any]:
+    return LevelDesignerAgent().write_lore_entry(
+        body.subject, body.game, body.lore_type, body.length
+    )
+
+
+@app.post("/agents/level-designer/balance")
+def level_designer_balance(body: LevelDesignerBalanceRequest) -> dict[str, Any]:
+    return LevelDesignerAgent().balance_review(
+        body.system, body.current_values, body.player_feedback
+    )
+
+
+# ---------------------------------------------------------------------------
+# Controller (Rémi Chassagne) endpoints
+# ---------------------------------------------------------------------------
+@app.post("/agents/controller/costs")
+def controller_costs(body: ControllerCostsRequest) -> dict[str, Any]:
+    return ControllerAgent().analyze_costs(body.period, body.costs_data, body.budget)
+
+
+@app.post("/agents/controller/forecast")
+def controller_forecast(body: ControllerForecastRequest) -> dict[str, Any]:
+    return ControllerAgent().build_forecast(
+        body.project, body.horizon_months, body.assumptions, body.historical_data
+    )
+
+
+@app.post("/agents/controller/llm-alert")
+def controller_llm_alert(body: ControllerLLMAlertRequest) -> dict[str, Any]:
+    return ControllerAgent().llm_cost_alert(body.daily_spend, body.monthly_budget)
+
+
+@app.post("/agents/controller/monthly-report")
+def controller_monthly_report(body: ControllerMonthlyReportRequest) -> dict[str, Any]:
+    return ControllerAgent().monthly_report(body.month, body.all_data)
+
+
+# ---------------------------------------------------------------------------
+# Business Analyst (Layla Hassan) endpoints
+# ---------------------------------------------------------------------------
+@app.post("/agents/analyst-business/market")
+def analyst_business_market(body: BusinessAnalystMarketRequest) -> dict[str, Any]:
+    return BusinessAnalystAgent().market_analysis(body.product, body.market, body.competitors)
+
+
+@app.post("/agents/analyst-business/kpis")
+def analyst_business_kpis(body: BusinessAnalystKPIsRequest) -> dict[str, Any]:
+    return BusinessAnalystAgent().define_kpis(body.project, body.stage, body.business_goal)
+
+
+@app.post("/agents/analyst-business/user-research")
+def analyst_business_user_research(body: BusinessAnalystUserResearchRequest) -> dict[str, Any]:
+    return BusinessAnalystAgent().user_research(
+        body.product, body.research_question, body.user_segment
+    )
+
+
+@app.post("/agents/analyst-business/brief")
+def analyst_business_brief(body: BusinessAnalystBriefRequest) -> dict[str, Any]:
+    return BusinessAnalystAgent().strategic_brief(
+        body.topic, body.context, body.decision_needed
+    )
+
+
+# ---------------------------------------------------------------------------
+# Data Analyst (Axel Roux) endpoints
+# ---------------------------------------------------------------------------
+@app.post("/agents/analyst-data/sql")
+def analyst_data_sql(body: DataAnalystSQLRequest) -> dict[str, Any]:
+    return DataAnalystAgent().sql_query(body.question, body.schema_context, body.db_type)
+
+
+@app.post("/agents/analyst-data/funnel")
+def analyst_data_funnel(body: DataAnalystFunnelRequest) -> dict[str, Any]:
+    return DataAnalystAgent().funnel_analysis(body.funnel_name, body.steps, body.data)
+
+
+@app.post("/agents/analyst-data/anomaly")
+def analyst_data_anomaly(body: DataAnalystAnomalyRequest) -> dict[str, Any]:
+    return DataAnalystAgent().anomaly_report(
+        body.metric, body.recent_values, body.baseline, body.period
+    )
+
+
+@app.post("/agents/analyst-data/dashboard-spec")
+def analyst_data_dashboard(body: DataAnalystDashboardRequest) -> dict[str, Any]:
+    return DataAnalystAgent().dashboard_spec(
+        body.dashboard_name, body.audience, body.kpis, body.data_sources
+    )
 
 
 # === BRAND KIT ===
@@ -3529,6 +3986,930 @@ def delete_finance_transaction(transaction_id: str) -> dict[str, bool]:
     return {"ok": True}
 
 
+# ===========================================================================
+# CENTRE R&D AUTONOME
+# ===========================================================================
+
+class RndInjectBody(BaseModel):
+    idea: str
+    source: str = "Emilie"
+
+class RndVisionBody(BaseModel):
+    vision: str
+
+
+@app.get("/rnd/ideas")
+def rnd_get_ideas(limit: int = Query(default=20, le=100), verdict: str | None = None) -> list[dict]:
+    """Retourne les idées générées par le Centre R&D, triées par score."""
+    try:
+        from agents.rnd_center import get_top_ideas
+        return get_top_ideas(limit=limit, verdict=verdict)
+    except Exception as exc:
+        logger.exception("rnd_get_ideas failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.get("/rnd/vision")
+def rnd_get_vision() -> dict[str, str]:
+    """Retourne le fil conducteur R&D actuel."""
+    try:
+        from agents.rnd_center import get_vision
+        return {"vision": get_vision()}
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/rnd/vision")
+def rnd_set_vision(body: RndVisionBody) -> dict[str, str]:
+    """Met à jour le fil conducteur R&D."""
+    try:
+        from agents.rnd_center import set_vision
+        set_vision(body.vision)
+        return {"ok": "vision mise à jour"}
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/rnd/inject")
+def rnd_inject_idea(body: RndInjectBody) -> dict:
+    """Injecte une idée d'Emilie dans le pipeline R&D (sera scorée au prochain cycle)."""
+    try:
+        from agents.rnd_center import inject_idea
+        return inject_idea(body.idea, body.source)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/rnd/cycle")
+def rnd_trigger_cycle() -> dict[str, str]:
+    """Lance manuellement un cycle R&D complet (async)."""
+    try:
+        from agents.rnd_center import run_rnd_cycle
+        import threading
+        threading.Thread(target=lambda: run_rnd_cycle(blocking=True), daemon=True).start()
+        return {"status": "Cycle R&D lancé en arrière-plan. Résultats disponibles dans quelques minutes."}
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.get("/rnd/competitive")
+def rnd_get_competitive() -> list[dict]:
+    """Retourne les analyses concurrentielles disponibles."""
+    from pathlib import Path
+
+    comp_dir = Path(os.getenv("HUB_REPO_PATH", "C:/Dev/ALUNA_HUB")) / "data" / "rnd_competitive"
+    results: list[dict] = []
+    if not comp_dir.exists():
+        return results
+
+    for path in sorted(comp_dir.glob("*.md"), key=lambda p: p.stat().st_mtime, reverse=True)[:10]:
+        try:
+            text = path.read_text(encoding="utf-8")
+            results.append({
+                "product": path.stem.replace("_competitor_analysis", ""),
+                "timestamp": path.stem.split("_")[0] if "_" in path.stem else path.stem,
+                "analysis": text[:4000],
+            })
+        except Exception:
+            pass
+
+    for path in sorted(comp_dir.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True)[:10]:
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            if isinstance(data, dict):
+                results.append(data)
+        except Exception:
+            pass
+
+    return results
+
+
+# ---------------------------------------------------------------------------
+# R&D Dossiers (phase 1 — promote, CRUD, events)
+# ---------------------------------------------------------------------------
+
+
+@app.get("/rnd/ideas/{idea_id}")
+def rnd_get_idea(idea_id: str) -> dict[str, Any]:
+    """Retourne une idée R&D par legacy_id ou UUID."""
+    from agents.rnd_center import get_idea_by_id
+
+    idea = get_idea_by_id(idea_id)
+    if not idea:
+        raise HTTPException(status_code=404, detail=f"Idée introuvable : {idea_id}")
+    return idea
+
+
+@app.post("/rnd/ideas/{idea_id}/promote")
+def rnd_promote_idea(
+    idea_id: str,
+    auto_enrich: bool = Query(
+        default=True,
+        alias="enrich",
+        description="Enrichir sections + finance en arrière-plan",
+    ),
+) -> dict[str, Any]:
+    """Promouvoir une idée en dossier R&D (squelette rapide, enrichissement async)."""
+    import threading
+
+    from agents.rnd_dossier_agent import RndDossierAgent, promote_idea_to_dossier
+
+    try:
+        result = promote_idea_to_dossier(idea_id, actor="emilie", enrich=False)
+        dossier_id = result["dossier"]["id"]
+
+        if auto_enrich:
+
+            def _enrich_bg() -> None:
+                try:
+                    RndDossierAgent().enrich_dossier(dossier_id, actor="rnd_dossier_agent")
+                except Exception:
+                    logger.exception("rnd_enrich_background failed for %s", dossier_id)
+
+            threading.Thread(target=_enrich_bg, daemon=True).start()
+            result["enriching"] = True
+            result["message"] = (
+                f"Dossier R&D « {result['dossier']['title']} » créé — "
+                f"enrichissement sections + business case en cours (30–60 s)."
+            )
+        else:
+            result["enriching"] = False
+            result["message"] = (
+                f"Dossier R&D « {result['dossier']['title']} » créé — "
+                f"{result['dossier']['sections_total_count']} sections squelette."
+            )
+
+        return result
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("rnd_promote_idea failed for %s", idea_id)
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@app.post("/rnd/dossiers")
+def rnd_create_dossier(
+    body: dict[str, Any],
+    auto_enrich: bool = Query(
+        default=True,
+        alias="enrich",
+        description="Enrichir sections + finance en arrière-plan",
+    ),
+) -> dict[str, Any]:
+    """Créer un dossier R&D à partir d'une idée (équivalent promote, body JSON)."""
+    import threading
+
+    from agents.rnd_dossier_agent import RndDossierAgent
+    from services.rnd_schemas import RndDossierCreateBody
+
+    payload = RndDossierCreateBody.model_validate(body)
+    agent = RndDossierAgent()
+    try:
+        result = agent.create_dossier(payload.idea_id, actor="emilie", enrich=False)
+        dossier_id = result["dossier"]["id"]
+
+        if auto_enrich:
+
+            def _enrich_bg() -> None:
+                try:
+                    agent.enrich_dossier(dossier_id, actor="rnd_dossier_agent")
+                except Exception:
+                    logger.exception("rnd_enrich_background failed for %s", dossier_id)
+
+            threading.Thread(target=_enrich_bg, daemon=True).start()
+            result["enriching"] = True
+            result["message"] = (
+                f"Dossier R&D « {result['dossier']['title']} » créé — "
+                f"enrichissement sections + business case en cours (30–60 s)."
+            )
+        else:
+            result["enriching"] = False
+            result["message"] = (
+                f"Dossier R&D « {result['dossier']['title']} » créé — "
+                f"{result['dossier']['sections_total_count']} sections squelette."
+            )
+        return result
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("rnd_create_dossier failed for %s", payload.idea_id)
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@app.get("/rnd/dossiers")
+def rnd_list_dossiers(
+    status: str | None = Query(default=None),
+    domain: str | None = Query(default=None),
+    limit: int = Query(default=50, le=100),
+) -> list[dict[str, Any]]:
+    from agents.rnd_dossier_agent import RndDossierAgent
+
+    return RndDossierAgent().list_dossiers(status=status, domain=domain, limit=limit)
+
+
+@app.get("/rnd/dossiers/slug/{slug}")
+def rnd_get_dossier_by_slug(slug: str) -> dict[str, Any]:
+    from agents.rnd_dossier_agent import RndDossierAgent
+
+    dossier = RndDossierAgent().get_dossier(slug)
+    if not dossier:
+        raise HTTPException(status_code=404, detail="Dossier introuvable")
+    return dossier.model_dump()
+
+
+@app.get("/rnd/dossiers/{dossier_id}")
+def rnd_get_dossier(dossier_id: str) -> dict[str, Any]:
+    from agents.rnd_dossier_agent import RndDossierAgent
+
+    dossier = RndDossierAgent().get_dossier(dossier_id)
+    if not dossier:
+        raise HTTPException(status_code=404, detail="Dossier introuvable")
+    return dossier.model_dump()
+
+
+@app.patch("/rnd/dossiers/{dossier_id}")
+def rnd_patch_dossier(dossier_id: str, body: dict[str, Any]) -> dict[str, Any]:
+    from services.rnd_repository import get_rnd_repository
+    from services.rnd_schemas import RndDossierPatchBody
+
+    allowed = RndDossierPatchBody.model_validate(body)
+    values = allowed.model_dump(exclude_none=True)
+    if not values:
+        raise HTTPException(status_code=400, detail="Aucun champ à mettre à jour")
+    dossier = get_rnd_repository().update_dossier(dossier_id, values)
+    if not dossier:
+        raise HTTPException(status_code=404, detail="Dossier introuvable")
+    return dossier.model_dump()
+
+
+@app.get("/rnd/dossiers/{dossier_id}/events")
+def rnd_get_dossier_events(
+    dossier_id: str,
+    limit: int = Query(default=50, le=200),
+) -> list[dict[str, Any]]:
+    from services.rnd_repository import get_rnd_repository
+
+    events = get_rnd_repository().get_dossier_events(dossier_id, limit=limit)
+    return [e.model_dump() for e in events]
+
+
+@app.post("/rnd/dossiers/{dossier_id}/enrich")
+def rnd_enrich_dossier(dossier_id: str) -> dict[str, Any]:
+    """Regénère sections LLM + business case pour un dossier existant."""
+    from agents.rnd_dossier_agent import RndDossierAgent
+
+    try:
+        dossier = RndDossierAgent().enrich_dossier(dossier_id)
+        return {"dossier": dossier.model_dump(), "message": "Dossier enrichi."}
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("rnd_enrich_dossier failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@app.post("/rnd/dossiers/{dossier_id}/validate-section")
+def rnd_validate_section(dossier_id: str, body: dict[str, Any]) -> dict[str, Any]:
+    from agents.rnd_dossier_agent import RndDossierAgent
+    from services.rnd_schemas import RndSectionActionBody
+
+    req = RndSectionActionBody.model_validate(body)
+    try:
+        dossier = RndDossierAgent().validate_section(
+            dossier_id, req.section_key, note=req.note
+        )
+        return dossier.model_dump()
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/rnd/dossiers/{dossier_id}/request-revision")
+def rnd_request_revision(dossier_id: str, body: dict[str, Any]) -> dict[str, Any]:
+    from agents.rnd_dossier_agent import RndDossierAgent
+    from services.rnd_schemas import RndSectionRevisionBody
+
+    req = RndSectionRevisionBody.model_validate(body)
+    try:
+        dossier = RndDossierAgent().request_section_revision(
+            dossier_id, req.section_key, req.revision_note
+        )
+        return dossier.model_dump()
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/rnd/dossiers/{dossier_id}/regenerate-section")
+def rnd_regenerate_section(dossier_id: str, body: dict[str, Any]) -> dict[str, Any]:
+    from agents.rnd_dossier_agent import RndDossierAgent
+    from services.rnd_schemas import RndSectionRevisionBody
+
+    req = RndSectionRevisionBody.model_validate(body)
+    try:
+        dossier = RndDossierAgent().regenerate_section(
+            dossier_id,
+            req.section_key,
+            revision_note=req.revision_note,
+        )
+        return dossier.model_dump()
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.get("/rnd/dossiers/{dossier_id}/finance")
+def rnd_get_finance(dossier_id: str) -> dict[str, Any]:
+    from agents.rnd_dossier_agent import RndDossierAgent
+
+    dossier = RndDossierAgent().get_dossier(dossier_id)
+    if not dossier:
+        raise HTTPException(status_code=404, detail="Dossier introuvable")
+    return {
+        "finance_json": dossier.finance_json,
+        "business_case": next(
+            (s.content_md for s in dossier.sections if s.section_key == "business_case"),
+            None,
+        ),
+    }
+
+
+@app.post("/rnd/dossiers/{dossier_id}/finance/estimate")
+def rnd_estimate_finance(dossier_id: str, body: dict[str, Any] | None = None) -> dict[str, Any]:
+    from agents.rnd_dossier_agent import RndDossierAgent
+    from services.rnd_schemas import RndFinanceReviseBody
+
+    constraint = None
+    if body:
+        constraint = RndFinanceReviseBody.model_validate(body).constraint
+    try:
+        return RndDossierAgent().estimate_finance(dossier_id, constraint=constraint)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.post("/rnd/dossiers/{dossier_id}/committee/start")
+def rnd_committee_start(dossier_id: str, body: dict[str, Any] | None = None) -> dict[str, Any]:
+    from agents.rnd_committee_agent import RndCommitteeAgent
+    from services.rnd_schemas import RndCommitteeStartBody
+
+    payload = RndCommitteeStartBody.model_validate(body or {})
+    try:
+        return RndCommitteeAgent().start_session(
+            dossier_id,
+            mode=payload.mode,
+            active_section=payload.active_section,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("rnd_committee_start failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@app.get("/rnd/dossiers/{dossier_id}/committee/sessions")
+def rnd_committee_list_sessions(dossier_id: str) -> list[dict[str, Any]]:
+    from agents.rnd_committee_agent import RndCommitteeAgent
+
+    return RndCommitteeAgent().list_sessions(dossier_id)
+
+
+@app.get("/rnd/dossiers/{dossier_id}/committee/{session_id}")
+def rnd_committee_get_session(dossier_id: str, session_id: str) -> dict[str, Any]:
+    from agents.rnd_committee_agent import RndCommitteeAgent
+
+    try:
+        return RndCommitteeAgent().get_session_with_messages(dossier_id, session_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.post("/rnd/dossiers/{dossier_id}/committee/{session_id}/message")
+def rnd_committee_message(
+    dossier_id: str,
+    session_id: str,
+    body: dict[str, Any],
+) -> dict[str, Any]:
+    from agents.rnd_committee_agent import RndCommitteeAgent
+    from services.rnd_schemas import RndCommitteeMessageBody
+
+    payload = RndCommitteeMessageBody.model_validate(body)
+    try:
+        return RndCommitteeAgent().post_message(
+            dossier_id,
+            session_id,
+            payload.message,
+            target_speaker=payload.target_speaker,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("rnd_committee_message failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@app.post("/rnd/dossiers/{dossier_id}/committee/{session_id}/report")
+def rnd_committee_generate_report(
+    dossier_id: str,
+    session_id: str,
+) -> dict[str, Any]:
+    """Génère le CR structuré sans clôturer la session comité."""
+    from agents.rnd_committee_agent import RndCommitteeAgent
+
+    try:
+        return RndCommitteeAgent().generate_session_report(dossier_id, session_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("rnd_committee_generate_report failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@app.post("/rnd/dossiers/{dossier_id}/committee/{session_id}/close")
+def rnd_committee_close(
+    dossier_id: str,
+    session_id: str,
+    body: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    from agents.rnd_committee_agent import RndCommitteeAgent
+    from services.rnd_schemas import RndCommitteeCloseBody
+
+    payload = RndCommitteeCloseBody.model_validate(body or {})
+    try:
+        return RndCommitteeAgent().close_session(
+            dossier_id,
+            session_id,
+            apply_sections=payload.apply_sections,
+            generate_ceo_package=payload.generate_ceo_package,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("rnd_committee_close failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+# ---------------------------------------------------------------------------
+# R&D Dossier — deck & assets (phase 4)
+# ---------------------------------------------------------------------------
+
+RND_DOSSIERS_DATA_ROOT = Path(os.getenv("HUB_REPO_PATH", "C:/Dev/ALUNA_HUB")) / "data" / "rnd_dossiers"
+
+
+@app.get("/rnd/dossiers/{dossier_id}/assets")
+def rnd_list_dossier_assets(dossier_id: str) -> list[dict[str, Any]]:
+    from agents.rnd_visual_agent import RndVisualAgent
+
+    try:
+        assets = RndVisualAgent().list_assets(dossier_id)
+        return [a.model_dump() for a in assets]
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.post("/rnd/dossiers/{dossier_id}/assets/generate")
+def rnd_generate_dossier_assets(
+    dossier_id: str,
+    body: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    from agents.rnd_visual_agent import RndVisualAgent
+    from services.rnd_schemas import RndAssetsGenerateBody
+
+    payload = RndAssetsGenerateBody.model_validate(body or {})
+    try:
+        result = RndVisualAgent().generate_assets(dossier_id, force=payload.force)
+        result["assets"] = [
+            {
+                **a,
+                "file_url": f"/rnd/dossiers/{dossier_id}/assets/file?asset_type={a['asset_type']}",
+            }
+            for a in result.get("assets", [])
+        ]
+        return result
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("rnd_generate_dossier_assets failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@app.get("/rnd/dossiers/{dossier_id}/assets/file")
+def rnd_dossier_asset_file(
+    dossier_id: str,
+    asset_type: str | None = Query(default=None),
+    asset_id: str | None = Query(default=None),
+) -> FileResponse:
+    from services.rnd_repository import get_rnd_repository
+
+    if not asset_type and not asset_id:
+        raise HTTPException(status_code=400, detail="asset_type ou asset_id requis")
+
+    dossier = get_rnd_repository().get_dossier(dossier_id)
+    if not dossier:
+        raise HTTPException(status_code=404, detail="Dossier introuvable")
+
+    assets = get_rnd_repository().list_assets(dossier.id)
+    match = None
+    if asset_id:
+        match = next((a for a in assets if str(a.id) == str(asset_id)), None)
+    elif asset_type:
+        match = next((a for a in assets if a.asset_type == asset_type), None)
+    if not match:
+        raise HTTPException(status_code=404, detail="Asset introuvable")
+
+    repo_root = Path(os.getenv("HUB_REPO_PATH", "C:/Dev/ALUNA_HUB")).resolve()
+    data_root = RND_DOSSIERS_DATA_ROOT.resolve()
+
+    path = Path(match.file_path)
+    if not path.is_absolute():
+        path = (repo_root / match.file_path.replace("\\", "/").lstrip("/")).resolve()
+    else:
+        path = path.resolve()
+
+    if not str(path).startswith(str(data_root)):
+        raise HTTPException(status_code=403, detail="Accès refusé")
+    if not path.is_file():
+        raise HTTPException(status_code=404, detail="Fichier asset introuvable")
+
+    return FileResponse(path, media_type="image/png", filename=path.name)
+
+
+@app.post("/rnd/dossiers/{dossier_id}/deck/generate")
+def rnd_generate_deck(dossier_id: str, body: dict[str, Any] | None = None) -> dict[str, Any]:
+    from services.rnd_deck import generate_dossier_deck
+
+    export_pdf = True
+    if body and "export_pdf" in body:
+        export_pdf = bool(body["export_pdf"])
+    try:
+        result = generate_dossier_deck(dossier_id, export_pdf=export_pdf)
+        dossier_id_resolved = result["dossier_id"]
+        result["html_url"] = f"/rnd/dossiers/{dossier_id_resolved}/deck/file?type=html"
+        if result.get("pdf_path"):
+            result["pdf_url"] = f"/rnd/dossiers/{dossier_id_resolved}/deck/file?type=pdf"
+        else:
+            result["pdf_url"] = None
+        return result
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("rnd_generate_deck failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@app.get("/rnd/dossiers/{dossier_id}/deck/file")
+def rnd_deck_file(
+    dossier_id: str,
+    type: str = Query(..., pattern="^(html|pdf)$"),
+) -> FileResponse:
+    from services.rnd_repository import get_rnd_repository
+
+    dossier = get_rnd_repository().get_dossier(dossier_id)
+    if not dossier:
+        raise HTTPException(status_code=404, detail="Dossier introuvable")
+
+    stored = dossier.deck_pdf_path if type == "pdf" else dossier.deck_html_path
+    if not stored:
+        raise HTTPException(status_code=404, detail="Deck non généré")
+
+    repo_root = Path(os.getenv("HUB_REPO_PATH", "C:/Dev/ALUNA_HUB")).resolve()
+    data_root = RND_DOSSIERS_DATA_ROOT.resolve()
+
+    path = Path(stored)
+    if not path.is_absolute():
+        path = (repo_root / stored.replace("\\", "/").lstrip("/")).resolve()
+    else:
+        path = path.resolve()
+
+    if not str(path).startswith(str(data_root)):
+        raise HTTPException(status_code=403, detail="Accès refusé")
+    if not path.is_file():
+        raise HTTPException(status_code=404, detail="Fichier deck introuvable")
+
+    media = "application/pdf" if type == "pdf" else "text/html"
+    return FileResponse(path, media_type=media, filename=path.name)
+
+
+# ---------------------------------------------------------------------------
+# R&D Dossier — social pipeline (phase 5)
+# ---------------------------------------------------------------------------
+
+
+@app.get("/rnd/dossiers/{dossier_id}/social/calendar")
+def rnd_social_list_calendar(dossier_id: str) -> list[dict[str, Any]]:
+    from agents.rnd_social_agent import RndSocialAgent
+
+    try:
+        return RndSocialAgent().list_calendar(dossier_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.get("/rnd/dossiers/{dossier_id}/social/status")
+def rnd_social_status(dossier_id: str) -> dict[str, Any]:
+    from agents.rnd_social_agent import RndSocialAgent
+
+    try:
+        return RndSocialAgent().social_status(dossier_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.post("/rnd/dossiers/{dossier_id}/social/calendar/generate")
+def rnd_social_generate_calendar(
+    dossier_id: str,
+    body: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    from agents.rnd_social_agent import RndSocialAgent
+    from services.rnd_schemas import RndSocialCalendarGenerateBody
+    from services.rnd_social import SocialPipelineLockedError
+
+    payload = RndSocialCalendarGenerateBody.model_validate(body or {})
+    try:
+        return RndSocialAgent().generate_calendar(
+            dossier_id,
+            force=payload.force,
+            launch_date=payload.launch_date,
+        )
+    except SocialPipelineLockedError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("rnd_social_generate_calendar failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@app.patch("/rnd/dossiers/{dossier_id}/social/calendar/{item_id}")
+def rnd_social_patch_calendar(
+    dossier_id: str,
+    item_id: str,
+    body: dict[str, Any],
+) -> dict[str, Any]:
+    from agents.rnd_social_agent import RndSocialAgent
+    from services.rnd_schemas import RndSocialPatchCalendarBody
+
+    payload = RndSocialPatchCalendarBody.model_validate(body)
+    try:
+        return RndSocialAgent().patch_calendar_item(
+            dossier_id,
+            item_id,
+            payload.model_dump(exclude_none=True),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/rnd/dossiers/{dossier_id}/social/calendar/{item_id}/generate-post")
+def rnd_social_generate_post(
+    dossier_id: str,
+    item_id: str,
+    body: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    from agents.rnd_social_agent import RndSocialAgent
+    from services.rnd_schemas import RndSocialGeneratePostBody
+    from services.rnd_social import SocialPipelineLockedError
+
+    payload = RndSocialGeneratePostBody.model_validate(body or {})
+    try:
+        return RndSocialAgent().generate_post_for_item(
+            dossier_id,
+            item_id,
+            platforms=payload.platforms,
+        )
+    except SocialPipelineLockedError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("rnd_social_generate_post failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@app.post("/rnd/dossiers/{dossier_id}/social/generate-all")
+def rnd_social_generate_all(dossier_id: str) -> dict[str, Any]:
+    from agents.rnd_social_agent import RndSocialAgent
+    from services.rnd_social import SocialPipelineLockedError
+
+    try:
+        return RndSocialAgent().generate_all_posts(dossier_id)
+    except SocialPipelineLockedError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("rnd_social_generate_all failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@app.get("/rnd/dossiers/{dossier_id}/social/posts")
+def rnd_social_list_posts(dossier_id: str) -> list[dict[str, Any]]:
+    from agents.rnd_social_agent import RndSocialAgent
+
+    try:
+        return RndSocialAgent().list_posts(dossier_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+# ---------------------------------------------------------------------------
+# R&D Dossier — CEO package & COO dispatch (phase 6)
+# ---------------------------------------------------------------------------
+
+
+@app.get("/rnd/dossiers/{dossier_id}/ceo/package")
+def rnd_ceo_get_package(dossier_id: str) -> dict[str, Any]:
+    from agents.rnd_ceo_agent import RndCeoAgent
+
+    try:
+        return RndCeoAgent().get_package(dossier_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.post("/rnd/dossiers/{dossier_id}/ceo/generate")
+def rnd_ceo_generate_package(
+    dossier_id: str,
+    body: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    from agents.rnd_ceo_agent import CeoPackageNotReadyError, RndCeoAgent
+    from services.rnd_schemas import RndCeoGenerateBody
+
+    payload = RndCeoGenerateBody.model_validate(body or {})
+    try:
+        return RndCeoAgent().generate_package(dossier_id, force=payload.force)
+    except CeoPackageNotReadyError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("rnd_ceo_generate_package failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@app.post("/rnd/dossiers/{dossier_id}/ceo/decide")
+def rnd_ceo_decide(
+    dossier_id: str,
+    body: dict[str, Any],
+) -> dict[str, Any]:
+    from agents.rnd_ceo_agent import CeoDecisionError, RndCeoAgent
+    from services.rnd_schemas import RndCeoDecisionBody
+
+    payload = RndCeoDecisionBody.model_validate(body)
+    if payload.ceo_status == "pending":
+        raise HTTPException(status_code=400, detail="ceo_status must be approved, rejected, or pivot_requested")
+    try:
+        return RndCeoAgent().record_ceo_decision(
+            dossier_id,
+            ceo_status=payload.ceo_status,
+            ceo_note=payload.ceo_note,
+        )
+    except CeoDecisionError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("rnd_ceo_decide failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@app.post("/rnd/dossiers/{dossier_id}/ceo/dispatch")
+def rnd_ceo_dispatch(dossier_id: str) -> dict[str, Any]:
+    from agents.rnd_ceo_agent import DispatchNotAllowedError, RndCeoAgent
+
+    try:
+        return RndCeoAgent().dispatch_to_coo(dossier_id)
+    except DispatchNotAllowedError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("rnd_ceo_dispatch failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+# ---------------------------------------------------------------------------
+# R&D Dossier — public product page (phase 7)
+# ---------------------------------------------------------------------------
+
+
+@app.get("/rnd/health")
+def rnd_module_health_endpoint() -> dict[str, Any]:
+    from database.supabase_client import get_supabase
+    from services.rnd_pipeline import rnd_module_health
+
+    return rnd_module_health(get_supabase())
+
+
+@app.get("/rnd/dossiers/{dossier_id}/pipeline")
+def rnd_dossier_pipeline(dossier_id: str) -> dict[str, Any]:
+    from services.rnd_pipeline import build_dossier_pipeline
+    from services.rnd_repository import get_rnd_repository
+
+    dossier = get_rnd_repository().get_dossier(dossier_id)
+    if not dossier:
+        raise HTTPException(status_code=404, detail="Dossier introuvable")
+    return build_dossier_pipeline(dossier)
+
+
+@app.get("/rnd/product/{slug}")
+def rnd_public_product_page(slug: str) -> dict[str, Any]:
+    """Fiche produit publique (published=true uniquement)."""
+    from agents.rnd_product_agent import RndProductAgent
+
+    try:
+        return RndProductAgent().get_public_page(slug)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.get("/rnd/dossiers/{dossier_id}/product")
+def rnd_get_product_page(dossier_id: str) -> dict[str, Any]:
+    from agents.rnd_product_agent import RndProductAgent
+
+    try:
+        return RndProductAgent().get_product_page(dossier_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.get("/rnd/dossiers/{dossier_id}/product/status")
+def rnd_product_status(dossier_id: str) -> dict[str, Any]:
+    from agents.rnd_product_agent import RndProductAgent
+
+    try:
+        return RndProductAgent().product_status(dossier_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.post("/rnd/dossiers/{dossier_id}/product/generate")
+def rnd_generate_product_page(
+    dossier_id: str,
+    body: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    from agents.rnd_product_agent import RndProductAgent
+    from services.rnd_product import ProductPipelineLockedError
+    from services.rnd_schemas import RndProductGenerateBody
+
+    payload = RndProductGenerateBody.model_validate(body or {})
+    try:
+        return RndProductAgent().generate_product_page(
+            dossier_id,
+            force=payload.force,
+            waitlist_enabled=payload.waitlist_enabled,
+        )
+    except ProductPipelineLockedError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("rnd_generate_product_page failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@app.patch("/rnd/dossiers/{dossier_id}/product")
+def rnd_patch_product_page(dossier_id: str, body: dict[str, Any]) -> dict[str, Any]:
+    from agents.rnd_product_agent import RndProductAgent
+    from services.rnd_schemas import RndProductPatchBody
+
+    payload = RndProductPatchBody.model_validate(body)
+    values = payload.model_dump(exclude_none=True)
+    try:
+        return RndProductAgent().update_product_page(dossier_id, values=values)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/rnd/dossiers/{dossier_id}/product/publish")
+def rnd_publish_product_page(dossier_id: str) -> dict[str, Any]:
+    from agents.rnd_product_agent import RndProductAgent
+    from services.rnd_product import ProductPipelineLockedError
+
+    try:
+        return RndProductAgent().publish_product_page(dossier_id)
+    except ProductPipelineLockedError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("rnd_publish_product_page failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@app.post("/rnd/dossiers/{dossier_id}/product/unpublish")
+def rnd_unpublish_product_page(dossier_id: str) -> dict[str, Any]:
+    from agents.rnd_product_agent import RndProductAgent
+
+    try:
+        return RndProductAgent().unpublish_product_page(dossier_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
 @app.get("/finances/summary/{month}")
 def get_finance_summary(month: str) -> dict[str, Any]:
     try:
@@ -3577,6 +4958,78 @@ async def connect_composio_app(app_name: str, user_id: str = "alnua_coo"):
 
     link = get_oauth_link(app=app_name.upper(), user_id=user_id)
     return {"app": app_name, "oauth_url": link}
+
+
+# ---------------------------------------------------------------------------
+# Project Scanner — endpoint manuel
+# ---------------------------------------------------------------------------
+
+@app.post("/agents/scan")
+async def trigger_project_scan():
+    """Déclenche un scan immédiat de tous les projets GitHub + fichiers locaux."""
+    import threading
+    from agents.project_scanner import scan_all_projects
+    threading.Thread(target=scan_all_projects, daemon=True).start()
+    return {"status": "scan démarré en arrière-plan"}
+
+
+@app.get("/agents/errors")
+async def get_open_errors():
+    """Liste les erreurs ouvertes dans le journal."""
+    from skills.skill_error_journal import get_open_errors_summary
+    return {"summary": get_open_errors_summary()}
+
+
+# ===========================================================================
+# SETTINGS — Sélection de modèle par agent
+# ===========================================================================
+
+class AgentModelUpdate(BaseModel):
+    agent_id: str
+    model: str  # nom de modèle OpenRouter ou "auto"
+
+
+@app.get("/settings/models")
+def settings_get_models() -> list[dict]:
+    """Retourne la config modèle de tous les agents."""
+    from config.agent_models import get_all_agent_models
+    return get_all_agent_models()
+
+
+@app.get("/settings/models/available")
+def settings_available_models() -> dict:
+    """Retourne la liste des modèles disponibles par tier."""
+    from config.agent_models import AVAILABLE_MODELS, TIER_DEFAULTS
+    return {"models": AVAILABLE_MODELS, "tier_defaults": TIER_DEFAULTS}
+
+
+@app.post("/settings/models")
+def settings_set_model(body: AgentModelUpdate) -> dict[str, str]:
+    """Définit le modèle pour un agent. Passer model='auto' pour reset."""
+    from config.agent_models import (
+        AGENT_TIERS,
+        AVAILABLE_MODELS,
+        normalize_agent_id,
+        set_agent_model,
+    )
+
+    agent_id = normalize_agent_id(body.agent_id)
+    if agent_id not in AGENT_TIERS:
+        raise HTTPException(status_code=400, detail=f"Agent inconnu : {body.agent_id}")
+    if body.model != "auto" and body.model not in AVAILABLE_MODELS:
+        raise HTTPException(status_code=400, detail=f"Modèle inconnu : {body.model}")
+
+    set_agent_model(agent_id, body.model)
+    return {"ok": f"{agent_id} → {body.model}"}
+
+
+@app.post("/settings/models/reset")
+def settings_reset_models() -> dict[str, str]:
+    """Remet tous les agents en mode auto."""
+    from config.agent_models import _CONFIG_FILE
+    if _CONFIG_FILE.exists():
+        _CONFIG_FILE.unlink()
+    return {"ok": "Tous les agents repassés en mode auto"}
 
 
 # ---------------------------------------------------------------------------

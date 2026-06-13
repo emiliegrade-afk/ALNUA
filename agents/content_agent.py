@@ -73,18 +73,9 @@ Respecte STRICTEMENT les contraintes de chaque plateforme."""
         self._crew_agent: Agent | None = None
 
     def _build_crew_llm(self) -> LLM:
-        from config.settings import get_settings
+        from agents.base import build_crewai_llm
 
-        settings = get_settings()
-        model = settings.default_llm_model
-        if not model.startswith("openrouter/"):
-            model = f"openrouter/{model}"
-        return LLM(
-            model=model,
-            base_url=settings.openrouter_base_url,
-            api_key=settings.openrouter_api_key,
-            temperature=0.85,
-        )
+        return build_crewai_llm("content", temperature=0.85)
 
     def _ensure_crew_agent(self) -> Agent:
         if self._crew_agent is None:
@@ -173,8 +164,16 @@ Génère un post adapté pour CHAQUE combinaison pertinente (type × plateforme)
 Minimum 1 post, maximum {len(normalized_types) * len(platforms)} posts.
 Chaque post doit respecter les contraintes de SA plateforme."""
 
+        from skills.skill_agent_learning import inject_learning_context, record_task_learning
+
+        user_prompt = inject_learning_context(
+            user_prompt, "content", dev_log[:200] or project_label
+        )
+
         try:
-            raw = self.llm.complete(self.SYSTEM_PROMPT, user_prompt, temperature=0.85)
+            raw = self.llm.complete(
+                self.SYSTEM_PROMPT, user_prompt, agent_id="content", temperature=0.85
+            )
             result = parse_json_response(raw)
             scheduled_base = datetime.now(timezone.utc) + timedelta(days=1)
             created: list[dict[str, Any]] = []
@@ -216,6 +215,15 @@ Chaque post doit respecter les contraintes de SA plateforme."""
                 status="success",
                 project_id=project_id,
             )
+            try:
+                record_task_learning(
+                    agent_id="content",
+                    task="generate posts",
+                    outcome=str(created),
+                    success=True,
+                )
+            except Exception:
+                pass
             return created
         except Exception as exc:
             log_agent_action(

@@ -1,10 +1,7 @@
 import type { Project } from "./types";
 
+import { hubApiUrl } from "./hub-api-config";
 import { hubApiKeyHeaders } from "./hub-api-key";
-
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
-  "http://localhost:8000";
 
 async function apiFetch<T>(path: string, options?: RequestInit & { timeoutMs?: number }): Promise<T> {
   const timeoutMs = options?.timeoutMs ?? 30_000;
@@ -14,7 +11,7 @@ async function apiFetch<T>(path: string, options?: RequestInit & { timeoutMs?: n
   void _timeout;
 
   try {
-    const res = await fetch(`${API_URL}${path}`, {
+    const res = await fetch(hubApiUrl(path), {
       ...fetchOptions,
       signal: controller.signal,
       headers: hubApiKeyHeaders({

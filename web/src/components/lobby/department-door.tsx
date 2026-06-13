@@ -26,10 +26,14 @@ export function DepartmentDoor({
   stats,
 }: DepartmentDoorProps) {
   return (
-    <Link href={href} className="group block">
+    <Link
+      href={href}
+      className="group relative z-0 block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-copper/50"
+    >
       <div
         className={cn(
           "alnua-card cursor-pointer pl-0",
+          "transition-transform group-hover:-translate-y-0.5 group-active:translate-y-0",
           "hover:bg-obsidian-3"
         )}
       >

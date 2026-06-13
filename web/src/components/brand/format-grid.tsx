@@ -3,11 +3,11 @@
 import { Download } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { BrandAssetImage } from "@/components/brand/brand-asset-image";
 import {
   FORMAT_CATEGORIES,
   FORMAT_DIMENSIONS,
   FORMAT_LABELS,
-  brandAssetUrl,
   downloadAsset,
 } from "@/lib/brand-api";
 
@@ -70,9 +70,8 @@ export function FormatGrid({ assets }: FormatGridProps) {
                         backgroundColor: "#1a1a1a",
                       }}
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={brandAssetUrl(filePath)}
+                      <BrandAssetImage
+                        filePath={filePath}
                         alt={displayLabel(formatName)}
                         className="max-h-full max-w-full object-contain"
                       />

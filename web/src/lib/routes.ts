@@ -3,6 +3,7 @@ export const DEPARTMENT_ROUTES = [
   "/",
   "/openroom",
   "/ceo",
+  "/secretary",
   "/hub",
   "/app",
   "/gaming",
@@ -13,6 +14,7 @@ export const DEPARTMENT_ROUTES = [
   "/brand",
   "/analytics",
   "/connections",
+  "/settings",
 ] as const;
 
 export function isDepartmentRoute(pathname: string | null): boolean {
@@ -25,6 +27,7 @@ export function isPublicPortalRoute(pathname: string | null): boolean {
   return (
     /^\/beta\/[^/]+$/.test(pathname) ||
     /^\/waitlist\/[^/]+$/.test(pathname) ||
+    /^\/p\/[^/]+$/.test(pathname) ||
     pathname === "/partnerships"
   );
 }

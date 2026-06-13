@@ -7,14 +7,26 @@ import { cn } from "@/lib/utils";
 
 interface HubHeaderProps {
   apiOnline: boolean | null;
+  apiAuthenticated?: boolean | null;
   onRefresh?: () => void;
   refreshing?: boolean;
 }
 
-export function HubHeader({ apiOnline, onRefresh, refreshing }: HubHeaderProps) {
+export function HubHeader({
+  apiOnline,
+  apiAuthenticated = null,
+  onRefresh,
+  refreshing,
+}: HubHeaderProps) {
   const now = new Date();
   const statusLabel =
-    apiOnline === null ? "…" : apiOnline ? "online" : "offline";
+    apiOnline === null
+      ? "…"
+      : !apiOnline
+        ? "offline"
+        : apiAuthenticated === false
+          ? "clé API invalide"
+          : "connectée";
   const isChecking = apiOnline === null;
 
   return (
@@ -37,9 +49,11 @@ export function HubHeader({ apiOnline, onRefresh, refreshing }: HubHeaderProps) 
             "flex items-center gap-2 rounded-full px-3 py-1.5 text-xs ring-1",
             isChecking
               ? "bg-white/[0.04] text-titanium/80 ring-white/[0.08]"
-              : apiOnline
-                ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20"
-                : "bg-red-500/10 text-red-400 ring-red-500/20"
+              : !apiOnline
+                ? "bg-red-500/10 text-red-400 ring-red-500/20"
+                : apiAuthenticated === false
+                  ? "bg-amber-500/10 text-amber-400 ring-amber-500/20"
+                  : "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20"
           )}
         >
           <span
@@ -47,9 +61,11 @@ export function HubHeader({ apiOnline, onRefresh, refreshing }: HubHeaderProps) 
               "status-dot",
               isChecking
                 ? "animate-pulse bg-titanium/50"
-                : apiOnline
-                  ? "status-dot-active"
-                  : "bg-red-500"
+                : !apiOnline
+                  ? "bg-red-500"
+                  : apiAuthenticated === false
+                    ? "bg-amber-500"
+                    : "status-dot-active"
             )}
           />
           API {statusLabel}

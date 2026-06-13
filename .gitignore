@@ -18,6 +18,10 @@ web/.env.local
 .composio/
 composio_cache/
 data/chroma/
+data/agent_scores.json
+data/rnd_dossiers/
+data/rnd_ideas.json
+data/rnd_concepts/
 
 # Model weights
 models/

@@ -353,6 +353,28 @@ def build_dashboard(db: SupabaseClient, month: str | None = None) -> dict[str, A
     }
 
 
+def estimate_project(
+    *,
+    title: str,
+    description: str = "",
+    domain: str | None = None,
+    effort: str | None = None,
+    constraint: str | None = None,
+    db: SupabaseClient | None = None,
+) -> dict[str, Any]:
+    """R&D dossier business case estimate (delegates to rnd_finance_estimate)."""
+    from services.rnd_finance_estimate import estimate_rnd_project
+
+    return estimate_rnd_project(
+        title=title,
+        description=description,
+        domain=domain,
+        effort=effort,
+        db=db or get_supabase(),
+        constraint=constraint,
+    )
+
+
 def attach_project_names(
     db: SupabaseClient,
     transactions: list[dict[str, Any]],

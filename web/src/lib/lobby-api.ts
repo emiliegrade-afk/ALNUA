@@ -1,19 +1,17 @@
 import { fetchTodayBriefing } from "@/lib/briefing-api";
 import { fetchComposioApps } from "@/lib/composio-api";
-import { checkApiHealth, fetchProjects, fetchTickets } from "@/lib/api";
+import { fetchProjects, fetchTickets } from "@/lib/api";
 import { fetchBrandKits } from "@/lib/brand-api";
 import { fetchPosts } from "@/lib/content";
 import { getSupabase } from "@/lib/supabase";
+import { checkApiHealth } from "@/lib/hub-health";
 
+import { hubApiUrl } from "./hub-api-config";
 import { hubApiKeyHeaders } from "./hub-api-key";
-
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
-  "http://localhost:8000";
 
 async function apiGet<T>(path: string): Promise<T | null> {
   try {
-    const res = await fetch(`${API_URL}${path}`, {
+    const res = await fetch(hubApiUrl(path), {
       cache: "no-store",
       headers: hubApiKeyHeaders(),
     });
@@ -26,6 +24,7 @@ async function apiGet<T>(path: string): Promise<T | null> {
 
 export interface LobbyStats {
   apiOnline: boolean;
+  apiAuthenticated: boolean;
   ceoNotifications: number;
   hubPrCount: number;
   appOpenTickets: number;
@@ -46,7 +45,7 @@ let lobbyStatsInflight: Promise<LobbyStats> | null = null;
 
 async function fetchLobbyStatsUncached(): Promise<LobbyStats> {
   const [
-    apiOnline,
+    apiHealth,
     briefing,
     projects,
     prs,
@@ -88,7 +87,8 @@ async function fetchLobbyStatsUncached(): Promise<LobbyStats> {
     : 0;
 
   return {
-    apiOnline,
+    apiOnline: apiHealth.online,
+    apiAuthenticated: apiHealth.authenticated,
     ceoNotifications,
     hubPrCount: prs?.length ?? 0,
     appOpenTickets,
@@ -190,7 +190,7 @@ export async function runPipelineIssue(
   repoSlug?: string,
 ): Promise<PipelineRunResponse> {
   const query = repoSlug ? `?repo=${encodeURIComponent(repoSlug)}` : "";
-  const res = await fetch(`${API_URL}/pipeline/run/${issueNumber}${query}`, {
+  const res = await fetch(hubApiUrl(`/pipeline/run/${issueNumber}${query}`), {
     method: "POST",
     headers: hubApiKeyHeaders(),
   });
@@ -226,7 +226,7 @@ export async function fetchBomEve(): Promise<
     name: string;
     category: string;
     quantity: number;
-    unit_cost: number;
+    unit_cost: number | null;
     status: string;
   }>
 > {
@@ -239,7 +239,20 @@ export async function fetchBomEve(): Promise<
     .order("created_at", { ascending: false });
 
   if (error) return [];
-  return data ?? [];
+
+  return (data ?? []).map((row) => ({
+    id: String(row.id),
+    name: String(row.component ?? row.name ?? "—"),
+    category: String(row.category ?? "autre"),
+    quantity: Number(row.quantity ?? 1),
+    unit_cost:
+      row.unit_price != null
+        ? Number(row.unit_price)
+        : row.unit_cost != null
+          ? Number(row.unit_cost)
+          : null,
+    status: String(row.status ?? "a_commander"),
+  }));
 }
 
 export async function checkNwiroHost(): Promise<boolean> {

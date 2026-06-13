@@ -70,6 +70,11 @@ def get_repo_targets() -> tuple[GitHubRepoTarget, ...]:
     return tuple(targets)
 
 
+def get_all_targets() -> tuple[GitHubRepoTarget, ...]:
+    """Alias explicite — retourne tous les repos configurés."""
+    return get_repo_targets()
+
+
 def pipeline_enabled() -> bool:
     return bool(os.getenv("GITHUB_TOKEN", "").strip()) and bool(get_repo_targets())
 

@@ -2,10 +2,9 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Play, Loader2 } from "lucide-react";
-import { AgentCard } from "@/components/shared/agent-card";
 import { BackToLobby } from "@/components/shared/back-to-lobby";
+import { BureauAgentsSection } from "@/components/shared/bureau-agents-section";
 import { DepartmentHeader } from "@/components/shared/department-header";
-import { AgentFocusPanel } from "@/components/openroom/agent-focus-panel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -17,50 +16,9 @@ import {
   type GithubPr,
   type PipelineIssue,
 } from "@/lib/lobby-api";
-import { fetchAgentsStatus, type AgentStatus } from "@/lib/openroom-api";
 
 const PIPELINE_TASK_KEY = "alnua-pipeline-task-id";
 const TERMINAL_STATUSES = new Set(["completed", "failed"]);
-const POLL_MS = 3000;
-
-const HUB_AGENTS = [
-  {
-    id: "coo",
-    icon: "🎯",
-    name: "COO Agent",
-    role: "Chief Operating Officer",
-    branch: "hub" as const,
-    description: "Orchestration globale, délégation et priorisation.",
-    skills: ["Délégation", "Briefing", "Pipeline"],
-  },
-  {
-    id: "pm",
-    icon: "📋",
-    name: "PM Agent",
-    role: "Project Manager",
-    branch: "hub" as const,
-    description: "Triage tickets, roadmap et suivi des livrables.",
-    skills: ["Triage", "Roadmap", "Priorisation"],
-  },
-  {
-    id: "qa",
-    icon: "🔍",
-    name: "QA Agent",
-    role: "Quality Assurance",
-    branch: "hub" as const,
-    description: "Analyse feedbacks, bugs et qualité produit.",
-    skills: ["Feedback", "Bugs", "Tests"],
-  },
-  {
-    id: "spec",
-    icon: "📝",
-    name: "Spec Agent",
-    role: "Spécifications",
-    branch: "hub" as const,
-    description: "Rédaction specs techniques et prompts Cursor.",
-    skills: ["Specs", "Cursor", "Architecture"],
-  },
-];
 
 export default function HubPage() {
   const [issues, setIssues] = useState<PipelineIssue[]>([]);
@@ -74,8 +32,6 @@ export default function HubPage() {
   const [pipelineStatus, setPipelineStatus] = useState<string | null>(null);
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
   const [runningIssue, setRunningIssue] = useState<string | null>(null);
-  const [focusedAgentId, setFocusedAgentId] = useState<string | null>(null);
-  const [agentStatuses, setAgentStatuses] = useState<Record<string, AgentStatus>>({});
 
   const load = useCallback(async () => {
     const [issueData, prData, costData] = await Promise.all([
@@ -91,23 +47,6 @@ export default function HubPage() {
   useEffect(() => {
     load();
   }, [load]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function poll() {
-      const data = await fetchAgentsStatus();
-      if (cancelled) return;
-      setAgentStatuses(data.agents);
-    }
-
-    void poll();
-    const interval = setInterval(() => void poll(), POLL_MS);
-    return () => {
-      cancelled = true;
-      clearInterval(interval);
-    };
-  }, []);
 
   useEffect(() => {
     const saved = sessionStorage.getItem(PIPELINE_TASK_KEY);
@@ -175,20 +114,13 @@ export default function HubPage() {
       <DepartmentHeader
         dept="hub"
         title="Direction"
-        subtitle="Agents centraux · Pipeline codage · QA"
+        subtitle="Aria · Sam · Léon · Alex · Pipeline"
       />
 
-      <section className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {HUB_AGENTS.map((agent) => (
-          <AgentCard
-            key={agent.id}
-            {...agent}
-            status={agentStatuses[agent.id]?.status ?? "idle"}
-            currentTask={agentStatuses[agent.id]?.currentTask}
-            onClick={() => setFocusedAgentId(agent.id)}
-          />
-        ))}
-      </section>
+      <BureauAgentsSection
+        bureau="hub"
+        className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+      />
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card className="border-copper/20 bg-obsidian-2/90">
@@ -313,19 +245,6 @@ export default function HubPage() {
           </CardContent>
         </Card>
       </div>
-
-      {focusedAgentId ? (
-        <AgentFocusPanel
-          agent={{
-            id: focusedAgentId,
-            name: HUB_AGENTS.find((a) => a.id === focusedAgentId)!.name,
-            emoji: HUB_AGENTS.find((a) => a.id === focusedAgentId)!.icon,
-            role: HUB_AGENTS.find((a) => a.id === focusedAgentId)!.role,
-          }}
-          status={agentStatuses[focusedAgentId] ?? { status: "idle" }}
-          onClose={() => setFocusedAgentId(null)}
-        />
-      ) : null}
     </>
   );
 }

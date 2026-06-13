@@ -1,9 +1,11 @@
 "use client";
 
 import { Download } from "lucide-react";
+import { BrandAssetImage } from "@/components/brand/brand-asset-image";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { brandAssetUrl } from "@/lib/brand-api";
+import { downloadAsset } from "@/lib/brand-api";
+import { toast } from "sonner";
 
 interface AssetGridProps {
   assets: Record<string, string>;
@@ -18,23 +20,6 @@ const ASSET_LABELS: Record<string, string> = {
 
 function displayLabel(assetName: string): string {
   return ASSET_LABELS[assetName] ?? assetName.replace(/_/g, " ");
-}
-
-async function downloadAsset(assetName: string, filePath: string) {
-  const response = await fetch(brandAssetUrl(filePath));
-  if (!response.ok) {
-    throw new Error(`Téléchargement impossible (${response.status})`);
-  }
-
-  const blob = await response.blob();
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = `${assetName}.png`;
-  document.body.appendChild(anchor);
-  anchor.click();
-  anchor.remove();
-  URL.revokeObjectURL(url);
 }
 
 export function AssetGrid({ assets }: AssetGridProps) {
@@ -65,9 +50,8 @@ export function AssetGrid({ assets }: AssetGridProps) {
               backgroundColor: "#1a1a1a",
             }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={brandAssetUrl(filePath)}
+            <BrandAssetImage
+              filePath={filePath}
               alt={displayLabel(assetName)}
               className="max-h-full max-w-full object-contain"
             />
@@ -86,7 +70,9 @@ export function AssetGrid({ assets }: AssetGridProps) {
               size="sm"
               className="h-8 text-titanium hover:text-ivory"
               onClick={() => {
-                void downloadAsset(assetName, filePath);
+                void downloadAsset(assetName, filePath).catch(() => {
+                  toast.error("Téléchargement impossible");
+                });
               }}
             >
               <Download className="mr-1.5 h-3.5 w-3.5" />
