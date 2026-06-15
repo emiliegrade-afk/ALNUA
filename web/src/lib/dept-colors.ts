@@ -30,6 +30,8 @@ export const DEPT_COLORS = {
   brand: COPPER,
   analytics: COPPER,
   it: COPPER_DIM,
+  academy: COPPER_LIGHT,
+  lounge: COPPER_LIGHT,
 } as const;
 
 export type DeptKey = keyof typeof DEPT_COLORS;
@@ -50,4 +52,6 @@ export const DEPT_TIERS: Record<DeptKey, DeptTier> = {
   brand: "support",
   analytics: "support",
   it: "support",
+  academy: "active",
+  lounge: "active",
 };

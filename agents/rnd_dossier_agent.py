@@ -112,7 +112,10 @@ class RndDossierAgent:
 
         if self._should_use_llm():
             sections_md = self._draft_sections_llm(dossier, idea_row)
+            existing_by_key = {s.section_key: s.content_md for s in dossier.sections}
             for key, content in sections_md.items():
+                if not self._is_section_placeholder(existing_by_key.get(key, "")):
+                    continue
                 if content and not self._contains_fluff(content):
                     self.repo.update_section_content(
                         dossier_id, key, content, status="under_review"
@@ -126,12 +129,17 @@ class RndDossierAgent:
             add_commentary=self._should_use_llm(),
         )
         self.repo.set_finance_json(dossier_id, finance_result["finance_json"])
-        self.repo.update_section_content(
-            dossier_id,
-            "business_case",
-            finance_result["business_case_md"],
-            status="under_review",
+        bc_existing = next(
+            (s.content_md for s in dossier.sections if s.section_key == "business_case"),
+            "",
         )
+        if self._is_section_placeholder(bc_existing):
+            self.repo.update_section_content(
+                dossier_id,
+                "business_case",
+                finance_result["business_case_md"],
+                status="under_review",
+            )
         self.repo.log_event(
             dossier_id,
             "finance_estimated",
@@ -292,6 +300,19 @@ class RndDossierAgent:
     def _contains_fluff(text: str) -> bool:
         return bool(FLUFF_PATTERNS.search(text))
 
+    @staticmethod
+    def _is_section_placeholder(content_md: str) -> bool:
+        """True when section has no user/agent content worth preserving."""
+        t = (content_md or "").strip()
+        if not t or len(t) < 25:
+            return True
+        placeholders = (
+            "_À compléter",
+            "_Business case à générer",
+            "_Risques à identifier",
+        )
+        return any(t.startswith(p) for p in placeholders)
+
     def _draft_sections_llm(
         self,
         dossier: RndDossierOut,
@@ -372,6 +393,107 @@ class RndDossierAgent:
     ) -> dict[str, Any]:
         """Create dossier from idea (alias promote — POST /rnd/dossiers)."""
         return self.promote_idea(idea_id, actor=actor, enrich=enrich)
+
+    def submit_user_dossier(
+        self,
+        payload: dict[str, Any],
+        *,
+        actor: str = "emilie",
+    ) -> dict[str, Any]:
+        """Create idea + dossier from Emilie's structured proposal."""
+        from agents.rnd_center import submit_user_proposal
+        from services.rnd_schemas import RndUserSubmitBody
+
+        body = RndUserSubmitBody.model_validate(payload)
+        idea = submit_user_proposal(
+            body.title,
+            tagline=body.tagline,
+            domain=body.domain,
+            why_now=body.why_now,
+            sections=body.sections,
+            source=body.source,
+        )
+
+        section_seed = dict(body.sections)
+        if body.why_now and body.why_now.strip():
+            market = section_seed.get("market", "")
+            why_block = f"**Pourquoi maintenant**\n\n{body.why_now.strip()}"
+            section_seed["market"] = f"{market}\n\n{why_block}".strip() if market else why_block
+
+        vision = get_vision()
+        competitive = self.repo.load_competitive_context()
+        dossier, idea_out = self.repo.promote_idea_to_dossier(
+            idea["id"],
+            vision_snapshot=vision,
+            competitive_context=competitive,
+            actor=actor,
+            seed_content_override=section_seed,
+            tagline=body.tagline,
+        )
+
+        self.repo.log_event(
+            str(dossier.id),
+            "user_proposal_submitted",
+            actor,
+            {"title": body.title, "domain": body.domain, "sections_filled": list(section_seed.keys())},
+        )
+
+        enriching = False
+        if body.enrich:
+            try:
+                dossier = self.enrich_dossier(str(dossier.id), actor=actor)
+            except Exception as exc:
+                logger.exception("rnd_dossier: enrich after user submit failed: %s", exc)
+                enriching = True
+            refreshed = self.repo.get_idea_by_id(idea["id"])
+            if refreshed:
+                idea_out = refreshed
+
+        message = (
+            f"Dossier « {dossier.title} » soumis au pôle R&D — "
+            f"{len(section_seed)} section(s) rédigées par toi."
+        )
+        if body.enrich and not enriching:
+            message += " Enrichissement agents terminé."
+        elif body.enrich:
+            message += " Enrichissement agents en cours (30–60 s)."
+
+        return {
+            "dossier": dossier.model_dump(),
+            "idea": idea_out.model_dump(),
+            "message": message,
+            "enriching": enriching,
+        }
+
+    def update_section(
+        self,
+        dossier_id: str,
+        section_key: str,
+        content_md: str,
+        *,
+        actor: str = "emilie",
+    ) -> RndDossierOut:
+        dossier = self.repo.get_dossier(dossier_id)
+        if not dossier:
+            raise ValueError("Dossier introuvable")
+        if not any(s.section_key == section_key for s in dossier.sections):
+            raise ValueError(f"Section introuvable : {section_key}")
+        self.repo.update_section_content(
+            dossier_id,
+            section_key,
+            content_md.strip(),
+            status="draft",
+        )
+        self.repo.log_event(
+            dossier_id,
+            "section_edited",
+            actor,
+            {"section_key": section_key},
+        )
+        updated = self.repo.get_dossier(dossier_id)
+        if not updated:
+            raise RuntimeError("Mise à jour section échouée")
+        return updated
 
 
 def promote_idea_to_dossier(

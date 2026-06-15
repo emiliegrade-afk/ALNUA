@@ -1,5 +1,8 @@
 version: "3.9"
 
+# Production VPS — API + Telegram bot + nginx + certbot
+# Local dev: docker-compose.dev.yml  |  Guide: deploy/DEPLOY.md
+
 services:
 
   # ─── API FastAPI ────────────────────────────────────────────────────────────
@@ -12,6 +15,7 @@ services:
     volumes:
       - ./worktrees:/app/worktrees      # Persist worktrees entre redémarrages
       - ./logs:/app/logs                 # Logs persistants
+      - ./data:/app/data                 # cost_monitor, events, scores JSON
       - /home/alnua/.gitconfig:/home/alnua/.gitconfig:ro  # Git config du VPS
       - /home/alnua/.ssh:/home/alnua/.ssh:ro              # Clé SSH GitHub
     ports:

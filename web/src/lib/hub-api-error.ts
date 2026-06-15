@@ -20,7 +20,7 @@ export function parseHubApiError(text: string, status: number): string {
   }
 
   if (status === 404 && trimmed.toLowerCase().includes("not found")) {
-    return "Route API introuvable — redémarre le backend (uvicorn --reload sur le port 8000).";
+    return "Route API introuvable — redémarre le backend (uvicorn --reload port 8000) pour charger les dernières routes.";
   }
   if (status === 502) {
     return "Backend Hub inaccessible — lance uvicorn sur le port 8000.";

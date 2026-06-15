@@ -1,5 +1,6 @@
 import { hubApiUrl } from "./hub-api-config";
 import { hubFetch } from "./hub-fetch";
+import { fetchRndIdea } from "./rnd";
 
 export type DossierStatus =
   | "draft"
@@ -183,8 +184,45 @@ export async function fetchRndDossiers(params?: {
   return hubFetch<RndDossierListItem[]>(`/rnd/dossiers${q ? `?${q}` : ""}`);
 }
 
-export async function fetchRndDossier(dossierId: string): Promise<RndDossierDetail> {
-  return hubFetch<RndDossierDetail>(`/rnd/dossiers/${dossierId}`);
+export async function fetchRndDossier(dossierIdOrSlug: string): Promise<RndDossierDetail> {
+  const ref = dossierIdOrSlug.trim();
+  const errors: string[] = [];
+
+  async function tryFetch(path: string): Promise<RndDossierDetail | null> {
+    try {
+      return await hubFetch<RndDossierDetail>(path, { timeoutMs: 90_000 });
+    } catch (e) {
+      errors.push(e instanceof Error ? e.message : String(e));
+      return null;
+    }
+  }
+
+  const byId = await tryFetch(`/rnd/dossiers/${encodeURIComponent(ref)}`);
+  if (byId) return byId;
+
+  const bySlug = await tryFetch(`/rnd/dossiers/slug/${encodeURIComponent(ref)}`);
+  if (bySlug) return bySlug;
+
+  // Legacy idea id (idea_xxx) → resolve via rnd_ideas.dossier_id
+  if (ref.startsWith("idea_")) {
+    try {
+      const idea = await fetchRndIdea(ref);
+      if (idea.dossier_id) {
+        const linked = await tryFetch(
+          `/rnd/dossiers/${encodeURIComponent(idea.dossier_id)}`
+        );
+        if (linked) return linked;
+      }
+    } catch (e) {
+      errors.push(e instanceof Error ? e.message : String(e));
+    }
+  }
+
+  throw new Error(
+    errors.find((m) => m.includes("introuvable")) ??
+      errors[0] ??
+      "Dossier introuvable"
+  );
 }
 
 export async function fetchRndDossierBySlug(slug: string): Promise<RndDossierDetail> {
@@ -275,6 +313,20 @@ export async function patchRndDossier(
   });
 }
 
+export async function updateDossierSection(
+  dossierId: string,
+  sectionKey: string,
+  contentMd: string
+): Promise<RndDossierDetail> {
+  return hubFetch<RndDossierDetail>(
+    `/rnd/dossiers/${dossierId}/sections/${encodeURIComponent(sectionKey)}`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({ content_md: contentMd }),
+    }
+  );
+}
+
 export interface CommitteeMember {
   id: string;
   name: string;
@@ -310,11 +362,12 @@ export interface CommitteeMessage {
 
 export async function startCommitteeSession(
   dossierId: string,
-  body?: { mode?: string; active_section?: string | null }
+  body?: { mode?: string; active_section?: string | null; force_new?: boolean }
 ): Promise<{
   session: CommitteeSession;
   messages: CommitteeMessage[];
   resumed: boolean;
+  read_only?: boolean;
 }> {
   return hubFetch(`/rnd/dossiers/${dossierId}/committee/start`, {
     method: "POST",
@@ -364,6 +417,7 @@ export async function closeCommitteeSession(
   sections_updated: string[];
   dossier_status: string;
   ceo_package?: { message: string } | null;
+  ceo_package_error?: string | null;
 }> {
   return hubFetch(`/rnd/dossiers/${dossierId}/committee/${sessionId}/close`, {
     method: "POST",
@@ -388,6 +442,127 @@ export interface CeoPackageResponse {
   can_generate: boolean;
   can_decide: boolean;
   can_dispatch: boolean;
+}
+
+export interface CeoPendingDossier {
+  id: string;
+  slug: string;
+  title: string;
+  domain: string;
+  branch?: string | null;
+  status: DossierStatus;
+  ceo_status: string;
+  recommendation?: string | null;
+  updated_at?: string;
+  can_decide: boolean;
+  has_committee_report?: boolean;
+  needs_action?: "generate_package";
+}
+
+export interface CeoQueueResponse {
+  to_validate: CeoPendingDossier[];
+  to_prepare: CeoPendingDossier[];
+}
+
+function listItemToCeoPending(
+  d: RndDossierListItem,
+  needsAction?: "generate_package"
+): CeoPendingDossier {
+  return {
+    id: d.id,
+    slug: d.slug,
+    title: d.title,
+    domain: d.domain,
+    status: d.status,
+    ceo_status: d.ceo_status,
+    can_decide: d.status === "ready_for_ceo",
+    needs_action: needsAction,
+  };
+}
+
+function buildCeoQueueFromDossierList(
+  items: RndDossierListItem[],
+  limit: number
+): CeoQueueResponse {
+  const to_validate: CeoPendingDossier[] = [];
+  const to_prepare: CeoPendingDossier[] = [];
+
+  for (const d of items) {
+    if (d.ceo_status !== "pending") continue;
+    if (d.status === "ceo_approved" || d.status === "ceo_rejected") continue;
+
+    if (d.status === "ready_for_ceo") {
+      to_validate.push(listItemToCeoPending(d));
+    } else if (
+      d.status === "partial_validated" ||
+      d.status === "draft" ||
+      d.status === "committee_active"
+    ) {
+      to_prepare.push(listItemToCeoPending(d, "generate_package"));
+    }
+
+    if (to_validate.length >= limit && to_prepare.length >= limit) break;
+  }
+
+  return {
+    to_validate: to_validate.slice(0, limit),
+    to_prepare: to_prepare.slice(0, limit),
+  };
+}
+
+function isCeoQueueRouteMissing(err: unknown): boolean {
+  if (!(err instanceof Error)) return false;
+  const m = err.message.toLowerCase();
+  return m.includes("not found") || m.includes("introuvable") || m.includes("route api introuvable");
+}
+
+export async function loadCeoQueueFromDossiers(
+  limit = 20
+): Promise<CeoQueueResponse> {
+  const items = await fetchRndDossiers();
+  return buildCeoQueueFromDossierList(items, limit);
+}
+
+export async function fetchCeoQueue(limit = 20): Promise<CeoQueueResponse> {
+  try {
+    const queue = await hubFetch<CeoQueueResponse>(
+      `/rnd/ceo/queue?limit=${limit}`
+    );
+    if (queue?.to_validate || queue?.to_prepare) {
+      return queue;
+    }
+  } catch (err) {
+    if (!isCeoQueueRouteMissing(err)) {
+      throw err;
+    }
+  }
+  try {
+    const viaDossiers = await hubFetch<CeoQueueResponse | RndDossierListItem[]>(
+      `/rnd/dossiers?ceo_queue=true&limit=${limit}`
+    );
+    if (
+      viaDossiers &&
+      !Array.isArray(viaDossiers) &&
+      (viaDossiers.to_validate || viaDossiers.to_prepare)
+    ) {
+      return viaDossiers;
+    }
+  } catch {
+    // fall through to client-side build
+  }
+  return loadCeoQueueFromDossiers(limit);
+}
+
+export async function fetchCeoPendingDossiers(
+  limit = 20
+): Promise<CeoPendingDossier[]> {
+  const queue = await fetchCeoQueue(limit);
+  return queue.to_validate;
+}
+
+export function ceoDossierHref(dossier: { slug?: string; id: string }, view = "ceo"): string {
+  const ref = dossier.slug || dossier.id;
+  return `/rd?dossier=${encodeURIComponent(ref)}&view=${view}`;
 }
 
 export async function fetchCeoPackage(dossierId: string): Promise<CeoPackageResponse> {
@@ -422,6 +597,78 @@ export async function dispatchToCoo(
     method: "POST",
     timeoutMs: 60_000,
   });
+}
+
+export async function executeDispatchAgents(
+  dossierId: string
+): Promise<{ message: string; execution_run_id?: string | null }> {
+  return hubFetch(`/rnd/dossiers/${dossierId}/ceo/execute`, {
+    method: "POST",
+    timeoutMs: 30_000,
+  });
+}
+
+export interface EngineeringSpecResult {
+  engineering_spec_md: string;
+  stack: string;
+  task_breakdown: Array<Record<string, unknown>>;
+  qa_verdict?: string | null;
+}
+
+export interface PrdDecomposeResult {
+  message: string;
+  created_count: number;
+  skipped_count: number;
+  repo_slug: string;
+  github_repo: string;
+  build_manifest_path?: string;
+  dry_run?: boolean;
+}
+
+export async function generateEngineeringSpec(
+  dossierId: string,
+  options?: { force?: boolean; debateRounds?: number }
+): Promise<{ message: string; task_count: number; engineering_spec?: EngineeringSpecResult }> {
+  return hubFetch(`/rnd/dossiers/${dossierId}/engineering-spec/generate`, {
+    method: "POST",
+    body: JSON.stringify({
+      force: options?.force ?? false,
+      debate_rounds: options?.debateRounds ?? 1,
+    }),
+    timeoutMs: 180_000,
+  });
+}
+
+export async function decomposePrdToIssues(
+  dossierId: string,
+  options?: {
+    repoSlug?: string;
+    dryRun?: boolean;
+    markReadyCount?: number;
+    forceSpec?: boolean;
+  }
+): Promise<PrdDecomposeResult> {
+  return hubFetch(`/rnd/dossiers/${dossierId}/engineering-spec/decompose`, {
+    method: "POST",
+    body: JSON.stringify({
+      repo_slug: options?.repoSlug,
+      dry_run: options?.dryRun ?? false,
+      mark_ready_count: options?.markReadyCount ?? 3,
+      force_spec: options?.forceSpec ?? false,
+    }),
+    timeoutMs: 120_000,
+  });
+}
+
+export async function fetchBuildManifest(
+  dossierId: string
+): Promise<{
+  slug: string;
+  has_engineering_spec: boolean;
+  task_count: number;
+  build_manifest: Record<string, unknown>;
+}> {
+  return hubFetch(`/rnd/dossiers/${dossierId}/build-manifest`);
 }
 
 export interface RndDossierAsset {

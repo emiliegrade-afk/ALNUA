@@ -39,9 +39,9 @@ async def websocket_pipeline(websocket: WebSocket):
         ws_manager.disconnect(websocket)
 
 
-@router.get("/brief/today")
+@router.get("/brief/today", deprecated=True)
 async def get_brief_today():
-    """Brief matinal formaté pour le dashboard."""
+    """Brief matinal formaté pour le dashboard. Prefer GET /briefing/today."""
     try:
         briefing = await asyncio.to_thread(get_coo_agent().get_daily_briefing)
     except Exception as exc:

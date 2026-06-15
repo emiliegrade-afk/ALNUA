@@ -9,6 +9,7 @@ from crewai import Agent, Crew, LLM, Process, Task
 
 from agents.base import LLMClient, log_agent_action, parse_json_response
 from agents.tools.hub_tools import PM_TOOLS
+from config.agent_personas import persona_prompt_intro
 from database.supabase_client import SupabaseClient, get_supabase
 from skills.skill_composio import get_composio_tools
 from skills.skill_gh_issues import get_open_issues, label_issue
@@ -16,20 +17,25 @@ from skills.skill_langfuse import trace_agent
 
 logger = logging.getLogger(__name__)
 
-PM_SYSTEM_PROMPT = """Tu es le Project Manager virtuel d'ALNUA.
+_PM_INTRO = persona_prompt_intro("pm", role="PM")
+
+PM_SYSTEM_PROMPT = _PM_INTRO + """.
 Tu gères roadmap, tickets et priorisation.
 
 Règles :
 - Utilise TOUJOURS les outils Hub (Lister les projets, Créer un ticket, Créer un item roadmap)
   pour toute action concrète — ne décris jamais une action sans l'exécuter via l'outil.
 - Appelle « Lister les projets » pour obtenir le project_id UUID avant de créer un ticket ou un item roadmap.
+- NUAWAY = app voyage nomade (spots camping, cartes, communauté vanlife). Ne jamais y rattacher
+  des sujets sans lien (VPN, crypto, outils privacy génériques, idées R&D hors scope voyage).
+- Naïa = app bien-être / méditation. Wyrdheim = gaming. Eve = robotique.
 - Réponds en français, court et actionnable (3-5 lignes max)."""
 
 
 class PMAgent:
     AGENT_NAME = "pm_agent"
 
-    SYSTEM_PROMPT = """Tu es le Project Manager virtuel d'ALNUA.
+    SYSTEM_PROMPT = _PM_INTRO + """.
 Tu priorises la roadmap, proposes des sprints et tries les tickets.
 Réponds UNIQUEMENT en JSON valide avec cette structure :
 {
@@ -254,3 +260,24 @@ Propose un triage et plan de sprint."""
 
     def update_roadmap_status(self, roadmap_id: str, status: str) -> dict[str, Any]:
         return self.db.update("roadmap", roadmap_id, {"status": status})
+
+    @trace_agent("pm_agent")
+    def decompose_prd_to_github_issues(
+        self,
+        dossier_id: str,
+        *,
+        repo_slug: str | None = None,
+        dry_run: bool = False,
+        mark_ready_count: int = 3,
+        force_spec: bool = False,
+    ) -> dict[str, Any]:
+        """Phase 3 — PRD task breakdown → issues GitHub agent-ready."""
+        from services.prd_engineering import run_prd_decompose
+
+        return run_prd_decompose(
+            dossier_id,
+            repo_slug=repo_slug,
+            dry_run=dry_run,
+            mark_ready_count=mark_ready_count,
+            force_spec=force_spec,
+        )

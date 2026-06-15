@@ -37,15 +37,20 @@ from typing import Any, Callable
 
 logger = logging.getLogger(__name__)
 
+from config.agent_personas import persona_first_name
+
 # ---------------------------------------------------------------------------
 # Types d'événements ALNUA
 # ---------------------------------------------------------------------------
 
+_SPEC = persona_first_name("spec")
+_QA = persona_first_name("qa")
+
 EVENT_TYPES = {
     # Pipeline spec
-    "spec_created":      "Marcus a créé une spec",
-    "spec_validated":    "Sven a validé la spec → PM peut planifier",
-    "spec_rejected":     "Sven a rejeté la spec → Marcus doit réviser",
+    "spec_created":      f"{_SPEC} a créé une spec",
+    "spec_validated":    f"{_QA} a validé la spec → PM peut planifier",
+    "spec_rejected":     f"{_QA} a rejeté la spec → {_SPEC} doit réviser",
 
     # Pipeline développement
     "feature_shipped":   "Feature livrée → Marketing + Content notifiés",

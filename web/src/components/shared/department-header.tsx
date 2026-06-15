@@ -1,7 +1,10 @@
 "use client";
 
-import Link from "next/link";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { DEPT_COLORS, type DeptKey } from "@/lib/dept-colors";
+import { prefetchLobby } from "@/lib/hq-prefetch";
+import { useHubNavigate } from "@/components/layout/hub-navigation";
 
 interface DepartmentHeaderProps {
   dept: DeptKey;
@@ -16,14 +19,24 @@ export function DepartmentHeader({
   subtitle,
   breadcrumb,
 }: DepartmentHeaderProps) {
+  const router = useRouter();
+  const { navigate } = useHubNavigate();
   const colors = DEPT_COLORS[dept];
+
+  useEffect(() => {
+    prefetchLobby(router);
+  }, [router]);
 
   return (
     <header className="mb-8 pt-12">
       <nav className="mb-3 flex items-center gap-2 font-body text-sm text-titanium/60">
-        <Link href="/" className="transition hover:text-titanium">
+        <button
+          type="button"
+          onClick={() => navigate("/")}
+          className="transition hover:text-titanium"
+        >
           Lobby
-        </Link>
+        </button>
         <span>/</span>
         <span style={{ color: colors.main }}>{breadcrumb ?? title}</span>
       </nav>

@@ -24,9 +24,11 @@ import time
 from datetime import datetime, timezone
 from typing import Any
 
+from config.agent_personas import persona_prompt_intro
+
 logger = logging.getLogger(__name__)
 
-_COO_BRIEF_SYSTEM = """Tu es Aria Stern, COO d'ALNUA. Tu reçois chaque matin un agrégat
+_COO_BRIEF_SYSTEM = f"""{persona_prompt_intro("coo", role="COO")}. Tu reçois chaque matin un agrégat
 de données opérationnelles et tu génères un brief exécutif concis et actionnable.
 Ton brief oriente la journée d'Emilie — priorités, alertes, opportunités.
 Réponds en JSON valide uniquement."""
@@ -89,6 +91,23 @@ def _collect_events() -> dict[str, Any]:
             "recent_count": len(recent),
             "recent": recent[:5],
             "top_event_types": list(stats.get("by_type", {}).keys())[:5],
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def _collect_nuaway_gate() -> dict[str, Any]:
+    try:
+        from services.nuaway_readiness import evaluate_beta_readiness
+
+        beta = evaluate_beta_readiness(refresh_gate=False)
+        gate = beta.get("agents_gate") or {}
+        return {
+            "gate_open": gate.get("gate_open"),
+            "readiness_pct": gate.get("readiness_pct"),
+            "beta_ready": beta.get("beta_ready"),
+            "beta_readiness_pct": beta.get("readiness_pct"),
+            "missing_critical": beta.get("missing_critical") or [],
         }
     except Exception as e:
         return {"error": str(e)}
@@ -176,6 +195,7 @@ def run_daily_briefing(
             "costs": executor.submit(_collect_costs) if include_costs else None,
             "events": executor.submit(_collect_events) if include_events else None,
             "memory_health": executor.submit(_collect_memory_health),
+            "nuaway_gate": executor.submit(_collect_nuaway_gate),
         }
         if include_trends:
             futures["trends"] = executor.submit(_collect_trends)
@@ -209,6 +229,7 @@ def run_daily_briefing(
             "events": data.get("events", {}),
             "trends_collected": bool(data.get("trends")),
             "memory_health": data.get("memory_health", {}),
+            "nuaway_gate": data.get("nuaway_gate", {}),
         },
     }
 

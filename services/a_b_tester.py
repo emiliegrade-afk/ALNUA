@@ -57,7 +57,7 @@ class ABTestConfig:
     variant_b: dict[str, Any]
     judge_criteria: str = "Lequel est le plus utile, précis et bien structuré ?"
     runs_per_variant: int = 1   # moyenne sur N runs
-    judge_agent_id: str = "qa"  # Sven juge par défaut
+    judge_agent_id: str = "qa"  # Alex (QA) juge par défaut
 
 
 @dataclass

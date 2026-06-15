@@ -51,10 +51,10 @@ api/
 ### Direction (`direction`)
 | Agent ID | Fichier | Persona | Tier |
 |----------|---------|---------|------|
-| `coo` | `agents/coo_agent.py` | Aria Stern — COO | premium |
-| `spec` | `agents/spec_agent.py` | Marcus Webb — Spec | fast |
-| `qa` | `agents/qa_agent.py` | Sven Lindqvist — QA | standard |
-| `pm` | `agents/pm_agent.py` | Léa Moreau — PM | standard |
+| `coo` | `agents/coo_agent.py` | Aria Voss — COO | premium |
+| `spec` | `agents/spec_agent.py` | Léon Marchand — Spec | fast |
+| `qa` | `agents/qa_agent.py` | Alex Okafor — QA | standard |
+| `pm` | `agents/pm_agent.py` | Sam Rivera — PM | standard |
 
 ### App Office (`app_office`) — Équipe `app`
 | Agent ID | Fichier | Persona | Tier |
@@ -172,7 +172,7 @@ Relation à la qualité :
 Auto-sélectionne le tier (fast/standard/premium) selon la complexité de la tâche mesurée dynamiquement. Expose `route_to_model(agent_id, prompt, method_name)` → retourne le model slug optimal.
 
 ### `services/adversarial_spec.py` — Spec adversariale (adversarial-spec-inspired)
-Fait débattre deux LLMs sur une spec jusqu'à consensus. `debate_spec(spec_text, rounds)` → retourne la spec convergée + les divergences identifiées. Utilisable par Marcus (Spec) + Sven (QA).
+Fait débattre deux LLMs sur une spec jusqu'à consensus. `debate_spec(spec_text, rounds)` → retourne la spec convergée + les divergences identifiées. Utilisable par Léon (Spec) + Alex (QA).
 
 ### `services/parallel_runner.py` — Parallel runner v2 (oh-my-claude + agent-orchestrator)
 `run_agents_parallel(tasks)` — asyncio.gather avec semaphore. Nouveautés : retry exponentiel (`max_retries`, cap 3), `depends_on` par tâche, progress tracking (`_TASK_PROGRESS`). `run_with_dependencies(tasks)` pour pipelines mixtes séquentiel/parallèle. `get_progress(run_id)` pour suivi temps réel.
@@ -199,7 +199,7 @@ Ajout v2 : `compress_agent_memory(agent_id, raw_memories)` — distille N leçon
 Track tokens × prix par modèle/agent. `record_call(agent_id, model, prompt_tokens, completion_tokens)` → retourne le coût USD. `get_cost_report(agent_id, days)` — rapport agrégé par agent/modèle/jour. `check_budget_alert(daily_budget_usd)` → severity ok|warning|critical. `get_monthly_summary(month)` pour Jules (accounting). Persistance JSON dans `data/cost_log.json` (30 jours).
 
 ### `services/a_b_tester.py` — A/B test de prompts/agents (prompt-optimizer-inspired)
-`run_ab_test(ABTestConfig)` — exécute variants A et B en parallèle, LLM juge le gagnant. `quick_compare(agent_id, method, kwargs_a, kwargs_b)` pour tester des paramètres. Sven (QA) est le juge par défaut. `ABTestConfig(name, variant_a, variant_b, judge_criteria, runs_per_variant)`. Le gagnant reçoit des points compétition.
+`run_ab_test(ABTestConfig)` — exécute variants A et B en parallèle, LLM juge le gagnant. `quick_compare(agent_id, method, kwargs_a, kwargs_b)` pour tester des paramètres. Alex (QA) est le juge par défaut. `ABTestConfig(name, variant_a, variant_b, judge_criteria, runs_per_variant)`. Le gagnant reçoit des points compétition.
 
 ### `services/event_bus.py` — Bus d'événements inter-agents (agent-memory-stream-inspired)
 Pub/sub léger. `emit(event_type, payload, source_agent)` — déclenche les handlers. `@subscribe("spec_validated")` — décorateur d'abonnement. `register_handler(event_type, fn)` — programmatique. `get_recent_events()` + `get_event_stats()`. Handlers pré-câblés : feature_shipped → points compétition, budget_alert → log warning, task_failed → log error. Store 500 events en mémoire + persistance `data/event_log.json`.
@@ -241,7 +241,7 @@ Milestones : 100=coffee_break | 200=tier_upgrade_7d | 500=tier_upgrade_30d
 
 ## MCP Server — ALNUA comme outil Cursor natif
 
-`fastapi-mcp` est monté dans `api/app.py`. Le fichier `.cursor/mcp.json` (project-level) configure 6 MCPs :
+`fastapi-mcp` est monté via `mount_http()` dans `api/app.py`. Le fichier `.cursor/mcp.json` (project-level) configure 6 MCPs :
 
 ```json
 {
@@ -258,7 +258,7 @@ Milestones : 100=coffee_break | 200=tier_upgrade_7d | 500=tier_upgrade_30d
 }
 ```
 
-Variables d'env requises : `GITHUB_TOKEN`, `HUB_API_KEY`, `GODOT_PROJECT_PATH` (optionnel).
+Variables d'env requises : `GITHUB_TOKEN`, `HUB_API_KEY` (optionnel en `ENVIRONMENT=development`), `GODOT_PROJECT_PATH` (optionnel).
 Guide de setup complet : `MCP_CURSOR_SETUP.md`
 
 Cursor peut alors appeler directement `POST /agents/analyst-data/sql` etc. comme outils MCP sans passer par HTTP manuellement.
@@ -279,7 +279,7 @@ Cursor peut alors appeler directement `POST /agents/analyst-data/sql` etc. comme
 | `/alnua-n8n` | Intégration n8n — workflows, webhooks, triggers |
 | `/alnua-godot` | Godot 4 + Nova (dev_gaming) + godot-mcp |
 | `/alnua-prose` | Règles anti-slop pour Sofia (Content) + Camille (Marketing) |
-| `/alnua-prd` | Template PRD complet — brief → Marcus → Léa → COO |
+| `/alnua-prd` | Template PRD complet — brief → Léon → Sam → COO |
 | `/alnua-frontend` | Checklist P0/P1/P2 pour Théo (dev_app) — Next.js |
 | `/alnua-search` | Protocole recherche pour Idris + Alex — citations + confiance |
 | `/alnua-trae` | 11 patterns de code ALNUA — FastAPI, agents, Supabase, Next.js |

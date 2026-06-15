@@ -21,6 +21,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Smoke import (composio + app factory)
+        env:
+          SUPABASE_URL: https://example.supabase.co
+          SUPABASE_KEY: test-supabase-key
+          OPENROUTER_API_KEY: test-openrouter-key
+          ENVIRONMENT: development
+        run: |
+          python -c "from composio import Composio; print('composio import ok')"
+          python -c "from api.app import app; print('api.app import ok', app.title)"
+
       - name: Run pytest
         env:
           SUPABASE_URL: https://example.supabase.co
@@ -52,3 +62,46 @@ jobs:
 
       - name: Lint
         run: npm run lint
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install frontend + Playwright
+        working-directory: web
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Run Playwright E2E
+        working-directory: web
+        env:
+          CI: "true"
+          SUPABASE_URL: https://example.supabase.co
+          SUPABASE_KEY: test-supabase-key
+          OPENROUTER_API_KEY: test-openrouter-key
+          HUB_API_KEY: test-hub-key-for-ci
+          ENVIRONMENT: development
+          ADMIN_COSTS_PAGE_ENABLED: "1"
+          ADMIN_EVENTS_PAGE_ENABLED: "1"
+          ADMIN_AB_TEST_PAGE_ENABLED: "1"
+          BRIEFING_COO_SECTION_ENABLED: "1"
+          GDD_MANAGER_ENABLED: "1"
+        run: npm run test:e2e

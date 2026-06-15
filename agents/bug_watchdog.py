@@ -31,6 +31,12 @@ logger = logging.getLogger(__name__)
 
 POLL_INTERVAL = int(os.getenv("WATCHDOG_POLL_INTERVAL", "60"))  # secondes
 MAX_ATTEMPTS = int(os.getenv("WATCHDOG_MAX_ATTEMPTS", "3"))
+WATCHDOG_ENABLED = os.getenv("WATCHDOG_ENABLED", "true").lower() not in (
+    "0",
+    "false",
+    "no",
+)
+_stop_event: asyncio.Event | None = None
 
 # Repos locaux par agent (pour OpenHands)
 AGENT_REPO_PATHS: dict[str, str] = {
@@ -166,6 +172,9 @@ async def watchdog_loop() -> None:
     processing: set[str] = set()
 
     while True:
+        if _stop_event is not None and _stop_event.is_set():
+            logger.info("BugWatchdog: arrêt demandé")
+            break
         try:
             db = get_supabase()
             result = (
@@ -182,11 +191,28 @@ async def watchdog_loop() -> None:
                 error_id = error["id"]
                 if error_id in processing:
                     continue
+                if int(error.get("attempts") or 0) >= MAX_ATTEMPTS:
+                    try:
+                        from skills.skill_error_journal import mark_escalated
+
+                        mark_escalated(error_id)
+                        logger.info(
+                            "BugWatchdog: erreur %s déjà à %d tentatives — escalade",
+                            error_id[:8],
+                            MAX_ATTEMPTS,
+                        )
+                    except Exception as exc:
+                        logger.warning("BugWatchdog: escalade skip failed: %s", exc)
+                    continue
                 processing.add(error_id)
-                # Lance le fix en tâche async sans bloquer le watchdog
-                asyncio.create_task(_process_error(error))
-                # Retire de processing quand la tâche est terminée
-                asyncio.create_task(_cleanup_processing(processing, error_id))
+
+                async def _run_and_release(err: dict[str, Any], eid: str) -> None:
+                    try:
+                        await _process_error(err)
+                    finally:
+                        processing.discard(eid)
+
+                asyncio.create_task(_run_and_release(error, error_id))
 
         except Exception as exc:
             logger.error("BugWatchdog: erreur lors du poll: %s", exc)
@@ -194,17 +220,22 @@ async def watchdog_loop() -> None:
         await asyncio.sleep(POLL_INTERVAL)
 
 
-async def _cleanup_processing(processing: set[str], error_id: str, delay: float = 300) -> None:
-    """Retire l'erreur du set processing après un délai (timeout fix = 5 min)."""
-    await asyncio.sleep(delay)
-    processing.discard(error_id)
-
-
 def start_watchdog() -> None:
     """Démarre le watchdog comme tâche asyncio. Appelé depuis main.py lifespan."""
+    if not WATCHDOG_ENABLED:
+        logger.info("BugWatchdog: désactivé (WATCHDOG_ENABLED=false)")
+        return
+    global _stop_event
+    _stop_event = asyncio.Event()
     try:
         asyncio.create_task(watchdog_loop())
         logger.info("BugWatchdog: tâche démarrée")
     except RuntimeError:
         # Pas de boucle event loop active (ex: test unitaire)
         logger.warning("BugWatchdog: pas de boucle event loop — watchdog non démarré")
+
+
+def stop_watchdog() -> None:
+    """Signal graceful stop (lifespan shutdown)."""
+    if _stop_event is not None:
+        _stop_event.set()

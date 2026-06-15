@@ -35,16 +35,6 @@ def list_releases(project_id: str | None = None) -> list[dict[str, Any]]:
     return _enrich_releases_with_project_names(db, response.data or [])
 
 
-@router.get("/releases/{release_id}")
-def get_release(release_id: str) -> dict[str, Any]:
-    db = get_supabase()
-    rows = db.select("releases", filters={"id": release_id})
-    if not rows:
-        raise HTTPException(status_code=404, detail="Release introuvable")
-    enriched = _enrich_releases_with_project_names(db, rows)
-    return enriched[0]
-
-
 @router.post("/releases/generate")
 def generate_release(body: ReleaseGenerateRequest) -> dict[str, Any]:
     result = generate_release_notes(
@@ -55,6 +45,25 @@ def generate_release(body: ReleaseGenerateRequest) -> dict[str, Any]:
     )
     db = get_supabase()
     enriched = _enrich_releases_with_project_names(db, [result["release"]])
+    return enriched[0]
+
+
+@router.get("/releases/generate")
+def get_release_generate_not_allowed() -> None:
+    """Static path before {release_id} — avoid treating 'generate' as a UUID."""
+    raise HTTPException(
+        status_code=405,
+        detail="Utiliser POST /releases/generate",
+    )
+
+
+@router.get("/releases/{release_id}")
+def get_release(release_id: str) -> dict[str, Any]:
+    db = get_supabase()
+    rows = db.select("releases", filters={"id": release_id})
+    if not rows:
+        raise HTTPException(status_code=404, detail="Release introuvable")
+    enriched = _enrich_releases_with_project_names(db, rows)
     return enriched[0]
 
 
@@ -109,9 +118,24 @@ def coo_instruction(body: COOInstruction) -> COOInstructionResponse:
 @router.post("/webhook/telegram")
 async def telegram_webhook(request: Request) -> dict[str, bool]:
     """Receives Telegram updates (webhook mode — production)."""
+    import secrets
+
     settings = get_settings()
     if not settings.telegram_bot_token:
         raise HTTPException(status_code=503, detail="Telegram bot not configured")
+
+    webhook_secret = settings.telegram_webhook_secret.strip()
+    env = settings.environment.strip().lower()
+    is_prod = env in {"production", "prod", "staging"}
+    if webhook_secret:
+        provided = request.headers.get("X-Telegram-Bot-Api-Secret-Token", "")
+        if not provided or not secrets.compare_digest(provided, webhook_secret):
+            raise HTTPException(status_code=401, detail="Telegram webhook secret invalide")
+    elif is_prod:
+        raise HTTPException(
+            status_code=503,
+            detail="TELEGRAM_WEBHOOK_SECRET requis en production",
+        )
 
     update_data = await request.json()
     await get_telegram_bot().process_update(update_data)

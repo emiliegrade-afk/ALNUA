@@ -1,10 +1,11 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import { AgentFeed } from "@/components/dashboard/agent-feed";
-import { COOChat } from "@/components/dashboard/coo-chat";
+import { CeoPendingDossiersCard } from "@/components/ceo/ceo-pending-dossiers-card";
 import { BackToLobby } from "@/components/shared/back-to-lobby";
 import { DepartmentHeader } from "@/components/shared/department-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +13,20 @@ import { fetchTodayBriefing } from "@/lib/briefing-api";
 import { fetchGithubPrs } from "@/lib/lobby-api";
 import { fetchAgentLogs } from "@/lib/supabase";
 import type { AgentLog } from "@/lib/types";
+
+const COOChat = dynamic(
+  () =>
+    import("@/components/dashboard/coo-chat").then((m) => ({
+      default: m.COOChat,
+    })),
+  {
+    loading: () => (
+      <div className="flex h-96 items-center justify-center rounded-xl border border-copper/20 bg-obsidian-2/60">
+        <p className="text-sm text-titanium/60">Chargement COO…</p>
+      </div>
+    ),
+  }
+);
 
 export default function CeoPage() {
   const [brief, setBrief] = useState<{
@@ -22,19 +37,20 @@ export default function CeoPage() {
     Array<{ number: number; title: string; html_url?: string; url?: string }>
   >([]);
   const [logs, setLogs] = useState<AgentLog[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    setLoading(true);
     setError(null);
     try {
       const [briefing, prData, logData] = await Promise.all([
-        fetchTodayBriefing(),
+        fetchTodayBriefing({ ensure: false, timeoutMs: 8_000 }).catch(
+          () => null
+        ),
         fetchGithubPrs(),
         fetchAgentLogs(5),
       ]);
-      const urgent = briefing.raw_data.tickets
+      const urgent = (briefing?.raw_data?.tickets ?? [])
         .filter(
           (ticket) =>
             ticket.priority === "critical" || ticket.priority === "high"
@@ -43,10 +59,14 @@ export default function CeoPage() {
           (ticket) =>
             `[${ticket.project_name ?? "?"}] ${ticket.title}`
         );
-      setBrief({
-        summary: briefing.summary,
-        urgent: urgent.length > 0 ? urgent : undefined,
-      });
+      setBrief(
+        briefing
+          ? {
+              summary: briefing.summary,
+              urgent: urgent.length > 0 ? urgent : undefined,
+            }
+          : null
+      );
       setPrs(prData.slice(0, 5));
       setLogs(logData);
     } catch (err) {
@@ -78,6 +98,8 @@ export default function CeoPage() {
         </div>
 
         <div className="space-y-6 lg:col-span-2">
+          <CeoPendingDossiersCard />
+
           <Card className="border-copper/20 bg-obsidian-2/90">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between gap-2">
@@ -123,10 +145,10 @@ export default function CeoPage() {
           <Card className="border-copper/20 bg-obsidian-2/90">
             <CardHeader className="pb-2">
               <CardTitle className="font-title text-base text-ivory">
-                Décisions en attente
+                PRs GitHub
               </CardTitle>
               <p className="font-body text-xs text-titanium/60">
-                PRs GitHub ouvertes
+                Pull requests ouvertes (hors dossiers R&D)
               </p>
             </CardHeader>
             <CardContent>

@@ -56,6 +56,7 @@ class RndCommitteeAgent:
         *,
         mode: str = "free",
         active_section: str | None = None,
+        force_new: bool = False,
         actor: str = "emilie",
     ) -> dict[str, Any]:
         dossier = self.repo.get_dossier(dossier_id)
@@ -63,13 +64,26 @@ class RndCommitteeAgent:
             raise ValueError("Dossier introuvable")
 
         existing = self.committee.get_active_session(dossier_id)
-        if existing:
+        if existing and not force_new:
             messages = self.committee.list_messages(existing["session_id"])
             return {
                 "session": existing,
                 "messages": messages,
                 "resumed": True,
+                "read_only": False,
             }
+
+        if not force_new:
+            closed = self.committee.get_latest_closed_session(dossier_id)
+            if closed:
+                messages = self.committee.list_messages(closed["session_id"])
+                if messages:
+                    return {
+                        "session": closed,
+                        "messages": messages,
+                        "resumed": True,
+                        "read_only": True,
+                    }
 
         team = build_committee_team(dossier.domain)
         session = self.committee.create_session(
@@ -129,7 +143,12 @@ class RndCommitteeAgent:
             actor,
             {"session_id": session["session_id"], "team_size": len(team)},
         )
-        return {"session": session, "messages": messages, "resumed": False}
+        return {
+            "session": session,
+            "messages": messages,
+            "resumed": False,
+            "read_only": False,
+        }
 
     def post_message(
         self,
@@ -276,15 +295,20 @@ class RndCommitteeAgent:
                 )
 
         closed = self.committee.close_session(session_id)
-        validated_count = dossier.sections_validated_count
-        total = dossier.sections_total_count
-        new_status = (
-            "ready_for_ceo"
-            if validated_count >= total * 0.6
-            else "partial_validated"
-            if validated_count > 0
-            else "draft"
-        )
+        had_user_messages = any(m.get("role") == "user" for m in history)
+
+        refreshed = self.repo.get_dossier(dossier_id) or dossier
+        validated_count = refreshed.sections_validated_count
+        total = refreshed.sections_total_count
+        if validated_count >= total * 0.6:
+            new_status = "ready_for_ceo"
+        elif validated_count > 0:
+            new_status = "partial_validated"
+        elif committee_report_md or had_user_messages:
+            # Comité tenu — ne pas régresser en draft
+            new_status = "partial_validated"
+        else:
+            new_status = "draft"
         self.repo.update_dossier(dossier_id, {"status": new_status})
 
         self.repo.log_event(
@@ -300,10 +324,12 @@ class RndCommitteeAgent:
         )
 
         ceo_package_result: dict[str, Any] | None = None
+        ceo_package_error: str | None = None
         if generate_ceo_package and new_status in ("ready_for_ceo", "partial_validated"):
             try:
                 ceo_package_result = ceo_agent.generate_package(dossier_id, actor=actor)
             except Exception as exc:
+                ceo_package_error = str(exc)
                 logger.warning("auto ceo package on close failed: %s", exc)
 
         return {
@@ -313,6 +339,7 @@ class RndCommitteeAgent:
             "sections_updated": updated_sections,
             "dossier_status": new_status,
             "ceo_package": ceo_package_result,
+            "ceo_package_error": ceo_package_error,
         }
 
     def get_session_with_messages(

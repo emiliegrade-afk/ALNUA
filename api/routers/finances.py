@@ -75,3 +75,31 @@ def delete_finance_transaction(transaction_id: str) -> dict[str, bool]:
     return {"ok": True}
 
 
+@router.get("/finances/summary/{month}")
+def get_finance_summary(month: str) -> dict[str, Any]:
+    try:
+        return get_or_generate_summary(month)
+    except Exception as exc:
+        logger.exception("Finance summary failed for %s", month)
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.post("/finances/summary/generate")
+def regenerate_finance_summary(body: FinanceSummaryGenerate) -> dict[str, Any]:
+    try:
+        return generate_monthly_summary(body.month, force=True)
+    except Exception as exc:
+        logger.exception("Finance summary regeneration failed for %s", body.month)
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.get("/finances/dashboard")
+def finance_dashboard(
+    month: str | None = Query(default=None, pattern=r"^\d{4}-\d{2}$"),
+) -> dict[str, Any]:
+    db = get_supabase()
+    data = build_dashboard(db, month=month)
+    data["recurring_expenses"] = attach_project_names(
+        db, data["recurring_expenses"]
+    )
+    return data

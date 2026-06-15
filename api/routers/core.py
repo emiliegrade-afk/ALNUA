@@ -53,6 +53,30 @@ def create_project(body: ProjectCreate) -> dict[str, Any]:
         raise HTTPException(status_code=500, detail=msg) from exc
 
 
+@router.delete("/projects/{project_id}")
+def delete_project(project_id: str) -> dict[str, str]:
+    """Supprime un projet et ses données liées (cascade Supabase)."""
+    db = get_supabase()
+    rows = db.select("projects", filters={"id": project_id}, limit=1)
+    if not rows:
+        raise HTTPException(status_code=404, detail="Project not found")
+    try:
+        db.delete("projects", project_id)
+        return {"ok": "Projet supprimé"}
+    except Exception as exc:
+        msg = str(exc)
+        if "row-level security" in msg.lower() or "42501" in msg:
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    "Supabase RLS bloque la suppression. Utilise la clé service_role "
+                    "ou exécute database/fix_rls_dev.sql."
+                ),
+            ) from exc
+        logger.exception("delete_project failed")
+        raise HTTPException(status_code=500, detail=msg) from exc
+
+
 @router.post("/dev-log")
 def create_dev_log(body: DevLogCreate) -> dict[str, Any]:
     db = get_supabase()
@@ -683,7 +707,11 @@ def create_analytics_metric(body: AnalyticsCreate) -> dict[str, Any]:
     )
 
 
-@router.post("/transactions")
+@router.post(
+    "/transactions",
+    deprecated=True,
+    description="Legacy alias — use POST /finances/transactions.",
+)
 def create_transaction(body: TransactionCreate) -> dict[str, Any]:
     db = get_supabase()
     tx_type = "income" if body.type == "revenue" else body.type

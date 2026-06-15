@@ -520,6 +520,21 @@ def get_display_name(agent_id: str) -> str:
     return f"{p['first_name']} {p['last_name']}"
 
 
+def persona_first_name(agent_id: str) -> str:
+    """Prénom canonique (events, copy courte)."""
+    p = get_persona(agent_id)
+    return p["first_name"] if p else agent_id
+
+
+def persona_prompt_intro(agent_id: str, *, role: str | None = None) -> str:
+    """Ligne d'identité canonique pour les system prompts LLM."""
+    p = get_persona(agent_id)
+    if not p:
+        return f"Tu es l'agent {agent_id} d'ALNUA"
+    role_part = role or p["role_label"].split("—")[0].strip()
+    return f"Tu es {p['first_name']} {p['last_name']}, {role_part} d'ALNUA"
+
+
 def get_room(agent_id: str) -> str | None:
     """Retourne la room ID de l'agent."""
     p = get_persona(agent_id)

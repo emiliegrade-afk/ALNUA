@@ -17,6 +17,8 @@ interface AgentModelConfig {
   configured: string;  // "auto" or model name
   resolved: string;    // effective model
   label: string;
+  codes?: boolean;
+  coding_model?: string | null;
 }
 
 interface AvailableModel {
@@ -52,7 +54,7 @@ const AGENT_LABELS: Record<string, string> = {
   game_director: "Game Director — Naïa",
   rnd_agent:     "R&D — Recherche autonome",
   qa:            "QA — Tests & qualité",
-  dev_app:       "Dev App — NUAWAY",
+  dev_app:       "Dev App — Academy & apps (chat + code)",
   dev_gaming:    "Dev Gaming — Naïa",
   marketing:     "Marketing",
   hardware:      "Hardware",
@@ -259,8 +261,8 @@ export function ModelSettingsView() {
         <div>
           <h2 className="text-lg font-medium text-ivory/90">Modèles LLM par agent</h2>
           <p className="mt-0.5 text-xs text-titanium/60">
-            Mode <span className="text-copper">Auto</span> = modèle choisi selon le tier de l'agent.
-            Tu peux forcer un modèle spécifique par agent.
+            Mode <span className="text-copper">Auto</span> = modèle selon le tier.
+            Les agents <span className="text-copper">chat + code</span> utilisent le même modèle pour le pipeline Hub (comme Cursor).
           </p>
         </div>
         <div className="flex gap-2">
@@ -313,6 +315,11 @@ export function ModelSettingsView() {
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-ivory/85">
                       {AGENT_LABELS[agent.agent_id] ?? agent.agent_id}
+                      {agent.codes ? (
+                        <span className="ml-1.5 rounded bg-copper/15 px-1.5 py-0.5 text-[9px] font-medium text-copper">
+                          chat + code
+                        </span>
+                      ) : null}
                     </p>
                     {agent.configured !== "auto" && (
                       <p className="mt-0.5 text-[10px] text-titanium/40">

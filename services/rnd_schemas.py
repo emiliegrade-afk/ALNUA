@@ -212,6 +212,28 @@ class RndDossierCreateBody(BaseModel):
     domain: str | None = None
 
 
+class RndUserSubmitBody(BaseModel):
+    """Structured proposal from Emilie — creates idea + dossier in one step."""
+
+    title: str = Field(min_length=3, max_length=200)
+    tagline: str | None = Field(default=None, max_length=500)
+    domain: str = Field(default="autre", max_length=80)
+    why_now: str | None = Field(default=None, max_length=4000)
+    sections: dict[str, str] = Field(
+        default_factory=dict,
+        description="Optional section keys: problem, solution, market, mvp, feasibility, risks",
+    )
+    enrich: bool = Field(
+        default=False,
+        description="If true, agents enrich empty sections after creation (user text preserved)",
+    )
+    source: str = "Emilie"
+
+
+class RndSectionUpdateBody(BaseModel):
+    content_md: str = Field(min_length=1, max_length=50000)
+
+
 class RndDossierPatchBody(BaseModel):
     title: str | None = None
     tagline: str | None = None
@@ -243,6 +265,7 @@ class RndFinanceReviseBody(BaseModel):
 class RndCommitteeStartBody(BaseModel):
     mode: str = "free"
     active_section: str | None = None
+    force_new: bool = False
 
 
 class RndCommitteeMessageBody(BaseModel):

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import {
@@ -77,10 +77,13 @@ export function FinancesTransactionList({
 }: FinancesTransactionListProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const categoryOptions =
-    typeFilter === "all"
-      ? [...categoriesForType("expense"), ...categoriesForType("income")]
-      : categoriesForType(typeFilter);
+  const categoryOptions = useMemo(
+    () =>
+      typeFilter === "all"
+        ? [...categoriesForType("expense"), ...categoriesForType("income")]
+        : categoriesForType(typeFilter),
+    [typeFilter],
+  );
 
   useEffect(() => {
     if (categoryFilter !== "all" && !categoryOptions.includes(categoryFilter)) {

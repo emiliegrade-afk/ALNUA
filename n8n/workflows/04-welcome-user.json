@@ -18,14 +18,14 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://localhost:8000/orchestration/welcome-user",
+        "url": "={{ $vars.HUB_API_URL }}/orchestration/welcome-user",
         "authentication": "none",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "X-Hub-Key",
-              "value": "alnua_dev_7f3a9c2e1b4d8f6a0c5e9b2d7f1a4c8"
+              "value": "={{ $vars.HUB_API_KEY }}"
             },
             {
               "name": "Content-Type",

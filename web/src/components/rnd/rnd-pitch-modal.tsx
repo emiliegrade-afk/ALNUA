@@ -241,13 +241,38 @@ function buildPitchBlocks(idea: RndIdea, dossier: RndDossierDetail | null): Pitc
 // Modal
 // ---------------------------------------------------------------------------
 
+export type PitchViewMode =
+  | "pitch"
+  | "committee"
+  | "deck"
+  | "visuals"
+  | "social"
+  | "ceo"
+  | "product"
+  | "pipeline";
+
 export interface RndPitchModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   idea?: RndIdea | null;
   dossierId?: string | null;
+  initialViewMode?: string;
   onPromoted?: (dossierId: string) => void;
   onRefresh?: () => void;
+}
+
+function parseInitialViewMode(value?: string): PitchViewMode {
+  const allowed: PitchViewMode[] = [
+    "pitch",
+    "committee",
+    "deck",
+    "visuals",
+    "social",
+    "ceo",
+    "product",
+    "pipeline",
+  ];
+  return allowed.includes(value as PitchViewMode) ? (value as PitchViewMode) : "pitch";
 }
 
 export function RndPitchModal({
@@ -255,6 +280,7 @@ export function RndPitchModal({
   onOpenChange,
   idea: ideaProp,
   dossierId: dossierIdProp,
+  initialViewMode,
   onPromoted,
   onRefresh,
 }: RndPitchModalProps) {
@@ -263,16 +289,7 @@ export function RndPitchModal({
   const [loading, setLoading] = useState(false);
   const [promoting, setPromoting] = useState(false);
   const [activeBlock, setActiveBlock] = useState("pitch");
-  const [viewMode, setViewMode] = useState<
-    | "pitch"
-    | "committee"
-    | "deck"
-    | "visuals"
-    | "social"
-    | "ceo"
-    | "product"
-    | "pipeline"
-  >("pitch");
+  const [viewMode, setViewMode] = useState<PitchViewMode>("pitch");
 
   const resolvedDossierId = dossierIdProp ?? ideaProp?.dossier_id ?? null;
 
@@ -298,13 +315,14 @@ export function RndPitchModal({
       setViewMode("pitch");
       return;
     }
+    setViewMode(parseInitialViewMode(initialViewMode));
     if (resolvedDossierId) {
       void loadDossier(resolvedDossierId);
     } else {
       setDossier(null);
       setLoading(false);
     }
-  }, [open, resolvedDossierId, loadDossier]);
+  }, [open, resolvedDossierId, initialViewMode, loadDossier]);
 
   useEffect(() => {
     if (!open || ideaProp || !dossier?.idea_legacy_id) return;
@@ -324,18 +342,21 @@ export function RndPitchModal({
     };
   }, [open, dossier?.id, dossier?.finance_json, loadDossier]);
 
-  const idea: RndIdea | null =
-    ideaProp ??
-    ideaFromApi ??
-    (dossier
-      ? {
-          id: dossier.idea_legacy_id ?? dossier.idea_id,
-          title: dossier.title,
-          description: dossier.tagline ?? dossier.title,
-          domain: dossier.domain,
-          dossier_id: dossier.id,
-        }
-      : null);
+  const idea: RndIdea | null = useMemo(
+    () =>
+      ideaProp ??
+      ideaFromApi ??
+      (dossier
+        ? {
+            id: dossier.idea_legacy_id ?? dossier.idea_id,
+            title: dossier.title,
+            description: dossier.tagline ?? dossier.title,
+            domain: dossier.domain,
+            dossier_id: dossier.id,
+          }
+        : null),
+    [ideaProp, ideaFromApi, dossier],
+  );
 
   const blocks = useMemo(
     () => (idea ? buildPitchBlocks(idea, dossier) : []),
@@ -372,6 +393,18 @@ export function RndPitchModal({
     } finally {
       setPromoting(false);
     }
+  }
+
+  if (!open) return null;
+
+  if (!idea && loading) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="flex h-48 items-center justify-center border-copper/25 bg-obsidian-2">
+          <Loader2 className="h-8 w-8 animate-spin text-copper/50" />
+        </DialogContent>
+      </Dialog>
+    );
   }
 
   if (!idea) return null;

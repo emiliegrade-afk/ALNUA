@@ -48,6 +48,12 @@ export async function createProject(
   });
 }
 
+export async function deleteProject(projectId: string): Promise<void> {
+  await hubFetch<{ ok: string }>(`/projects/${encodeURIComponent(projectId)}`, {
+    method: "DELETE",
+  });
+}
+
 export async function fetchTickets(
   projectId?: string,
   status?: string

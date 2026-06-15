@@ -7,6 +7,7 @@
 | Fonctionnalité | Statut |
 |----------------|--------|
 | 5 workflows n8n (`01`–`05`) | ✅ Importables |
+| Academy sprint (`08`) | ✅ Importable |
 | Briefing matinal + COO | ✅ Hub 08:00 + n8n |
 | Notification Telegram + Discord | ✅ Tous les workflows |
 | Spec → QA → ticket Supabase | ✅ Automatique |
@@ -28,6 +29,7 @@ n8n/workflows/02-github-pr-review.json
 n8n/workflows/03-spec-qa-chain.json
 n8n/workflows/04-welcome-user.json
 n8n/workflows/05-content-sprint.json
+n8n/workflows/08-academy-sprint.json
 ```
 
 Tous appellent le Hub avec header `X-Hub-Key`.
@@ -36,7 +38,7 @@ Tous appellent le Hub avec header `X-Hub-Key`.
 
 `POST /orchestration/spec-qa-chain` :
 
-1. Marcus ↔ Sven (`adversarial_spec`)
+1. Léon ↔ Alex (`adversarial_spec`)
 2. Création ticket QA dans Supabase (par défaut `create_qa_ticket: true`)
 3. Notification Telegram/Discord
 

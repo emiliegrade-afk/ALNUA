@@ -100,7 +100,7 @@ export const BUREAU_AGENTS: BureauAgentDef[] = [
     name: "Théo Laurent",
     role: "Dev — Applications mobiles",
     branch: "app",
-    description: "Développement Naïa App et Eve Journey.",
+    description: "NUAWAY, Naïa App — mobile et intégrations.",
     skills: ["React Native", "API", "Pipeline"],
   },
   {

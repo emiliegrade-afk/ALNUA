@@ -67,6 +67,22 @@ def get_repo_targets() -> tuple[GitHubRepoTarget, ...]:
             )
         )
 
+    academy_repo = os.getenv("GITHUB_REPO_ACADEMY", "").strip()
+    if academy_repo:
+        targets.append(
+            GitHubRepoTarget(
+                slug="academy",
+                name="ALNUA Academy",
+                github_repo=academy_repo,
+                local_path=Path(
+                    os.getenv(
+                        "REPO_PATH_ACADEMY",
+                        str(_dev_parent() / "alnua-academy"),
+                    ).strip()
+                ).resolve(),
+            )
+        )
+
     return tuple(targets)
 
 

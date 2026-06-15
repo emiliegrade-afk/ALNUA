@@ -64,7 +64,7 @@ Bannir ces mots/formules de tout output :
 > Dans le paysage technologique actuel, il est crucial de comprendre comment ALNUA Hub révolutionne fondamentalement la façon dont les équipes naviguent dans la complexité de la gestion de projets avec ses solutions robustes et complètes.
 
 **✅ Version humaine :**
-> ALNUA Hub coordonne 20 agents IA en parallèle. Tu poses une question à Aria (COO), elle délègue à Axel (data), Marcus (spec) et Sofia (content) simultanément, et tu as le résultat en secondes.
+> ALNUA Hub coordonne 20 agents IA en parallèle. Tu poses une question à Aria (COO), elle délègue à Axel (data), Léon (spec) et Sofia (content) simultanément, et tu as le résultat en secondes.
 
 ---
 

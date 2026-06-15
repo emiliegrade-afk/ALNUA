@@ -222,7 +222,12 @@ class RndRepository:
         self._save_json_ideas(ideas)
         return count
 
-    def get_top_ideas(self, limit: int = 50, verdict: str | None = None) -> list[RndIdeaOut]:
+    def get_top_ideas(
+        self,
+        limit: int = 50,
+        verdict: str | None = None,
+        inbox_only: bool = False,
+    ) -> list[RndIdeaOut]:
         """Load ideas from Supabase (preferred) merged with JSON extras."""
         json_ideas = self._load_json_ideas()
         by_legacy: dict[str, RndIdeaOut] = {
@@ -246,10 +251,57 @@ class RndRepository:
                 logger.warning("rnd_repository: get_top_ideas db failed: %s", exc)
 
         result = list(by_legacy.values())
+        if inbox_only:
+            result = [i for i in result if self._is_inbox_idea(i)]
         if verdict:
             result = [i for i in result if (i.verdict or "").upper() == verdict.upper()]
         result.sort(key=lambda x: x.score or 0, reverse=True)
         return result[:limit]
+
+    @staticmethod
+    def _is_inbox_idea(idea: RndIdeaOut) -> bool:
+        """Propositions actives — exclut dossiers promus et idées archivées."""
+        if idea.dossier_id:
+            return False
+        if (idea.lifecycle_status or "raw") == "archived":
+            return False
+        return True
+
+    def archive_idea(self, idea_id: str) -> bool:
+        """Soft-delete a proposal (not allowed if already linked to a dossier)."""
+        db_row = self.get_idea_db_row(idea_id)
+        legacy_id: str | None = None
+
+        if db_row:
+            if db_row.get("dossier_id"):
+                raise ValueError("Impossible de supprimer une idée déjà promue en dossier.")
+            legacy_id = db_row.get("legacy_id")
+            self.db.update(
+                "rnd_ideas",
+                db_row["id"],
+                {"lifecycle_status": "archived"},
+            )
+        else:
+            json_ideas = self._load_json_ideas()
+            match = next(
+                (i for i in json_ideas if i.get("id") == idea_id or i.get("db_id") == idea_id),
+                None,
+            )
+            if not match:
+                return False
+            if match.get("dossier_id"):
+                raise ValueError("Impossible de supprimer une idée déjà promue en dossier.")
+            legacy_id = match.get("id")
+            match["lifecycle_status"] = "archived"
+
+        if legacy_id:
+            json_ideas = self._load_json_ideas()
+            for j in json_ideas:
+                if j.get("id") == legacy_id:
+                    j["lifecycle_status"] = "archived"
+            self._save_json_ideas(json_ideas)
+
+        return True
 
     def get_idea_by_id(self, idea_id: str) -> RndIdeaOut | None:
         """Find idea by legacy_id or UUID."""
@@ -469,13 +521,9 @@ class RndRepository:
         if not self._use_db:
             return None
         try:
-            if _is_uuid(dossier_id):
-                rows = self.db.select("rnd_dossiers", filters={"id": dossier_id}, limit=1)
-            else:
-                rows = self.db.select("rnd_dossiers", filters={"slug": dossier_id}, limit=1)
-            if not rows:
+            row = self._resolve_dossier_row(dossier_id)
+            if not row:
                 return None
-            row = rows[0]
             sections = self.db.select(
                 "rnd_dossier_sections",
                 filters={"dossier_id": row["id"]},
@@ -484,10 +532,58 @@ class RndRepository:
             )
             idea_rows = self.db.select("rnd_ideas", filters={"id": row["idea_id"]}, limit=1)
             legacy = idea_rows[0].get("legacy_id") if idea_rows else None
-            return self._dossier_out(row, sections, legacy)
+            dossier = self._dossier_out(row, sections, legacy)
+            return self._heal_dossier_status(dossier)
         except Exception as exc:
             logger.warning("rnd_repository: get_dossier failed: %s", exc)
             return None
+
+    def _resolve_dossier_row(self, ref: str) -> dict[str, Any] | None:
+        """Resolve dossier by UUID, slug (exact or slugified), or legacy idea id."""
+        key = (ref or "").strip()
+        if not key:
+            return None
+
+        if _is_uuid(key):
+            rows = self.db.select("rnd_dossiers", filters={"id": key}, limit=1)
+            if rows:
+                return rows[0]
+
+        for slug_candidate in (key, _slugify(key)[:60]):
+            if not slug_candidate:
+                continue
+            rows = self.db.select("rnd_dossiers", filters={"slug": slug_candidate}, limit=1)
+            if rows:
+                return rows[0]
+
+        idea_row = self.get_idea_db_row(key)
+        if idea_row and idea_row.get("dossier_id"):
+            rows = self.db.select(
+                "rnd_dossiers",
+                filters={"id": str(idea_row["dossier_id"])},
+                limit=1,
+            )
+            if rows:
+                return rows[0]
+
+        return None
+
+    def _heal_dossier_status(self, dossier: RndDossierOut) -> RndDossierOut:
+        """Upgrade legacy statuses when a committee CR exists and no session is active."""
+        if dossier.status not in ("draft", "committee_active"):
+            return dossier
+        if not dossier.committee_report_md or len(dossier.committee_report_md.strip()) < 40:
+            return dossier
+        try:
+            from services.rnd_committee import get_committee_repository
+
+            if get_committee_repository().get_active_session(dossier.id):
+                return dossier
+            healed = self.update_dossier(dossier.id, {"status": "partial_validated"})
+            return healed or dossier
+        except Exception as exc:
+            logger.warning("rnd_repository: heal dossier status failed: %s", exc)
+            return dossier
 
     def get_dossier_events(self, dossier_id: str, limit: int = 50) -> list[RndDossierEventOut]:
         if not self._use_db:
@@ -748,6 +844,8 @@ class RndRepository:
         vision_snapshot: str = "",
         competitive_context: str = "",
         actor: str = "emilie",
+        seed_content_override: dict[str, str] | None = None,
+        tagline: str | None = None,
     ) -> tuple[RndDossierOut, RndIdeaOut]:
         """
         Create dossier + section skeleton from an idea.
@@ -807,6 +905,10 @@ class RndRepository:
 
         section_keys = self.section_keys_for_domain(domain)
         seed_content = self._seed_section_content(db_row)
+        if seed_content_override:
+            for key, text in seed_content_override.items():
+                if text and str(text).strip():
+                    seed_content[key] = str(text).strip()
 
         section_rows: list[dict[str, Any]] = []
         for key in section_keys:
@@ -827,7 +929,11 @@ class RndRepository:
                 "idea_id": db_row["id"],
                 "slug": slug,
                 "title": title,
-                "tagline": (db_row.get("description") or "")[:200] or None,
+                "tagline": (
+                    (tagline or "").strip()[:200]
+                    or (db_row.get("description") or "")[:200]
+                    or None
+                ),
                 "domain": domain,
                 "branch": self.branch_for_domain(domain),
                 "status": "draft",

@@ -30,7 +30,7 @@ from bots.base import log_bot_action
 from config.settings import get_settings
 from database.supabase_client import get_supabase
 from skills.skill_gh_issues import get_open_prs, list_ready_issues
-from skills.skill_model_usage import format_costs_report
+from services.facades.costs_facade import get_telegram_costs_report
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +40,12 @@ _LOCK_FILE = Path(__file__).resolve().parent.parent / ".telegram_bot.lock"
 
 _START_MESSAGE = (
     "Salut Emilie ! Je suis le COO ALNUA sur Telegram.\n"
-    "Envoie-moi une instruction en texte libre — je la traite et te réponds ici."
+    "Envoie-moi une instruction en texte libre — je la traite et te réponds ici.\n\n"
+    "Raccourcis utiles :\n"
+    "/idee … — note une idée dans le Centre R&D\n"
+    "« demande au R&D d'investiguer … » — brief R&D async\n"
+    "« note cette idée … » — boîte à idées\n"
+    "/pipeline · /prs · /costs"
 )
 
 _MORNING_BRIEF_JOB = "morning_brief"
@@ -130,6 +135,42 @@ async def pipeline_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     )
 
 
+async def idee_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """
+    /idee App vanlife offline — enregistre une idée dans le Centre R&D.
+    Répondre à un message avec /idee reprend son texte.
+    """
+    if not update.message:
+        return
+
+    idea_text = " ".join(context.args or []).strip()
+    if not idea_text and update.message.reply_to_message and update.message.reply_to_message.text:
+        idea_text = update.message.reply_to_message.text.strip()
+
+    if not idea_text:
+        await update.message.reply_text(
+            "Usage : /idee App vanlife offline first\n"
+            "Ou réponds /idee à un message pour le capturer.",
+        )
+        return
+
+    try:
+        from agents.rnd_center import inject_idea
+
+        result = inject_idea(idea_text, source="Telegram")
+        title = result.get("title", idea_text[:80])
+        await update.message.reply_text(
+            f"💡 Idée enregistrée : {title[:120]}\n"
+            f"Centre R&D → Propositions (Hub /rd).",
+        )
+        log_bot_action(
+            get_supabase(), BOT_NAME, "idee_capture", idea_text[:200], title[:200]
+        )
+    except Exception as exc:
+        logger.exception("idee_command failed")
+        await update.message.reply_text(f"❌ Erreur : {exc}")
+
+
 async def prs_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """/prs — liste les PRs ouvertes (tous repos) avec boutons actions."""
     if not update.message:
@@ -197,7 +238,7 @@ async def costs_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             ),
         ]
     ]
-    report = format_costs_report("day")
+    report = get_telegram_costs_report("day")
     await update.message.reply_text(
         report,
         reply_markup=InlineKeyboardMarkup(keyboard),
@@ -339,7 +380,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
     elif action == "costs":
         period = data.get("period", "day")
-        report = format_costs_report(period)
+        report = get_telegram_costs_report(period)
         keyboard = [
             [
                 InlineKeyboardButton(
@@ -445,9 +486,9 @@ class TelegramBot:
             raise RuntimeError("TELEGRAM_BOT_TOKEN is not configured")
         return token
 
-    def _run_coo(self, instruction: str) -> str:
+    def _run_coo(self, instruction: str, chat_id: int | None = None) -> str:
         agent = COOAgent(self.db)
-        return agent.handle_instruction(instruction)
+        return agent.handle_instruction(instruction, telegram_chat_id=chat_id)
 
     def _run_morning_briefing(self) -> str:
         agent = COOAgent(self.db)
@@ -558,12 +599,13 @@ class TelegramBot:
         if not text:
             return
 
+        chat_id = update.effective_chat.id if update.effective_chat else None
         log_bot_action(self.db, BOT_NAME, "message_received", text[:200], "")
 
         await update.message.chat.send_action("typing")
 
         try:
-            response = await asyncio.to_thread(self._run_coo, text)
+            response = await asyncio.to_thread(self._run_coo, text, chat_id)
             log_bot_action(
                 self.db, BOT_NAME, "coo_response", text[:200], response[:200]
             )
@@ -591,6 +633,7 @@ class TelegramBot:
                 .build()
             )
             app.add_handler(CommandHandler("start", self._handle_start))
+            app.add_handler(CommandHandler("idee", idee_command))
             app.add_handler(CommandHandler("pipeline", pipeline_command))
             app.add_handler(CommandHandler("prs", prs_command))
             app.add_handler(CommandHandler("costs", costs_command))

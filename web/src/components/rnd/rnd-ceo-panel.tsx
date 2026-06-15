@@ -5,6 +5,8 @@ import Link from "next/link";
 import {
   CheckCircle2,
   Crown,
+  FolderOpen,
+  GitBranch,
   Loader2,
   Rocket,
   RotateCcw,
@@ -17,9 +19,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { MarkdownContent } from "@/components/shared/markdown-content";
 import {
   decideCeoPackage,
+  decomposePrdToIssues,
   dispatchToCoo,
+  executeDispatchAgents,
   fetchCeoPackage,
   generateCeoPackage,
+  generateEngineeringSpec,
   type CeoPackageResponse,
   type DossierStatus,
 } from "@/lib/rnd-dossier";
@@ -49,6 +54,9 @@ export function RndCeoPanel({
   const [generating, setGenerating] = useState(false);
   const [deciding, setDeciding] = useState<string | null>(null);
   const [dispatching, setDispatching] = useState(false);
+  const [executing, setExecuting] = useState(false);
+  const [generatingSpec, setGeneratingSpec] = useState(false);
+  const [decomposing, setDecomposing] = useState(false);
   const [ceoNote, setCeoNote] = useState("");
   const [showNote, setShowNote] = useState(false);
 
@@ -118,6 +126,52 @@ export function RndCeoPanel({
     }
   }
 
+  async function handleExecuteAgents() {
+    setExecuting(true);
+    try {
+      const r = await executeDispatchAgents(dossierId);
+      toast.success(r.message ?? "Agents lancés");
+      await load();
+      onUpdated?.();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Exécution impossible");
+    } finally {
+      setExecuting(false);
+    }
+  }
+
+  async function handleGenerateSpec(force = false) {
+    setGeneratingSpec(true);
+    try {
+      const r = await generateEngineeringSpec(dossierId, { force });
+      toast.success(r.message);
+      await load();
+      onUpdated?.();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Spec engineering impossible");
+    } finally {
+      setGeneratingSpec(false);
+    }
+  }
+
+  async function handleDecomposePrd(dryRun = false) {
+    setDecomposing(true);
+    try {
+      const r = await decomposePrdToIssues(dossierId, { dryRun });
+      toast.success(
+        dryRun
+          ? `Dry-run : ${r.created_count} issues simulées`
+          : r.message
+      );
+      await load();
+      onUpdated?.();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Décomposition PRD impossible");
+    } finally {
+      setDecomposing(false);
+    }
+  }
+
   const markdown = data?.markdown ?? "";
   const recommendation = data?.package?.recommendation as string | undefined;
   const matrix = (data?.package?.dispatch_matrix ?? data?.dispatch?.matrix ?? []) as Array<{
@@ -126,6 +180,18 @@ export function RndCeoPanel({
     deliverables: string[];
     priority: string;
   }>;
+  const executionStatus = (
+    data?.dispatch as { execution_status?: string } | undefined
+  )?.execution_status;
+  // Item 6 — workspace path (disponible après exécution agents)
+  const workspacePath = (
+    data?.dispatch as { workspace_path?: string } | undefined
+  )?.workspace_path;
+  const engineeringSpec = (
+    data?.package as { engineering_spec?: { task_breakdown?: unknown[] } } | undefined
+  )?.engineering_spec;
+  const taskCount = engineeringSpec?.task_breakdown?.length ?? 0;
+  const canPrdEngineering = Boolean(data?.package);
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 pb-4">
@@ -208,11 +274,141 @@ export function RndCeoPanel({
               </Button>
             ) : null}
             {data?.dispatch_status === "dispatched" ? (
-              <Button type="button" variant="outline" className="border-white/10" asChild>
-                <Link href="/roadmap">Voir roadmap</Link>
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="border-emerald-500/35 text-emerald-200"
+                  onClick={handleExecuteAgents}
+                  disabled={executing || executionStatus === "running"}
+                >
+                  {executing || executionStatus === "running" ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Rocket className="mr-2 h-4 w-4" />
+                  )}
+                  {executionStatus === "running" ? "Agents en cours…" : "Lancer les agents"}
+                </Button>
+                <Button type="button" variant="outline" className="border-white/10" asChild>
+                  <Link href="/openroom">OpenRoom</Link>
+                </Button>
+                <Button type="button" variant="outline" className="border-white/10" asChild>
+                  <Link href="/roadmap">Roadmap</Link>
+                </Button>
+              </div>
             ) : null}
           </div>
+
+          {canPrdEngineering ? (
+            <div className="rounded-xl border border-copper/20 bg-copper/[0.04] p-4">
+              <div className="mb-2 flex items-center gap-2">
+                <GitBranch className="h-4 w-4 text-copper/80" />
+                <span className="text-xs font-medium text-ivory/85">
+                  PRD Engineering (Phase 3)
+                </span>
+                {taskCount > 0 ? (
+                  <span className="rounded-full border border-white/10 px-2 py-0.5 text-[10px] text-titanium/60">
+                    {taskCount} tâches
+                  </span>
+                ) : null}
+              </div>
+              <p className="mb-3 text-xs leading-relaxed text-titanium/65">
+                Léon génère la spec technique §10 ; Sam publie les issues GitHub
+                agent-ready pour le coding pipeline.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="border-copper/30 text-copper"
+                  onClick={() => handleGenerateSpec(Boolean(engineeringSpec))}
+                  disabled={generatingSpec}
+                >
+                  {generatingSpec ? (
+                    <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                  ) : null}
+                  {engineeringSpec ? "Regénérer spec §10" : "Générer spec §10"}
+                </Button>
+                {data?.ceo_status === "approved" ? (
+                  <>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="border-white/10"
+                      onClick={() => handleDecomposePrd(true)}
+                      disabled={decomposing || taskCount === 0}
+                    >
+                      Dry-run issues
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="bg-copper/90 text-obsidian hover:bg-copper"
+                      onClick={() => handleDecomposePrd(false)}
+                      disabled={decomposing || taskCount === 0}
+                    >
+                      {decomposing ? (
+                        <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                      ) : (
+                        <GitBranch className="mr-2 h-3 w-3" />
+                      )}
+                      Publier issues GitHub
+                    </Button>
+                  </>
+                ) : (
+                  <span className="self-center text-[10px] text-titanium/50">
+                    Valide le dossier CEO pour publier les issues
+                  </span>
+                )}
+              </div>
+            </div>
+          ) : null}
+
+          {/* Item 6 — Workspace path + bouton Ouvrir dossier */}
+          {data?.dispatch_status === "dispatched" && workspacePath ? (
+            <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
+              <div className="mb-2 flex items-center gap-2">
+                <FolderOpen className="h-4 w-4 text-copper/70" />
+                <span className="text-xs font-medium text-ivory/80">Workspace disque</span>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <code className="flex-1 rounded bg-white/[0.04] px-3 py-1.5 font-mono text-[11px] text-titanium/70 break-all">
+                  {workspacePath}
+                </code>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="shrink-0 border-white/10 text-xs"
+                  onClick={() => {
+                    void navigator.clipboard.writeText(workspacePath);
+                    toast.success("Chemin copié");
+                  }}
+                >
+                  Copier chemin
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="shrink-0 border-copper/30 text-xs text-copper"
+                  onClick={() => {
+                    // Ouvre dans VS Code / Cursor (vscode://) ou fallback file://
+                    const uri = `vscode://file/${workspacePath.replace(/\\/g, "/")}`;
+                    window.open(uri, "_blank");
+                  }}
+                >
+                  <FolderOpen className="mr-1 h-3 w-3" />
+                  Ouvrir dossier
+                </Button>
+              </div>
+              <p className="mt-2 text-[10px] text-titanium/45">
+                Convention : ALNUA/&#123;pole&#125;/&#123;slug&#125;/&#123;livrable&#125;
+              </p>
+            </div>
+          ) : null}
 
           {!data?.can_generate && !data?.package ? (
             <p className="rounded-xl border border-amber-500/20 bg-amber-500/[0.06] p-4 text-xs text-titanium/70">

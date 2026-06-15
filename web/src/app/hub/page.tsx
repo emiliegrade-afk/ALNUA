@@ -1,10 +1,11 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
 import { Play, Loader2 } from "lucide-react";
-import { HubAutomationPanel } from "@/components/hub/hub-automation-panel";
 import { BackToLobby } from "@/components/shared/back-to-lobby";
 import { BureauAgentsSection } from "@/components/shared/bureau-agents-section";
+import { BureauOfficeHero } from "@/components/openroom/bureau-office-hero";
 import { DepartmentHeader } from "@/components/shared/department-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +18,42 @@ import {
   type GithubPr,
   type PipelineIssue,
 } from "@/lib/lobby-api";
+
+const HubAutomationPanel = dynamic(
+  () =>
+    import("@/components/hub/hub-automation-panel").then((m) => ({
+      default: m.HubAutomationPanel,
+    })),
+  {
+    loading: () => (
+      <p className="mb-6 text-sm text-titanium/60">Chargement automations…</p>
+    ),
+  }
+);
+
+const ProductionOpsCockpit = dynamic(
+  () =>
+    import("@/components/hub/production-ops-cockpit").then((m) => ({
+      default: m.ProductionOpsCockpit,
+    })),
+  {
+    loading: () => (
+      <p className="mb-6 text-sm text-titanium/60">Chargement ops production…</p>
+    ),
+  }
+);
+
+const CeoCockpitPanel = dynamic(
+  () =>
+    import("@/components/hub/ceo-cockpit").then((m) => ({
+      default: m.CeoCockpitPanel,
+    })),
+  {
+    loading: () => (
+      <p className="mb-6 text-sm text-titanium/60">Chargement cockpit CEO…</p>
+    ),
+  }
+);
 
 const PIPELINE_TASK_KEY = "alnua-pipeline-task-id";
 const TERMINAL_STATUSES = new Set(["completed", "failed"]);
@@ -33,11 +70,10 @@ export default function HubPage() {
   const [pipelineStatus, setPipelineStatus] = useState<string | null>(null);
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
   const [runningIssue, setRunningIssue] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    setLoading(true);
     setError(null);
     try {
       const [issueData, prData, costData] = await Promise.all([
@@ -128,12 +164,19 @@ export default function HubPage() {
         subtitle="Aria · Sam · Léon · Alex · Pipeline"
       />
 
+      <BureauOfficeHero agentId="coo" />
+
       <BureauAgentsSection
         bureau="hub"
-        className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+        excludeAgentIds={["coo"]}
+        className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
       />
 
       <HubAutomationPanel />
+
+      <CeoCockpitPanel />
+
+      <ProductionOpsCockpit />
 
       {loading ? (
         <p className="mb-4 font-body text-sm text-titanium/60">Chargement…</p>

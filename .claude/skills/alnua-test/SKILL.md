@@ -1,6 +1,6 @@
 # ALNUA Test — Stratégie Tests & Playwright
 
-Tests ALNUA Hub : pytest (backend) + Playwright (E2E frontend + API). Sven Lindqvist (QA) valide.
+Tests ALNUA Hub : pytest (backend) + Playwright (E2E frontend + API). Alex Okafor (QA) valide.
 
 ---
 
@@ -49,7 +49,7 @@ def test_my_method_basic(agent):
     assert result["result"] == "ok"
 
 def test_my_method_empty_input(agent):
-    """Sven checke toujours les cas limites."""
+    """Alex checke toujours les cas limites."""
     result = agent.my_method("")
     assert isinstance(result, dict)
 
@@ -184,7 +184,7 @@ pytest tests/test_services/test_adversarial_spec.py -v -s
 
 ---
 
-## Règles QA Sven
+## Règles QA Alex
 
 1. Chaque méthode agent a au minimum : test cas nominal + cas limite (input vide/long)
 2. Chaque endpoint : test 200 + test 422 (champ manquant)

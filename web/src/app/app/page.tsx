@@ -1,14 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { Loader2, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { BackToLobby } from "@/components/shared/back-to-lobby";
 import { BureauAgentsSection } from "@/components/shared/bureau-agents-section";
 import { DepartmentHeader } from "@/components/shared/department-header";
 import { AppConsole } from "@/components/app/app-console";
+import { AppTicketsSection } from "@/components/app/app-tickets-section";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { fetchProjects, fetchTickets } from "@/lib/api";
+import { deleteProject, fetchProjects, fetchTickets } from "@/lib/api";
 import type { Project } from "@/lib/types";
 
 interface ProjectStat {
@@ -18,21 +21,57 @@ interface ProjectStat {
 
 export default function AppPolePage() {
   const [projectStats, setProjectStats] = useState<ProjectStat[]>([]);
+  const [loadingProjects, setLoadingProjects] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const loadProjects = useCallback(async () => {
+    setLoadingProjects(true);
+    try {
+      const projects = await fetchProjects();
+      const appProjects = projects.filter((p) => p.branch === "app");
+      const stats = await Promise.all(
+        appProjects.map(async (project) => {
+          const all = await fetchTickets(project.id).catch(() => []);
+          const active = all.filter(
+            (t) => t.status === "open" || t.status === "in_progress"
+          );
+          return { project, openTickets: active.length };
+        })
+      );
+      setProjectStats(stats);
+    } catch {
+      setProjectStats([]);
+    } finally {
+      setLoadingProjects(false);
+    }
+  }, []);
 
   useEffect(() => {
-    fetchProjects()
-      .then(async (projects) => {
-        const appProjects = projects.filter((p) => p.branch === "app");
-        const stats = await Promise.all(
-          appProjects.map(async (project) => {
-            const open = await fetchTickets(project.id, "open").catch(() => []);
-            return { project, openTickets: open.length };
-          })
-        );
-        setProjectStats(stats);
-      })
-      .catch(() => setProjectStats([]));
-  }, []);
+    void loadProjects();
+  }, [loadProjects]);
+
+  async function handleDeleteProject(project: Project) {
+    if (
+      !window.confirm(
+        `Supprimer le projet « ${project.name} » ? Cette action est irréversible.`
+      )
+    ) {
+      return;
+    }
+
+    setDeletingId(project.id);
+    try {
+      await deleteProject(project.id);
+      toast.success(`Projet « ${project.name} » supprimé`);
+      await loadProjects();
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Impossible de supprimer le projet"
+      );
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   return (
     <>
@@ -40,12 +79,16 @@ export default function AppPolePage() {
       <DepartmentHeader
         dept="app"
         title="Pôle App"
-        subtitle="Naïa App · Eve Journey · Dev mobile & backend"
+        subtitle="NUAWAY · Naïa App · Dev mobile & backend"
       />
 
       <BureauAgentsSection bureau="app" />
 
-      {projectStats.length > 0 ? (
+      <AppTicketsSection />
+
+      {loadingProjects ? (
+        <p className="mb-8 text-sm text-titanium/60">Chargement des projets…</p>
+      ) : projectStats.length > 0 ? (
         <section className="mb-8">
           <h2 className="label-caps mb-4">Projets</h2>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -56,19 +99,35 @@ export default function AppPolePage() {
                     {project.name}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="flex items-center justify-between">
+                <CardContent className="flex items-center justify-between gap-3">
                   <div className="space-y-1">
                     <span className="badge-copper px-2 py-0.5 text-xs">{project.status}</span>
                     <p className="font-body text-sm text-titanium">
-                      {openTickets} ticket{openTickets !== 1 ? "s" : ""} ouvert
+                      {openTickets} ticket{openTickets !== 1 ? "s" : ""} actif
                       {openTickets !== 1 ? "s" : ""}
                     </p>
                   </div>
-                  <Button asChild size="sm" variant="ghost">
-                    <Link href={`/tickets?project=${encodeURIComponent(project.id)}`}>
-                      Ouvrir
-                    </Link>
-                  </Button>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <Button asChild size="sm" variant="ghost">
+                      <Link href={`/tickets?project=${encodeURIComponent(project.id)}`}>
+                        Ouvrir
+                      </Link>
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-titanium/60 hover:text-red-400"
+                      disabled={deletingId === project.id}
+                      aria-label={`Supprimer ${project.name}`}
+                      onClick={() => void handleDeleteProject(project)}
+                    >
+                      {deletingId === project.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}

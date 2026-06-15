@@ -2,9 +2,22 @@
 
 from __future__ import annotations
 
+from zoneinfo import ZoneInfo
+
 from api.route_common import *  # noqa: F403
 
 _briefing_scheduler: BackgroundScheduler | None = None
+
+
+def _scheduler_timezone(settings: Any) -> ZoneInfo:
+    try:
+        return ZoneInfo(settings.scheduler_timezone)
+    except Exception:
+        logger.warning(
+            "Invalid SCHEDULER_TIMEZONE=%r — falling back to Europe/Paris",
+            settings.scheduler_timezone,
+        )
+        return ZoneInfo("Europe/Paris")
 
 
 def _run_scheduled_daily_briefing() -> None:
@@ -50,21 +63,25 @@ async def lifespan(app: FastAPI):
         logger.exception("Could not initialize contract directories")
 
     # === SCHEDULER ===
-    _briefing_scheduler = BackgroundScheduler()
-    _briefing_scheduler.add_job(
-        _run_scheduled_daily_briefing,
-        CronTrigger(hour=8, minute=0),
-        id="daily_briefing",
-        replace_existing=True,
-    )
-    _briefing_scheduler.add_job(
-        _run_partnership_followup_reminders,
-        CronTrigger(hour=8, minute=5),
-        id="partnership_followups",
-        replace_existing=True,
-    )
-    _briefing_scheduler.start()
-    logger.info("Daily briefing scheduler started (08:00)")
+    cron_tz = _scheduler_timezone(settings)
+    if settings.scheduler_leader:
+        _briefing_scheduler = BackgroundScheduler(timezone=cron_tz)
+        _briefing_scheduler.add_job(
+            _run_scheduled_daily_briefing,
+            CronTrigger(hour=8, minute=0, timezone=cron_tz),
+            id="daily_briefing",
+            replace_existing=True,
+        )
+        _briefing_scheduler.add_job(
+            _run_partnership_followup_reminders,
+            CronTrigger(hour=8, minute=5, timezone=cron_tz),
+            id="partnership_followups",
+            replace_existing=True,
+        )
+        _briefing_scheduler.start()
+        logger.info("Daily briefing scheduler started (08:00 %s)", cron_tz.key)
+    else:
+        logger.info("Scheduler skipped on this worker (SCHEDULER_LEADER=0)")
 
     from config.github_repos import pipeline_enabled
 
@@ -81,13 +98,14 @@ async def lifespan(app: FastAPI):
         from agents.project_scanner import scan_all_projects
         import threading
         threading.Thread(target=scan_all_projects, daemon=True).start()
-        _briefing_scheduler.add_job(
-            scan_all_projects,
-            "interval",
-            hours=6,
-            id="project_scanner",
-            replace_existing=True,
-        )
+        if _briefing_scheduler is not None:
+            _briefing_scheduler.add_job(
+                scan_all_projects,
+                "interval",
+                hours=6,
+                id="project_scanner",
+                replace_existing=True,
+            )
         logger.info("ProjectScanner: démarré (scan immédiat + toutes les 6h)")
     except Exception:
         logger.exception("ProjectScanner: impossible de démarrer")
@@ -95,8 +113,9 @@ async def lifespan(app: FastAPI):
     # === BUG WATCHDOG — surveillance erreurs + auto-fix autonome ===
     try:
         from agents.bug_watchdog import start_watchdog
+
         start_watchdog()
-        logger.info("BugWatchdog: démarré (poll toutes les 60s)")
+        logger.info("BugWatchdog: configuré (WATCHDOG_ENABLED / poll interval via env)")
     except Exception:
         logger.exception("BugWatchdog: impossible de démarrer")
 
@@ -110,12 +129,13 @@ async def lifespan(app: FastAPI):
             research_all_agents(blocking=False)
         threading.Thread(target=_delayed_research, daemon=True).start()
         # Puis toutes les semaines le lundi à 7h
-        _briefing_scheduler.add_job(
-            research_all_agents,
-            CronTrigger(day_of_week="mon", hour=7, minute=0),
-            id="weekly_research",
-            replace_existing=True,
-        )
+        if _briefing_scheduler is not None:
+            _briefing_scheduler.add_job(
+                research_all_agents,
+                CronTrigger(day_of_week="mon", hour=7, minute=0, timezone=cron_tz),
+                id="weekly_research",
+                replace_existing=True,
+            )
         logger.info("Veille web: démarrée (cycle immédiat + lundi 07:00)")
     except Exception:
         logger.exception("Veille web: impossible de démarrer")
@@ -124,12 +144,13 @@ async def lifespan(app: FastAPI):
     try:
         from agents.rnd_center import run_rnd_cycle
         # Chaque vendredi à 18h — rapport R&D de la semaine
-        _briefing_scheduler.add_job(
-            lambda: run_rnd_cycle(blocking=False),
-            CronTrigger(day_of_week="fri", hour=18, minute=0),
-            id="weekly_rnd",
-            replace_existing=True,
-        )
+        if _briefing_scheduler is not None:
+            _briefing_scheduler.add_job(
+                lambda: run_rnd_cycle(blocking=False),
+                CronTrigger(day_of_week="fri", hour=18, minute=0, timezone=cron_tz),
+                id="weekly_rnd",
+                replace_existing=True,
+            )
         logger.info("Centre R&D: démarré (vendredi 18:00)")
     except Exception:
         logger.exception("Centre R&D: impossible de démarrer")
@@ -138,20 +159,45 @@ async def lifespan(app: FastAPI):
     try:
         from services.orchestration import run_content_sprint
 
-        _briefing_scheduler.add_job(
-            lambda: run_content_sprint(
-                brief="Rétrospective de la semaine ALNUA — temps forts, livrables, prochaines étapes.",
-                platforms=["linkedin", "discord"],
-            ),
-            CronTrigger(day_of_week="fri", hour=17, minute=0),
-            id="weekly_content_sprint",
-            replace_existing=True,
-        )
+        if _briefing_scheduler is not None:
+            _briefing_scheduler.add_job(
+                lambda: run_content_sprint(
+                    brief="Rétrospective de la semaine ALNUA — temps forts, livrables, prochaines étapes.",
+                    platforms=["linkedin", "discord"],
+                ),
+                CronTrigger(day_of_week="fri", hour=17, minute=0, timezone=cron_tz),
+                id="weekly_content_sprint",
+                replace_existing=True,
+            )
         logger.info("Sprint contenu: vendredi 17:00")
     except Exception:
         logger.exception("Sprint contenu: impossible de planifier")
 
+    # === TELEGRAM POLLING (dev local — TELEGRAM_POLLING=1 dans .env) ===
+    if settings.telegram_bot_token and settings.telegram_polling:
+        import threading
+
+        def _telegram_polling_loop() -> None:
+            try:
+                logger.info("Telegram polling démarré (TELEGRAM_POLLING=1)")
+                get_telegram_bot().run_polling()
+            except Exception:
+                logger.exception("Telegram polling thread crashed")
+
+        threading.Thread(
+            target=_telegram_polling_loop,
+            name="telegram-polling",
+            daemon=True,
+        ).start()
+
     yield
+
+    try:
+        from agents.bug_watchdog import stop_watchdog
+
+        stop_watchdog()
+    except Exception:
+        logger.exception("BugWatchdog shutdown failed")
 
     if settings.telegram_bot_token:
         try:

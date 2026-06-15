@@ -1,4 +1,16 @@
-"""CEO package templates and dispatch matrix (phase 6)."""
+"""CEO package templates and dispatch matrix (phase 6).
+
+Template structure from Emilie's validation dossier spec (2026-06-12):
+1. Executive Summary
+2. Bilan technique (branch-specific)
+3. Réglementation / sécurité / RGPD
+4. Industrialisation ou go-to-market
+5. Business model multicouche (COGS, OPEX, revenus M6/M12)
+6. Matrice des risques
+7. R&D transverse IA (mutualisation)
+8. Master summary portfolio
+9. Matrice dispatch — qui fait quoi
+"""
 
 from __future__ import annotations
 
@@ -7,32 +19,54 @@ from typing import Any
 
 from services.rnd_schemas import DOMAIN_TO_BRANCH, RndDossierOut
 
-# Branch-specific section blocks for the CEO dossier
 BRANCH_BLOCKS: dict[str, list[dict[str, str]]] = {
     "app": [
-        {"key": "executive_summary", "title": "Executive summary (1 page)"},
-        {"key": "business_pricing", "title": "Business model & pricing"},
-        {"key": "product_market_risks", "title": "Risques produit / marché"},
-        {"key": "ai_rnd_costs", "title": "R&D transverse IA (coûts agents, stack)"},
+        {"key": "executive_summary", "title": "1. Executive Summary"},
+        {"key": "technical_assessment", "title": "2. Bilan technique — produit & stack"},
+        {"key": "compliance_security", "title": "3. Sécurité, conformité & RGPD"},
+        {"key": "go_to_market", "title": "4. Go-to-market & acquisition"},
+        {"key": "business_model", "title": "5. Business model multicouche"},
+        {"key": "risk_matrix", "title": "6. Matrice des risques spécifiques"},
     ],
     "robotics": [
-        {"key": "three_pillars", "title": "3 piliers : hardware / app / IA"},
-        {"key": "regulation", "title": "Réglementation (RGPD, CE, certifications)"},
-        {"key": "manufacturing_bom", "title": "Industrialisation & BOM"},
-        {"key": "cogs_opex", "title": "COGS / OPEX détaillés"},
-        {"key": "tech_supply_risks", "title": "Matrice risques technique + supply chain"},
+        {"key": "executive_summary", "title": "1. Executive Summary (Full Stack)"},
+        {"key": "technical_assessment", "title": "2. Bilan technique — PoC hybride"},
+        {"key": "compliance_security", "title": "3. Réglementation, sécurité & RGPD"},
+        {"key": "industrialization", "title": "4. Plan d'industrialisation (supply chain)"},
+        {"key": "business_model", "title": "5. Business model multicouche"},
+        {"key": "risk_matrix", "title": "6. Matrice des risques spécifiques"},
     ],
     "gaming": [
-        {"key": "perf_targets", "title": "Perfs cibles (FPS, plateformes)"},
-        {"key": "network_multiplayer", "title": "Réseau / multijoueur"},
-        {"key": "art_direction", "title": "Direction artistique (lore, identité visuelle)"},
+        {"key": "executive_summary", "title": "1. Executive Summary"},
+        {"key": "technical_assessment", "title": "2. Bilan technique — plateforme 3D"},
+        {"key": "compliance_security", "title": "3. Conformité & sécurité"},
+        {"key": "production_plan", "title": "4. Plan de production & livraison"},
+        {"key": "business_model", "title": "5. Business model"},
+        {"key": "risk_matrix", "title": "6. Matrice des risques spécifiques"},
     ],
     "other": [
-        {"key": "executive_summary", "title": "Executive summary"},
-        {"key": "business_pricing", "title": "Business model & pricing"},
-        {"key": "product_market_risks", "title": "Risques produit / marché"},
+        {"key": "executive_summary", "title": "1. Executive Summary"},
+        {"key": "technical_assessment", "title": "2. Bilan technique"},
+        {"key": "compliance_security", "title": "3. Sécurité & conformité"},
+        {"key": "go_to_market", "title": "4. Plan de lancement"},
+        {"key": "business_model", "title": "5. Business model multicouche"},
+        {"key": "risk_matrix", "title": "6. Matrice des risques"},
     ],
 }
+
+CEO_PACKAGE_OUTLINE = """
+Structure OBLIGATOIRE du dossier CEO (ne pas réordonner les ##) :
+1. Executive Summary — promesse produit, statut (3 piliers si hardware), enveloppe budgétaire
+2. Bilan technique — découpage Hardware / Software / IA (robotique) ou Produit / Stack / IA (app)
+3. Réglementation, sécurité, RGPD
+4. Industrialisation supply chain OU go-to-market OU plan production
+5. Business model — COGS, OPEX récurrents, pricing, revenus estimés M6/M12
+6. Matrice risques — risque → impact → mitigation
+7. R&D transverse IA — mutualisation agents/modèles entre projets ALNUA
+8. Master summary — position portfolio
+9. Matrice dispatch — pôle, agent, livrables, priorité (qui reçoit quoi après validation CEO)
+10. Product Engineering Spec — écrans, user stories, contrat API, tables Supabase, tests E2E, task breakdown JSON (généré post-validation CEO)
+"""
 
 DISPATCH_POLES: dict[str, list[dict[str, Any]]] = {
     "app": [
@@ -66,7 +100,7 @@ DISPATCH_POLES: dict[str, list[dict[str, Any]]] = {
         },
         {
             "pole": "Comptabilité",
-            "agent_id": "accountant_agent",
+            "agent_id": "accounting",
             "deliverables": ["Suivi CAPEX/OPEX", "Hypothèses revenus M3/M12"],
             "priority": "medium",
             "phase": "finance",
@@ -75,7 +109,7 @@ DISPATCH_POLES: dict[str, list[dict[str, Any]]] = {
     "robotics": [
         {
             "pole": "Hardware",
-            "agent_id": "hardware_agent",
+            "agent_id": "hardware",
             "deliverables": ["BOM validée", "Plan industrialisation", "Certifications cibles"],
             "priority": "critical",
             "phase": "hardware",
@@ -119,7 +153,7 @@ DISPATCH_POLES: dict[str, list[dict[str, Any]]] = {
         },
         {
             "pole": "Content / Lore",
-            "agent_id": "content_agent",
+            "agent_id": "content",
             "deliverables": ["Bible narrative", "Identité visuelle moodboard"],
             "priority": "medium",
             "phase": "art",
@@ -191,9 +225,12 @@ def _pricing_table(dossier: RndDossierOut) -> str:
                 f"| {t.get('name', '?')} | {t.get('price_eur', '—')} € | "
                 f"{int((t.get('mix_pct') or 0) * 100)}% |"
             )
-    m12 = rev.get("m12_monthly_run_rate_eur")
+    m6 = rev.get("m6_monthly_run_rate_eur") or rev.get("m6_mrr_eur")
+    m12 = rev.get("m12_monthly_run_rate_eur") or rev.get("m12_mrr_eur")
+    if m6:
+        lines.append(f"\n- **Revenu estimé M6 :** {m6} €/mois")
     if m12:
-        lines.append(f"\n- Run-rate M12 : **{m12} €/mois**")
+        lines.append(f"- **Revenu estimé M12 :** {m12} €/mois")
     return "\n".join(lines)
 
 
@@ -201,7 +238,10 @@ def _finance_summary(dossier: RndDossierOut) -> str:
     fj = dossier.finance_json or {}
     if not fj:
         return "_Business case non généré._"
+    cost_model = fj.get("cost_model", "ai_solo")
+    model_label = "agents IA (OpenRouter)" if cost_model == "ai_solo" else "dev humain"
     return (
+        f"- Modèle coût : **{model_label}**\n"
         f"- CAPEX total : **{fj.get('capex_eur', 0)} €** "
         f"(dev {fj.get('capex_dev_eur', 0)} €, agents LLM {fj.get('capex_llm_agents_eur', 0)} €)\n"
         f"- OPEX mensuel incrémental : **{fj.get('opex_incremental_eur') or fj.get('opex_monthly_eur', 0)} €**\n"
@@ -211,84 +251,193 @@ def _finance_summary(dossier: RndDossierOut) -> str:
     )
 
 
+def _revenue_projection(dossier: RndDossierOut) -> str:
+    fj = dossier.finance_json or {}
+    rev = fj.get("revenue_hypothesis") or {}
+    sections = _section_map(dossier)
+    if not rev:
+        return "_Hypothèses revenus non renseignées — compléter la section business case._"
+    lines = [
+        "### COGS & investissement initial",
+        "",
+        _finance_summary(dossier),
+        "",
+        "### OPEX récurrents",
+        "",
+        f"- Hébergement / infra : {fj.get('opex_hosting_eur', fj.get('opex_monthly_eur', '—'))} €/mois",
+        f"- Tokens agents IA : {fj.get('llm_monthly_eur', '—')} €/mois",
+        "",
+        "### Stratégie de vente & pricing",
+        "",
+        _pricing_table(dossier),
+        "",
+        "### Projection impact (si le produit fonctionne)",
+        "",
+        _excerpt(
+            (
+                rev.get("narrative")
+                if isinstance(rev.get("narrative"), str)
+                else (fj.get("revenue_narrative_md") or "")
+            )
+            or sections.get("business_case", ""),
+            400,
+        ),
+    ]
+    return "\n".join(lines)
+
+
 def _build_block_content(key: str, dossier: RndDossierOut, sections: dict[str, str]) -> str:
     branch = resolve_branch(dossier)
+    fj = dossier.finance_json or {}
 
     if key == "executive_summary":
-        parts = [
-            _excerpt(sections.get("problem", ""), 350),
-            "",
-            "**Solution :** " + _excerpt(sections.get("solution", ""), 280),
-            "",
-            "**Recommandation comité :** " + _excerpt(sections.get("decision", ""), 200),
-        ]
-        return "\n".join(parts)
-
-    if key == "business_pricing":
-        return _pricing_table(dossier) + "\n\n" + _excerpt(sections.get("business_case", ""), 400)
-
-    if key == "product_market_risks":
-        return _excerpt(sections.get("risks", ""), 600) + "\n\n" + _excerpt(sections.get("market", ""), 300)
-
-    if key == "ai_rnd_costs":
-        fj = dossier.finance_json or {}
-        stack = _excerpt(sections.get("feasibility", ""), 350)
+        if branch == "robotics":
+            return (
+                "### La promesse produit\n"
+                + _excerpt(sections.get("solution", ""), 350)
+                + "\n\n### Statut des 3 piliers\n"
+                "- **Hardware :** "
+                + _excerpt(sections.get("manufacturing", ""), 200)
+                + "\n- **Software (app compagnon) :** "
+                + _excerpt(sections.get("solution", ""), 200)
+                + "\n- **IA (cerveau) :** "
+                + _excerpt(sections.get("feasibility", ""), 200)
+                + "\n\n### Enveloppe budgétaire globale\n"
+                + _finance_summary(dossier)
+            )
+        if branch == "gaming":
+            return (
+                "### La promesse produit\n"
+                + _excerpt(sections.get("solution", ""), 350)
+                + "\n\n### Statut vertical slice\n"
+                + _excerpt(sections.get("mvp", ""), 300)
+                + "\n\n### Enveloppe budgétaire globale\n"
+                + _finance_summary(dossier)
+            )
         return (
-            f"{stack}\n\n"
-            f"**Coûts pipeline agents IA :**\n"
-            f"- Enrichissement dossier : {fj.get('capex_dossier_llm_eur', '—')} €\n"
-            f"- Tokens agents / mois : {fj.get('llm_monthly_eur', '—')} €\n"
-            f"- Modèle coût : {fj.get('cost_model', 'ai_solo')}"
+            "### La promesse produit\n"
+            + _excerpt(sections.get("problem", ""), 280)
+            + "\n\n"
+            + _excerpt(sections.get("solution", ""), 280)
+            + "\n\n### Statut produit & MVP\n"
+            + _excerpt(sections.get("mvp", ""), 300)
+            + "\n\n### Enveloppe budgétaire globale\n"
+            + _finance_summary(dossier)
         )
 
-    if key == "three_pillars":
+    if key == "technical_assessment":
+        if branch == "robotics":
+            return (
+                "### Hardware (le corps)\n"
+                + _excerpt(sections.get("manufacturing", ""), 450)
+                + "\n\n### Software (l'interface)\n"
+                + _excerpt(sections.get("solution", ""), 400)
+                + "\n\n### Intelligence artificielle (le cerveau)\n"
+                + _excerpt(sections.get("feasibility", ""), 450)
+            )
+        if branch == "gaming":
+            return (
+                "### Performances cibles\n"
+                + _excerpt(sections.get("mvp", ""), 400)
+                + "\n\n### Réseau / multijoueur\n"
+                + (
+                    _excerpt(sections.get("feasibility", ""), 400)
+                    if any(
+                        w in sections.get("feasibility", "").lower()
+                        for w in ("multi", "réseau", "network")
+                    )
+                    else "_Multijoueur non explicite — préciser latence, authoritative server, anti-cheat._"
+                )
+                + "\n\n### Direction artistique\n"
+                + _excerpt(sections.get("lore", ""), 300)
+                + "\n\n"
+                + _excerpt(sections.get("visual_identity", ""), 300)
+            )
         return (
-            "### Hardware\n" + _excerpt(sections.get("manufacturing", ""), 350)
-            + "\n\n### App / Cloud\n" + _excerpt(sections.get("solution", ""), 350)
-            + "\n\n### IA / Automatisation\n" + _excerpt(sections.get("feasibility", ""), 350)
+            "### Produit & UX\n"
+            + _excerpt(sections.get("solution", ""), 400)
+            + "\n\n### Stack & scalabilité\n"
+            + _excerpt(sections.get("feasibility", ""), 400)
+            + "\n\n### IA intégrée\n"
+            + (
+                f"Coût pipeline agents : {fj.get('capex_llm_agents_eur', '—')} € · "
+                f"{fj.get('llm_monthly_eur', '—')} €/mois\n\n"
+                + _excerpt(sections.get("feasibility", ""), 250)
+            )
         )
 
-    if key == "regulation":
+    if key == "compliance_security":
+        risks = _excerpt(sections.get("risks", ""), 350)
+        base = (
+            "### Sécurité & données\n"
+            "- Minimisation des données collectées, chiffrement en transit/repos.\n"
+            "- **RGPD** : consentement, DPA fournisseurs cloud, droit à l'effacement.\n\n"
+        )
+        if branch == "robotics":
+            base += (
+                "### Sécurité physique\n"
+                "- Matériaux non toxiques, normes CE/FCC, absence de pincement/surchauffe.\n\n"
+                "### Privacy & capteurs\n"
+                "- Micro/caméra : traitement local si possible, anonymisation, rétention limitée.\n\n"
+            )
+        return base + "### Risques conformité (dossier)\n" + risks
+
+    if key == "industrialization":
+        return (
+            "### Sourcing\n"
+            + _excerpt(sections.get("manufacturing", ""), 400)
+            + "\n\n### Assemblage\n"
+            + "_Préciser site d'assemblage, volumes pilotes, lead times fournisseurs._\n\n"
+            "### Déploiement logiciel (OTA)\n"
+            + _excerpt(sections.get("feasibility", ""), 350)
+        )
+
+    if key == "go_to_market":
+        return (
+            "### Acquisition & scalabilité cloud\n"
+            + _excerpt(sections.get("market", ""), 450)
+            + "\n\n### UI/UX & rétention\n"
+            + _excerpt(sections.get("solution", ""), 300)
+            + "\n\n### Stratégie sociale\n"
+            + _excerpt(sections.get("social_strategy", ""), 300)
+        )
+
+    if key == "production_plan":
+        return (
+            "### Pipeline contenu & perfs\n"
+            + _excerpt(sections.get("mvp", ""), 400)
+            + "\n\n### Architecture réseau\n"
+            + _excerpt(sections.get("feasibility", ""), 350)
+            + "\n\n### Direction artistique\n"
+            + _excerpt(sections.get("visual_identity", ""), 350)
+        )
+
+    if key == "business_model":
+        return _revenue_projection(dossier)
+
+    if key == "risk_matrix":
         risks = sections.get("risks", "")
-        extra = (
-            "- **RGPD** : minimisation données capteurs, consentement, DPA fournisseurs cloud.\n"
-            "- **CE / RED** : conformité radio si connecté ; marquage CE avant vente UE.\n"
-            "- **Certifications** : selon usage (domestique vs pro)."
+        body = _excerpt(risks, 600) if risks else ""
+        template = (
+            "| Risque | Impact | Mitigation |\n"
+            "|--------|--------|------------|\n"
+            "| Dépendance technique | Moyen | Plan B stack / fournisseur alternatif |\n"
+            "| Marché / adoption | Élevé | MVP ciblé, validation early adopters |\n"
+            "| Coûts IA / infra | Moyen | Budget plafonné, monitoring coûts |\n"
         )
-        return _excerpt(risks, 400) + "\n\n" + extra
+        return (body + "\n\n" if body else "") + template
 
-    if key == "manufacturing_bom":
-        return _excerpt(sections.get("manufacturing", ""), 700)
-
-    if key == "cogs_opex":
-        return _finance_summary(dossier) + "\n\n" + _excerpt(sections.get("manufacturing", ""), 300)
-
-    if key == "tech_supply_risks":
-        return _excerpt(sections.get("risks", ""), 500) + "\n\n" + _excerpt(sections.get("feasibility", ""), 300)
-
-    if key == "perf_targets":
-        mvp = sections.get("mvp", "")
-        feas = sections.get("feasibility", "")
+    if key == "rd_transverse":
         return (
-            _excerpt(mvp, 400)
-            + "\n\n**Cibles perf :** 60 FPS (PC/console), 30 FPS mobile min — à valider en prototype."
-            + "\n\n" + _excerpt(feas, 250)
+            "L'investissement IA n'est pas isolé à ce projet : ALNUA mutualise agents, prompts "
+            "et modèles via le Hub.\n\n"
+            "**Argument financier :** les coûts OpenRouter alimentent un socle réutilisable "
+            "(R&D, comité, contenu, spec) — pas un one-shot par produit.\n\n"
+            "**Argument stratégique :** écosystème cohérent (app + hardware + contenu) "
+            "→ valorisation portfolio.\n\n"
+            f"**Ce projet ({dossier.title})** consomme : enrichissement dossier, comité multi-agents, "
+            f"pipeline CEO — réutilisable pour les prochains lancements."
         )
-
-    if key == "network_multiplayer":
-        feas = sections.get("feasibility", "")
-        if "multi" in feas.lower() or "réseau" in feas.lower() or "network" in feas.lower():
-            return _excerpt(feas, 600)
-        return (
-            "_Multijoueur non explicite dans le dossier._\n\n"
-            "Si applicable : latence < 100 ms, authoritative server ou P2P relay, "
-            "anti-cheat basique, matchmaking async pour solo founder."
-        )
-
-    if key == "art_direction":
-        lore = _excerpt(sections.get("lore", ""), 350)
-        visual = _excerpt(sections.get("visual_identity", ""), 350)
-        return f"### Univers\n{lore}\n\n### Identité visuelle\n{visual}"
 
     return _excerpt(sections.get(key, ""), 500)
 
@@ -304,12 +453,11 @@ def build_dispatch_matrix(dossier: RndDossierOut) -> list[dict[str, Any]]:
                 "roadmap_title": f"[{dossier.title}] {row['deliverables'][0]}",
                 "description": (
                     f"Dispatch post-validation CEO — {dossier.title}.\n"
-                    f"Livrables : {', '.join(row['deliverables'])}.\n"
-                    f"Pôle : {row['pole']} ({row['agent_id']})."
+                    f"**À envoyer à :** {row['pole']} ({row['agent_id']}).\n"
+                    f"**Livrables :** {', '.join(row['deliverables'])}."
                 ),
             }
         )
-    # COO orchestration row — after CEO, not in committee room
     matrix.append(
         {
             "pole": "COO (orchestration)",
@@ -323,7 +471,7 @@ def build_dispatch_matrix(dossier: RndDossierOut) -> list[dict[str, Any]]:
             "roadmap_title": f"[{dossier.title}] Orchestration COO",
             "description": (
                 f"Le COO prend le relais **après** validation CEO sur {dossier.title}. "
-                "Coordonne les pôles, protège le temps d'Emilie, pas de présence en comité R&D."
+                "Coordonne les pôles — pas de présence en comité R&D."
             ),
         }
     )
@@ -337,18 +485,20 @@ def build_portfolio_summary(
 ) -> str:
     branch = resolve_branch(dossier)
     branch_label = {
-        "app": "App / SaaS",
-        "robotics": "Robotique / Hardware",
-        "gaming": "Jeu / 3D",
+        "app": "Software / App",
+        "robotics": "Robotique / Hardware full stack",
+        "gaming": "Logiciel lourd / Plateforme 3D",
         "other": "Transverse",
     }.get(branch, branch)
     lines = [
-        f"**Branche ALNUA :** {branch_label}",
-        f"**Statut dossier :** {dossier.status} · **CEO :** {dossier.ceo_status}",
+        f"**Typologie dossier :** {branch_label}",
+        f"**Statut :** {dossier.status} · **CEO :** {dossier.ceo_status}",
         f"**Sections validées :** {dossier.sections_validated_count}/{dossier.sections_total_count}",
         "",
-        "Ce dossier s'inscrit dans le pipeline portfolio : Idée → Comité → Package CEO → "
-        "Validation → Dispatch COO → Conception → Fiche produit publique.",
+        "Ordre de priorisation suggéré (portfolio ALNUA) :",
+        "- **Court terme :** apps SaaS — cash-flow rapide, test marché.",
+        "- **Moyen terme :** modules IA & contenu mutualisés.",
+        "- **Long terme :** hardware / robotique — inertie fabrication.",
     ]
 
     if portfolio_rows:
@@ -363,15 +513,6 @@ def build_portfolio_summary(
             val = f"{row.get('sections_validated_count', 0)}/{row.get('sections_total_count', 0)}"
             marker = "**→** " if str(row.get("id")) == str(dossier.id) else ""
             lines.append(f"| {marker}{title} | {dom} | {st} | {ceo} | {val} |")
-        active = sum(
-            1
-            for r in portfolio_rows
-            if r.get("status") in ("committee_active", "ready_for_ceo", "in_conception", "ceo_approved")
-        )
-        lines.append("")
-        lines.append(
-            f"*{len(portfolio_rows)} dossier(s) portfolio · {active} actif(s) en pipeline R&D→CEO.*"
-        )
 
     return "\n".join(lines)
 
@@ -380,6 +521,7 @@ def build_ceo_package_md(
     dossier: RndDossierOut,
     *,
     committee_report_md: str | None = None,
+    committee_transcript_md: str | None = None,
     portfolio_rows: list[dict[str, Any]] | None = None,
 ) -> str:
     branch = resolve_branch(dossier)
@@ -391,44 +533,60 @@ def build_ceo_package_md(
         f"# Dossier CEO — {dossier.title}",
         f"*{dossier.tagline or dossier.domain} · {branch.upper()} · généré {now}*",
         "",
+        "> Dossier de validation CEO — pourquoi du comment, chiffres, risques, dispatch.",
+        "",
         "---",
-        "",
-        "## Portfolio & contexte",
-        "",
-        build_portfolio_summary(dossier, portfolio_rows=portfolio_rows),
         "",
     ]
 
     if committee_report_md and len(committee_report_md.strip()) > 40:
         lines.extend(
             [
-                "---",
-                "",
                 "## Compte-rendu comité R&D",
                 "",
                 committee_report_md.strip(),
+                "",
+                "---",
+                "",
+            ]
+        )
+
+    if committee_transcript_md and len(committee_transcript_md.strip()) > 80:
+        lines.extend(
+            [
+                "## Synthèse des échanges — réunion comité",
+                "",
+                "_Décisions, chiffres et demandes discutés en salle (source : transcript)._",
+                "",
+                committee_transcript_md.strip()[:28000],
+                "",
+                "---",
                 "",
             ]
         )
 
     for block in blocks:
         content = _build_block_content(block["key"], dossier, sections)
-        lines.extend(["---", "", f"## {block['title']}", "", content, ""])
+        lines.extend([f"## {block['title']}", "", content, "", "---", ""])
 
     lines.extend(
         [
-            "---",
+            "## 7. R&D transverse — socle IA mutualisé",
             "",
-            "## Finance (synthèse exécutive)",
-            "",
-            _finance_summary(dossier),
+            _build_block_content("rd_transverse", dossier, sections),
             "",
             "---",
             "",
-            "## Matrice dispatch (post-validation CEO)",
+            "## 8. Master Summary — roadmap portfolio",
             "",
-            "| Pôle | Agent | Livrables | Priorité |",
-            "|------|-------|-----------|----------|",
+            build_portfolio_summary(dossier, portfolio_rows=portfolio_rows),
+            "",
+            "---",
+            "",
+            "## 9. Matrice dispatch — qui fait quoi, quoi envoyer à qui",
+            "",
+            "| Pôle | Agent | Livrables à envoyer | Priorité |",
+            "|------|-------|---------------------|----------|",
         ]
     )
 
@@ -443,7 +601,7 @@ def build_ceo_package_md(
             "",
             "---",
             "",
-            "*Package CEO ALNUA Hub — phase 6. Validation Emilie requise avant dispatch COO.*",
+            "*Dossier CEO ALNUA — validation Emilie requise avant dispatch COO.*",
         ]
     )
     return "\n".join(lines)
@@ -453,6 +611,7 @@ def build_ceo_package_json(
     dossier: RndDossierOut,
     *,
     committee_report_md: str | None = None,
+    committee_transcript_md: str | None = None,
     markdown: str | None = None,
     portfolio_rows: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
@@ -463,13 +622,18 @@ def build_ceo_package_json(
         b["key"]: {"title": b["title"], "content_md": _build_block_content(b["key"], dossier, sections)}
         for b in blocks
     }
+    block_contents["rd_transverse"] = {
+        "title": "7. R&D transverse — socle IA mutualisé",
+        "content_md": _build_block_content("rd_transverse", dossier, sections),
+    }
     md = markdown or build_ceo_package_md(
         dossier,
         committee_report_md=committee_report_md,
+        committee_transcript_md=committee_transcript_md,
         portfolio_rows=portfolio_rows,
     )
     return {
-        "version": 1,
+        "version": 2,
         "branch": branch,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "dossier_id": dossier.id,
@@ -482,6 +646,7 @@ def build_ceo_package_json(
         "portfolio_summary": build_portfolio_summary(dossier, portfolio_rows=portfolio_rows),
         "portfolio_rows": portfolio_rows or [],
         "committee_report_md": committee_report_md,
+        "committee_transcript_md": committee_transcript_md,
         "recommendation": _extract_go_recommendation(sections.get("decision", "")),
     }
 

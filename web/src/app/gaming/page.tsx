@@ -1,16 +1,29 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { BackToLobby } from "@/components/shared/back-to-lobby";
 import { BureauAgentsSection } from "@/components/shared/bureau-agents-section";
 import { DepartmentHeader } from "@/components/shared/department-header";
-import { GamingConsole } from "@/components/gaming/gaming-console";
+import { GddWorkspace } from "@/components/gaming/gdd-workspace";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchProjects } from "@/lib/api";
 import { checkNwiroHost } from "@/lib/lobby-api";
 import type { Project } from "@/lib/types";
+
+const GamingConsole = dynamic(
+  () =>
+    import("@/components/gaming/gaming-console").then((m) => ({
+      default: m.GamingConsole,
+    })),
+  {
+    loading: () => (
+      <p className="text-sm text-titanium/60">Chargement console gaming…</p>
+    ),
+  }
+);
 
 export default function GamingPage() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -71,6 +84,8 @@ export default function GamingPage() {
           .
         </p>
       )}
+
+      <GddWorkspace projects={projects} />
 
       <GamingConsole />
     </>

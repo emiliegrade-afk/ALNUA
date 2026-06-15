@@ -88,13 +88,30 @@ def test_branch_templates() -> None:
     app_d = _sample_dossier("app")
     assert resolve_branch(app_d) == "app"
     md = build_ceo_package_md(app_d, committee_report_md="## Décisions\n- GO MVP")
-    assert "Executive summary" in md
+    assert "Executive Summary" in md
+    assert "R&D transverse" in md
     assert "Matrice dispatch" in md
     assert "COO" in md
 
+    from services.rnd_committee import format_committee_transcript_md
+
+    transcript = format_committee_transcript_md(
+        [
+            {"role": "user", "speaker": "emilie", "content": "Reduce MVP scope for launch"},
+            {"role": "assistant", "speaker": "pm", "content": "OK, remove TikTok export v1"},
+        ]
+    )
+    md_with_meeting = build_ceo_package_md(
+        app_d,
+        committee_report_md="## Decisions\n- Scope reduced",
+        committee_transcript_md=transcript,
+    )
+    assert "Reduce MVP scope" in md_with_meeting
+    assert "TikTok export" in md_with_meeting
+
     gaming_d = _sample_dossier("gaming")
     gaming_md = build_ceo_package_md(gaming_d)
-    assert "Perfs cibles" in gaming_md or "Direction artistique" in gaming_md
+    assert "Bilan technique" in gaming_md or "Direction artistique" in gaming_md
 
     robotics_d = _sample_dossier("robotics")
     assert "hardware" in build_ceo_package_md(robotics_d).lower()
@@ -107,7 +124,7 @@ def test_branch_templates() -> None:
 def test_package_json_structure() -> None:
     dossier = _sample_dossier()
     pkg = build_ceo_package_json(dossier)
-    assert pkg["version"] == 1
+    assert pkg["version"] == 2
     assert pkg["branch"] == "app"
     assert "blocks" in pkg
     assert len(pkg["dispatch_matrix"]) >= 4
@@ -191,9 +208,13 @@ def test_ceo_pipeline_e2e() -> None:
         )
         assert decision["ceo_status"] == "approved"
 
-        dispatch = agent.dispatch_to_coo(dossier_id)
-        assert dispatch.get("roadmap_items")
-        roadmap_ids = [r["id"] for r in dispatch["roadmap_items"]]
+        dispatch = decision.get("dispatch") or agent.dispatch_to_coo(dossier_id)
+        roadmap_items = dispatch.get("roadmap_items") or []
+        if not roadmap_items:
+            pkg = agent.get_package(dossier_id)
+            roadmap_items = (pkg.get("dispatch") or {}).get("roadmap_items") or []
+        assert roadmap_items
+        roadmap_ids = [r["id"] for r in roadmap_items]
 
         final = agent.get_package(dossier_id)
         assert final["dispatch_status"] == "dispatched"

@@ -13,8 +13,9 @@ Labels utilisés :
 
 Variables d'env requises :
 - GITHUB_TOKEN : token GitHub avec scope repo
-- GITHUB_REPO, GITHUB_REPO_NAIA, GITHUB_REPO_NOMAD : owner/repo-name
-- HUB_REPO_PATH, REPO_PATH_NAIA, REPO_PATH_NOMAD : chemins locaux (worktrees)
+- GITHUB_REPO, GITHUB_REPO_NAIA, GITHUB_REPO_NOMAD, GITHUB_REPO_ACADEMY : owner/repo-name
+- HUB_REPO_PATH, REPO_PATH_NAIA, REPO_PATH_NOMAD, REPO_PATH_ACADEMY : chemins locaux (worktrees)
+- CODING_TIMEOUT_S, CODING_MAX_TURNS, CODING_AUTO_MERGE, CODING_MERGE_BASE_BRANCH (Phase 1)
 """
 
 import asyncio
@@ -182,6 +183,15 @@ def get_open_prs() -> list[dict]:
     return all_prs
 
 
+def _git_branch_slug(title: str, *, max_len: int = 30) -> str:
+    """Sanitize issue title for git branch names (no brackets, spaces, etc.)."""
+    slug = title.lower()
+    slug = re.sub(r"[\[\]~^:?*\\@/]", "", slug)
+    slug = re.sub(r"[^a-z0-9._-]+", "-", slug)
+    slug = re.sub(r"-+", "-", slug).strip("-/")
+    return (slug[:max_len] or "issue").strip("-")
+
+
 def issue_to_spec(issue: dict, repo_path: str | None = None) -> dict:
     """
     Convertit une GitHub Issue en JSON spec pour skill_coding_agent.
@@ -198,6 +208,7 @@ def issue_to_spec(issue: dict, repo_path: str | None = None) -> dict:
     files_to_create: list[str] = []
     files_to_modify: list[str] = []
     tests_to_pass: list[str] = []
+    stack: str | None = None
 
     lines = body.split("\n")
     current_section = None
@@ -206,6 +217,8 @@ def issue_to_spec(issue: dict, repo_path: str | None = None) -> dict:
     for line in lines:
         if line.startswith("## Description"):
             current_section = "description"
+        elif line.startswith("## Stack"):
+            current_section = "stack"
         elif line.startswith("## Fichiers à créer"):
             current_section = "create"
         elif line.startswith("## Fichiers à modifier"):
@@ -226,14 +239,16 @@ def issue_to_spec(issue: dict, repo_path: str | None = None) -> dict:
                 tests_to_pass.append(item)
         elif current_section == "description":
             desc_lines.append(line)
+        elif current_section == "stack" and line.strip() and not line.startswith("#"):
+            stack = line.strip().lower()
 
     if desc_lines:
         description = "\n".join(desc_lines).strip()
 
-    slug = title.lower()[:30].replace(" ", "-").replace("/", "-")
+    slug = _git_branch_slug(title)
     branch_name = f"feat/issue-{number}-{slug}"
 
-    return {
+    spec: dict = {
         "task_id": f"GH-{target.slug}-{number}",
         "title": title,
         "description": description,
@@ -241,8 +256,10 @@ def issue_to_spec(issue: dict, repo_path: str | None = None) -> dict:
         "files_to_modify": files_to_modify,
         "tests_to_pass": tests_to_pass,
         "repo_path": local_path,
+        "repo_slug": target.slug,
         "github_repo": target.github_repo,
         "branch_name": branch_name,
+        "agent_id": "dev_app",
         "pr_title": f"feat(GH-{number}): {title}",
         "pr_body": (
             f"Closes #{number}\n\n"
@@ -252,6 +269,9 @@ def issue_to_spec(issue: dict, repo_path: str | None = None) -> dict:
             f"**Date :** {datetime.now().strftime('%d/%m/%Y %H:%M')}"
         ),
     }
+    if stack:
+        spec["stack"] = stack
+    return spec
 
 
 def set_label(
@@ -303,6 +323,7 @@ def process_issue(
     """
     from skills.skill_coding_agent import execute_coding_task
     from skills.skill_playwright import run_and_report
+    from services.coding_pipeline import merge_pr_if_allowed, resolve_default_branch, should_auto_merge_repo
 
     target = issue_target(issue)
     local_path = repo_path or issue.get("_repo_path") or str(target.local_path)
@@ -372,17 +393,70 @@ def process_issue(
             )
 
         match = re.search(r"/pull/(\d+)", result.get("pr_url") or "")
+        test_passed = bool(result.get("qa_passed"))
         if match:
-            try:
-                run_and_report(
-                    local_path,
-                    result["branch"],
-                    int(match.group(1)),
-                    telegram_notify_fn,
+            pr_number = int(match.group(1))
+            # Hub/NAIA: run full pytest suite post-PR; academy already gated pre-PR (tsc)
+            if target.slug != "academy":
+                try:
+                    qa = run_and_report(
+                        local_path,
+                        result["branch"],
+                        pr_number,
+                        telegram_notify_fn,
+                        github_repo=github_repo,
+                    )
+                    test_passed = bool(qa.get("passed")) or test_passed
+                except Exception as exc:
+                    logger.warning("[GHIssues] QA tests failed to run: %s", exc)
+
+            merge_result = merge_pr_if_allowed(
+                local_path,
+                pr_number,
+                tests_passed=test_passed,
+                repo_slug=target.slug,
+            )
+            if merge_result.get("merged"):
+                post_comment(
+                    number,
+                    f"[OK] **PR #{pr_number} mergée sur `{resolve_default_branch(local_path)}`** "
+                    f"(auto-merge {'academy' if target.slug == 'academy' else 'global'}).",
                     github_repo=github_repo,
                 )
-            except Exception as exc:
-                logger.warning("[GHIssues] QA tests failed to run: %s", exc)
+                if target.slug == "academy":
+                    try:
+                        from services.academy_issue_sync import close_issue
+                        from services.coding_learning import record_coding_success
+
+                        record_coding_success(
+                            agent_name="dev_app",
+                            task_id=spec.get("task_id"),
+                            repo_slug=target.slug,
+                            outcome_summary=result.get("pr_url") or title,
+                        )
+                        close_issue(
+                            number,
+                            github_repo=github_repo,
+                            comment="[BOT] PR mergée — exercice terminé.",
+                        )
+                    except Exception as exc:
+                        logger.warning("[GHIssues] academy post-merge sync: %s", exc)
+                if telegram_notify_fn:
+                    telegram_notify_fn(
+                        f"[OK] PR #{pr_number} auto-mergée ({target.name})"
+                    )
+            elif test_passed and not should_auto_merge_repo(target.slug):
+                post_comment(
+                    number,
+                    "Tests QA passés — PR en attente de review manuelle.",
+                    github_repo=github_repo,
+                )
+            elif not test_passed:
+                post_comment(
+                    number,
+                    f"[ATTENTION] PR créée mais QA non validée — review manuelle requise.",
+                    github_repo=github_repo,
+                )
     else:
         set_label(
             number,
@@ -401,6 +475,19 @@ def process_issue(
                 f"Issue #{number} : {title}\n"
                 f"Erreur : {result['error']}"
             )
+        try:
+            from services.coding_learning import record_qa_failure
+
+            if result.get("error"):
+                record_qa_failure(
+                    agent_name="dev_app",
+                    task_id=spec.get("task_id"),
+                    repo_slug=target.slug,
+                    error_message=str(result["error"]),
+                    task_context=title,
+                )
+        except Exception:
+            pass
 
     return result
 
@@ -505,6 +592,46 @@ def label_issue(
         return f"Erreur label_issue : {exc}"
 
 
+_issue_semaphore: asyncio.Semaphore | None = None
+
+
+def _issue_processing_semaphore() -> asyncio.Semaphore:
+    global _issue_semaphore
+    if _issue_semaphore is None:
+        from services.coding_pipeline import get_coding_config
+
+        limit = get_coding_config().max_parallel
+        _issue_semaphore = asyncio.Semaphore(limit)
+        logger.info("[GHIssues] Parallélisme max issues : %s", limit)
+    return _issue_semaphore
+
+
+async def _process_issue_bounded(
+    issue: dict,
+    repo_path: str | None,
+    telegram_notify_fn=None,
+) -> None:
+    async with _issue_processing_semaphore():
+        try:
+            await asyncio.to_thread(process_issue, issue, repo_path, telegram_notify_fn)
+        except Exception:
+            logger.exception(
+                "[GHIssues] Issue #%s crash (isole — Hub continue)",
+                issue.get("number"),
+            )
+
+
+def _task_done_callback(task: asyncio.Task) -> None:
+    try:
+        exc = task.exception()
+        if exc is not None:
+            logger.error("[GHIssues] Task background echouee: %s", exc)
+    except asyncio.CancelledError:
+        pass
+    except Exception as exc:
+        logger.warning("[GHIssues] Task callback: %s", exc)
+
+
 async def poll_issues_loop(telegram_notify_fn=None):
     """
     Boucle de polling asynchrone. À lancer en background task FastAPI.
@@ -518,11 +645,10 @@ async def poll_issues_loop(telegram_notify_fn=None):
                 logger.info("[GHIssues] %s issue(s) trouvée(s)", len(issues))
                 for issue in issues:
                     repo_path = issue.get("_repo_path")
-                    asyncio.create_task(
-                        asyncio.to_thread(
-                            process_issue, issue, repo_path, telegram_notify_fn
-                        )
+                    t = asyncio.create_task(
+                        _process_issue_bounded(issue, repo_path, telegram_notify_fn)
                     )
+                    t.add_done_callback(_task_done_callback)
             else:
                 logger.debug("[GHIssues] Aucune issue à traiter")
         except httpx.HTTPStatusError as e:

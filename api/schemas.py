@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import date, datetime
-from typing import Any
+from typing import Any, Literal
 
 from fastapi import HTTPException, Header
 from pydantic import BaseModel, Field
@@ -637,6 +637,62 @@ class OrchestrationContentSprintRequest(BaseModel):
     project: str = "ALNUA"
 
 
+class AcademySeedRequest(BaseModel):
+    level: int = Field(ge=1, le=4, description="Niveau curriculum 1-4")
+    dry_run: bool = False
+    mark_first_ready: bool = False
+
+
+class AcademySprintRequest(BaseModel):
+    level: int | None = Field(default=None, ge=1, le=4)
+    seed_if_missing: bool = True
+    mark_ready_count: int = Field(default=3, ge=1, le=10)
+
+
+class AcademyPollRequest(BaseModel):
+    mark_ready_if_idle: bool = True
+    mark_ready_count: int = Field(default=2, ge=0, le=10)
+    notify: bool = False
+
+
+class NuawayCeoGoRequest(BaseModel):
+    approved: bool = True
+    note: str = Field(default="", max_length=500)
+
+
+class EngineeringSpecGenerateRequest(BaseModel):
+    force: bool = False
+    debate_rounds: int = Field(default=1, ge=0, le=3)
+    refine_with_pm: bool = True
+
+
+class PrdDecomposeRequest(BaseModel):
+    repo_slug: str | None = Field(
+        default=None,
+        description="hub | nomad | naia — auto si omis",
+    )
+    dry_run: bool = False
+    mark_ready_count: int = Field(default=3, ge=0, le=20)
+    force_spec: bool = False
+    debate_rounds: int = Field(default=1, ge=0, le=3)
+
+
+class PrdDecomposeOrchestrationRequest(BaseModel):
+    dossier_id: str = Field(min_length=8)
+    repo_slug: str | None = None
+    dry_run: bool = False
+    mark_ready_count: int = Field(default=3, ge=0, le=20)
+    force_spec: bool = False
+
+
+class SentrySimulateRequest(BaseModel):
+    title: str = Field(min_length=3, max_length=200)
+    message: str = ""
+    project_slug: str = "nuaway"
+    level: str = "error"
+    dry_run: bool = False
+
+
 # ---------------------------------------------------------------------------
 # Tier 2 Services — Trend Monitor, Deep Research, Plan Executor, Code Graph
 # ---------------------------------------------------------------------------
@@ -708,6 +764,422 @@ class CodeGraphQueryRequest(BaseModel):
 class MemoryCompressRequest(BaseModel):
     agent_id: str
     threshold: int = Field(default=20, ge=5)
+
+
+# ---------------------------------------------------------------------------
+# CreatorFlow (Sprint 0)
+# ---------------------------------------------------------------------------
+
+CfPlatform = Literal["youtube", "instagram"]
+CfAssetType = Literal["video", "image", "text"]
+CfAssetStatus = Literal["pending", "analyzed", "scheduled", "exported"]
+
+
+class CfAssetCreate(BaseModel):
+    title: str = Field(min_length=1, max_length=500)
+    description: str | None = None
+    file_url: str = Field(min_length=1)
+    file_type: CfAssetType
+    file_size_bytes: int | None = Field(default=None, ge=0)
+    duration_seconds: int | None = Field(default=None, ge=0)
+    mime_type: str | None = None
+    project_id: str | None = None
+
+
+class CfAssetOut(CfAssetCreate):
+    id: str
+    user_id: str
+    metadata: dict[str, Any] = Field(default_factory=dict)
+    ai_analysis: dict[str, Any] = Field(default_factory=dict)
+    status: CfAssetStatus
+    created_at: str
+    updated_at: str
+    storage_path: str | None = None
+
+
+class CfProjectCreate(BaseModel):
+    name: str = Field(min_length=1, max_length=120)
+    description: str | None = None
+
+
+class CfProjectOut(BaseModel):
+    id: str
+    user_id: str
+    name: str
+    slug: str
+    description: str | None = None
+    is_default: bool = False
+    created_at: str
+    updated_at: str
+
+
+CfEntryStatus = Literal["draft", "scheduled", "exported", "failed"]
+
+
+class CfCalendarEntryCreate(BaseModel):
+    asset_id: str | None = None
+    project_id: str | None = None
+    platform: CfPlatform
+    scheduled_at: datetime
+    title: str = Field(min_length=1, max_length=500)
+    caption: str | None = None
+    hashtags: list[str] = Field(default_factory=list)
+    ai_suggested: bool = False
+    ai_timing_score: float | None = Field(default=None, ge=0.0, le=1.0)
+
+
+class CfCalendarEntryOut(BaseModel):
+    id: str
+    user_id: str
+    project_id: str | None = None
+    asset_id: str | None = None
+    platform: CfPlatform
+    scheduled_at: str
+    title: str
+    caption: str | None = None
+    hashtags: list[str] = Field(default_factory=list)
+    ai_suggested: bool = False
+    ai_timing_score: float | None = None
+    status: CfEntryStatus
+    created_at: str
+    updated_at: str
+
+
+class CfCalendarEntryUpdate(BaseModel):
+    title: str | None = Field(default=None, min_length=1, max_length=500)
+    caption: str | None = None
+    hashtags: list[str] | None = None
+    scheduled_at: datetime | None = None
+
+
+class CfTimingSuggestion(BaseModel):
+    platform: CfPlatform
+    suggested_at: str
+    score: float = Field(ge=0.0, le=1.0)
+    reason: str
+
+
+CfExportStatus = Literal["pending", "processing", "success", "failed"]
+
+
+class CfExportCreate(BaseModel):
+    calendar_entry_id: str = Field(min_length=1)
+    platform: CfPlatform
+
+
+class CfExportOut(BaseModel):
+    id: str
+    user_id: str
+    calendar_entry_id: str
+    platform: CfPlatform
+    status: CfExportStatus
+    platform_post_id: str | None = None
+    platform_post_url: str | None = None
+    error_message: str | None = None
+    adapted_metadata: dict[str, Any] = Field(default_factory=dict)
+    started_at: str | None = None
+    completed_at: str | None = None
+    created_at: str
+
+
+class CfPlatformConnectionOut(BaseModel):
+    platform: CfPlatform
+    is_active: bool
+    platform_username: str | None = None
+    connected_at: str | None = None
+
+
+class CfPlatformConnectRequest(BaseModel):
+    platform: CfPlatform
+    redirect_url: str | None = None
+
+
+class CfPlatformConnectOut(BaseModel):
+    platform: CfPlatform
+    oauth_url: str | None = None
+    already_connected: bool = False
+    message: str | None = None
+
+
+class CfPlatformExportStats(BaseModel):
+    platform: CfPlatform
+    total: int = Field(ge=0)
+    success: int = Field(ge=0)
+    failed: int = Field(ge=0)
+
+
+class CfExportStatsOut(BaseModel):
+    total: int = Field(ge=0)
+    success: int = Field(ge=0)
+    failed: int = Field(ge=0)
+    pending: int = Field(ge=0)
+    success_rate_pct: float = Field(ge=0.0, le=100.0)
+    real_exports: int = Field(ge=0)
+    mock_exports: int = Field(ge=0)
+    last_7_days: int = Field(ge=0)
+    by_platform: list[CfPlatformExportStats] = Field(default_factory=list)
+
+
+# ---------------------------------------------------------------------------
+# CreatorFlow V1 — Think (ideas, DNA, BYOK)
+# ---------------------------------------------------------------------------
+
+CfIdeaStatus = Literal["spark", "developing", "ready_to_shoot", "in_production", "published", "archived"]
+CfDnaScope = Literal["global", "youtube", "instagram"]
+CfPlatformTarget = Literal["youtube", "instagram", "both"]
+CfArtifactType = Literal["script", "shot_list", "brainstorm_summary"]
+CfMessageRole = Literal["user", "assistant"]
+
+
+class CfIdeaCreate(BaseModel):
+    content: str = Field(min_length=1, max_length=10000)
+    title: str | None = Field(default=None, max_length=200)
+    project_id: str | None = None
+    tags: list[str] = Field(default_factory=list)
+    platform_target: CfPlatformTarget | None = None
+    source_url: str | None = None
+    notes: str | None = None
+
+
+class CfIdeaUpdate(BaseModel):
+    title: str | None = Field(default=None, min_length=1, max_length=200)
+    content: str | None = Field(default=None, min_length=1, max_length=10000)
+    status: CfIdeaStatus | None = None
+    tags: list[str] | None = None
+    platform_target: CfPlatformTarget | None = None
+    source_url: str | None = None
+    notes: str | None = None
+    project_id: str | None = None
+
+
+class CfIdeaOut(BaseModel):
+    id: str
+    user_id: str
+    project_id: str | None = None
+    title: str | None = None
+    content: str
+    status: CfIdeaStatus
+    tags: list[str] = Field(default_factory=list)
+    platform_target: CfPlatformTarget | None = None
+    source_url: str | None = None
+    notes: str | None = None
+    linked_asset_id: str | None = None
+    linked_calendar_entry_id: str | None = None
+    created_at: str
+    updated_at: str
+
+
+class CfCreatorDnaUpsert(BaseModel):
+    scope: CfDnaScope = "global"
+    project_id: str | None = None
+    voice_tone: str | None = None
+    audience: str | None = None
+    brand_promise: str | None = None
+    taboos: list[str] = Field(default_factory=list)
+    style_refs: list[str] = Field(default_factory=list)
+    extra: dict[str, Any] = Field(default_factory=dict)
+
+
+class CfCreatorDnaOut(BaseModel):
+    id: str
+    user_id: str
+    project_id: str | None = None
+    scope: CfDnaScope
+    voice_tone: str | None = None
+    audience: str | None = None
+    brand_promise: str | None = None
+    taboos: list[str] = Field(default_factory=list)
+    style_refs: list[str] = Field(default_factory=list)
+    extra: dict[str, Any] = Field(default_factory=dict)
+    created_at: str
+    updated_at: str
+
+
+class CfIdeaMessageOut(BaseModel):
+    id: str
+    idea_id: str
+    user_id: str
+    role: CfMessageRole
+    content: str
+    created_at: str
+
+
+class CfIdeaBrainstormRequest(BaseModel):
+    message: str = Field(min_length=1, max_length=8000)
+
+
+class CfIdeaBrainstormResponse(BaseModel):
+    message: CfIdeaMessageOut
+    source: str = "llm"
+
+
+class CfIdeaScheduleRequest(BaseModel):
+    platform: CfPlatform | None = None
+    scheduled_at: datetime | None = None
+    title: str | None = Field(default=None, max_length=500)
+    caption: str | None = None
+
+
+class CfIdeaLinkAssetRequest(BaseModel):
+    asset_id: str = Field(min_length=1)
+
+
+class CfIdeaPipelineOut(BaseModel):
+    idea: CfIdeaOut
+    asset: CfAssetOut | None = None
+    calendar_entry: CfCalendarEntryOut | None = None
+    steps: dict[str, bool]
+
+
+class CfIdeaArtifactOut(BaseModel):
+    id: str
+    idea_id: str
+    user_id: str
+    artifact_type: CfArtifactType
+    version: int
+    content: dict[str, Any] = Field(default_factory=dict)
+    created_at: str
+
+
+class CfArtifactGenerateResponse(BaseModel):
+    artifact: CfIdeaArtifactOut
+    source: str = "llm"
+
+
+class CfUserAiSettingsUpdate(BaseModel):
+    api_key: str | None = None
+    use_own_key: bool | None = None
+    default_model: str | None = None
+
+
+class CfUserAiSettingsOut(BaseModel):
+    user_id: str
+    provider: str = "openrouter"
+    use_own_key: bool = False
+    default_model: str | None = None
+    api_key_masked: str | None = None
+    has_key: bool = False
+
+
+class CfStudioCreateJobRequest(BaseModel):
+    tool_id: str = Field(min_length=1)
+    prompt: str | None = None
+    params: dict[str, Any] = Field(default_factory=dict)
+
+
+class CfStudioLinkAssetRequest(BaseModel):
+    file_url: str = Field(min_length=1)
+    title: str | None = None
+
+
+class CfStudioJobOut(BaseModel):
+    id: str
+    idea_id: str
+    user_id: str
+    project_id: str | None = None
+    tool_id: str
+    capability: str
+    provider: str
+    model_slug: str
+    status: str
+    prompt: str
+    params: dict[str, Any] = Field(default_factory=dict)
+    artifact_url: str | None = None
+    asset_id: str | None = None
+    error_message: str | None = None
+    provider_job_id: str | None = None
+    created_at: str
+    updated_at: str | None = None
+
+
+class CfStudioToolOut(BaseModel):
+    id: str
+    label: str
+    description: str
+    capability: str
+    provider: str
+    model_slug: str
+    default_aspect: str
+    platforms: list[str]
+    provider_ready: bool
+
+
+class CfStudioCatalogOut(BaseModel):
+    tools: list[CfStudioToolOut]
+    providers: dict[str, dict[str, Any]]
+
+
+class CfStudioPromptPreviewOut(BaseModel):
+    prompt_kind: str
+    prompt: str
+    negative_prompt: str = ""
+    style_tags: list[str] = Field(default_factory=list)
+    default_params: dict[str, Any] = Field(default_factory=dict)
+
+
+class CfStudioTemplateOut(BaseModel):
+    id: str
+    label: str
+    description: str
+    tool_ids: list[str] = Field(default_factory=list)
+    platforms: list[str] = Field(default_factory=list)
+    prompt_suffix: str = ""
+    prompt_prefix: str = ""
+    negative_prompt: str = ""
+    params: dict[str, Any] = Field(default_factory=dict)
+
+
+class CfStudioFlowNodeData(BaseModel):
+    tool_id: str = Field(min_length=1)
+    label: str = ""
+    prompt: str = ""
+    params: dict[str, Any] = Field(default_factory=dict)
+
+
+class CfStudioFlowNode(BaseModel):
+    id: str = Field(min_length=1)
+    type: str = "studioTool"
+    position: dict[str, float]
+    data: CfStudioFlowNodeData
+
+
+class CfStudioFlowEdge(BaseModel):
+    id: str = Field(min_length=1)
+    source: str = Field(min_length=1)
+    target: str = Field(min_length=1)
+
+
+class CfStudioFlowCreateRequest(BaseModel):
+    name: str | None = None
+    nodes: list[CfStudioFlowNode] | None = None
+    edges: list[CfStudioFlowEdge] | None = None
+
+
+class CfStudioFlowUpdateRequest(BaseModel):
+    name: str | None = None
+    nodes: list[CfStudioFlowNode] | None = None
+    edges: list[CfStudioFlowEdge] | None = None
+
+
+class CfStudioFlowOut(BaseModel):
+    id: str
+    user_id: str
+    idea_id: str
+    project_id: str | None = None
+    name: str
+    nodes: list[dict[str, Any]] = Field(default_factory=list)
+    edges: list[dict[str, Any]] = Field(default_factory=list)
+    last_run: dict[str, Any] | None = None
+    created_at: str
+    updated_at: str | None = None
+
+
+class CfStudioFlowRunOut(BaseModel):
+    status: str
+    started_at: str | None = None
+    finished_at: str | None = None
+    node_jobs: dict[str, str] = Field(default_factory=dict)
+    error: str | None = None
 
 
 def beta_tester_auth(authorization: str | None = Header(default=None)) -> dict[str, str]:

@@ -8,14 +8,17 @@ from crewai import Agent, LLM
 
 from agents.base import LLMClient, log_agent_action, parse_json_response
 from agents.tools.hub_tools import QA_TOOLS
+from config.agent_personas import persona_prompt_intro
 from database.supabase_client import SupabaseClient, get_supabase
 from skills.skill_langfuse import trace_agent
 
 
+_QA_INTRO = persona_prompt_intro("qa", role="QA")
+
 class QAAgent:
     AGENT_NAME = "qa_agent"
 
-    SYSTEM_PROMPT = """Tu es l'agent QA d'ALNUA. Analyse les retours utilisateurs et rapports
+    SYSTEM_PROMPT = _QA_INTRO + """. Analyse les retours utilisateurs et rapports
 pour identifier bugs, crashes et améliorations.
 Réponds UNIQUEMENT en JSON valide :
 {

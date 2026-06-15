@@ -1,8 +1,10 @@
 .env
 .env.prod
+# Local Python env — never commit (reinstall: python -m venv .venv)
 .venv/
 __pycache__/
 *.pyc
+# Pytest cache — never commit
 .pytest_cache/
 .mypy_cache/
 .telegram_bot.lock

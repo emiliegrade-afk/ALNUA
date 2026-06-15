@@ -1,0 +1,30 @@
+# Local development — API only (hot reload).
+# Web: npm run dev:web  |  Full stack: see deploy/DEPLOY.md
+#
+# Usage:
+#   docker compose -f docker-compose.dev.yml up --build
+#   docker compose -f docker-compose.dev.yml down
+
+services:
+  hub_api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: alnua_hub_api_dev
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      ENVIRONMENT: development
+    volumes:
+      - .:/app
+      - ./data:/app/data
+    ports:
+      - "127.0.0.1:8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s

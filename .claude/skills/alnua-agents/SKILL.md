@@ -6,7 +6,7 @@
 
 ## Direction (direction)
 
-### Aria Stern — COO (`coo`)
+### Aria Voss — COO (`coo`)
 Modèle : premium | Competitive : oui
 ```
 POST /agents/coo/brief            briefing(topic, context)
@@ -15,21 +15,21 @@ POST /agents/coo/review           review_output(output, criteria)
 POST /agents/coo/prioritize       prioritize(items, constraints)
 ```
 
-### Marcus Webb — Spec Rédacteur (`spec`)
+### Léon Marchand — Spec Rédacteur (`spec`)
 Modèle : standard | Competitive : non
 ```
 POST /agents/spec/write           write_spec(feature, context)
 POST /agents/spec/review          review_spec(spec_text)
 ```
 
-### Sven Lindqvist — QA (`qa`)
+### Alex Okafor — QA (`qa`)
 Modèle : standard | Competitive : non
 ```
 POST /agents/qa/test-plan         test_plan(feature, acceptance_criteria)
 POST /agents/qa/bug-report        bug_report(description, steps, expected)
 ```
 
-### Léa Moreau — PM (`pm`)
+### Sam Rivera — PM (`pm`)
 Modèle : standard | Competitive : non
 ```
 POST /agents/pm/roadmap           roadmap(goals, constraints, timeline)

@@ -71,7 +71,7 @@ class QuickCheckRequest(BaseModel):
 @router.post("/adversarial-spec/debate")
 def adversarial_spec_debate(body: AdversarialSpecRequest) -> dict[str, Any]:
     """
-    Fait débattre Marcus (Spec) et Sven (QA) sur une spec jusqu'à consensus.
+    Fait débattre Léon (Spec) et Alex (QA) sur une spec jusqu'à consensus.
     Retourne la spec convergée + divergences + historique des rounds.
     """
     from services.adversarial_spec import debate_spec
@@ -541,7 +541,7 @@ class QuickCompareRequest(BaseModel):
 def ab_test_run(body: ABTestRequest) -> dict[str, Any]:
     """
     A/B test complet : exécute les deux variants en parallèle, LLM juge le gagnant.
-    Sven (QA) est le juge par défaut.
+    Alex (QA) est le juge par défaut.
     """
     from services.a_b_tester import run_ab_test, ABTestConfig
     config = ABTestConfig(

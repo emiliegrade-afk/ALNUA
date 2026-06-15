@@ -27,12 +27,6 @@ async function proxyHubRequest(
   pathSegments: string[]
 ): Promise<NextResponse> {
   const hubKey = resolveHubApiKey();
-  if (!hubKey) {
-    return NextResponse.json(
-      { detail: "HUB_API_KEY manquante dans web/.env.local" },
-      { status: 503 }
-    );
-  }
 
   const backend = hubBackendBaseUrl();
   const target = new URL(`${backend}/${pathSegments.join("/")}`);
@@ -48,7 +42,10 @@ async function proxyHubRequest(
     }
     headers.set(name, value);
   });
-  headers.set("X-Hub-Key", hubKey);
+  // Dev open mode: backend accepts requests without X-Hub-Key when HUB_API_KEY is unset.
+  if (hubKey) {
+    headers.set("X-Hub-Key", hubKey);
+  }
 
   const init: RequestInit = {
     method: req.method,
@@ -62,8 +59,9 @@ async function proxyHubRequest(
   }
 
   let upstream: Response;
+  const timeoutMs = pathSegments[0] === "health" || pathSegments[0] === "status" ? 15_000 : 600_000;
   try {
-    upstream = await fetch(target, init);
+    upstream = await fetch(target, { ...init, signal: AbortSignal.timeout(timeoutMs) });
   } catch {
     return NextResponse.json(
       { detail: "Backend Hub inaccessible (uvicorn sur le port 8000 ?)" },

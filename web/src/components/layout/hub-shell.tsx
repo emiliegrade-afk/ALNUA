@@ -1,21 +1,46 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import dynamic from "next/dynamic";
+import { useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { BackToLobby } from "@/components/shared/back-to-lobby";
-import { CooDrawer } from "@/components/shared/coo-drawer";
 import { HubAuthBanner } from "@/components/shared/hub-auth-banner";
-import { QuickCaptureButton } from "@/components/shared/quick-capture-button";
-import { Toaster } from "@/components/ui/sonner";
+import { HubNavigationProvider } from "@/components/layout/hub-navigation";
+import { prefetchLobby } from "@/lib/hq-prefetch";
 import { isDepartmentRoute, isPublicPortalRoute } from "@/lib/routes";
 import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/sonner";
+
+const CooDrawer = dynamic(
+  () =>
+    import("@/components/shared/coo-drawer").then((m) => ({
+      default: m.CooDrawer,
+    })),
+  { ssr: false },
+);
+
+const QuickCaptureButton = dynamic(
+  () =>
+    import("@/components/shared/quick-capture-button").then((m) => ({
+      default: m.QuickCaptureButton,
+    })),
+  { ssr: false },
+);
 
 export function HubShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const isPublic = isPublicPortalRoute(pathname);
   const isLobby = pathname === "/";
   const showBackToLobby = !isPublic && !isLobby && !isDepartmentRoute(pathname);
   const showAuthBanner = !isPublic;
   const isRdRoute = pathname === "/rd";
+
+  useEffect(() => {
+    if (!isPublic && !isLobby) {
+      prefetchLobby(router);
+    }
+  }, [isLobby, isPublic, router]);
 
   if (isPublic) {
     return (
@@ -35,13 +60,13 @@ export function HubShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <>
-      {showAuthBanner ? <HubAuthBanner /> : null}
+    <HubNavigationProvider>
+      {showAuthBanner && !isLobby ? <HubAuthBanner /> : null}
       {showBackToLobby ? <BackToLobby /> : null}
       <main
         className={
           isLobby
-            ? "relative min-h-screen"
+            ? "relative h-[100dvh] w-full overflow-hidden p-0"
             : cn(
                 "relative mx-auto min-h-screen max-w-7xl px-6 py-8",
                 showBackToLobby && "pt-16"
@@ -61,6 +86,6 @@ export function HubShell({ children }: { children: React.ReactNode }) {
           },
         }}
       />
-    </>
+    </HubNavigationProvider>
   );
 }

@@ -26,3 +26,22 @@ def get_hub_repo_path() -> Path:
 def data_dir(name: str) -> Path:
     """Return ``data/{name}`` under the hub repo root."""
     return get_hub_repo_path() / "data" / name
+
+
+@lru_cache
+def get_alnua_workspace() -> Path:
+    """Workspace disque pour livrables R&D pôles.
+
+    Ordre de résolution :
+    1. ``ALNUA_WORKSPACE`` dans .env
+    2. Fallback : ``C:/Dev/ALNUA`` (Windows) / ``~/Dev/ALNUA`` (autre OS)
+    """
+    from config.settings import get_settings
+    import platform
+
+    configured = get_settings().alnua_workspace.strip()
+    if configured:
+        return Path(configured).expanduser().resolve()
+    if platform.system() == "Windows":
+        return Path("C:/Dev/ALNUA").resolve()
+    return Path.home() / "Dev" / "ALNUA"

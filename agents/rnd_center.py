@@ -209,6 +209,48 @@ def inject_idea(idea: str, source: str = "Emilie") -> dict:
     return new_idea
 
 
+def submit_user_proposal(
+    title: str,
+    *,
+    tagline: str | None = None,
+    domain: str = "autre",
+    why_now: str | None = None,
+    sections: dict[str, str] | None = None,
+    source: str = "Emilie",
+) -> dict:
+    """Create a structured idea record (JSON + Supabase) before dossier promotion."""
+    clean_sections = {
+        k: v.strip()
+        for k, v in (sections or {}).items()
+        if v and str(v).strip()
+    }
+    description_parts = [tagline] if tagline and tagline.strip() else []
+    if clean_sections.get("problem"):
+        description_parts.append(clean_sections["problem"])
+    elif clean_sections.get("solution"):
+        description_parts.append(clean_sections["solution"])
+    description = "\n\n".join(description_parts) or title
+
+    new_idea = {
+        "id": f"idea_{int(datetime.now().timestamp())}",
+        "title": title[:200],
+        "description": description[:8000],
+        "source": source,
+        "status": "user_dossier",
+        "score": None,
+        "created_at": datetime.now().isoformat(),
+        "domain": domain or "autre",
+        "why_now": (why_now or "").strip()[:4000],
+        "lifecycle_status": "raw",
+        "user_submitted": True,
+    }
+    ideas = _load_ideas()
+    ideas.append(new_idea)
+    _save_ideas(ideas)
+    logger.info("rnd_center: dossier utilisateur soumis par %s : %s", source, title[:60])
+    return new_idea
+
+
 # ---------------------------------------------------------------------------
 # Concurrents par produit ALNUA
 # ---------------------------------------------------------------------------
@@ -818,11 +860,17 @@ def run_rnd_cycle(blocking: bool = True) -> dict[str, Any]:
         return {"status": "cycle R&D lancé en arrière-plan"}
 
 
-def get_top_ideas(limit: int = 5, verdict: str | None = None) -> list[dict]:
+def get_top_ideas(
+    limit: int = 5,
+    verdict: str | None = None,
+    inbox_only: bool = False,
+) -> list[dict]:
     """Retourne les meilleures idées du journal R&D. Utile pour le COO."""
     try:
         from services.rnd_repository import get_rnd_repository
-        api_ideas = get_rnd_repository().get_top_ideas(limit=limit, verdict=verdict)
+        api_ideas = get_rnd_repository().get_top_ideas(
+            limit=limit, verdict=verdict, inbox_only=inbox_only
+        )
         if api_ideas:
             return [
                 {
@@ -855,9 +903,21 @@ def get_top_ideas(limit: int = 5, verdict: str | None = None) -> list[dict]:
         logger.warning("rnd_center: get_top_ideas via repository failed: %s", exc)
 
     ideas = _load_ideas()
+    if inbox_only:
+        ideas = [
+            i for i in ideas
+            if not i.get("dossier_id") and i.get("lifecycle_status") != "archived"
+        ]
     if verdict:
         ideas = [i for i in ideas if i.get("verdict") == verdict.upper()]
     return sorted(ideas, key=lambda x: x.get("score") or 0, reverse=True)[:limit]
+
+
+def archive_idea(idea_id: str) -> bool:
+    """Archive une proposition R&D (soft delete)."""
+    from services.rnd_repository import get_rnd_repository
+
+    return get_rnd_repository().archive_idea(idea_id)
 
 
 def get_idea_by_id(idea_id: str) -> dict | None:

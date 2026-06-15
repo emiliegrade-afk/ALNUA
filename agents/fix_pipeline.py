@@ -32,6 +32,9 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
+# Cap retries so a stuck fix loop cannot starve the API thread pool.
+MAX_PIPELINE_ATTEMPTS = int(os.getenv("WATCHDOG_MAX_ATTEMPTS", "3"))
+
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
 OPENROUTER_BASE = "https://openrouter.ai/api/v1/chat/completions"
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
@@ -480,7 +483,7 @@ async def run(error: dict[str, Any], repo_path: str, github_repo: str | None = N
     """
     Pipeline de fix autonome complet. Appelé par bug_watchdog.
 
-    Pas de limite de tentatives fixée — contexte croissant à chaque retry.
+    Max WATCHDOG_MAX_ATTEMPTS tentatives — contexte croissant à chaque retry.
     Chaque tentative ratée enrichit le journal et Mem0.
     Merge automatique uniquement si QA + Spec + tests sont verts.
 
@@ -510,8 +513,13 @@ async def run(error: dict[str, Any], repo_path: str, github_repo: str | None = N
     attempt = 0
     last_branch = None
 
-    while True:
-        logger.info("fix_pipeline: tentative %d pour erreur %s", attempt + 1, error_id[:8])
+    while attempt < MAX_PIPELINE_ATTEMPTS:
+        logger.info(
+            "fix_pipeline: tentative %d/%d pour erreur %s",
+            attempt + 1,
+            MAX_PIPELINE_ATTEMPTS,
+            error_id[:8],
+        )
         increment_attempts(error_id)
 
         # 1. Contexte croissant
@@ -640,3 +648,21 @@ async def run(error: dict[str, Any], repo_path: str, github_repo: str | None = N
             "summary": fix_summary,
             "deployed": deployed,
         }
+
+    mark_escalated(error_id)
+    await _notify(
+        f"⚠️ Bug non résolu — {agent_name}\n"
+        f"Type: {err_type}\n"
+        f"{MAX_PIPELINE_ATTEMPTS} tentatives épuisées — escalade COO requise."
+    )
+    logger.warning(
+        "fix_pipeline: escalade après %d tentatives pour %s",
+        MAX_PIPELINE_ATTEMPTS,
+        error_id[:8],
+    )
+    return {
+        "resolved": False,
+        "attempts": attempt,
+        "pr_url": None,
+        "summary": f"Escaladé après {MAX_PIPELINE_ATTEMPTS} tentatives",
+    }

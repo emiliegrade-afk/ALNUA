@@ -17,33 +17,53 @@ interface BureauAgentsSectionProps {
   bureau: BureauKey;
   /** Optional per-agent overrides (e.g. dynamic badge) */
   mapAgent?: (agent: BureauAgentDef) => BureauAgentDef & { badge?: string };
+  /** Hide agents already shown elsewhere (e.g. bureau hero) */
+  excludeAgentIds?: string[];
   className?: string;
 }
 
 export function BureauAgentsSection({
   bureau,
   mapAgent,
+  excludeAgentIds = [],
   className,
 }: BureauAgentsSectionProps) {
   const [focusedAgentId, setFocusedAgentId] = useState<string | null>(null);
   const [agentStatuses, setAgentStatuses] = useState<Record<string, AgentStatus>>({});
 
-  const agents = getAgentsForBureau(bureau).map((a) => mapAgent?.(a) ?? a);
+  const agents = getAgentsForBureau(bureau)
+    .filter((a) => !excludeAgentIds.includes(a.id))
+    .map((a) => mapAgent?.(a) ?? a);
 
   useEffect(() => {
     let cancelled = false;
+    let intervalId: ReturnType<typeof setInterval> | undefined;
 
     async function poll() {
-      const data = await fetchAgentsStatus();
+      const result = await fetchAgentsStatus();
       if (cancelled) return;
-      setAgentStatuses(data.agents);
+      setAgentStatuses(result.data.agents);
     }
 
-    void poll();
-    const interval = setInterval(() => void poll(), POLL_MS);
+    const start = () => {
+      void poll();
+      intervalId = setInterval(() => void poll(), POLL_MS);
+    };
+
+    if (typeof requestIdleCallback !== "undefined") {
+      const idleId = requestIdleCallback(start, { timeout: 600 });
+      return () => {
+        cancelled = true;
+        cancelIdleCallback(idleId);
+        if (intervalId) clearInterval(intervalId);
+      };
+    }
+
+    const timeoutId = setTimeout(start, 0);
     return () => {
       cancelled = true;
-      clearInterval(interval);
+      clearTimeout(timeoutId);
+      if (intervalId) clearInterval(intervalId);
     };
   }, []);
 
@@ -81,6 +101,7 @@ export function BureauAgentsSection({
             name: focused.name,
             emoji: focused.icon,
             role: focused.role,
+            branch: focused.branch,
           }}
           status={agentStatuses[focused.id] ?? { status: "idle" }}
           onClose={() => setFocusedAgentId(null)}

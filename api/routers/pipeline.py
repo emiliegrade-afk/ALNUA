@@ -15,8 +15,8 @@ async def run_pipeline_background(
     issue_number: int,
     repo: str | None,
 ) -> None:
-    """Runs the coding pipeline independently of the HTTP connection."""
-    from skills.skill_openhands import run_openhands_task
+    """Runs the coding pipeline (skill_coding_agent) independently of HTTP."""
+    from skills.skill_gh_issues import get_issue, process_issue
 
     task = _pipeline_tasks[task_id]
     pipeline_input = f"issue #{issue_number} on {repo or 'default'}"
@@ -37,39 +37,28 @@ async def run_pipeline_background(
             repo_path = issue.get("_repo_path")
             if not repo_path:
                 raise ValueError(
-                    f"Issue #{issue_number} sans métadonnée repo — préciser ?repo=hub|naia|nomad"
+                    f"Issue #{issue_number} sans métadonnée repo — préciser ?repo=hub|academy|nomad|naia"
                 )
 
-            github_repo = issue.get("_github_repo", "")
-            task_description = f"""Issue GitHub #{issue_number}: {issue_title}
-
-{issue.get('body', '') or ''}
-
-Repo: {github_repo}
-Branche: main
-"""
             task["progress"] = 40
-            _log("Envoi à OpenHands...")
+            _log("Lancement coding_agent (worktree + PR)...")
 
-            result = await asyncio.to_thread(
-                run_openhands_task,
-                task=task_description,
-                repo_path=repo_path,
-            )
+            result = await asyncio.to_thread(process_issue, issue, repo_path, None)
 
-            if result["success"]:
+            if result.get("success"):
                 task["status"] = "completed"
                 task["progress"] = 100
-                summary = result.get("result", "")
-                _log(f"[OK] Termine: {summary[:200]}")
+                pr_url = result.get("pr_url") or ""
+                _log(f"[OK] PR créée : {pr_url[:120]}")
                 if trace:
                     trace.update(output="completed")
             else:
                 task["status"] = "failed"
                 task["progress"] = 100
-                _log(f"[ERREUR] Erreur: {result['result']}")
+                err = result.get("error") or "unknown"
+                _log(f"[ERREUR] {err}")
                 if trace:
-                    trace.update(output=f"failed: {result['result']}", level="ERROR")
+                    trace.update(output=f"failed: {err}", level="ERROR")
         except Exception as exc:
             task["status"] = "failed"
             task["progress"] = 100
@@ -122,50 +111,20 @@ async def pipeline_status(task_id: str):
     }
 
 
-_OPENROOM_AGENT_IDS = (
-    "coo",
-    "pm",
-    "qa",
-    "spec",
-    "dev_app",
-    "content",
-    "marketing",
-    "game_dir",
-    "dev_game",
-    "hardware",
+from services.agent_pipeline_registry import (
+    ALL_BUREAU_AGENT_IDS,
+    LOG_NAME_TO_AGENT_ID,
+    OPENROOM_DISPLAY,
 )
 
-_LOG_NAME_TO_OPENROOM: dict[str, str] = {
-    "coo_agent": "coo",
-    "pm_agent": "pm",
-    "qa_agent": "qa",
-    "spec_agent": "spec",
-    "content_agent": "content",
-    "marketing_agent": "marketing",
-    "marketing": "marketing",
-    "DevApp": "dev_app",
-    "dev_app_agent": "dev_app",
-    "game_director": "game_dir",
-    "GameDirector": "game_dir",
-    "dev_gaming": "dev_game",
-    "DevGaming": "dev_game",
-    "hardware": "hardware",
-    "Hardware": "hardware",
-    "HardwareAgent": "hardware",
-}
-
-_OPENROOM_DISPLAY: dict[str, str] = {
-    "coo": "COO",
-    "pm": "PM",
-    "qa": "QA",
-    "spec": "SPEC",
-    "dev_app": "DEV",
-    "content": "CONTENT",
-    "marketing": "MKT",
-    "game_dir": "GAME",
-    "dev_game": "DEV-G",
-    "hardware": "HW",
-}
+_OPENROOM_AGENT_IDS = ALL_BUREAU_AGENT_IDS
+_LOG_NAME_TO_OPENROOM = LOG_NAME_TO_AGENT_ID
+# Legacy log aliases (anciens IDs OpenRoom)
+_LOG_NAME_TO_OPENROOM.update({
+    "game_dir": "game_director",
+    "dev_game": "dev_gaming",
+})
+_OPENROOM_DISPLAY = OPENROOM_DISPLAY
 
 
 def _openroom_idle_agents() -> dict[str, dict[str, Any]]:
@@ -239,6 +198,14 @@ def _format_log_time(value: str | None) -> str:
         return dt.astimezone(timezone.utc).strftime("%H:%M")
     except ValueError:
         return value[-8:-3] if len(value) >= 8 else "--:--"
+
+
+@router.get("/agents/pipeline/audit")
+async def agents_pipeline_audit() -> dict[str, Any]:
+    """Audit connectivité pipeline — import + méthodes exécutables par agent."""
+    from services.agent_pipeline_registry import audit_pipeline
+
+    return audit_pipeline()
 
 
 @router.get("/agents/status")
@@ -320,6 +287,11 @@ async def agents_status() -> dict[str, Any]:
             _set_openroom_status(agents, agent_id, "working", task_summary or None)
         elif log_status == "error":
             _set_openroom_status(agents, agent_id, "error", task_summary or None)
+        elif log_status == "success":
+            # Activité récente (< 3 min) : afficher la tâche même après succès
+            recent_cutoff = datetime.now(timezone.utc) - timedelta(minutes=3)
+            if created_dt >= recent_cutoff and task_summary:
+                _set_openroom_status(agents, agent_id, "waiting", task_summary)
 
         agent_log_lines = agents[agent_id].setdefault("log", [])
         if message and message not in agent_log_lines:

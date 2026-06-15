@@ -94,8 +94,15 @@ class RndCommitteeRepository:
             "rnd_committee_sessions",
             filters={"dossier_id": dossier_id},
             order_by="created_at",
+            ascending=False,
             limit=limit,
         )
+
+    def get_latest_closed_session(self, dossier_id: str) -> dict[str, Any] | None:
+        for session in self.list_sessions(dossier_id, limit=10):
+            if session.get("status") == "closed":
+                return session
+        return None
 
     def get_active_session(self, dossier_id: str) -> dict[str, Any] | None:
         rows = self.db.select(
@@ -147,6 +154,55 @@ class RndCommitteeRepository:
             limit=limit,
         )
         return list(rows or [])
+
+    def load_closed_session_history(
+        self, dossier_id: str, *, max_sessions: int = 3
+    ) -> tuple[list[dict[str, Any]], dict[str, Any] | None]:
+        """Messages from the most recent closed committee session(s)."""
+        merged: list[dict[str, Any]] = []
+        primary: dict[str, Any] | None = None
+        closed_count = 0
+        for session in self.list_sessions(dossier_id, limit=10):
+            if session.get("status") != "closed":
+                continue
+            closed_count += 1
+            if primary is None:
+                primary = session
+            msgs = self.list_messages(session["session_id"], limit=300)
+            merged.extend(msgs)
+            if closed_count >= max_sessions:
+                break
+        return merged, primary
+
+
+def format_committee_transcript_md(
+    history: list[dict[str, Any]],
+    *,
+    session_title: str | None = None,
+) -> str:
+    """Verbatim meeting log for CEO dossier annex (excludes auto CR duplicates)."""
+    if not history:
+        return ""
+    lines: list[str] = []
+    if session_title:
+        lines.extend([f"### Session : {session_title}", ""])
+    for msg in history:
+        if msg.get("role") == "system":
+            continue
+        meta = msg.get("metadata") or {}
+        if meta.get("synthesis") or meta.get("committee_report"):
+            continue
+        speaker = str(msg.get("speaker") or "user")
+        if msg.get("role") == "user":
+            label = "Emilie"
+        else:
+            label = member_label(speaker) if speaker in COMMITTEE_MEMBERS else speaker
+        content = (msg.get("content") or "").strip()
+        if not content:
+            continue
+        lines.append(f"**{label}** — {content}")
+        lines.append("")
+    return "\n".join(lines).strip()
 
 
 def get_committee_repository() -> RndCommitteeRepository:

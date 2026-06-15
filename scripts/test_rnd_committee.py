@@ -74,7 +74,12 @@ def test_committee_flow() -> None:
             actor="test_script",
         )
         assert closed["session"]["status"] == "closed"
-        print("OK committee start/message/close")
+        assert closed["dossier_status"] == "partial_validated"
+
+        resumed = agent.start_session(str(dossier.id), actor="test_script")
+        assert resumed.get("read_only") is True
+        assert len(resumed["messages"]) >= 2
+        print("OK committee start/message/close/resume")
     finally:
         db_row = repo.get_idea_db_row(legacy_id)
         if db_row and db_row.get("dossier_id"):

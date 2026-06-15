@@ -17,11 +17,15 @@ class RndVisionBody(BaseModel):
 
 
 @router.get("/rnd/ideas")
-def rnd_get_ideas(limit: int = Query(default=20, le=100), verdict: str | None = None) -> list[dict]:
+def rnd_get_ideas(
+    limit: int = Query(default=20, le=100),
+    verdict: str | None = None,
+    inbox_only: bool = Query(default=True, description="Exclure idées promues/archivées"),
+) -> list[dict]:
     """Retourne les idées générées par le Centre R&D, triées par score."""
     try:
         from agents.rnd_center import get_top_ideas
-        return get_top_ideas(limit=limit, verdict=verdict)
+        return get_top_ideas(limit=limit, verdict=verdict, inbox_only=inbox_only)
     except Exception as exc:
         logger.exception("rnd_get_ideas failed")
         raise HTTPException(status_code=500, detail=str(exc))
@@ -55,7 +59,23 @@ def rnd_inject_idea(body: RndInjectBody) -> dict:
         from agents.rnd_center import inject_idea
         return inject_idea(body.idea, body.source)
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.post("/rnd/submit")
+def rnd_submit_user_dossier(body: dict[str, Any]) -> dict[str, Any]:
+    """Soumet un dossier R&D structuré (idée + sections) — création directe sans cycle auto."""
+    from agents.rnd_dossier_agent import RndDossierAgent
+
+    try:
+        return RndDossierAgent().submit_user_dossier(body, actor="emilie")
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("rnd_submit_user_dossier failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
 @router.post("/rnd/cycle")
@@ -113,6 +133,22 @@ def rnd_get_idea(idea_id: str) -> dict[str, Any]:
     if not idea:
         raise HTTPException(status_code=404, detail=f"Idée introuvable : {idea_id}")
     return idea
+
+
+@router.delete("/rnd/ideas/{idea_id}")
+def rnd_archive_idea(idea_id: str) -> dict[str, str]:
+    """Archive une proposition R&D (retire de la liste inbox)."""
+    from agents.rnd_center import archive_idea
+
+    try:
+        if not archive_idea(idea_id):
+            raise HTTPException(status_code=404, detail=f"Idée introuvable : {idea_id}")
+        return {"ok": "Idée archivée"}
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("rnd_archive_idea failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
 @router.post("/rnd/ideas/{idea_id}/promote")
@@ -220,9 +256,13 @@ def rnd_list_dossiers(
     status: str | None = Query(default=None),
     domain: str | None = Query(default=None),
     limit: int = Query(default=50, le=100),
-) -> list[dict[str, Any]]:
+    ceo_queue: bool = Query(default=False, description="Inclure file CEO (to_validate/to_prepare)"),
+) -> list[dict[str, Any]] | dict[str, Any]:
     from agents.rnd_dossier_agent import RndDossierAgent
+    from agents.rnd_ceo_agent import RndCeoAgent
 
+    if ceo_queue:
+        return RndCeoAgent().list_ceo_queue(limit=limit)
     return RndDossierAgent().list_dossiers(status=status, domain=domain, limit=limit)
 
 
@@ -270,6 +310,32 @@ def rnd_get_dossier_events(
 
     events = get_rnd_repository().get_dossier_events(dossier_id, limit=limit)
     return [e.model_dump() for e in events]
+
+
+@router.patch("/rnd/dossiers/{dossier_id}/sections/{section_key}")
+def rnd_update_section(
+    dossier_id: str,
+    section_key: str,
+    body: dict[str, Any],
+) -> dict[str, Any]:
+    """Met à jour le contenu markdown d'une section (édition manuelle Emilie)."""
+    from agents.rnd_dossier_agent import RndDossierAgent
+    from services.rnd_schemas import RndSectionUpdateBody
+
+    req = RndSectionUpdateBody.model_validate(body)
+    try:
+        dossier = RndDossierAgent().update_section(
+            dossier_id,
+            section_key,
+            req.content_md,
+            actor="emilie",
+        )
+        return dossier.model_dump()
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("rnd_update_section failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
 @router.post("/rnd/dossiers/{dossier_id}/enrich")
@@ -377,6 +443,7 @@ def rnd_committee_start(dossier_id: str, body: dict[str, Any] | None = None) -> 
             dossier_id,
             mode=payload.mode,
             active_section=payload.active_section,
+            force_new=payload.force_new,
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
@@ -733,6 +800,26 @@ def rnd_social_list_posts(dossier_id: str) -> list[dict[str, Any]]:
 
 
 
+@router.get("/rnd/ceo/pending-dossiers")
+def rnd_ceo_pending_dossiers(
+    limit: int = Query(default=20, le=50),
+) -> list[dict[str, Any]]:
+    """Dossiers R&D avec package CEO généré, en attente de validation Emilie."""
+    from agents.rnd_ceo_agent import RndCeoAgent
+
+    return RndCeoAgent().list_pending_dossiers(limit=limit)
+
+
+@router.get("/rnd/ceo/queue")
+def rnd_ceo_queue(
+    limit: int = Query(default=20, le=50),
+) -> dict[str, Any]:
+    """File CEO : à valider (package prêt) + à finaliser (générer package)."""
+    from agents.rnd_ceo_agent import RndCeoAgent
+
+    return RndCeoAgent().list_ceo_queue(limit=limit)
+
+
 @router.get("/rnd/dossiers/{dossier_id}/ceo/package")
 def rnd_ceo_get_package(dossier_id: str) -> dict[str, Any]:
     from agents.rnd_ceo_agent import RndCeoAgent
@@ -804,6 +891,85 @@ def rnd_ceo_dispatch(dossier_id: str) -> dict[str, Any]:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
+@router.post("/rnd/dossiers/{dossier_id}/engineering-spec/generate")
+def rnd_generate_engineering_spec(
+    dossier_id: str,
+    body: EngineeringSpecGenerateRequest | None = None,
+) -> dict[str, Any]:
+    """CEO package §10 — Léon (spec) + QA adversarial + PM refine."""
+    from services.prd_engineering import (
+        PrdEngineeringNotReadyError,
+        run_engineering_spec_generation,
+    )
+
+    payload = body or EngineeringSpecGenerateRequest()
+    try:
+        return run_engineering_spec_generation(
+            dossier_id,
+            force=payload.force,
+            debate_rounds=payload.debate_rounds,
+            refine_with_pm=payload.refine_with_pm,
+        )
+    except PrdEngineeringNotReadyError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("rnd_generate_engineering_spec failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.post("/rnd/dossiers/{dossier_id}/engineering-spec/decompose")
+def rnd_decompose_prd(
+    dossier_id: str,
+    body: PrdDecomposeRequest | None = None,
+) -> dict[str, Any]:
+    """PM → GitHub issues agent-ready + build manifest."""
+    from services.prd_engineering import PrdEngineeringNotReadyError, run_prd_decompose
+
+    payload = body or PrdDecomposeRequest()
+    try:
+        return run_prd_decompose(
+            dossier_id,
+            repo_slug=payload.repo_slug,
+            dry_run=payload.dry_run,
+            mark_ready_count=payload.mark_ready_count,
+            force_spec=payload.force_spec,
+            debate_rounds=payload.debate_rounds,
+        )
+    except PrdEngineeringNotReadyError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("rnd_decompose_prd failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.get("/rnd/dossiers/{dossier_id}/build-manifest")
+def rnd_build_manifest(dossier_id: str) -> dict[str, Any]:
+    from services.prd_engineering import get_build_status
+
+    try:
+        return get_build_status(dossier_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@router.post("/rnd/dossiers/{dossier_id}/ceo/execute")
+def rnd_ceo_execute_agents(dossier_id: str) -> dict[str, Any]:
+    """Lance (ou relance) l'exécution réelle des agents après dispatch CEO."""
+    from agents.rnd_ceo_agent import DispatchNotAllowedError, RndCeoAgent
+
+    try:
+        return RndCeoAgent().kickoff_execution(dossier_id)
+    except DispatchNotAllowedError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("rnd_ceo_execute failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
 @router.get("/rnd/health")
@@ -920,33 +1086,5 @@ def rnd_unpublish_product_page(dossier_id: str) -> dict[str, Any]:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
-@router.get("/finances/summary/{month}")
-def get_finance_summary(month: str) -> dict[str, Any]:
-    try:
-        return get_or_generate_summary(month)
-    except Exception as exc:
-        logger.exception("Finance summary failed for %s", month)
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
-
-
-@router.post("/finances/summary/generate")
-def regenerate_finance_summary(body: FinanceSummaryGenerate) -> dict[str, Any]:
-    try:
-        return generate_monthly_summary(body.month, force=True)
-    except Exception as exc:
-        logger.exception("Finance summary regeneration failed for %s", body.month)
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
-
-
-@router.get("/finances/dashboard")
-def finance_dashboard(
-    month: str | None = Query(default=None, pattern=r"^\d{4}-\d{2}$"),
-) -> dict[str, Any]:
-    db = get_supabase()
-    data = build_dashboard(db, month=month)
-    data["recurring_expenses"] = attach_project_names(
-        db, data["recurring_expenses"]
-    )
-    return data
-
-
+# Finance summary/dashboard: canonical handlers in api/routers/finances.py (Phase 4).
+# Paths unchanged — implementation moved out of this god router.

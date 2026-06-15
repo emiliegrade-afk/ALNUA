@@ -145,7 +145,20 @@ def run_morning_orchestration(*, weekly_plan: bool = False) -> dict[str, Any]:
         if opportunities:
             opp_block = "\n\n💡 Opportunités :\n" + "\n".join(f"• {o}" for o in opportunities[:3])
         mode = "Plan de la semaine" if weekly_plan else "Briefing du jour"
-        message = f"☀️ ALNUA — {mode}\n\n{coo_plan}{alert_block}{opp_block}"
+        academy_line = ""
+        try:
+            from services.academy_progress import get_academy_status
+
+            ac = get_academy_status().get("progress") or {}
+            academy_line = (
+                f"\n\n🎓 Academy : {ac.get('completed_exercises', 0)}/"
+                f"{ac.get('total_exercises', 52)} exos "
+                f"(L{ac.get('current_level', 1)}, "
+                f"{ac.get('success_rate_pct', 0)}% succès)"
+            )
+        except Exception:
+            pass
+        message = f"☀️ ALNUA — {mode}\n\n{coo_plan}{alert_block}{opp_block}{academy_line}"
         notifications = _notify(message)
 
     return {
@@ -173,7 +186,7 @@ def run_spec_qa_chain(
     project_slug: str | None = None,
     ticket_title: str | None = None,
 ) -> dict[str, Any]:
-    """Marcus ↔ Sven puis ticket QA optionnel + notification."""
+    """Léon ↔ Alex puis ticket QA optionnel + notification."""
     from agents.qa_agent import QAAgent
     from services.adversarial_spec import debate_spec
 
@@ -196,7 +209,7 @@ def run_spec_qa_chain(
                             f"- {d.get('critique', d)}" for d in divergences[:5]
                         )
                     description = (
-                        f"## Spec convergée (Marcus + Sven)\n\n"
+                        f"## Spec convergée (Léon + Alex)\n\n"
                         f"{result.get('consensus_spec', spec_text)}\n\n"
                         f"**Verdict QA :** {verdict}\n"
                         f"**Contexte :** {context or '(non fourni)'}"
@@ -391,6 +404,234 @@ def run_content_sprint(
         }
 
 
+def run_academy_sprint_orchestration(
+    *,
+    level: int | None = None,
+    seed_if_missing: bool = True,
+    mark_ready_count: int = 3,
+) -> dict[str, Any]:
+    """Seed + agent-ready pour l'académie ALNUA."""
+    from services.academy_seed import run_academy_sprint
+
+    try:
+        result = run_academy_sprint(
+            level=level,
+            seed_if_missing=seed_if_missing,
+            mark_ready_count=mark_ready_count,
+        )
+        marked = result.get("agent_ready", {}).get("marked_count", 0)
+        _log_run("academy_sprint", f"level={level} ready={marked}")
+        _notify(
+            f"🎓 Sprint Académie ALNUA\n"
+            f"Niveau : {level or 'auto'}\n"
+            f"Issues agent-ready : {marked}"
+        )
+        return {**result, "success": True}
+    except Exception as exc:
+        logger.exception("academy_sprint failed")
+        _log_run("academy_sprint", str(exc), success=False)
+        _notify(f"❌ Sprint Académie échoué : {exc}")
+        return {"workflow": "academy_sprint", "success": False, "error": str(exc)}
+
+
+def run_academy_poll_orchestration(
+    *,
+    mark_ready_if_idle: bool = True,
+    mark_ready_count: int = 2,
+    notify: bool = True,
+) -> dict[str, Any]:
+    """
+    Poll Academy infra: sync progress, close agent-done issues, advance level, queue next.
+    Called by Hub poll_issues_loop backup + n8n workflow 12 every 30min.
+    """
+    from services.academy_issue_sync import run_academy_sync
+    from services.academy_seed import mark_next_agent_ready
+    from services.nuaway_gate import evaluate_nuaway_gate
+
+    try:
+        sync = run_academy_sync()
+        progress = sync.get("progress") or {}
+        levels = progress.get("levels") or {}
+        lv1 = levels.get("1") or {}
+        in_pipeline = int(lv1.get("in_progress") or 0)
+
+        queued: dict[str, Any] | None = None
+        if mark_ready_if_idle and in_pipeline == 0:
+            current = int(progress.get("current_level") or 1)
+            queued = mark_next_agent_ready(level=current, count=mark_ready_count)
+
+        gate = evaluate_nuaway_gate(refresh_academy=False)
+
+        summary = (
+            f"L{progress.get('current_level')} "
+            f"{progress.get('completed_exercises')}/{progress.get('total_exercises')} "
+            f"gate={gate.get('readiness_pct')}%"
+        )
+        _log_run("academy_poll", summary)
+
+        if notify:
+            closed = sync.get("closed_issues", {}).get("closed_count", 0)
+            ready_n = (queued or {}).get("marked_count", 0)
+            msg = (
+                f"🎓 Academy poll\n"
+                f"Progression : {progress.get('completed_exercises')}/"
+                f"{progress.get('total_exercises')} "
+                f"(L{progress.get('current_level')})\n"
+                f"Issues fermées : {closed} | agent-ready : {ready_n}\n"
+                f"Gate readiness : {gate.get('readiness_pct')}%"
+            )
+            if gate.get("gate_open"):
+                msg += "\n✅ GATE OUVERTE — Lounge/arcade autorisé"
+            _notify(msg)
+
+        return {
+            "workflow": "academy_poll",
+            "success": True,
+            "sync": sync,
+            "queued": queued,
+            "gate": gate,
+        }
+    except Exception as exc:
+        logger.exception("academy_poll failed")
+        _log_run("academy_poll", str(exc), success=False)
+        if notify:
+            _notify(f"❌ Academy poll échoué : {exc}")
+        return {"workflow": "academy_poll", "success": False, "error": str(exc)}
+
+
+def run_prd_decompose_orchestration(
+    *,
+    dossier_id: str,
+    repo_slug: str | None = None,
+    dry_run: bool = False,
+    mark_ready_count: int = 3,
+    force_spec: bool = False,
+) -> dict[str, Any]:
+    """CEO approved → engineering spec → GitHub issues (n8n workflow 07)."""
+    from services.prd_engineering import run_prd_decompose
+
+    try:
+        result = run_prd_decompose(
+            dossier_id,
+            repo_slug=repo_slug,
+            dry_run=dry_run,
+            mark_ready_count=mark_ready_count,
+            force_spec=force_spec,
+        )
+        created = result.get("created_count", 0)
+        _log_run("prd_decompose", f"dossier={dossier_id} issues={created}")
+        _notify(
+            f"📋 PRD → Issues GitHub\n"
+            f"Dossier : {result.get('dossier_slug')}\n"
+            f"Issues créées : {created}\n"
+            f"Repo : {result.get('github_repo')}"
+        )
+        return {**result, "success": True, "workflow": "prd_decompose"}
+    except Exception as exc:
+        logger.exception("prd_decompose failed")
+        _log_run("prd_decompose", str(exc), success=False)
+        _notify(f"❌ PRD decompose échoué : {exc}")
+        return {"workflow": "prd_decompose", "success": False, "error": str(exc)}
+
+
+def run_sentry_ingest_orchestration(payload: dict[str, Any]) -> dict[str, Any]:
+    """Replay Sentry payload via orchestration (n8n workflow 09)."""
+    from services.production_ops import run_sentry_webhook
+
+    try:
+        # Caller already authenticated via X-Hub-Key on /orchestration/*.
+        result = run_sentry_webhook(
+            payload,
+            create_issue=True,
+            trusted_relay=True,
+        )
+        action = result.get("action", "unknown")
+        _log_run("sentry_ingest", f"action={action}")
+        if action == "ingested":
+            _notify(
+                f"🚨 Sentry → hotfix\n"
+                f"{result.get('fingerprint', '')[:12]}…\n"
+                f"Journal : {result.get('journal_id', '—')}\n"
+                f"Issue : #{(result.get('github_issue') or {}).get('number', '—')}"
+            )
+        return {**result, "workflow": "sentry_ingest"}
+    except Exception as exc:
+        logger.exception("sentry_ingest failed")
+        _log_run("sentry_ingest", str(exc), success=False)
+        _notify(f"❌ Sentry ingest échoué : {exc}")
+        return {"workflow": "sentry_ingest", "success": False, "error": str(exc)}
+
+
+def run_nuaway_gate_orchestration(*, notify: bool = True) -> dict[str, Any]:
+    """Évalue la gate NUAWAY et notifie si bloquante (n8n workflow 10)."""
+    from services.nuaway_gate import evaluate_nuaway_gate
+
+    try:
+        result = evaluate_nuaway_gate(refresh_academy=True)
+        pct = result.get("readiness_pct", 0)
+        open_ = bool(result.get("gate_open"))
+        _log_run("nuaway_gate", f"readiness={pct}% open={open_}")
+        if notify:
+            status = "✅ OPEN" if open_ else f"🔒 {pct}%"
+            missing = [
+                c["label"]
+                for c in result.get("criteria", [])
+                if c.get("critical") and not c.get("passed")
+            ]
+            msg = f"🚦 Gate NUAWAY — {status}"
+            if missing and not open_:
+                msg += f"\nBloquant : {missing[0]}"
+            _notify(msg)
+        return {**result, "success": True, "workflow": "nuaway_gate"}
+    except Exception as exc:
+        logger.exception("nuaway_gate failed")
+        _log_run("nuaway_gate", str(exc), success=False)
+        if notify:
+            _notify(f"❌ Évaluation gate NUAWAY échouée : {exc}")
+        return {"workflow": "nuaway_gate", "success": False, "error": str(exc)}
+
+
+def run_nuaway_readiness_report_orchestration(*, notify: bool = True) -> dict[str, Any]:
+    """Rapport readiness beta NUAWAY (n8n workflow 11)."""
+    from services.nuaway_readiness import generate_readiness_report
+
+    try:
+        report = generate_readiness_report(refresh_gate=True)
+        headline = report.get("headline", "")
+        _log_run("nuaway_readiness_report", headline[:120])
+        if notify:
+            status = "✅ BETA READY" if report.get("beta_ready") else f"🔒 {report.get('readiness_pct')}%"
+            _notify(f"📊 Rapport readiness NUAWAY\n{status}\n{headline}")
+        return {**report, "success": True, "workflow": "nuaway_readiness_report"}
+    except Exception as exc:
+        logger.exception("nuaway_readiness_report failed")
+        _log_run("nuaway_readiness_report", str(exc), success=False)
+        if notify:
+            _notify(f"❌ Rapport readiness échoué : {exc}")
+        return {"workflow": "nuaway_readiness_report", "success": False, "error": str(exc)}
+
+
+def run_nuaway_bootstrap_orchestration(*, notify: bool = True) -> dict[str, Any]:
+    """Bootstrap ops NUAWAY — diagnostic + next steps (Phase 7)."""
+    from services.nuaway_bootstrap import run_nuaway_bootstrap
+
+    try:
+        result = run_nuaway_bootstrap(refresh=True)
+        headline = result.get("headline", "")
+        _log_run("nuaway_bootstrap", headline[:120])
+        if notify:
+            steps = result.get("next_steps") or []
+            step_txt = steps[0]["action"] if steps else "RAS"
+            _notify(f"🚀 Bootstrap NUAWAY\n{headline}\n→ {step_txt}")
+        return {**result, "success": True, "workflow": "nuaway_bootstrap"}
+    except Exception as exc:
+        logger.exception("nuaway_bootstrap failed")
+        _log_run("nuaway_bootstrap", str(exc), success=False)
+        if notify:
+            _notify(f"❌ Bootstrap NUAWAY échoué : {exc}")
+        return {"workflow": "nuaway_bootstrap", "success": False, "error": str(exc)}
+
+
 WORKFLOW_CATALOG: list[dict[str, Any]] = [
     {
         "id": "morning",
@@ -430,6 +671,62 @@ WORKFLOW_CATALOG: list[dict[str, Any]] = [
         "endpoint": "POST /orchestration/content-sprint",
         "trigger": "Automatique vendredi 17:00 + n8n",
         "agents": ["content", "marketing"],
+        "level": 2,
+    },
+    {
+        "id": "academy_sprint",
+        "name": "Sprint Académie dev_app",
+        "endpoint": "POST /orchestration/academy-sprint",
+        "trigger": "n8n workflow 08 — lundi 09:00",
+        "agents": ["dev_app"],
+        "level": 2,
+    },
+    {
+        "id": "academy_poll",
+        "name": "Poll Academy + sync + queue",
+        "endpoint": "POST /orchestration/academy-poll",
+        "trigger": "n8n workflow 12 — toutes les 30 min",
+        "agents": ["dev_app"],
+        "level": 2,
+    },
+    {
+        "id": "prd_decompose",
+        "name": "PRD Engineering → issues GitHub",
+        "endpoint": "POST /orchestration/prd-decompose",
+        "trigger": "n8n workflow 07 — après validation CEO",
+        "agents": ["spec", "pm", "qa"],
+        "level": 3,
+    },
+    {
+        "id": "sentry_ingest",
+        "name": "Sentry alert → hotfix issue",
+        "endpoint": "POST /orchestration/sentry-ingest",
+        "trigger": "n8n workflow 09 — alertes production",
+        "agents": ["dev_app", "dev_backend", "qa"],
+        "level": 4,
+    },
+    {
+        "id": "nuaway_gate",
+        "name": "Évaluation gate readiness NUAWAY",
+        "endpoint": "POST /orchestration/nuaway-gate",
+        "trigger": "n8n workflow 10 — check quotidien CEO",
+        "agents": ["coo"],
+        "level": 3,
+    },
+    {
+        "id": "nuaway_readiness_report",
+        "name": "Rapport readiness beta NUAWAY",
+        "endpoint": "POST /orchestration/nuaway-readiness-report",
+        "trigger": "n8n workflow 11 — rapport hebdo CEO",
+        "agents": ["coo"],
+        "level": 3,
+    },
+    {
+        "id": "nuaway_bootstrap",
+        "name": "Bootstrap ops NUAWAY",
+        "endpoint": "POST /orchestration/nuaway-bootstrap",
+        "trigger": "Manuel / post-setup — diagnostic + next steps",
+        "agents": ["coo"],
         "level": 2,
     },
 ]

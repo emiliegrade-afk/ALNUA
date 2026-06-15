@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Loader2, MessageSquare, Send, Users, XCircle, FileText } from "lucide-react";
+import { Loader2, MessageSquare, Plus, Send, Users, XCircle, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -86,6 +86,7 @@ export function RndCommitteePanel({
 }: RndCommitteePanelProps) {
   const [session, setSession] = useState<CommitteeSession | null>(null);
   const [messages, setMessages] = useState<CommitteeMessage[]>([]);
+  const [readOnly, setReadOnly] = useState(false);
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [closing, setClosing] = useState(false);
@@ -93,16 +94,20 @@ export function RndCommitteePanel({
   const [input, setInput] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  const start = useCallback(async () => {
+  const start = useCallback(async (forceNew = false) => {
     setLoading(true);
     try {
       const data = await startCommitteeSession(dossierId, {
         active_section: activeSection ?? undefined,
+        force_new: forceNew,
       });
       setSession(data.session);
       setMessages(data.messages);
+      setReadOnly(Boolean(data.read_only));
       if (!data.resumed) {
         toast.success("Comité R&D ouvert");
+      } else if (data.read_only) {
+        toast.info("Historique de la dernière session comité");
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Impossible d'ouvrir le comité");
@@ -112,8 +117,12 @@ export function RndCommitteePanel({
   }, [dossierId, activeSection]);
 
   useEffect(() => {
-    void start();
+    void start(false);
   }, [start]);
+
+  async function handleNewSession() {
+    await start(true);
+  }
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -177,13 +186,21 @@ export function RndCommitteePanel({
         generateCeoPackage: true,
       });
       const ceoMsg = result.ceo_package?.message;
-      toast.success(
-        ceoMsg
-          ? `Comité clos — ${ceoMsg}`
-          : result.sections_updated.length > 0
-            ? `Comité clos — ${result.sections_updated.length} section(s) mises à jour`
-            : "Comité clos — CR structuré généré"
-      );
+      const status = result.dossier_status;
+      if (ceoMsg) {
+        toast.success(`Comité clos — ${ceoMsg}`, { duration: 6000 });
+      } else if (result.ceo_package_error) {
+        toast.warning(
+          `Comité clos (${status}) — dossier CEO non généré : ${result.ceo_package_error}`,
+          { duration: 8000 }
+        );
+      } else if (result.sections_updated.length > 0) {
+        toast.success(
+          `Comité clos — ${result.sections_updated.length} section(s) mises à jour · statut ${status}`
+        );
+      } else {
+        toast.success(`Comité clos — CR enregistré · statut ${status}`);
+      }
       if (result.synthesis_md) {
         setMessages((prev) => [
           ...prev,
@@ -199,6 +216,7 @@ export function RndCommitteePanel({
         ]);
       }
       setSession((s) => (s ? { ...s, status: "closed" } : s));
+      setReadOnly(true);
       onClosed?.();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Clôture impossible");
@@ -216,7 +234,7 @@ export function RndCommitteePanel({
   }
 
   const team = session?.team ?? [];
-  const isClosed = session?.status === "closed";
+  const isClosed = session?.status === "closed" || readOnly;
 
   return (
     <div className="flex h-full min-h-[420px] flex-col rounded-xl border border-copper/15 bg-copper/[0.02]">
@@ -228,43 +246,70 @@ export function RndCommitteePanel({
           </div>
           <p className="text-[10px] text-titanium/50">{dossierTitle}</p>
         </div>
-        {!isClosed ? (
-          <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={reporting || closing}
-              onClick={() => void handleGenerateReport()}
-              className="border-copper/30 text-copper hover:bg-copper/10"
-            >
-              {reporting ? (
-                <Loader2 className="h-3 w-3 animate-spin" />
-              ) : (
-                <FileText className="mr-1 h-3 w-3" />
-              )}
-              Générer le CR
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={closing || reporting}
-              onClick={() => void handleClose()}
-              className="border-red-500/30 text-red-300 hover:bg-red-500/10"
-            >
-              {closing ? (
-                <Loader2 className="h-3 w-3 animate-spin" />
-              ) : (
-                <XCircle className="mr-1 h-3 w-3" />
-              )}
-              Clôturer
-            </Button>
-          </div>
-        ) : (
-          <span className="text-[10px] text-titanium/50">Session fermée</span>
-        )}
+        <div className="flex items-center gap-2">
+          {isClosed ? (
+            <>
+              <span className="text-[10px] text-titanium/50">Session fermée</span>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={loading}
+                onClick={() => void handleNewSession()}
+                className="border-copper/30 text-copper hover:bg-copper/10"
+              >
+                {loading ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <Plus className="mr-1 h-3 w-3" />
+                )}
+                Nouvelle session
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={reporting || closing}
+                onClick={() => void handleGenerateReport()}
+                className="border-copper/30 text-copper hover:bg-copper/10"
+              >
+                {reporting ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <FileText className="mr-1 h-3 w-3" />
+                )}
+                Générer le CR
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={closing || reporting}
+                onClick={() => void handleClose()}
+                className="border-red-500/30 text-red-300 hover:bg-red-500/10"
+              >
+                {closing ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <XCircle className="mr-1 h-3 w-3" />
+                )}
+                Clôturer
+              </Button>
+            </>
+          )}
+        </div>
       </div>
+
+      {isClosed ? (
+        <p className="shrink-0 border-b border-copper/10 bg-amber-500/[0.06] px-4 py-2 text-[11px] text-amber-200/80">
+          Historique conservé — le dossier CEO est dans l&apos;onglet{" "}
+          <strong className="font-normal text-ivory/85">Dossier CEO</strong>. Ouvre une
+          nouvelle session pour reprendre le débat.
+        </p>
+      ) : null}
 
       {team.length > 0 ? (
         <div className="flex shrink-0 flex-wrap gap-1.5 border-b border-copper/10 px-4 py-2">

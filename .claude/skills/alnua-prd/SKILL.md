@@ -1,10 +1,10 @@
 # /alnua-prd — PRD structuré ALNUA
-> Adapté de prd-taskmaster (anombyte93) pour Marcus Webb (Spec) et Léa Moreau (PM).
+> Adapté de prd-taskmaster (anombyte93) pour Léon Marchand (Spec) et Sam Rivera (PM).
 > Invoque avec `/alnua-prd` pour générer un PRD complet + task breakdown depuis un brief.
 
 ## Objectif
 Transformer un brief en PRD complet et actionnable, puis le décomposer en tâches priorisées.
-Marcus écrit la spec technique. Léa traduit en plan de delivery. Ce skill coordonne les deux.
+Léon écrit la spec technique. Sam traduit en plan de delivery. Ce skill coordonne les deux.
 
 ---
 
@@ -14,8 +14,8 @@ Marcus écrit la spec technique. Léa traduit en plan de delivery. Ce skill coor
 
 ```markdown
 # PRD — [Nom de la Feature]
-**Auteur Spec** : Marcus Webb (Spec Agent)
-**Auteur PM** : Léa Moreau (PM Agent)
+**Auteur Spec** : Léon Marchand (Spec Agent)
+**Auteur PM** : Sam Rivera (PM Agent)
 **Date** : YYYY-MM-DD
 **Status** : Draft | Review | Approved
 **Version** : 1.0
@@ -48,7 +48,7 @@ Marcus écrit la spec technique. Léa traduit en plan de delivery. Ce skill coor
 **OUT (explicitement exclus)** :
 - [ce qu'on ne fait PAS et pourquoi]
 
-## 4. Spec Technique (Marcus)
+## 4. Spec Technique (Léon)
 
 ### 4.1 Architecture
 ```
@@ -71,7 +71,7 @@ class FeatureRequest(BaseModel):
 - **Risques techniques** : [ce qui peut mal tourner]
 - **Hypothèses** : [ce qu'on prend pour acquis]
 
-## 5. Plan de Delivery (Léa)
+## 5. Plan de Delivery (Sam)
 
 ### 5.1 Task Breakdown
 | # | Tâche | Agent | Points | Bloqueurs | Priorité |
@@ -84,7 +84,7 @@ class FeatureRequest(BaseModel):
 - **Go-live** : [date cible]
 
 ### 5.3 Definition of Done
-- [ ] Tests unitaires passent (Sven)
+- [ ] Tests unitaires passent (Alex)
 - [ ] Endpoint documenté dans CLAUDE.md
 - [ ] Review COO (Aria) validée
 - [ ] Déployé en staging sans erreur
@@ -97,30 +97,30 @@ class FeatureRequest(BaseModel):
 ## 7. Changelog
 | Date | Version | Auteur | Changement |
 |------|---------|--------|------------|
-| [date] | 1.0 | Marcus/Léa | Création |
+| [date] | 1.0 | Léon/Sam | Création |
 ```
 
 ---
 
 ## Workflow d'utilisation
 
-### Étape 1 — Brief → PRD (Marcus)
+### Étape 1 — Brief → PRD (Léon)
 ```
 Input : "Je veux une feature X qui fait Y pour Z"
-Marcus appelle : spec_agent.write_spec(brief) → structure PRD sections 1-4
+Léon appelle : spec_agent.write_spec(brief) → structure PRD sections 1-4
 ```
 
-### Étape 2 — PRD → Tasks (Léa)
+### Étape 2 — PRD → Tasks (Sam)
 ```
 Input : PRD sections 1-4 complet
-Léa appelle : pm_agent.plan_sprint(spec) → remplie sections 5-6
+Sam appelle : pm_agent.plan_sprint(spec) → remplie sections 5-6
 ```
 
-### Étape 3 — Adversarial Review (Sven)
+### Étape 3 — Adversarial Review (Alex)
 ```
 Input : PRD complet
-Sven critique : qa_agent.review_spec(prd) → liste des holes
-Marcus révise → version 1.1
+Alex critique : qa_agent.review_spec(prd) → liste des holes
+Léon révise → version 1.1
 ```
 
 ### Étape 4 — Approval (Aria)
@@ -155,7 +155,7 @@ POST /services/adversarial-spec/quick-check {"spec_text": "contenu PRD"}
 
 ---
 
-## Critères de qualité (Sven valide)
+## Critères de qualité (Alex valide)
 Un PRD est prêt pour implémentation si :
 - Chaque section est remplie (pas de [placeholder] restant)
 - Les KPIs sont mesurables (pas "améliorer l'expérience")

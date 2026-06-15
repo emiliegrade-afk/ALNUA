@@ -26,10 +26,10 @@ Tu travailles dans **ALNUA Hub** (`C:\Dev\ALUNA_HUB`), le backend central d'une 
 ```
 agents/
   base.py                    ← LLMClient, run_with_learning, log_agent_action
-  coo_agent.py               ← Aria Stern, COO
-  spec_agent.py              ← Marcus Webb, Spec Rédacteur
-  qa_agent.py                ← Sven Lindqvist, QA
-  pm_agent.py                ← Léa Moreau, PM
+  coo_agent.py               ← Aria Voss, COO
+  spec_agent.py              ← Léon Marchand, Spec Rédacteur
+  qa_agent.py                ← Alex Okafor, QA
+  pm_agent.py                ← Sam Rivera, PM
   dev_app_agent.py           ← Théo Laurent, Dev App
   game_director_agent.py     ← Mira Chen, Game Director
   dev_gaming_agent.py        ← Nova Fischer, Dev Gaming

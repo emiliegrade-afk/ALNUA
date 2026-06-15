@@ -111,32 +111,16 @@ class ExecutionPlan:
 # COO Plan Parser — COO génère le plan, on le parse
 # ---------------------------------------------------------------------------
 
-_COO_PLAN_SYSTEM = """Tu es Aria Stern, COO d'ALNUA. Tu décomposes des objectifs en plans d'action précis.
+from config.agent_personas import persona_prompt_intro
+from services.agent_pipeline_registry import format_plan_executor_catalog
+
+_COO_PLAN_SYSTEM = f"""{persona_prompt_intro("coo", role="COO")}. Tu décomposes des objectifs en plans d'action précis.
 Chaque étape du plan est assignée à UN agent ALNUA spécifique avec ses paramètres exacts.
 Les dépendances reflètent le flux de données réel (step B utilise le résultat de step A).
+NUAWAY = app voyage nomade (spots, cartes, communauté) — pas de tickets VPN/crypto/R&D sans lien.
 Réponds en JSON valide uniquement."""
 
-_AVAILABLE_AGENTS = """AGENTS DISPONIBLES :
-- coo → plan_week, morning_brief
-- spec → write_spec
-- qa → review_spec
-- pm → plan_sprint, write_user_story
-- dev_app → handle_instruction, design_api
-- dev_backend → design_api, implement_feature, review_code, debug
-- dev_gaming → handle_instruction
-- game_director → game_concept, write_gdd
-- brainstorm → ideate
-- rnd_agent → prototype_spec, research_topic
-- marketing → handle_instruction, seo_audit
-- content → write_content, create_post
-- accounting → analyze_expenses
-- controller → analyze_costs, build_forecast, llm_cost_alert
-- hardware → handle_instruction
-- embedded_dev → handle_instruction
-- secretary → draft_email, triage_emails, draft_contract, plan_meeting
-- level_designer → design_quest, design_level, write_lore_entry
-- analyst_business → market_analysis, define_kpis, user_research, strategic_brief
-- analyst_data → sql_query, funnel_analysis, anomaly_report, dashboard_spec"""
+_AVAILABLE_AGENTS = format_plan_executor_catalog()
 
 
 def parse_coo_plan(objective: str, context: str = "") -> ExecutionPlan:
@@ -169,7 +153,9 @@ Règles :
 - Maximum 8 étapes
 - Minimiser les dépendances (exécution parallèle quand possible)
 - Les kwargs doivent être utilisables tels quels par l'agent
-- Grouper les étapes indépendantes (même niveau de depends_on = parallèles)"""
+- Grouper les étapes indépendantes (même niveau de depends_on = parallèles)
+- Ne pas créer de tickets PM sur NUAWAY pour des sujets R&D sans lien produit (ex: VPN russe)
+- Recherche R&D pure → agent rnd_agent / analyst_business, pas de tickets sur les apps existantes"""
 
         raw = llm.complete(_COO_PLAN_SYSTEM, prompt, agent_id="coo", temperature=0.3)
         data = parse_json_response(raw)

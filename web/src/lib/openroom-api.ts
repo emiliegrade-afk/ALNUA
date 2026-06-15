@@ -1,5 +1,6 @@
 import { hubApiUrl } from "./hub-api-config";
 import { hubApiKeyHeaders } from "./hub-api-key";
+import { parseHubApiError } from "./hub-api-error";
 
 export type AgentStatusKind = "idle" | "working" | "waiting" | "error";
 
@@ -24,18 +25,40 @@ export interface AgentsStatusResponse {
   pipelineActive: boolean;
 }
 
-export async function fetchAgentsStatus(): Promise<AgentsStatusResponse> {
+export const EMPTY_AGENTS_STATUS: AgentsStatusResponse = {
+  agents: {},
+  recentLogs: [],
+  pipelineActive: false,
+};
+
+export type AgentsStatusResult =
+  | { ok: true; data: AgentsStatusResponse }
+  | { ok: false; error: string; data: AgentsStatusResponse };
+
+export async function fetchAgentsStatus(): Promise<AgentsStatusResult> {
   try {
     const res = await fetch(hubApiUrl("/agents/status"), {
       cache: "no-store",
       headers: hubApiKeyHeaders(),
     });
     if (!res.ok) {
-      return { agents: {}, recentLogs: [], pipelineActive: false };
+      const text = await res.text().catch(() => res.statusText);
+      return {
+        ok: false,
+        error: parseHubApiError(text, res.status),
+        data: EMPTY_AGENTS_STATUS,
+      };
     }
-    return res.json() as Promise<AgentsStatusResponse>;
-  } catch {
-    return { agents: {}, recentLogs: [], pipelineActive: false };
+    const data = (await res.json()) as AgentsStatusResponse;
+    return { ok: true, data };
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Connexion agents indisponible";
+    return {
+      ok: false,
+      error: message,
+      data: EMPTY_AGENTS_STATUS,
+    };
   }
 }
 

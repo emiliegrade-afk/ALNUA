@@ -1,0 +1,69 @@
+{
+  "name": "ALNUA — Sentry to Hotfix",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sentry-alert",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "s1e2n3t4-sentry-webhook",
+      "name": "Sentry Alert Relay",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "alnua-sentry-alert"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.HUB_API_URL }}/orchestration/sentry-ingest",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Hub-Key",
+              "value": "={{ $vars.HUB_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body }}"
+      },
+      "id": "s5e6n7t8-sentry-http",
+      "name": "Sentry Ingest",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 300]
+    }
+  ],
+  "connections": {
+    "Sentry Alert Relay": {
+      "main": [
+        [
+          {
+            "node": "Sentry Ingest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "ALNUA"
+    }
+  ]
+}

@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ALNUA Hub — Frontend (Next.js)
 
-## Getting Started
+Dashboard and bureau UI for the ALNUA virtual company. Talks to the FastAPI backend via a same-origin proxy at `/api/hub`.
 
-First, run the development server:
+## Prerequisites
+
+- Node.js 20+
+- FastAPI backend running on port 8000 (see repo root `README` / `CLAUDE.md`)
+
+## First-time setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cd web
+npm ci
+cp .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Edit `web/.env.local`:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Variable | Required | Source |
+|----------|----------|--------|
+| `HUB_API_KEY` | **Yes** | Same value as `HUB_API_KEY` in the repo root `.env` |
+| `HUB_API_BACKEND_URL` | **Yes** (local) | `http://localhost:8000` — the FastAPI origin, **not** `/api/hub` |
+| `NEXT_PUBLIC_SUPABASE_URL` | Optional | Root `.env` → `SUPABASE_URL` |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Optional | Root `.env` → `SUPABASE_KEY` (anon) |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+If `HUB_API_KEY` is missing, every `/api/hub/*` call returns 503.
 
-## Learn More
+If `HUB_API_BACKEND_URL` is missing, the proxy defaults to `http://localhost:8000`.
 
-To learn more about Next.js, take a look at the following resources:
+## Development
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+# Terminal 1 — backend (repo root)
+uvicorn api.main:app --reload --port 8000
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Terminal 2 — frontend
+npm run dev
+```
 
-## Deploy on Vercel
+Open [http://localhost:3000](http://localhost:3000).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Quality checks
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npx tsc --noEmit
+npm run lint
+npm run test:e2e   # requires backend + Playwright chromium
+```
+
+## Deploy (Vercel)
+
+Set `HUB_API_BACKEND_URL` to the public FastAPI URL and `HUB_API_KEY` in Vercel env vars. See `deploy/vercel.env.example`.

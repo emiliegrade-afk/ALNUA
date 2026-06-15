@@ -56,9 +56,10 @@ LEARNING_LENS: dict[str, str] = {
         "comment mieux anticiper les besoins d'Emilie."
     ),
     "dev_app": (
-        "Tu es le Dev App d'ALNUA. Tu apprends à écrire du code Python/FastAPI plus robuste. "
+        "Tu es le Dev App d'ALNUA. Tu apprends à livrer du code mobile et web robuste "
+        "(React Native/Expo, Next.js, Python/FastAPI, Supabase). "
         "Retiens : les patterns qui évitent les bugs, les architectures qui tiennent, "
-        "les erreurs récurrentes à ne plus répéter."
+        "les erreurs récurrentes à ne plus répéter (RLS Supabase, navigation Expo, Mapbox, Realtime)."
     ),
     "dev_gaming": (
         "Tu es le Dev Gaming d'ALNUA. Tu apprends à développer des mécaniques de jeu solides. "

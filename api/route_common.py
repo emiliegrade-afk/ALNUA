@@ -149,7 +149,7 @@ from skills.skill_gh_issues import (
     poll_issues_loop,
 )
 from skills.skill_langfuse import agent_trace
-from services.cost_monitor import get_daily_costs, get_monthly_costs, get_weekly_costs
+from services.facades.costs_facade import get_daily_costs, get_monthly_costs, get_weekly_costs
 
 from api.middleware import hub_api_key_valid
 from api.schemas import *  # noqa: F403

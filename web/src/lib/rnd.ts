@@ -32,9 +32,14 @@ export interface RndCompetitive {
   timestamp?: string;
 }
 
-export async function fetchRndIdeas(verdict?: string): Promise<RndIdea[]> {
-  const params = verdict ? `?verdict=${verdict}&limit=50` : "?limit=50";
-  return hubFetch<RndIdea[]>(`/rnd/ideas${params}`);
+export async function fetchRndIdeas(
+  verdict?: string,
+  inboxOnly = true
+): Promise<RndIdea[]> {
+  const params = new URLSearchParams({ limit: "50" });
+  if (verdict) params.set("verdict", verdict);
+  if (inboxOnly) params.set("inbox_only", "true");
+  return hubFetch<RndIdea[]>(`/rnd/ideas?${params.toString()}`);
 }
 
 export async function fetchRndIdea(ideaId: string): Promise<RndIdea> {
@@ -60,9 +65,47 @@ export async function injectRndIdea(idea: string): Promise<RndIdea> {
   });
 }
 
+export interface RndUserSubmitSections {
+  problem?: string;
+  solution?: string;
+  market?: string;
+  mvp?: string;
+  feasibility?: string;
+  risks?: string;
+}
+
+export interface RndUserSubmitPayload {
+  title: string;
+  tagline?: string;
+  domain?: string;
+  why_now?: string;
+  sections?: RndUserSubmitSections;
+  enrich?: boolean;
+}
+
+export interface RndUserSubmitResponse {
+  dossier: { id: string; slug: string; title: string };
+  idea: RndIdea;
+  message: string;
+  enriching?: boolean;
+}
+
+export async function submitRndProposal(
+  payload: RndUserSubmitPayload
+): Promise<RndUserSubmitResponse> {
+  return hubFetch<RndUserSubmitResponse>("/rnd/submit", {
+    method: "POST",
+    body: JSON.stringify({ ...payload, source: "Emilie" }),
+  });
+}
+
 export async function triggerRndCycle(): Promise<string> {
   const data = await hubFetch<{ status: string }>("/rnd/cycle", { method: "POST" });
   return data.status;
+}
+
+export async function archiveRndIdea(ideaId: string): Promise<void> {
+  await hubFetch(`/rnd/ideas/${encodeURIComponent(ideaId)}`, { method: "DELETE" });
 }
 
 export async function fetchRndCompetitive(): Promise<RndCompetitive[]> {

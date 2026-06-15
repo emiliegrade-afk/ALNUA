@@ -151,6 +151,11 @@ AGENT_TIERS: dict[str, str] = {
     "rnd_product":      "standard",
 }
 
+# Agents whose Paramètres model also drives the autonomous coding pipeline (Hub Agent / Aider).
+CODING_AGENT_IDS: frozenset[str] = frozenset(
+    {"dev_app", "dev_backend", "dev_gaming", "embedded_dev"}
+)
+
 # Modèle par défaut par tier
 TIER_DEFAULTS: dict[str, str] = {
     "premium":  "anthropic/claude-sonnet-4",
@@ -243,6 +248,30 @@ def get_model_for_agent(agent_id: str) -> str:
     return TIER_DEFAULTS.get(tier, TIER_DEFAULTS["standard"])
 
 
+def get_coding_model_for_agent(agent_id: str) -> str:
+    """
+    Modèle pour le pipeline de code (Hub Agent / Aider).
+
+    Une seule source de vérité : même résolution que get_model_for_agent.
+    Le réglage Paramètres / data/agent_models.json s'applique au chat ET au code.
+    """
+    return get_model_for_agent(normalize_agent_id(agent_id))
+
+
+def get_coding_model_openrouter(agent_id: str) -> str:
+    """Slug OpenRouter API (sans préfixe openrouter/)."""
+    from agents.base import to_api_model_slug
+
+    return to_api_model_slug(get_coding_model_for_agent(agent_id))
+
+
+def get_coding_model_aider(agent_id: str) -> str:
+    """Slug attendu par Aider (--model openrouter/...)."""
+    from agents.base import to_crewai_model_slug
+
+    return to_crewai_model_slug(get_coding_model_for_agent(agent_id))
+
+
 def get_all_agent_models() -> list[dict[str, Any]]:
     """Retourne la config complète pour tous les agents (pour le Hub)."""
     file_config = _load_config()
@@ -257,6 +286,8 @@ def get_all_agent_models() -> list[dict[str, Any]]:
             "configured": stored,       # "auto" ou nom de modèle
             "resolved": resolved,        # modèle effectivement utilisé
             "label": AVAILABLE_MODELS.get(clean, {}).get("label", clean),
+            "codes": agent_id in CODING_AGENT_IDS,
+            "coding_model": resolved if agent_id in CODING_AGENT_IDS else None,
         })
     return agents
 

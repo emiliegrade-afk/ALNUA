@@ -70,41 +70,9 @@ def list_runs(limit: int = 20) -> list[dict[str, Any]]:
 
 def _get_agent_method(agent_id: str, method_name: str) -> Callable:
     """Résout dynamiquement la méthode d'un agent par son ID."""
-    AGENT_CLASSES = {
-        "coo": ("agents.coo_agent", "COOAgent"),
-        "spec": ("agents.spec_agent", "SpecAgent"),
-        "qa": ("agents.qa_agent", "QAAgent"),
-        "pm": ("agents.pm_agent", "PMAgent"),
-        "dev_app": ("agents.dev_app_agent", "DevAppAgent"),
-        "dev_backend": ("agents.dev_backend_agent", "DevBackendAgent"),
-        "game_director": ("agents.game_director_agent", "GameDirectorAgent"),
-        "dev_gaming": ("agents.dev_gaming_agent", "DevGamingAgent"),
-        "brainstorm": ("agents.brainstorm_agent", "BrainstormAgent"),
-        "rnd_agent": ("agents.rnd_agent", "RndAgent"),
-        "marketing": ("agents.marketing_agent", "MarketingAgent"),
-        "content": ("agents.content_agent", "ContentAgent"),
-        "accounting": ("agents.accounting_agent", "AccountingAgent"),
-        "hardware": ("agents.hardware_agent", "HardwareAgent"),
-        "embedded_dev": ("agents.embedded_dev_agent", "EmbeddedDevAgent"),
-        "secretary": ("agents.secretary_agent", "SecretaryAgent"),
-        "dev_backend": ("agents.dev_backend_agent", "DevBackendAgent"),
-        "level_designer": ("agents.level_designer_agent", "LevelDesignerAgent"),
-        "controller": ("agents.controller_agent", "ControllerAgent"),
-        "analyst_business": ("agents.analyst_business_agent", "BusinessAnalystAgent"),
-        "analyst_data": ("agents.analyst_data_agent", "DataAnalystAgent"),
-    }
-    if agent_id not in AGENT_CLASSES:
-        raise ValueError(f"Agent inconnu: {agent_id!r}. Agents disponibles: {list(AGENT_CLASSES)}")
+    from services.agent_pipeline_registry import get_agent_method
 
-    module_path, class_name = AGENT_CLASSES[agent_id]
-    import importlib
-    module = importlib.import_module(module_path)
-    agent_class = getattr(module, class_name)
-    instance = agent_class()
-    method = getattr(instance, method_name, None)
-    if method is None:
-        raise AttributeError(f"L'agent {agent_id!r} n'a pas de méthode {method_name!r}")
-    return method
+    return get_agent_method(agent_id, method_name)
 
 
 # ---------------------------------------------------------------------------

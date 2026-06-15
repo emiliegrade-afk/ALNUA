@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   AlertCircle,
-  FileText,
   FolderOpen,
   Loader2,
   RefreshCw,

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ALNUA — Agent assets preview</title>
+  <style>
+    :root { color-scheme: dark; }
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: #0f1115;
+      color: #e8e8e8;
+      padding: 24px;
+    }
+    h1 { font-size: 1.25rem; margin-bottom: 8px; }
+    p { color: #9aa0a6; margin-top: 0; }
+    section { margin: 28px 0; }
+    h2 { font-size: 1rem; color: #d4af37; margin-bottom: 12px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    figure {
+      margin: 0;
+      background: #1a1d24;
+      border: 1px solid #2a2f3a;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    img, video {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #000;
+    }
+    figcaption {
+      padding: 10px 12px;
+      font-size: 0.85rem;
+      color: #b0b7c3;
+    }
+    code { color: #8ab4f8; }
+  </style>
+</head>
+<body>
+  <h1>ALNUA — Assets agents</h1>
+  <p>Ouvrir dans Chrome/Edge : <code>assets/agents/preview.html</code></p>
+
+  <section>
+    <h2>Emilie — CEO</h2>
+    <div class="grid">
+      <figure>
+        <img src="emilie-ceo-behind-desk.png" alt="Emilie CEO" />
+        <figcaption>CEO · yeux ambre or · logo ALNUA</figcaption>
+      </figure>
+      <figure>
+        <video src="animations/emilie-ceo-behind-desk-idle.webm" autoplay loop muted playsinline></video>
+        <figcaption>Idle CEO — 6s</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Aria Voss — COO (sobre)</h2>
+    <div class="grid">
+      <figure>
+        <img src="aria-voss-coo-sober-desk.png" alt="Aria Voss sober office" />
+        <figcaption>Cheveux noirs · bureau minimal · yeux ice-blue</figcaption>
+      </figure>
+      <figure>
+        <video src="animations/aria-voss-coo-sober-idle.webm" autoplay loop muted playsinline></video>
+        <figcaption>Idle COO — 6s · fond statique</figcaption>
+      </figure>
+    </div>
+  </section>
+  <section>
+    <h2>Nadia Faure — Secrétaire exécutive</h2>
+    <div class="grid">
+      <figure>
+        <img src="nadia-faure-secretary-portrait.png" alt="Nadia Faure at reception desk" />
+        <figcaption>Bureau réception · orchidée · porte Executive Suite · ALNUA</figcaption>
+      </figure>
+      <figure>
+        <img src="../environments/reception-office-isometric.png" alt="Reception office environment" />
+        <figcaption>Environnement isométrique référence</figcaption>
+      </figure>
+      <figure>
+        <video src="animations/nadia-faure-secretary-idle.webm" autoplay loop muted playsinline></video>
+        <figcaption>Idle secrétaire — 6s · fond statique</figcaption>
+      </figure>
+    </div>
+  </section>
+
+</body>
+</html>

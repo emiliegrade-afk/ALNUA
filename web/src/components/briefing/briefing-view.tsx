@@ -13,19 +13,53 @@ import {
   Loader2,
   Newspaper,
   RefreshCw,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
+import { BriefingCooPanel } from "@/components/briefing/briefing-coo-panel";
+import { BackToLobby } from "@/components/shared/back-to-lobby";
 import { MarkdownContent } from "@/components/shared/markdown-content";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  fetchAdminFlags,
+  isBriefingCooSectionEnabled,
+  type AdminFlags,
+} from "@/lib/admin-flags-api";
+import {
   fetchBriefingHistory,
+  fetchCooDailyBriefing,
   fetchTodayBriefing,
   generateBriefingNow,
+  type CooDailyBriefing,
   type DailyBriefing,
 } from "@/lib/briefing-api";
 import { cn } from "@/lib/utils";
+
+type BriefingTab = "operational" | "coo";
+
+const COO_CACHE_KEY = "alnua-coo-brief-cache";
+
+function readCooCache(): CooDailyBriefing | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem(COO_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as CooDailyBriefing;
+    return parsed?.date ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeCooCache(brief: CooDailyBriefing) {
+  try {
+    sessionStorage.setItem(COO_CACHE_KEY, JSON.stringify(brief));
+  } catch {
+    /* ignore quota */
+  }
+}
 
 function formatBriefingDate(dateStr: string): string {
   try {
@@ -45,7 +79,10 @@ function formatShortDate(dateStr: string): string {
 
 function RawDataAccordion({ briefing }: { briefing: DailyBriefing }) {
   const [open, setOpen] = useState(false);
-  const raw = briefing.raw_data;
+  const raw = briefing.raw_data ?? {};
+  const tickets = raw.tickets ?? [];
+  const posts = raw.posts ?? [];
+  const roadmap = raw.roadmap ?? [];
 
   return (
     <div className="rounded-xl border border-white/10 bg-white/[0.02]">
@@ -73,11 +110,11 @@ function RawDataAccordion({ briefing }: { briefing: DailyBriefing }) {
                 Voir tous →
               </Link>
             </div>
-            {raw.tickets.length === 0 ? (
+            {tickets.length === 0 ? (
               <p className="text-xs text-titanium">Aucun ticket urgent.</p>
             ) : (
               <ul className="space-y-1.5">
-                {raw.tickets.slice(0, 5).map((t) => (
+                {tickets.slice(0, 5).map((t) => (
                   <li
                     key={t.id}
                     className="rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2 text-xs text-ivory/80"
@@ -104,11 +141,11 @@ function RawDataAccordion({ briefing }: { briefing: DailyBriefing }) {
                 Voir tous →
               </Link>
             </div>
-            {raw.posts.length === 0 ? (
+            {posts.length === 0 ? (
               <p className="text-xs text-titanium">Aucun post en attente.</p>
             ) : (
               <ul className="space-y-1.5">
-                {raw.posts.slice(0, 5).map((p) => (
+                {posts.slice(0, 5).map((p) => (
                   <li
                     key={p.id}
                     className="rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2 text-xs text-ivory/80"
@@ -133,13 +170,13 @@ function RawDataAccordion({ briefing }: { briefing: DailyBriefing }) {
                 Voir roadmap →
               </Link>
             </div>
-            {raw.roadmap.length === 0 ? (
+            {roadmap.length === 0 ? (
               <p className="text-xs text-titanium">
                 Aucune échéance dans les 7 prochains jours.
               </p>
             ) : (
               <ul className="space-y-1.5">
-                {raw.roadmap.slice(0, 5).map((r) => (
+                {roadmap.slice(0, 5).map((r) => (
                   <li
                     key={r.id}
                     className="rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2 text-xs text-ivory/80"
@@ -184,31 +221,56 @@ function CounterPill({
   );
 }
 
+function extractCooFromGenerateResult(
+  result: DailyBriefing
+): CooDailyBriefing | null {
+  const orch = result.orchestration as
+    | { briefing_result?: CooDailyBriefing }
+    | undefined;
+  const brief = orch?.briefing_result;
+  return brief?.coo_brief ? brief : null;
+}
+
 export function BriefingView() {
   const [history, setHistory] = useState<DailyBriefing[]>([]);
   const [selected, setSelected] = useState<DailyBriefing | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<BriefingTab>("operational");
+  const [adminFlags, setAdminFlags] = useState<AdminFlags | null>(null);
+  const [preview, setPreview] = useState(false);
+  const [cooBriefing, setCooBriefing] = useState<CooDailyBriefing | null>(null);
+  const [cooLoading, setCooLoading] = useState(false);
 
-  const loadData = useCallback(async (preferId?: string) => {
+  const cooTabEnabled = isBriefingCooSectionEnabled(adminFlags, preview);
+  const unifiedGenerate = adminFlags?.briefing_unified_generate ?? false;
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setPreview(new URLSearchParams(window.location.search).get("preview") === "1");
+    }
+    fetchAdminFlags().then(setAdminFlags).catch(() => setAdminFlags(null));
+    setCooBriefing(readCooCache());
+  }, []);
+
+  const loadOperational = useCallback(async (preferId?: string) => {
     setLoading(true);
     setError(null);
     try {
-      const [today, past] = await Promise.all([
-        fetchTodayBriefing(),
+      const [todayResult, past] = await Promise.all([
+        fetchTodayBriefing({ ensure: false }).catch(() => null),
         fetchBriefingHistory(30),
       ]);
-      const merged = [
-        today,
-        ...past.filter((b) => b.id !== today.id),
-      ];
+      const merged = todayResult
+        ? [todayResult, ...past.filter((b) => b.id !== todayResult.id)]
+        : past;
       setHistory(merged);
       if (preferId) {
         const found = merged.find((b) => b.id === preferId);
-        setSelected(found ?? today);
+        setSelected(found ?? todayResult ?? merged[0] ?? null);
       } else {
-        setSelected(today);
+        setSelected(todayResult ?? merged[0] ?? null);
       }
     } catch (err) {
       setError(
@@ -220,15 +282,39 @@ export function BriefingView() {
   }, []);
 
   useEffect(() => {
-    void loadData();
-  }, [loadData]);
+    void loadOperational();
+  }, [loadOperational]);
+
+  const loadCooBriefing = useCallback(async () => {
+    setCooLoading(true);
+    try {
+      const brief = await fetchCooDailyBriefing();
+      setCooBriefing(brief);
+      writeCooCache(brief);
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Échec du brief COO"
+      );
+    } finally {
+      setCooLoading(false);
+    }
+  }, []);
 
   const handleGenerate = async () => {
     setGenerating(true);
     try {
       const fresh = await generateBriefingNow();
-      toast.success("Briefing généré");
-      await loadData(fresh.id);
+      const cooFromOrch = extractCooFromGenerateResult(fresh);
+      if (cooFromOrch) {
+        setCooBriefing(cooFromOrch);
+        writeCooCache(cooFromOrch);
+      }
+      toast.success(
+        fresh.unified
+          ? "Briefing opérationnel + orchestration COO envoyés"
+          : "Briefing opérationnel généré"
+      );
+      await loadOperational(fresh.id);
     } catch (err) {
       toast.error(
         err instanceof Error ? err.message : "Échec de la génération"
@@ -238,12 +324,13 @@ export function BriefingView() {
     }
   };
 
-  const isEmpty = !loading && history.length === 0;
+  const isEmpty = !loading && history.length === 0 && activeTab === "operational";
   const roadmapCount = selected?.raw_data?.roadmap?.length ?? 0;
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-start justify-between gap-4">
+      <BackToLobby />
+      <header className="flex flex-wrap items-start justify-between gap-4 pt-10">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-copper/15">
             <Newspaper className="h-5 w-5 text-copper" />
@@ -253,7 +340,7 @@ export function BriefingView() {
               Briefing matinal
             </h1>
             <p className="text-sm text-titanium">
-              Synthèse quotidienne à 8h — état des projets en 30 secondes
+              Opérationnel (tickets, posts) · Exécutif COO (trends, coûts)
             </p>
           </div>
         </div>
@@ -267,11 +354,52 @@ export function BriefingView() {
           ) : (
             <RefreshCw className="mr-2 h-4 w-4" />
           )}
-          {generating ? "Génération…" : "Regénérer"}
+          {generating
+            ? "Génération…"
+            : unifiedGenerate
+              ? "Regénérer (op + COO)"
+              : "Regénérer"}
         </Button>
       </header>
 
-      {loading ? (
+      {cooTabEnabled && (
+        <div className="flex gap-1 rounded-lg border border-white/10 bg-white/[0.02] p-1">
+          <button
+            type="button"
+            onClick={() => setActiveTab("operational")}
+            className={cn(
+              "flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm transition",
+              activeTab === "operational"
+                ? "bg-copper/15 text-ivory"
+                : "text-titanium hover:text-ivory"
+            )}
+          >
+            <Newspaper className="h-4 w-4" />
+            Opérationnel
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("coo")}
+            className={cn(
+              "flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm transition",
+              activeTab === "coo"
+                ? "bg-copper/15 text-ivory"
+                : "text-titanium hover:text-ivory"
+            )}
+          >
+            <Sparkles className="h-4 w-4" />
+            Brief COO
+          </button>
+        </div>
+      )}
+
+      {activeTab === "coo" && cooTabEnabled ? (
+        <BriefingCooPanel
+          briefing={cooBriefing}
+          loading={cooLoading}
+          onRefresh={() => void loadCooBriefing()}
+        />
+      ) : loading ? (
         <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
           <Skeleton className="h-96 rounded-xl bg-white/5" />
           <Skeleton className="h-96 rounded-xl bg-white/5" />

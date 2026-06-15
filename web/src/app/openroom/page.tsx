@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { BackToLobby } from "@/components/shared/back-to-lobby";
-import { AgentAvatar } from "@/components/openroom/agent-avatar";
+import { OpenRoomAgentTile } from "@/components/openroom/openroom-agent-tile";
 import { AgentFocusPanel } from "@/components/openroom/agent-focus-panel";
 import { BUREAU_AGENTS } from "@/lib/agent-bureau";
 import {
@@ -30,15 +30,18 @@ export default function OpenRoomPage() {
   const [pipelineActive, setPipelineActive] = useState(false);
   const [focusedAgent, setFocusedAgent] = useState<string | null>(null);
 
+  const [statusError, setStatusError] = useState<string | null>(null);
+
   useEffect(() => {
     let cancelled = false;
 
     async function poll() {
-      const data = await fetchAgentsStatus();
+      const result = await fetchAgentsStatus();
       if (cancelled) return;
-      setAgentStatuses(data.agents);
-      setLogs(data.recentLogs);
-      setPipelineActive(data.pipelineActive);
+      setStatusError(result.ok ? null : result.error);
+      setAgentStatuses(result.data.agents);
+      setLogs(result.data.recentLogs);
+      setPipelineActive(result.data.pipelineActive);
     }
 
     void poll();
@@ -53,6 +56,9 @@ export default function OpenRoomPage() {
   }, []);
 
   const activeCount = countActiveAgents(agentStatuses);
+  const focused = focusedAgent
+    ? OPENROOM_AGENTS.find((a) => a.id === focusedAgent)
+    : null;
 
   return (
     <>
@@ -62,6 +68,11 @@ export default function OpenRoomPage() {
         <h1 className="font-title text-3xl text-ivory">
           OpenRoom <span className="text-copper">ALNUA</span>
         </h1>
+        {statusError ? (
+          <p className="mt-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 font-body text-sm text-amber-200">
+            {statusError}
+          </p>
+        ) : null}
         <p className="mt-2 font-body text-sm text-titanium">
           {activeCount} agent{activeCount !== 1 ? "s" : ""} actif
           {activeCount !== 1 ? "s" : ""}
@@ -71,8 +82,9 @@ export default function OpenRoomPage() {
 
       <div className="mb-12 grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-5">
         {OPENROOM_AGENTS.map((agent) => (
-          <AgentAvatar
+          <OpenRoomAgentTile
             key={agent.id}
+            id={agent.id}
             name={agent.name}
             role={agent.role}
             emoji={agent.emoji}
@@ -102,10 +114,10 @@ export default function OpenRoomPage() {
         </div>
       </div>
 
-      {focusedAgent ? (
+      {focused ? (
         <AgentFocusPanel
-          agent={OPENROOM_AGENTS.find((a) => a.id === focusedAgent)!}
-          status={agentStatuses[focusedAgent] ?? { status: "idle" }}
+          agent={focused}
+          status={agentStatuses[focusedAgent!] ?? { status: "idle" }}
           onClose={() => setFocusedAgent(null)}
         />
       ) : null}

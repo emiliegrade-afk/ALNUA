@@ -1,4 +1,4 @@
-import { hubApiBase, hubApiUrl, hubBackendBaseUrl } from "./hub-api-config";
+import { hubApiBase, hubBackendBaseUrl } from "./hub-api-config";
 import { hubFetch } from "./hub-fetch";
 
 function resolveAffiliateBase(): string {

@@ -1,9 +1,21 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { BackToLobby } from "@/components/shared/back-to-lobby";
 import { BureauAgentsSection } from "@/components/shared/bureau-agents-section";
 import { DepartmentHeader } from "@/components/shared/department-header";
-import { RoboConsole } from "@/components/robo/robo-console";
+
+const RoboConsole = dynamic(
+  () =>
+    import("@/components/robo/robo-console").then((m) => ({
+      default: m.RoboConsole,
+    })),
+  {
+    loading: () => (
+      <p className="text-sm text-titanium/60">Chargement console robotique…</p>
+    ),
+  }
+);
 
 export default function RoboPage() {
   return (

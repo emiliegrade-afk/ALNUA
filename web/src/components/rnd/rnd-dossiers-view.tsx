@@ -10,11 +10,13 @@ import type { RndDossierListItem } from "@/lib/rnd-dossier";
 
 interface RndDossiersViewProps {
   initialDossierId?: string | null;
+  initialPitchView?: string;
   reloadKey?: number;
 }
 
 export function RndDossiersView({
   initialDossierId,
+  initialPitchView,
   reloadKey = 0,
 }: RndDossiersViewProps) {
   const [selected, setSelected] = useState<RndDossierListItem | null>(null);
@@ -82,6 +84,7 @@ export function RndDossiersView({
 
       <RndPitchModal
         dossierId={pitchDossierId}
+        initialViewMode={initialPitchView}
         open={pitchOpen}
         onOpenChange={(open) => {
           setPitchOpen(open);

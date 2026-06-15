@@ -1,14 +1,26 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { BackToLobby } from "@/components/shared/back-to-lobby";
 import { BureauAgentsSection } from "@/components/shared/bureau-agents-section";
 import { DepartmentHeader } from "@/components/shared/department-header";
-import { MarketingConsole } from "@/components/marketing/marketing-console";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchPosts } from "@/lib/content";
+
+const MarketingConsole = dynamic(
+  () =>
+    import("@/components/marketing/marketing-console").then((m) => ({
+      default: m.MarketingConsole,
+    })),
+  {
+    loading: () => (
+      <p className="text-sm text-titanium/60">Chargement console marketing…</p>
+    ),
+  }
+);
 
 export default function MarketingPage() {
   const [pendingPosts, setPendingPosts] = useState<

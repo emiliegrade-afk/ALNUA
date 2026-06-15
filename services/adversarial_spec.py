@@ -3,7 +3,7 @@ services/adversarial_spec.py — Spec adversariale multi-LLM pour ALNUA Hub.
 
 Inspiré de adversarial-spec (github.com/zscole/adversarial-spec) :
 Fait débattre deux LLMs (Spec + QA) sur une spec jusqu'à consensus.
-Idéal pour Marcus Webb (Spec) et Sven Lindqvist (QA).
+Idéal pour Léon Marchand (Spec) et Alex Okafor (QA).
 
 Usage :
     from services.adversarial_spec import debate_spec, quick_adversarial_check
@@ -24,12 +24,16 @@ import json
 from typing import Any
 
 from agents.base import LLMClient, parse_json_response
+from config.agent_personas import persona_prompt_intro
 
 # ---------------------------------------------------------------------------
 # Personas des deux débatteurs
 # ---------------------------------------------------------------------------
 
-_SPEC_WRITER_SYSTEM = """Tu es Marcus Webb, Spec Rédacteur d'ALNUA — expert en rédaction de spécifications techniques.
+_SPEC_INTRO = persona_prompt_intro("spec", role="Spec Rédacteur")
+_QA_INTRO = persona_prompt_intro("qa", role="QA Engineer")
+
+_SPEC_WRITER_SYSTEM = _SPEC_INTRO + """ — expert en rédaction de spécifications techniques.
 Tu viens de rédiger une spec et tu dois la défendre face aux critiques du QA.
 Quand le QA soulève une objection valide, tu l'intègres et améliores la spec.
 Quand l'objection est non-fondée, tu expliques pourquoi et maintiens ta position.
@@ -42,7 +46,7 @@ Format de réponse JSON :
   "confidence": "low|medium|high"
 }"""
 
-_QA_CRITIC_SYSTEM = """Tu es Sven Lindqvist, QA Engineer d'ALNUA — expert en détection des ambiguïtés et failles dans les specs.
+_QA_CRITIC_SYSTEM = _QA_INTRO + """ — expert en détection des ambiguïtés et failles dans les specs.
 Tu lis une spec et tu cherches :
 - Les cas limites non couverts
 - Les ambiguïtés qui pourraient mener à des bugs
@@ -105,7 +109,7 @@ def debate_spec(
     stop_on_approve: bool = True,
 ) -> dict[str, Any]:
     """
-    Fait débattre Marcus (Spec) et Sven (QA) sur la spec donnée.
+    Fait débattre Léon (Spec) et Alex (QA) sur la spec donnée.
 
     Args:
         spec_text:       La spec initiale à affiner

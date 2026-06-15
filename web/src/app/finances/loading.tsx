@@ -1,5 +1,3 @@
-import { PageLoading } from "@/components/shared/page-loading";
+﻿import DepartmentRouteLoading from "@/components/layout/department-loading";
+export default DepartmentRouteLoading;
 
-export default function Loading() {
-  return <PageLoading />;
-}

@@ -1,12 +1,14 @@
 "use client";
 
 import { X } from "lucide-react";
+import { AgentOfficeAvatar } from "./agent-office-avatar";
 import { AgentWorkingAnimation } from "./agent-working-animation";
+import { getAgentOfficeAssets } from "@/lib/agent-assets";
 import type { AgentStatus } from "@/lib/openroom-api";
 import { cn } from "@/lib/utils";
 
 interface AgentFocusPanelProps {
-  agent: { id: string; name: string; emoji: string; role: string };
+  agent: { id: string; name: string; emoji: string; role: string; branch?: import("@/lib/dept-colors").DeptKey };
   status: AgentStatus;
   onClose: () => void;
 }
@@ -16,6 +18,8 @@ export function AgentFocusPanel({
   status,
   onClose,
 }: AgentFocusPanelProps) {
+  const officeAssets = getAgentOfficeAssets(agent.id);
+
   return (
     <>
       <div
@@ -43,6 +47,18 @@ export function AgentFocusPanel({
         </div>
 
         <div className="h-[calc(100vh-72px)] space-y-4 overflow-y-auto p-5">
+          {officeAssets ? (
+            <AgentOfficeAvatar
+              agentId={agent.id}
+              name={agent.name}
+              role={agent.role}
+              branch={agent.branch ?? "hub"}
+              status={status.status}
+              currentTask={status.currentTask}
+              variant="compact"
+            />
+          ) : null}
+
           <div className="flex items-center gap-2">
             <span
               className={cn(
@@ -67,10 +83,12 @@ export function AgentFocusPanel({
             </span>
           </div>
 
-          <AgentWorkingAnimation
-            status={status.status}
-            currentCodeLines={status.recentCode}
-          />
+          {!officeAssets ? (
+            <AgentWorkingAnimation
+              status={status.status}
+              currentCodeLines={status.recentCode}
+            />
+          ) : null}
 
           {status.currentTask ? (
             <div className="rounded-lg border border-copper/10 bg-[#16191F] p-3">

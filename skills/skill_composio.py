@@ -328,6 +328,21 @@ def get_oauth_link(
         return f"Erreur: {e}"
 
 
+def has_active_connection(user_id: str, toolkit: str) -> bool:
+    """Return True when Composio has an ACTIVE OAuth session for the toolkit."""
+    try:
+        composio_client = _get_composio_client()
+        connections = composio_client.connected_accounts.list(
+            user_ids=[user_id],
+            toolkit_slugs=[toolkit.lower()],
+            statuses=["ACTIVE"],
+        )
+        return bool(connections.items)
+    except Exception as exc:
+        logger.warning("has_active_connection(%s, %s): %s", user_id, toolkit, exc)
+        return False
+
+
 def list_connected_apps(user_id: str = "alnua_default") -> list[dict]:
     """
     Liste les apps connectées (OAuth validé) pour un user_id.

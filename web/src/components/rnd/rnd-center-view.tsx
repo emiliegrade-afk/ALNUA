@@ -5,15 +5,15 @@ import {
   Beaker,
   Rocket,
   TrendingUp,
-  AlertCircle,
   RefreshCw,
-  Plus,
   Send,
   CheckCircle2,
   XCircle,
   HelpCircle,
   Loader2,
   Target,
+  Trash2,
+  FolderPlus,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -22,10 +22,12 @@ import {
   fetchRndIdeas,
   fetchRndVision,
   injectRndIdea,
+  archiveRndIdea,
   triggerRndCycle,
   type RndIdea,
 } from "@/lib/rnd";
 import { RndIdeaDetailModal } from "@/components/rnd/rnd-idea-detail-modal";
+import { RndSubmitDossierModal } from "@/components/rnd/rnd-submit-dossier-modal";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -54,9 +56,13 @@ function VerdictBadge({ verdict }: { verdict?: string | null }) {
 function IdeaCard({
   idea,
   onOpen,
+  onDelete,
+  deleting,
 }: {
   idea: RndIdea;
   onOpen: (idea: RndIdea) => void;
+  onDelete: (idea: RndIdea) => void;
+  deleting?: boolean;
 }) {
   const reasoning = idea.reasoning ?? idea.verdict_reason;
   const preview =
@@ -65,11 +71,12 @@ function IdeaCard({
       : reasoning;
 
   return (
-    <button
-      type="button"
-      className="group w-full rounded-xl border border-copper/10 bg-white/[0.02] p-4 text-left transition hover:border-copper/25 hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-copper/40"
-      onClick={() => onOpen(idea)}
-    >
+    <div className="group relative w-full rounded-xl border border-copper/10 bg-white/[0.02] p-4 transition hover:border-copper/25 hover:bg-white/[0.04]">
+      <button
+        type="button"
+        className="w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-copper/40 rounded-lg"
+        onClick={() => onOpen(idea)}
+      >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="mb-1.5 flex flex-wrap items-center gap-2">
@@ -110,7 +117,22 @@ function IdeaCard({
           </div>
         )}
       </div>
-    </button>
+      </button>
+      <Button
+        type="button"
+        size="icon"
+        variant="ghost"
+        disabled={deleting}
+        aria-label="Archiver la proposition"
+        className="absolute right-3 top-3 h-8 w-8 text-titanium/40 opacity-0 transition hover:bg-red-500/10 hover:text-red-400 group-hover:opacity-100"
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete(idea);
+        }}
+      >
+        {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+      </Button>
+    </div>
   );
 }
 
@@ -134,6 +156,8 @@ export function RndCenterView({ onDossierCreated }: RndCenterViewProps) {
   const [injecting, setInjecting] = useState(false);
   const [selectedIdea, setSelectedIdea] = useState<RndIdea | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [submitModalOpen, setSubmitModalOpen] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -173,13 +197,31 @@ export function RndCenterView({ onDossierCreated }: RndCenterViewProps) {
     setInjecting(true);
     try {
       await injectRndIdea(injectText.trim());
-      toast.success("Idée injectée — sera évaluée au prochain cycle R&D.");
+      toast.success("Idée enregistrée dans Propositions.");
       setInjectText("");
       await load();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erreur");
     } finally {
       setInjecting(false);
+    }
+  }
+
+  async function handleDelete(idea: RndIdea) {
+    if (!window.confirm(`Archiver « ${idea.title} » ?`)) return;
+    setDeletingId(idea.id);
+    try {
+      await archiveRndIdea(idea.id);
+      toast.success("Proposition archivée.");
+      if (selectedIdea?.id === idea.id) {
+        setDetailOpen(false);
+        setSelectedIdea(null);
+      }
+      await load();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erreur");
+    } finally {
+      setDeletingId(null);
     }
   }
 
@@ -278,27 +320,39 @@ export function RndCenterView({ onDossierCreated }: RndCenterViewProps) {
         </div>
       </div>
 
-      {/* Inject idea */}
-      <div className="flex shrink-0 gap-2">
-        <Textarea
-          value={injectText}
-          onChange={(e) => setInjectText(e.target.value)}
-          placeholder="Injecte une idée dans le pipeline R&D… (ex: App de gestion de van en mode offline first)"
-          rows={2}
-          className="min-h-[52px] resize-none border-copper/15 bg-white/[0.02] text-ivory/90 placeholder:text-titanium/50"
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleInject();
-            }
-          }}
-        />
+      {/* Inject idea / submit dossier */}
+      <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+        <div className="flex min-w-0 flex-1 gap-2">
+          <Textarea
+            value={injectText}
+            onChange={(e) => setInjectText(e.target.value)}
+            placeholder="Idée rapide (1 ligne) — ou ouvre le formulaire dossier complet ↓"
+            rows={2}
+            className="min-h-[52px] resize-none border-copper/15 bg-white/[0.02] text-ivory/90 placeholder:text-titanium/50"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleInject();
+              }
+            }}
+          />
+          <Button
+            onClick={handleInject}
+            disabled={injecting || !injectText.trim()}
+            className="h-auto shrink-0 bg-copper px-4 hover:bg-copper"
+            title="Idée rapide"
+          >
+            {injecting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+          </Button>
+        </div>
         <Button
-          onClick={handleInject}
-          disabled={injecting || !injectText.trim()}
-          className="h-auto shrink-0 bg-copper px-4 hover:bg-copper"
+          type="button"
+          variant="outline"
+          onClick={() => setSubmitModalOpen(true)}
+          className="h-auto shrink-0 border-copper/30 text-copper hover:bg-copper/10 sm:px-5"
         >
-          {injecting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+          <FolderPlus className="mr-2 h-4 w-4" />
+          Soumettre un dossier
         </Button>
       </div>
 
@@ -308,7 +362,7 @@ export function RndCenterView({ onDossierCreated }: RndCenterViewProps) {
           <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
             <Beaker className="h-12 w-12 text-copper/20" />
             <div>
-              <p className="text-sm font-medium text-ivory/60">Aucune idée R&D pour l'instant</p>
+              <p className="text-sm font-medium text-ivory/60">Aucune idée R&D pour l&apos;instant</p>
               <p className="mt-1 text-xs text-titanium/40">Lance un cycle R&D pour générer les premières idées automatiquement.</p>
             </div>
             <Button
@@ -331,7 +385,13 @@ export function RndCenterView({ onDossierCreated }: RndCenterViewProps) {
         ) : (
           <div className="space-y-2 pb-4 pr-1">
             {filtered.map((idea) => (
-              <IdeaCard key={idea.id} idea={idea} onOpen={openIdeaDetail} />
+              <IdeaCard
+                key={idea.id}
+                idea={idea}
+                onOpen={openIdeaDetail}
+                onDelete={handleDelete}
+                deleting={deletingId === idea.id}
+              />
             ))}
           </div>
         )}
@@ -343,6 +403,15 @@ export function RndCenterView({ onDossierCreated }: RndCenterViewProps) {
         onOpenChange={setDetailOpen}
         onRefresh={load}
         onPromoted={onDossierCreated}
+      />
+
+      <RndSubmitDossierModal
+        open={submitModalOpen}
+        onOpenChange={setSubmitModalOpen}
+        onSubmitted={(dossierId) => {
+          void load();
+          onDossierCreated?.(dossierId);
+        }}
       />
     </div>
   );

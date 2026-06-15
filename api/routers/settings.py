@@ -13,6 +13,23 @@ class AgentModelUpdate(BaseModel):
     model: str  # nom de modèle OpenRouter ou "auto"
 
 
+@router.get("/settings/coding")
+def settings_coding_info() -> dict[str, Any]:
+    """Pipeline de code : backend + modèle dev_app (source unique Paramètres)."""
+    from config.agent_models import CODING_AGENT_IDS, get_coding_model_for_agent
+    from services.coding_pipeline import get_coding_config
+
+    get_coding_config.cache_clear()
+    cfg = get_coding_config()
+    return {
+        "backend": cfg.backend,
+        "coding_agents": sorted(CODING_AGENT_IDS),
+        "dev_app_model": get_coding_model_for_agent("dev_app"),
+        "aider_model_override": cfg.aider_model or None,
+        "note": "Le modèle de code = Paramètres (/settings) pour chaque agent dev. Pas de choix automatique Aider.",
+    }
+
+
 @router.get("/settings/models")
 def settings_get_models() -> list[dict]:
     """Retourne la config modèle de tous les agents."""

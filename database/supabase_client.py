@@ -1,9 +1,13 @@
+import logging
 from functools import lru_cache
 from typing import Any
 
 from supabase import Client, create_client
 
 from config.settings import get_settings
+
+logger = logging.getLogger(__name__)
+_service_role_warned = False
 
 
 class SupabaseClient:
@@ -50,8 +54,12 @@ class SupabaseClient:
         return response.data[0]
 
     def insert_many(self, table: str, rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        if not rows:
+            return []
         response = self.table(table).insert(rows).execute()
-        return response.data or []
+        if not response.data:
+            raise RuntimeError(f"Insert into {table} returned no data")
+        return response.data
 
     def update(
         self,
@@ -76,8 +84,17 @@ class SupabaseClient:
 
 @lru_cache
 def get_supabase() -> SupabaseClient:
+    global _service_role_warned
     cfg = get_settings()
     # Backend writes (BOM, etc.) need service_role — anon key is read-only on several tables.
-    key = cfg.supabase_service_role_key.strip() or cfg.supabase_key
+    if not cfg.supabase_service_role_key.strip():
+        if not _service_role_warned:
+            logger.warning(
+                "SUPABASE_SERVICE_ROLE_KEY unset — using anon key; writes may fail under RLS"
+            )
+            _service_role_warned = True
+        key = cfg.supabase_key
+    else:
+        key = cfg.supabase_service_role_key.strip()
     client = create_client(cfg.supabase_url, key)
     return SupabaseClient(client)

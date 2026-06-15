@@ -98,9 +98,9 @@ POST /services/memory/compress
 | Agent | ID mémoire |
 |-------|-----------|
 | Aria (COO) | `coo` |
-| Marcus (Spec) | `spec` |
-| Sven (QA) | `qa` |
-| Léa (PM) | `pm` |
+| Léon (Spec) | `spec` |
+| Alex (QA) | `qa` |
+| Sam (PM) | `pm` |
 | Théo (Dev App) | `dev_app` |
 | Hao (Dev Backend) | `dev_backend` |
 | Nova (Dev Gaming) | `dev_gaming` |

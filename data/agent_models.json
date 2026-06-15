@@ -1,7 +1,10 @@
 {
+  "dev_app": "qwen/qwen3-coder",
+  "dev_backend": "qwen/qwen3-coder",
   "rnd_agent": "deepseek/deepseek-r1-0528",
   "brainstorm": "x-ai/grok-3",
   "coo": "anthropic/claude-opus-4",
   "spec": "anthropic/claude-sonnet-4.6",
-  "game_director": "anthropic/claude-opus-4.7"
+  "game_director": "anthropic/claude-opus-4.7",
+  "pm": "deepseek/deepseek-r1-0528"
 }

@@ -29,7 +29,7 @@ def orchestration_morning(body: OrchestrationMorningRequest | None = None) -> di
 
 @router.post("/spec-qa-chain")
 def orchestration_spec_qa_chain(body: OrchestrationSpecQaRequest) -> dict[str, Any]:
-    """Marcus (Spec) ↔ Sven (QA) — spec adversariale jusqu'à consensus."""
+    """Léon (Spec) ↔ Alex (QA) — spec adversariale jusqu'à consensus."""
     from services.orchestration import run_spec_qa_chain
 
     return run_spec_qa_chain(
@@ -81,3 +81,74 @@ def orchestration_content_sprint(body: OrchestrationContentSprintRequest) -> dic
         platforms=body.platforms,
         project=body.project,
     )
+
+
+@router.post("/academy-sprint")
+def orchestration_academy_sprint(body: AcademySprintRequest) -> dict[str, Any]:
+    """Sprint Académie ALNUA — seed issues + agent-ready (n8n workflow 08)."""
+    from services.orchestration import run_academy_sprint_orchestration
+
+    return run_academy_sprint_orchestration(
+        level=body.level,
+        seed_if_missing=body.seed_if_missing,
+        mark_ready_count=body.mark_ready_count,
+    )
+
+
+@router.post("/academy-poll")
+def orchestration_academy_poll(body: AcademyPollRequest | None = None) -> dict[str, Any]:
+    """Sync Academy + fermer issues + queue agent-ready (n8n workflow 12)."""
+    from services.orchestration import run_academy_poll_orchestration
+
+    req = body or AcademyPollRequest()
+    return run_academy_poll_orchestration(
+        mark_ready_if_idle=req.mark_ready_if_idle,
+        mark_ready_count=req.mark_ready_count,
+        notify=req.notify,
+    )
+
+
+@router.post("/prd-decompose")
+def orchestration_prd_decompose(body: PrdDecomposeOrchestrationRequest) -> dict[str, Any]:
+    """CEO approved → engineering spec → GitHub issues (n8n workflow 07)."""
+    from services.orchestration import run_prd_decompose_orchestration
+
+    return run_prd_decompose_orchestration(
+        dossier_id=body.dossier_id,
+        repo_slug=body.repo_slug,
+        dry_run=body.dry_run,
+        mark_ready_count=body.mark_ready_count,
+        force_spec=body.force_spec,
+    )
+
+
+@router.post("/sentry-ingest")
+def orchestration_sentry_ingest(body: dict[str, Any]) -> dict[str, Any]:
+    """Relay Sentry alert payload (n8n workflow 09)."""
+    from services.orchestration import run_sentry_ingest_orchestration
+
+    return run_sentry_ingest_orchestration(body)
+
+
+@router.post("/nuaway-gate")
+def orchestration_nuaway_gate() -> dict[str, Any]:
+    """Évalue gate NUAWAY + notification CEO (n8n workflow 10)."""
+    from services.orchestration import run_nuaway_gate_orchestration
+
+    return run_nuaway_gate_orchestration()
+
+
+@router.post("/nuaway-readiness-report")
+def orchestration_nuaway_readiness_report() -> dict[str, Any]:
+    """Rapport readiness beta NUAWAY (n8n workflow 11)."""
+    from services.orchestration import run_nuaway_readiness_report_orchestration
+
+    return run_nuaway_readiness_report_orchestration()
+
+
+@router.post("/nuaway-bootstrap")
+def orchestration_nuaway_bootstrap() -> dict[str, Any]:
+    """Bootstrap ops NUAWAY — diagnostic + prochaines actions (Phase 7)."""
+    from services.orchestration import run_nuaway_bootstrap_orchestration
+
+    return run_nuaway_bootstrap_orchestration()

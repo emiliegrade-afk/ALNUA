@@ -1,46 +1,65 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
 import { AlertTriangle } from "lucide-react";
 import {
   checkApiHealth,
   getHubHealthCache,
+  getLastKnownGoodHealth,
   refreshHubHealthInBackground,
+  subscribeHubHealth,
   type ApiHealthStatus,
 } from "@/lib/hub-health";
 
+const CACHE_REFRESH_MS = 120_000;
+
+function shouldShowError(status: ApiHealthStatus): boolean {
+  if (status.online && status.authenticated) return false;
+  // Session was healthy recently — ignore transient compile/offline blips on bureau nav.
+  if (getLastKnownGoodHealth() != null) return false;
+  if (status.online && !status.authenticated) return true;
+  return true;
+}
+
 export function HubAuthBanner() {
-  const pathname = usePathname();
   const [health, setHealth] = useState<ApiHealthStatus | null>(() =>
-    getHubHealthCache()
+    getHubHealthCache() ?? getLastKnownGoodHealth()
   );
   const [confirmedError, setConfirmedError] = useState(false);
 
   useEffect(() => {
-    const cached = getHubHealthCache();
-    if (cached?.online && cached.authenticated) {
+    const cached = getHubHealthCache() ?? getLastKnownGoodHealth();
+    if (cached) {
       setHealth(cached);
       setConfirmedError(false);
-      refreshHubHealthInBackground();
-      return;
     }
 
     let cancelled = false;
-    setConfirmedError(false);
 
     async function verify() {
       const status = await checkApiHealth();
       if (cancelled) return;
       setHealth(status);
-      setConfirmedError(!(status.online && status.authenticated));
+      setConfirmedError(shouldShowError(status));
     }
 
     void verify();
+    refreshHubHealthInBackground();
+
+    const unsubscribe = subscribeHubHealth((status) => {
+      if (cancelled) return;
+      setHealth(status);
+      setConfirmedError(false);
+    });
+
+    const interval = setInterval(refreshHubHealthInBackground, CACHE_REFRESH_MS);
+
     return () => {
       cancelled = true;
+      unsubscribe();
+      clearInterval(interval);
     };
-  }, [pathname]);
+  }, []);
 
   if (!confirmedError || !health) return null;
 

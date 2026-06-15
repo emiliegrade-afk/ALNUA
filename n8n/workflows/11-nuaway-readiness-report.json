@@ -1,0 +1,70 @@
+{
+  "name": "ALNUA — NUAWAY Readiness Report",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * 1"
+            }
+          ]
+        }
+      },
+      "id": "n1r2e3p4-readiness-cron",
+      "name": "Monday 08:00 UTC",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.HUB_API_URL }}/orchestration/nuaway-readiness-report",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Hub-Key",
+              "value": "={{ $vars.HUB_API_KEY }}"
+            }
+          ]
+        }
+      },
+      "id": "n5r6e7p8-readiness-http",
+      "name": "Readiness Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 300]
+    }
+  ],
+  "connections": {
+    "Monday 08:00 UTC": {
+      "main": [
+        [
+          {
+            "node": "Readiness Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": [
+    {
+      "name": "alnua"
+    },
+    {
+      "name": "nuaway"
+    }
+  ]
+}

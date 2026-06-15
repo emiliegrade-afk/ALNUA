@@ -12,6 +12,7 @@ from crewai import Agent, Crew, LLM, Process, Task
 from crewai.tools import tool
 
 from agents.tools.hub_tools import HUB_TOOLS
+from config.agent_personas import persona_prompt_intro
 from database.supabase_client import SupabaseClient, get_supabase
 from config.github_repos import get_target_by_slug
 from skills.skill_chroma import search_knowledge as _search
@@ -30,9 +31,68 @@ CODING_KEYWORDS = (
     "page", "composant",
 )
 
-RESEARCH_KEYWORDS = ("recherche", "veille", "renseigne", "cherche sur", "trouve des infos", "mets à jour", "apprends")
+RESEARCH_KEYWORDS = (
+    "recherche", "veille", "renseigne", "cherche sur", "trouve des infos",
+    "mets à jour", "apprends", "investiguer", "investigue",
+)
 TEACH_KEYWORDS = ("apprends à", "enseigne", "dis à", "informe", "leçon pour", "donne cette info")
 RND_KEYWORDS = ("explore l'idée", "idée r&d", "lance un cycle r&d", "rapport r&d", "meilleures idées", "fil conducteur r&d", "change le focus r&d")
+
+# Instructions qui doivent déclencher une exécution réelle (plan_executor), pas du blabla CrewAI.
+_PLAN_EXECUTION_MARKERS = (
+    "faisabilité", "faisabilite", "roi", "retour sur investissement", "rentabilité",
+    "analyse", "étude", "etude", "évalue", "evalue", "prépare", "prepare",
+    "lance", "délègue", "delegue", "organise", "planifie", "campagne",
+    "stratégie", "strategie", "priorise", "triage", "génère un", "genere un",
+    "brief", "étude de marché", "market analysis",
+)
+_BRIEF_ONLY_MARKERS = (
+    "urgent aujourd", "qu'est-ce qui est urgent", "état des projets",
+    "statut des projets", "briefing du jour", "résumé du jour",
+)
+
+
+def _is_standalone_rnd_research(instruction: str) -> bool:
+    """True when the message is R&D/veille without an explicit product target."""
+    lower = instruction.lower()
+    rnd_markers = (
+        "r&d", "rnd", "investiguer", "investigue", "veille sur", "recherche pour r",
+        "recherche r&d", "cycle r&d", "fil conducteur r&d",
+    )
+    product_markers = (
+        "nuaway", "nomad", "vanlife", "park4night", "naïa", "naia",
+        "wyrdheim", "eve", "creatorflow",
+    )
+    return any(m in lower for m in rnd_markers) and not any(m in lower for m in product_markers)
+
+
+def _needs_plan_execution(instruction: str) -> bool:
+    """True when the COO must run agents for real, not only chat."""
+    lower = instruction.lower()
+    if any(kw in lower for kw in _BRIEF_ONLY_MARKERS):
+        return False
+    return any(kw in lower for kw in _PLAN_EXECUTION_MARKERS)
+
+
+def _format_plan_execution_result(result: dict[str, Any]) -> str:
+    """Turn plan_executor output into a short COO reply."""
+    if result.get("error") and not result.get("results"):
+        return f"❌ Plan non exécuté : {result['error']}"
+
+    lines = [f"✅ Plan exécuté — {result.get('title', 'objectif')}"]
+    for step in result.get("results", [])[:6]:
+        agent = step.get("agent_id", "?")
+        desc = step.get("description", "")[:60]
+        if step.get("success"):
+            lines.append(f"• {agent} : {desc} ✓")
+        else:
+            err = (step.get("error") or "échec")[:80]
+            lines.append(f"• {agent} : {desc} — {err}")
+
+    failed = result.get("failure_count", 0)
+    if failed:
+        lines.append(f"\n⚠️ {failed} étape(s) en échec — vérifie les logs agents.")
+    return "\n".join(lines)[:3500]
 
 
 def _detect_research_intent(msg: str) -> tuple[bool, str | None]:
@@ -51,6 +111,32 @@ def _detect_research_intent(msg: str) -> tuple[bool, str | None]:
         if keyword in msg_lower:
             return True, agent_id
     return True, None  # recherche générale
+
+
+def _extract_research_topic(instruction: str, agent_id: str | None) -> str | None:
+    """Pull a custom topic from a veille/recherche message when present."""
+    raw = instruction.strip()
+    if not raw:
+        return None
+
+    patterns = (
+        r"recherche(?:r)?\s+(?:pour\s+)?(?:r&?d|rnd)\s*[:.]?\s*(.+)$",
+        r"recherche(?:r)?\s+(?:sur\s+)?(.+)$",
+        r"veille\s+(?:sur\s+)?(.+)$",
+        r"investiguer\s+(?:sur\s+)?(.+)$",
+    )
+    for pattern in patterns:
+        match = re.search(pattern, raw, flags=re.I)
+        if match:
+            topic = match.group(1).strip(" :.-")
+            # Strip trailing agent name if duplicated
+            topic = re.sub(r"\s+pour\s+(marketing|r&?d|rnd|pm).*$", "", topic, flags=re.I)
+            if len(topic) >= 4:
+                return topic
+
+    if agent_id:
+        return None
+    return None
 
 
 def _detect_teach_intent(msg: str) -> tuple[bool, str | None, str | None]:
@@ -136,8 +222,8 @@ def create_github_issue_via_composio(
 # ---------------------------------------------------------------------------
 # System prompt officiel du COO
 # ---------------------------------------------------------------------------
-COO_SYSTEM_PROMPT = """
-Tu es le COO d'ALNUA, le bras droit direct d'Emilie.
+COO_SYSTEM_PROMPT = f"""
+{persona_prompt_intro("coo", role="COO")}, le bras droit direct d'Emilie.
 Elle est seule pour gérer une société avec 3 branches (App, Gaming, Robotique).
 Ta mission : protéger son temps et son énergie.
 
@@ -171,6 +257,11 @@ PROJECT_ALIASES: dict[str, str] = {
     "naïa": "Naïa",
     "naya": "Naïa",
     "naima": "Naïa",
+    "nuaway": "NUAWAY",
+    "nuway": "NUAWAY",
+    "nomad": "NUAWAY",
+    "nomads": "NUAWAY",
+    "vanlife": "NUAWAY",
     "wyrdheim": "Wyrdheim Online",
     "wyrdheim online": "Wyrdheim Online",
     "mmorpg": "Wyrdheim Online",
@@ -819,6 +910,103 @@ class COOAgent:
         return "\n".join(cleaned[:max_lines])
 
     # ------------------------------------------------------------------
+    # Plan executor — exécution réelle multi-agents
+    # ------------------------------------------------------------------
+    def _execute_plan_pipeline(
+        self,
+        instruction: str,
+        project: str | None,
+        telegram_chat_id: int | None,
+    ) -> str:
+        """Décompose l'objectif en plan COO et exécute les agents (pas de blabla)."""
+        import threading
+
+        project_name = self._resolve_project(project, instruction) or "ALNUA"
+        if _is_standalone_rnd_research(instruction):
+            project_name = "ALNUA"
+            context = (
+                f"Instruction R&D (hors produit, ne pas créer de tickets sur NUAWAY/Naïa) : "
+                f"{instruction[:500]}"
+            )
+        else:
+            context = f"Projet : {project_name}. Instruction Emilie : {instruction[:500]}"
+
+        def _run() -> dict[str, Any]:
+            from services.plan_executor import run_coo_plan
+
+            return run_coo_plan(instruction, context)
+
+        if telegram_chat_id is not None:
+            ack = (
+                "✅ Plan d'action lancé — les agents exécutent les étapes.\n"
+                "Je t'envoie le résumé ici dès que c'est terminé."
+            )
+
+            def _worker() -> None:
+                try:
+                    result = _run()
+                    summary = _format_plan_execution_result(result)
+                    self.create_task_log(
+                        self.AGENT_NAME,
+                        "plan_execution",
+                        instruction,
+                        summary[:2000],
+                    )
+                    from skills.skill_telegram_notify import notify_telegram
+
+                    notify_telegram(summary, chat_id=telegram_chat_id)
+                except Exception as exc:
+                    logger.exception("COO plan_execution background failed")
+                    err = f"❌ Exécution du plan échouée : {exc}"
+                    try:
+                        self.create_task_log(
+                            self.AGENT_NAME,
+                            "plan_execution",
+                            instruction,
+                            err[:500],
+                            status="error",
+                        )
+                    except Exception:
+                        pass
+                    from skills.skill_telegram_notify import notify_telegram
+
+                    notify_telegram(err, chat_id=telegram_chat_id)
+
+            threading.Thread(
+                target=_worker,
+                daemon=False,
+                name=f"coo-plan-{instruction[:24]}",
+            ).start()
+            return ack
+
+        try:
+            result = _run()
+            summary = _format_plan_execution_result(result)
+            project_id = None
+            if project_name != "ALNUA":
+                found = self._find_project(project_name)
+                project_id = found["id"] if found else None
+            self.create_task_log(
+                self.AGENT_NAME,
+                "plan_execution",
+                instruction,
+                summary[:2000],
+                project_id,
+            )
+            return summary
+        except Exception as exc:
+            logger.exception("COO plan_execution failed")
+            err = f"❌ Exécution du plan échouée : {exc}"
+            self.create_task_log(
+                self.AGENT_NAME,
+                "plan_execution",
+                instruction,
+                err[:500],
+                status="error",
+            )
+            return err
+
+    # ------------------------------------------------------------------
     # Point d'entrée principal
     # ------------------------------------------------------------------
     def process_message(self, message: str, project: str | None = None) -> dict[str, Any]:
@@ -875,7 +1063,12 @@ class COOAgent:
         return {"response": response, "issue_created": False}
 
     @trace_agent("coo_agent")
-    def handle_instruction(self, instruction: str, project: str | None = None) -> str:
+    def handle_instruction(
+        self,
+        instruction: str,
+        project: str | None = None,
+        telegram_chat_id: int | None = None,
+    ) -> str:
         """
         Analyse l'instruction d'Emilie, délègue aux agents concernés,
         logue dans Supabase et retourne un résumé en 3-5 lignes max.
@@ -884,13 +1077,64 @@ class COOAgent:
         if not instruction:
             return "Instruction vide — dis-moi ce que tu veux faire."
 
-        # Commandes R&D
+        try:
+            self.create_task_log(
+                self.AGENT_NAME,
+                "handle_instruction",
+                instruction,
+                "Traitement en cours…",
+                status="pending",
+            )
+        except Exception:
+            pass
+
         msg_lower = instruction.lower()
+
+        # Investigation R&D sur un sujet libre (Telegram NL)
+        from services.coo_telegram_intents import (
+            capture_idea,
+            detect_idea_capture,
+            detect_rnd_investigation,
+            extract_investigation_query,
+            launch_rnd_investigation,
+        )
+
+        if detect_rnd_investigation(instruction):
+            topic = extract_investigation_query(instruction)
+            if topic:
+                ack = launch_rnd_investigation(topic, chat_id=telegram_chat_id)
+                try:
+                    self.create_task_log(
+                        self.AGENT_NAME, "rnd_investigation", instruction, ack[:200]
+                    )
+                except Exception:
+                    logger.warning("coo: task log rnd_investigation failed", exc_info=True)
+                return ack
+
+        # Boîte à idées — capture NL sans formule magique
+        if detect_idea_capture(instruction):
+            try:
+                idea = capture_idea(instruction, source="Emilie via COO")
+                title = idea.get("title", instruction[:80])
+                ack = (
+                    f"💡 Idée enregistrée dans le Centre R&D\n"
+                    f"{title[:100]}\n"
+                    f"Visible dans Propositions — brainstorm ou promote quand tu veux."
+                )
+                self.create_task_log(self.AGENT_NAME, "idea_capture", instruction, ack[:200])
+                return ack
+            except ValueError:
+                return "❌ Idée vide — précise ce que tu veux garder."
+
+        # Commandes R&D
         if any(kw in msg_lower for kw in RND_KEYWORDS):
             from agents.rnd_center import run_rnd_cycle, inject_idea, set_vision, get_top_ideas
             if "explore l'idée" in msg_lower or "idée r&d" in msg_lower:
-                inject_idea(instruction, source="Emilie via COO")
-                return f"💡 Idée ajoutée au pipeline R&D : \"{instruction[:80]}...\" — sera évaluée au prochain cycle."
+                from services.coo_telegram_intents import extract_idea_text
+
+                body = extract_idea_text(instruction) or instruction
+                inject_idea(body, source="Emilie via COO")
+                return f"💡 Idée ajoutée au pipeline R&D : \"{body[:80]}...\" — sera évaluée au prochain cycle."
             elif "fil conducteur" in msg_lower or "focus r&d" in msg_lower:
                 set_vision(instruction)
                 return "🎯 Fil conducteur R&D mis à jour."
@@ -911,12 +1155,26 @@ class COOAgent:
         is_research, research_agent = _detect_research_intent(instruction)
         if is_research:
             from skills.skill_web_research import research_domain, research_all_agents
+
+            topic = _extract_research_topic(instruction, research_agent)
+            if research_agent == "rnd_agent" and topic and len(topic) >= 4:
+                ack = launch_rnd_investigation(topic, chat_id=telegram_chat_id)
+                try:
+                    self.create_task_log(
+                        self.AGENT_NAME, "rnd_investigation", instruction, ack[:200]
+                    )
+                except Exception:
+                    logger.warning("coo: task log rnd_investigation failed", exc_info=True)
+                return ack
             if research_agent:
-                research_domain(research_agent, blocking=False)
-                return f"🔍 Veille web lancée pour {research_agent} — résultats dans Mem0 dans quelques minutes."
-            else:
-                research_all_agents(blocking=False)
-                return "🔍 Veille web lancée pour tous les agents — résultats dans Mem0 dans quelques minutes."
+                research_domain(research_agent, topic=topic, blocking=False)
+                scope = f" sur « {topic} »" if topic else ""
+                return (
+                    f"🔍 Veille web lancée pour {research_agent}{scope} "
+                    f"— résultats dans Mem0 dans quelques minutes."
+                )
+            research_all_agents(blocking=False)
+            return "🔍 Veille web lancée pour tous les agents — résultats dans Mem0 dans quelques minutes."
 
         # Commande d'injection de leçon — "apprends au marketing_agent que les Reels < 30s performent mieux"
         is_teach, teach_agent_id, teach_content = _detect_teach_intent(instruction)
@@ -930,6 +1188,10 @@ class COOAgent:
                 self.AGENT_NAME, "handle_instruction", instruction, blocked, status="pending"
             )
             return blocked
+
+        # Exécution réelle via plan_executor (évite les réponses CrewAI sans action)
+        if _needs_plan_execution(instruction):
+            return self._execute_plan_pipeline(instruction, project, telegram_chat_id)
 
         # Routage vers agents spécialisés Phase 3
         routed_agent, routed_response = route_to_agent(instruction)
