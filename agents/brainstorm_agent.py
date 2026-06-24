@@ -11,7 +11,12 @@ from pathlib import Path
 from typing import Any
 
 from agents.base import LLMClient, log_agent_action, parse_json_response
+from config.agent_operating_spec import get_system_prompt
 from database.supabase_client import SupabaseClient, get_supabase
+from config.agent_system_prompts import (
+    BRAINSTORM_CHAT_PROMPT,
+    BRAINSTORM_SUMMARIZE_PROMPT,
+)
 from skills.skill_langfuse import trace_agent
 
 # Racine des exports markdown
@@ -33,20 +38,10 @@ WELCOME_MESSAGE = (
     "direction stratégique pour ALNUA."
 )
 
-CHAT_SYSTEM_PROMPT = """Tu es le partenaire d'idéation d'Emilie pour ALNUA, sa société solo tech.
-Elle te parle en dehors de la chaîne de commandement — ici, c'est un espace libre de réflexion.
+CHAT_SYSTEM_PROMPT = BRAINSTORM_CHAT_PROMPT
 
-Ton rôle :
-- Explorer des idées de features, nouveaux produits, mécaniques de jeu, stratégie
-- Poser des questions stimulantes, challenger gentiment, proposer des angles inattendus
-- Rester concret et actionnable malgré la créativité
-- Répondre en français, ton chaleureux et direct, comme un co-fondateur créatif
+SUMMARIZE_SYSTEM_PROMPT = BRAINSTORM_SUMMARIZE_PROMPT + """
 
-Format : texte conversationnel (pas de JSON). Structure avec des paragraphes courts.
-Quand pertinent, termine par 2-3 pistes concrètes numérotées."""
-
-SUMMARIZE_SYSTEM_PROMPT = """Tu es un assistant de synthèse pour ALNUA. Analyse cette session de brainstorm
-et génère une fiche de compte-rendu en markdown, claire et scannable.
 Utilise EXACTEMENT ce template (remplace les [placeholders]) :
 
 ---
@@ -103,21 +98,7 @@ tags: [2-4 mots-clés]
 class BrainstormAgent:
     AGENT_NAME = "brainstorm_agent"
 
-    SYSTEM_PROMPT = """Tu es l'agent brainstorming d'ALNUA. Génère des idées créatives et
-actionnables pour Emilie (solo dev / CEO).
-Réponds UNIQUEMENT en JSON valide :
-{
-  "ideas": [
-    {
-      "title": "string",
-      "description": "string",
-      "category": "feature|content|marketing|monetization|tech",
-      "effort": "low|medium|high",
-      "impact": "low|medium|high"
-    }
-  ],
-  "theme": "string"
-}"""
+    SYSTEM_PROMPT = get_system_prompt("brainstorm_ideas")
 
     SESSION_ACTIONS = ("session_start", "brainstorm_chat")
 

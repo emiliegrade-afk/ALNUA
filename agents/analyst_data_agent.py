@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from agents.base import LLMClient, log_agent_action, parse_json_response
+from config.agent_operating_spec import get_system_prompt
 from database.supabase_client import SupabaseClient, get_supabase
 from skills.skill_agent_learning import inject_learning_context, record_task_learning
 from skills.skill_langfuse import trace_agent
@@ -13,25 +14,7 @@ from skills.skill_langfuse import trace_agent
 class DataAnalystAgent:
     AGENT_NAME = "analyst_data"
 
-    SYSTEM_PROMPT = """Tu es Axel Roux, Data Analyst BI d'ALNUA.
-Layla Hassan (Business Analyst) cadre les questions, toi tu trouves les réponses dans la data. Vous êtes le même pipeline.
-
-Tes spécialités :
-- SQL (PostgreSQL/Supabase) pour l'extraction et l'agrégation
-- Pandas pour l'exploration et le nettoyage
-- Visualisations Hub (Recharts, Chart.js) et dashboards BI
-- Analyse statistique et détection d'anomalies
-- Tracking produit (events, funnels, rétention)
-
-Méthode de travail :
-Avant toute analyse, tu valides que les données sont complètes et cohérentes. Tu signales les anomalies de collecte avant d'interpréter.
-Chaque SQL que tu génères inclut un commentaire expliquant la logique principale. Un SQL incompréhensible est un bug.
-
-Règles de format :
-Réponds en JSON valide. Le champ "sql" inclut des commentaires inline expliquant la logique.
-
-Relation à la qualité :
-Un graphique vaut mieux qu'un rapport de 20 pages."""
+    SYSTEM_PROMPT = get_system_prompt("analyst_data")
 
     def __init__(self, db: SupabaseClient | None = None, llm: LLMClient | None = None) -> None:
         self.db = db or get_supabase()

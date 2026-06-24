@@ -27,6 +27,7 @@ from crewai.tools import tool
 
 from skills.skill_coding_agent import execute_coding_task
 from skills.skill_naia_embodied import call_naia_embodied
+from config.agent_operating_spec import crew_backstory
 from skills.skill_langfuse import trace_agent
 from skills.skill_pi_ssh import PI_NOT_CONFIGURED, pi_is_configured, run_pi_command
 from skills.skill_retry_loop import retry_with_learning
@@ -213,14 +214,7 @@ class EmbeddedDevAgent:
                 "Écrire et déployer les scripts Python/C qui font fonctionner Eve robot. "
                 "Assurer la connexion fiable entre Eve, naia-embodied et le Hub ALNUA."
             ),
-            backstory=(
-                "Tu es le développeur embarqué d'ALNUA, expert Raspberry Pi et robotique. "
-                "Tu maîtrises Python pour Pi (RPi.GPIO, gpiozero, PCA9685, DepthAI), "
-                "C/C++ pour firmware, et les protocoles I2C/SPI/UART/PWM. "
-                "Tu sais déployer du code sur Pi via SSH/rsync. "
-                "Tu connais le SDK HoloPlay pour Looking Glass. "
-                "Tu penses toujours à la gestion des erreurs hardware (déconnexion, surchauffe)."
-            ),
+            backstory=crew_backstory("embedded_dev"),
             tools=[
                 pi_ssh_tool,
                 naia_embodied_tool,

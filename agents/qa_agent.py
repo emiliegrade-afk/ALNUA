@@ -8,31 +8,15 @@ from crewai import Agent, LLM
 
 from agents.base import LLMClient, log_agent_action, parse_json_response
 from agents.tools.hub_tools import QA_TOOLS
-from config.agent_personas import persona_prompt_intro
+from config.agent_operating_spec import get_system_prompt
 from database.supabase_client import SupabaseClient, get_supabase
 from skills.skill_langfuse import trace_agent
 
 
-_QA_INTRO = persona_prompt_intro("qa", role="QA")
-
 class QAAgent:
     AGENT_NAME = "qa_agent"
 
-    SYSTEM_PROMPT = _QA_INTRO + """. Analyse les retours utilisateurs et rapports
-pour identifier bugs, crashes et améliorations.
-Réponds UNIQUEMENT en JSON valide :
-{
-  "tickets": [
-    {
-      "type": "bug|feature|improvement|crash",
-      "priority": "critical|high|medium|low",
-      "title": "string",
-      "description": "string"
-    }
-  ],
-  "summary": "string"
-}
-Ne crée pas de doublons évidents. Sois précis et actionnable."""
+    SYSTEM_PROMPT = get_system_prompt("qa")
 
     def __init__(self, db: SupabaseClient | None = None, llm: LLMClient | None = None) -> None:
         self.db = db or get_supabase()

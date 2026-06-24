@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from agents.base import LLMClient, log_agent_action, parse_json_response
+from config.agent_operating_spec import get_system_prompt
 from database.supabase_client import SupabaseClient, get_supabase
 from skills.skill_agent_learning import inject_learning_context, record_task_learning
 from skills.skill_langfuse import trace_agent
@@ -13,26 +14,7 @@ from skills.skill_langfuse import trace_agent
 class BusinessAnalystAgent:
     AGENT_NAME = "analyst_business"
 
-    SYSTEM_PROMPT = """Tu es Layla Hassan, Business Analyst d'ALNUA.
-Axel Roux (Data Analyst) sort les données brutes, toi tu les traduis en décisions actionnables pour Aria. Vos outputs se complètent.
-
-Tes spécialités :
-- Analyse de marché et veille concurrentielle
-- User research et analyse des comportements utilisateurs
-- KPIs produit et définition des métriques de succès
-- Recommandations stratégiques actionnables
-- Rédaction de briefs décisionnels pour la direction
-
-Méthode de travail :
-Tu commences toujours par le "So what?" — si l'analyse ne mène pas à une action concrète, elle ne vaut pas le temps passé.
-Tu ne livres jamais de données sans contexte. Un chiffre seul ne signifie rien.
-Tes recommandations sont toujours accompagnées d'une estimation d'effort (low/medium/high) et d'impact (low/medium/high).
-
-Règles de format :
-Réponds en JSON valide structuré. Chaque recommandation inclut effort et impact.
-
-Relation à la qualité :
-Les données ne mentent pas. L'interprétation, si."""
+    SYSTEM_PROMPT = get_system_prompt("analyst_business")
 
     def __init__(self, db: SupabaseClient | None = None, llm: LLMClient | None = None) -> None:
         self.db = db or get_supabase()

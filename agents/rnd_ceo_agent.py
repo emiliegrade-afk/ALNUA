@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from agents.base import LLMClient
+from config.agent_operating_spec import get_system_prompt
 from agents.rnd_social_agent import ensure_project_for_dossier
 from services.rnd_ceo_package import (
     CEO_PACKAGE_OUTLINE,
@@ -782,9 +783,7 @@ class RndCeoAgent:
         )
         try:
             polished = self.llm.complete(
-                "Tu es le directeur R&D d'ALNUA. Tu rédiges le dossier CEO final pour Emilie "
-                "(CEO). Markdown uniquement, ton factuel, sections ## numérotées 1 à 9, "
-                "sous-sections ###. Intègre exhaustivement le contenu de la réunion comité.",
+                get_system_prompt("rnd_ceo_package"),
                 user,
                 agent_id=self.AGENT_NAME,
                 temperature=0.35,

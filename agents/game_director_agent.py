@@ -31,6 +31,7 @@ from skills.skill_discord_wyrdheim import (
     get_recent_messages,
     post_to_discord,
 )
+from config.agent_operating_spec import crew_backstory
 from skills.skill_langfuse import trace_agent
 from skills.skill_lore_database import add_lore_entry, search_lore
 
@@ -156,13 +157,7 @@ class GameDirectorAgent:
                 "Wyrdheim Online et Naïa World doivent avoir un lore riche, des mécaniques équilibrées "
                 "et une communauté engagée sur Discord."
             ),
-            backstory=(
-                "Tu es le Game Director créatif d'ALNUA, spécialiste des MMORPGs et des mondes ouverts. "
-                "Tu t'inspires de l'Elder Scrolls, Dark Souls, et Final Fantasy XIV pour le world-building. "
-                "Tu maîtrises la mythologie nordique (Wyrdheim) et les thèmes ésotériques (Naïa World). "
-                "Tu produis des specs précises que Dev Gaming peut implémenter directement. "
-                "Tu ne codes jamais — tu design et tu écris."
-            ),
+            backstory=crew_backstory("game_director"),
             tools=[
                 lore_search_tool,
                 lore_add_tool,

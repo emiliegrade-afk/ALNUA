@@ -12,7 +12,7 @@ from crewai import Agent, Crew, LLM, Process, Task
 from crewai.tools import tool
 
 from agents.tools.hub_tools import HUB_TOOLS
-from config.agent_personas import persona_prompt_intro
+from config.agent_operating_spec import get_system_prompt
 from database.supabase_client import SupabaseClient, get_supabase
 from config.github_repos import get_target_by_slug
 from skills.skill_chroma import search_knowledge as _search
@@ -45,6 +45,7 @@ _PLAN_EXECUTION_MARKERS = (
     "lance", "délègue", "delegue", "organise", "planifie", "campagne",
     "stratégie", "strategie", "priorise", "triage", "génère un", "genere un",
     "brief", "étude de marché", "market analysis",
+    "relance", "relancer", "réveille", "reveille",
 )
 _BRIEF_ONLY_MARKERS = (
     "urgent aujourd", "qu'est-ce qui est urgent", "état des projets",
@@ -170,6 +171,8 @@ def detect_target_repo(message: str) -> str:
         return "naia"
     if "nomad" in msg or "nuaway" in msg:
         return "nomad"
+    if any(k in msg for k in ("hub alnua", "alnua hub", "infra interne", "repo hub", "sur le hub")):
+        return "hub"
     return "hub"
 
 
@@ -222,34 +225,7 @@ def create_github_issue_via_composio(
 # ---------------------------------------------------------------------------
 # System prompt officiel du COO
 # ---------------------------------------------------------------------------
-COO_SYSTEM_PROMPT = f"""
-{persona_prompt_intro("coo", role="COO")}, le bras droit direct d'Emilie.
-Elle est seule pour gérer une société avec 3 branches (App, Gaming, Robotique).
-Ta mission : protéger son temps et son énergie.
-
-Quand elle te donne une instruction :
-1. Identifie le projet concerné (Naïa / Wyrdheim / Eve / ALNUA global)
-2. Décompose en sous-tâches concrètes
-3. Détermine quel agent est responsable de chaque tâche
-4. Retourne un plan d'action en 5 lignes max — jamais de blabla
-
-Agents disponibles sous tes ordres :
-- pm_agent : roadmap, tickets, priorisation
-- qa_agent : bugs, feedbacks, crash reports
-- content_agent : création posts, scripts vidéo, marketing
-- brainstorm_agent : idéation, nouveaux produits, features
-- spec_agent : génération de prompts Cursor pour le code
-- game_director : lore, quêtes, game design, Discord Wyrdheim
-- dev_gaming : UE5, Blueprints, C++, Nwiro
-- hardware : composants Eve, BOM, architecture robot
-- embedded : Raspberry Pi, firmware, naia-embodied, déploiement Eve
-- marketing : SEO, communauté, réseaux sociaux, veille
-
-Règles absolues :
-- UE5/Unreal → dev_gaming uniquement (jamais dev_app ni spec_agent)
-- Toujours confirmer avant une action irréversible (suppression, publication)
-- Si tu ne sais pas à quel projet ça appartient, demande
-""".strip()
+COO_SYSTEM_PROMPT = get_system_prompt("coo").strip()
 
 # Alias pour résoudre les noms de projets depuis le langage naturel
 PROJECT_ALIASES: dict[str, str] = {
@@ -1126,6 +1102,31 @@ class COOAgent:
             except ValueError:
                 return "❌ Idée vide — précise ce que tu veux garder."
 
+        from services.secretary_intents import (
+            build_academy_status_brief,
+            detect_academy_intent,
+            detect_wake_ops,
+        )
+
+        if detect_wake_ops(instruction):
+            from services.agent_wake import wake_agents
+
+            result = wake_agents(notify=False, retry_failed=True)
+            ack = f"✅ Pipeline Academy relancé — Théo reprend le codage.\n{result.get('summary', '')}"
+            try:
+                self.create_task_log(self.AGENT_NAME, "wake_agents", instruction, ack[:200])
+            except Exception:
+                pass
+            return ack
+
+        if detect_academy_intent(instruction):
+            brief = build_academy_status_brief()
+            try:
+                self.create_task_log(self.AGENT_NAME, "academy_status", instruction, brief[:200])
+            except Exception:
+                pass
+            return brief
+
         # Commandes R&D
         if any(kw in msg_lower for kw in RND_KEYWORDS):
             from agents.rnd_center import run_rnd_cycle, inject_idea, set_vision, get_top_ideas
@@ -1151,10 +1152,10 @@ class COOAgent:
                 run_rnd_cycle(blocking=False)
                 return "🧪 Cycle R&D lancé — rapport dans quelques minutes sur Telegram."
 
-        # Commande de veille web — "recherche les tendances marketing pour marketing_agent"
+        # Recherche web → bibliothèque des bureaux
         is_research, research_agent = _detect_research_intent(instruction)
         if is_research:
-            from skills.skill_web_research import research_domain, research_all_agents
+            from services.bureau_library import bureau_for_agent, run_bureau_research
 
             topic = _extract_research_topic(instruction, research_agent)
             if research_agent == "rnd_agent" and topic and len(topic) >= 4:
@@ -1166,15 +1167,28 @@ class COOAgent:
                 except Exception:
                     logger.warning("coo: task log rnd_investigation failed", exc_info=True)
                 return ack
-            if research_agent:
-                research_domain(research_agent, topic=topic, blocking=False)
-                scope = f" sur « {topic} »" if topic else ""
-                return (
-                    f"🔍 Veille web lancée pour {research_agent}{scope} "
-                    f"— résultats dans Mem0 dans quelques minutes."
+            query = topic or instruction.strip()[:400]
+            bureaus = [bureau_for_agent(research_agent)] if research_agent else None
+            result = run_bureau_research(
+                query,
+                bureaus=bureaus,
+                requested_by="aria",
+                blocking=telegram_chat_id is None,
+                notify_chat_id=telegram_chat_id,
+            )
+            try:
+                self.create_task_log(
+                    self.AGENT_NAME, "library_research", instruction, result.get("message", "")[:200]
                 )
-            research_all_agents(blocking=False)
-            return "🔍 Veille web lancée pour tous les agents — résultats dans Mem0 dans quelques minutes."
+            except Exception:
+                pass
+            if telegram_chat_id is None and result.get("entries_saved") is not None:
+                n = result.get("entries_saved", 0)
+                return (
+                    f"📚 **Recherche terminée** — « {query} »\n\n"
+                    f"**{n}** fiche(s) rangée(s) dans la bibliothèque (rien supprimé)."
+                )
+            return f"📚 {result.get('message', 'Recherche lancée.')}"
 
         # Commande d'injection de leçon — "apprends au marketing_agent que les Reels < 30s performent mieux"
         is_teach, teach_agent_id, teach_content = _detect_teach_intent(instruction)
@@ -1218,6 +1232,14 @@ class COOAgent:
                 self.AGENT_NAME, "handle_instruction", instruction, question, status="pending"
             )
             return question
+
+        # Chat rapide (Telegram + questions sans exécution lourde) — toujours une réponse claire
+        if telegram_chat_id is not None or not _needs_plan_execution(instruction):
+            return self._handle_conversation(
+                instruction,
+                project_name=project_name,
+                telegram_chat_id=telegram_chat_id,
+            )
 
         # Contexte injecté pour guider le COO
         context_block = ""
@@ -1327,6 +1349,75 @@ class COOAgent:
                 status="error",
             )
             return "Une erreur est survenue. Réessaie ou vérifie la connexion Supabase/OpenRouter."
+
+    def _handle_conversation(
+        self,
+        instruction: str,
+        *,
+        project_name: str | None = None,
+        telegram_chat_id: int | None = None,
+    ) -> str:
+        """Réponse chat rapide — pas de CrewAI (évite les silences Telegram)."""
+        from services.secretary_intents import build_academy_status_brief
+        from services.telegram_chat_memory import get_context_block
+        from services.telegram_presence import CANNOT_DO_ARIA, hub_online
+
+        history = get_context_block(telegram_chat_id)
+        academy = build_academy_status_brief()
+        hub_line = "Hub en ligne." if hub_online() else "Hub ARRÊTÉ."
+
+        memory_block = ""
+        try:
+            from skills.skill_agent_learning import get_learning_context
+
+            memory_block = get_learning_context("coo", instruction)
+        except Exception:
+            pass
+
+        prompt = f"""Emilie (CEO) t'écrit :
+{instruction}
+
+{history}
+
+Projet indicatif : {project_name or "non précisé"}
+État technique : {hub_line}
+
+Contexte Academy / ops :
+{academy[:1500]}
+
+{memory_block}
+
+Réponds comme Aria Voss, COO d'ALNUA — tutoiement, 3 à 8 phrases, français.
+Sois directe et actionnable. Si tu ne peux pas exécuter : dis-le clairement et propose une alternative.
+Si la demande concerne mails/agenda → renvoie vers Nadia.
+Pas de markdown lourd — texte lisible sur Telegram."""
+
+        try:
+            from agents.base import LLMClient
+
+            raw = LLMClient().complete(
+                COO_SYSTEM_PROMPT,
+                prompt,
+                agent_id=self.AGENT_NAME,
+                temperature=0.45,
+            )
+            text = (raw or "").strip()
+            if not text:
+                text = CANNOT_DO_ARIA
+        except Exception as exc:
+            logger.warning("coo conversation failed: %s", exc)
+            text = (
+                "Je n'ai pas pu répondre (IA ou Hub indisponible).\n\n"
+                + CANNOT_DO_ARIA
+            )
+
+        try:
+            self.create_task_log(
+                self.AGENT_NAME, "handle_instruction", instruction, text[:300]
+            )
+        except Exception:
+            pass
+        return self._trim_summary(text)
 
 
 # ---------------------------------------------------------------------------

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from config.agent_operating_spec import build_committee_system_prompt
+
 COMMITTEE_RULES = """
 RÈGLES DU COMITÉ R&D ALNUA :
 - Tu parles en français, ton direct et professionnel (réunion produit, pas marketing creux).
@@ -12,53 +14,12 @@ RÈGLES DU COMITÉ R&D ALNUA :
 - Termine souvent par une action concrète pour Emilie (valider, couper, tester, différer).
 """
 
-MEMBER_PERSONAS: dict[str, str] = {
-    "pm": (
-        "Tu es Alex, PM ALNUA. Tu synthétises, priorises le scope MVP, "
-        "poses les questions qui manquent et proposes la prochaine décision."
-    ),
-    "spec": (
-        "Tu es l'agent Spec. Tu évalues faisabilité technique, stack ALNUA, "
-        "dépendances et risques d'implémentation pour une solopreneuse + agents IA."
-    ),
-    "marketing": (
-        "Tu es l'agent Marketing. Tu challenges le positionnement, la différenciation, "
-        "le canal d'acquisition et la cohérence du message vs concurrents nommés."
-    ),
-    "accounting": (
-        "Tu es l'agent Comptable. Tu relies chaque argument aux chiffres du business case "
-        "(CAPEX, ARPU, abonnés, ROI) et signales les illusions de revenus."
-    ),
-    "dev_app": (
-        "Tu es l'agent Dev App. Tu estimes l'effort réel solo+IA, les intégrations "
-        "(Supabase, RevenueCat, Next.js) et ce qu'il faut couper pour livrer en 4 semaines."
-    ),
-    "dev_gaming": (
-        "Tu es l'agent Dev Gaming. Tu évalues boucle de gameplay, moteur, scope art/code "
-        "et faisabilité pour un studio solo."
-    ),
-    "game_director": (
-        "Tu es le Game Director. Tu juges la fantasy, la rétention, le pitch joueur "
-        "et l'alignement avec le catalogue ALNUA."
-    ),
-    "hardware": (
-        "Tu es l'agent Hardware. Tu évalues BOM, fabrication, certifications, "
-        "supply chain et risques production pour petits volumes."
-    ),
-    "embedded_dev": (
-        "Tu es l'agent Embedded. Tu couvre firmware, capteurs, consommation, "
-        "OTA et intégration avec l'app compagnon."
-    ),
-    "content": (
-        "Tu es l'agent Content. Tu proposes angles social, calendrier teaser, "
-        "ton de marque et contenus pour la phase pré-lancement."
-    ),
-}
+# Kept for tests / docs — overlay is in rnd_committee_overlay spec.
+MEMBER_PERSONAS: dict[str, str] = {}
 
 
 def build_member_system(member_id: str, dossier_context: str) -> str:
-    persona = MEMBER_PERSONAS.get(member_id, "Tu es un expert produit ALNUA.")
-    return f"{persona}\n\n{COMMITTEE_RULES}\n\nCONTEXTE DOSSIER :\n{dossier_context[:6000]}"
+    return build_committee_system_prompt(member_id, dossier_context)
 
 
 KICKOFF_USER = """Le comité R&D vient de s'ouvrir sur ce dossier.

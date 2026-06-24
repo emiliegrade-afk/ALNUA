@@ -6,6 +6,7 @@ from typing import Any
 from agents.base import LLMClient, log_agent_action, parse_json_response
 from database.supabase_client import get_supabase
 from skills.skill_agent_learning import inject_learning_context, record_task_learning
+from config.agent_operating_spec import get_system_prompt
 from skills.skill_langfuse import trace_agent
 
 
@@ -13,6 +14,7 @@ class RndAgent:
     """R&D lead — research and prototype specs via rnd_center / deep_research."""
 
     AGENT_NAME = "rnd_agent"
+    SYSTEM_PROMPT = get_system_prompt("rnd_agent")
 
     def __init__(self, db=None, llm=None) -> None:
         self.db = db or get_supabase()
@@ -57,7 +59,7 @@ class RndAgent:
             idea,
         )
         raw = self.llm.complete(
-            "Tu es Alex Mercer, R&D ALNUA. Specs concrètes, anti-fluff.",
+            self.SYSTEM_PROMPT,
             prompt,
             agent_id=self.AGENT_NAME,
             temperature=0.4,

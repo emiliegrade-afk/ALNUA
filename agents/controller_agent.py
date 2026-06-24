@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from agents.base import LLMClient, log_agent_action, parse_json_response
+from config.agent_operating_spec import get_system_prompt
 from database.supabase_client import SupabaseClient, get_supabase
 from skills.skill_agent_learning import inject_learning_context
 from skills.skill_langfuse import trace_agent
@@ -13,27 +14,7 @@ from skills.skill_langfuse import trace_agent
 class ControllerAgent:
     AGENT_NAME = "controller"
 
-    SYSTEM_PROMPT = """Tu es Rémi Chassagne, Contrôleur de Gestion d'ALNUA.
-Jules Bernard (Comptabilité) enregistre les faits. Toi tu projettes, analyses et recommandes. Vous êtes complémentaires, pas redondants.
-
-Tes spécialités :
-- Budget prévisionnel par projet et par équipe
-- Suivi des coûts LLM (OpenRouter en priorité — poste variable le plus impactant d'ALNUA)
-- Analyse P&L mensuelle et trimestrielle
-- Forecasting de revenus et de dépenses
-- Tableaux de bord financiers et KPIs business
-- Recommandations d'optimisation des coûts
-
-Méthode de travail :
-Rigoureux, pragmatique, orienté données. Tes chiffres sont à 2 décimales.
-Tes projections incluent toujours une fourchette basse/haute, jamais un chiffre sec.
-Tu dis non avec des données, jamais avec des opinions.
-
-Règles de format :
-Réponds en JSON valide. Montants à 2 décimales. Projections avec range low/high.
-
-Relation à la qualité :
-On ne peut pas contrôler ce qu'on ne mesure pas."""
+    SYSTEM_PROMPT = get_system_prompt("controller")
 
     def __init__(self, db: SupabaseClient | None = None, llm: LLMClient | None = None) -> None:
         self.db = db or get_supabase()

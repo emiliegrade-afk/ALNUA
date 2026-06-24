@@ -8,7 +8,7 @@ from crewai import Agent, LLM
 
 from agents.base import LLMClient, log_agent_action
 from agents.tools.hub_tools import SPEC_TOOLS
-from config.agent_personas import persona_prompt_intro
+from config.agent_operating_spec import get_system_prompt
 from database.supabase_client import SupabaseClient, get_supabase
 from skills.skill_langfuse import trace_agent
 
@@ -16,36 +16,7 @@ from skills.skill_langfuse import trace_agent
 class SpecAgent:
     AGENT_NAME = "spec_agent"
 
-    SYSTEM_PROMPT = persona_prompt_intro("spec", role="Spec Rédacteur") + """. Tu transformes des tickets en prompts
-precis pour Cursor (Composer) afin qu'Emilie (solo dev) implemente le fix ou la feature.
-
-Structure OBLIGATOIRE du prompt (en francais, markdown) :
-
-Ouvre `[fichier probable le plus pertinent]`.
-
-Le probleme est : [description claire du bug ou du besoin en 2-4 phrases].
-
-Voici ce qu'il faut faire :
-1. [etape concrete]
-2. [etape concrete]
-3. [etape concrete]
-(ajoute des etapes si necessaire)
-
-Fichiers concernes :
-- `[chemin/relatif/fichier.ext]`
-- `[autre fichier si pertinent]`
-
-Teste avec :
-```bash
-[commande de test ou verification manuelle]
-```
-
-Criteres d'acceptation :
-- [ ] [critere mesurable]
-- [ ] [critere mesurable]
-
-Sois specifique au stack ALNUA (Python FastAPI backend, Next.js 14 frontend, Supabase).
-Ne mets pas de blabla — uniquement du contenu actionnable pret a coller dans Cursor."""
+    SYSTEM_PROMPT = get_system_prompt("spec")
 
     def __init__(self, db: SupabaseClient | None = None, llm: LLMClient | None = None) -> None:
         self.db = db or get_supabase()

@@ -27,6 +27,8 @@ import os
 from datetime import datetime, timezone
 from typing import Any
 
+from config.agent_operating_spec import get_system_prompt
+
 logger = logging.getLogger(__name__)
 
 POLL_INTERVAL = int(os.getenv("WATCHDOG_POLL_INTERVAL", "60"))  # secondes
@@ -57,15 +59,13 @@ DEFAULT_REPO_PATH = os.getenv("HUB_REPO_PATH", "C:/Dev/ALUNA_HUB")
 # ---------------------------------------------------------------------------
 
 def _build_fix_prompt(error: dict[str, Any], similar: list[dict]) -> str:
-    """Génère un prompt OpenHands pour corriger l'erreur."""
+    """Génère le prompt utilisateur pour correction (system = spec 9 couches)."""
     agent = error.get("agent_name", "unknown")
     err_type = error.get("error_type", "unknown")
     err_msg = error.get("error_message", "")
     context = error.get("context", "")
 
-    prompt = f"""Tu es un agent de correction de bugs autonome pour ALNUA Hub.
-
-ERREUR DÉTECTÉE :
+    user = f"""ERREUR DÉTECTÉE :
 - Agent : {agent}
 - Type : {err_type}
 - Message : {err_msg[:1000]}
@@ -73,24 +73,24 @@ ERREUR DÉTECTÉE :
 """
 
     if similar:
-        prompt += "\nSOLUTIONS CONNUES POUR DES ERREURS SIMILAIRES :\n"
+        user += "\nSOLUTIONS CONNUES POUR DES ERREURS SIMILAIRES :\n"
         for s in similar[:2]:
             if s.get("solution"):
-                prompt += f"- {s['solution'][:300]}\n"
+                user += f"- {s['solution'][:300]}\n"
 
-    prompt += """
+    slug = err_type.replace(" ", "_").lower()[:30]
+    user += f"""
 INSTRUCTIONS :
 1. Analyse l'erreur et localise le fichier/fonction concerné
 2. Applique le fix minimal nécessaire (ne change rien d'autre)
 3. Vérifie que les imports et dépendances sont corrects
 4. Lance les tests si disponibles (pytest tests/ -x -q)
-5. Crée une branche fix/{error_type}_auto et commit le fix
+5. Crée une branche fix/{slug}_auto et commit le fix
 6. Résume en 2 lignes ce que tu as changé et pourquoi
 
 Ne fais PAS de refactoring, reste focalisé sur le bug précis.
-""".format(error_type=err_type.replace(" ", "_").lower()[:30])
-
-    return prompt
+"""
+    return get_system_prompt("bug_watchdog_fix") + "\n\n---\n\n" + user
 
 
 # ---------------------------------------------------------------------------
@@ -127,17 +127,15 @@ async def _process_error(error: dict[str, Any]) -> None:
     logger.info("BugWatchdog: délégation à fix_pipeline — %s (%s - %s)",
                 error_id[:8], agent_name, err_type)
 
-    # Détermine repo path + github slug
-    repo_path = AGENT_REPO_PATHS.get(agent_name, DEFAULT_REPO_PATH)
-    github_repo = None
+    # Registry-first repo resolution (multi-repo RUN recipe)
+    repo_slug = error.get("repo_slug")
     try:
-        from config.github_repos import get_all_targets
-        for target in get_all_targets():
-            if target.local_path and repo_path.startswith(str(target.local_path)):
-                github_repo = target.github_repo
-                break
+        from services.run_watchdog_registry import resolve_repo_path_for_slug
+
+        repo_path, github_repo = resolve_repo_path_for_slug(repo_slug, agent_name)
     except Exception:
-        pass
+        repo_path = AGENT_REPO_PATHS.get(agent_name, DEFAULT_REPO_PATH)
+        github_repo = None
 
     try:
         result = await pipeline_run(

@@ -12,6 +12,7 @@ from agents.base import LLMClient, log_agent_action, parse_json_response
 from agents.tools.hub_tools import CONTENT_TOOLS
 from database.supabase_client import SupabaseClient, get_supabase
 from skills.skill_composio import get_composio_tools
+from config.agent_operating_spec import get_system_prompt
 from skills.skill_langfuse import trace_agent
 
 VALID_PLATFORMS = frozenset({"instagram", "tiktok", "x", "youtube", "linkedin", "website_blog"})
@@ -48,23 +49,7 @@ CONTENT_TYPE_HINTS: dict[str, str] = {
 class ContentAgent:
     AGENT_NAME = "content_agent"
 
-    SYSTEM_PROMPT = """Tu es l'agent contenu d'ALNUA. Transforme les dev logs d'Emilie en posts
-réseaux sociaux authentiques, en français, adaptés à la marque ALNUA.
-Réponds UNIQUEMENT en JSON valide :
-{
-  "posts": [
-    {
-      "platform": "instagram|tiktok|x|youtube|linkedin",
-      "content_type": "announcement|teaser|tutorial|behind_scenes|short_video",
-      "text_content": "string",
-      "image_prompt": "string or null",
-      "video_script": "string or null",
-      "hashtags": ["string"]
-    }
-  ]
-}
-Ton : professionnel mais humain, behind-the-scenes solo dev.
-Respecte STRICTEMENT les contraintes de chaque plateforme."""
+    SYSTEM_PROMPT = get_system_prompt("content")
 
     def __init__(self, db: SupabaseClient | None = None, llm: LLMClient | None = None) -> None:
         self.db = db or get_supabase()

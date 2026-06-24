@@ -30,6 +30,8 @@ import urllib.request
 from pathlib import Path
 from typing import Any
 
+from config.agent_operating_spec import get_system_prompt
+
 logger = logging.getLogger(__name__)
 
 # Cap retries so a stuck fix loop cannot starve the API thread pool.
@@ -207,10 +209,7 @@ def _qa_review(diff: str, error_message: str, fix_summary: str) -> dict[str, Any
     QA Agent — vérifie que le fix est logiquement correct.
     Retourne {"approved": bool, "feedback": str}
     """
-    system = """Tu es un agent QA expert Python pour ALNUA Hub.
-Tu analyses un diff de code et décides si le fix est correct.
-Réponds UNIQUEMENT en JSON : {"approved": true/false, "feedback": "raison en 2 phrases max"}
-Sois strict : approuve uniquement si le fix est clairement correct et ciblé."""
+    system = get_system_prompt("fix_pipeline_qa_review")
 
     user = f"""ERREUR ORIGINALE :
 {error_message[:800]}
@@ -239,10 +238,7 @@ def _spec_review(diff: str, fix_summary: str, repo_context: str) -> dict[str, An
     Spec Agent — vérifie cohérence architecturale.
     Retourne {"approved": bool, "feedback": str}
     """
-    system = """Tu es un agent Spec/Architecture expert pour ALNUA Hub.
-Tu vérifies qu'un fix respecte l'architecture du projet.
-Réponds UNIQUEMENT en JSON : {"approved": true/false, "feedback": "raison en 2 phrases max"}
-Approuve si le fix est minimal et cohérent avec la structure existante."""
+    system = get_system_prompt("fix_pipeline_spec_review")
 
     user = f"""CONTEXTE PROJET :
 {repo_context[:1000]}

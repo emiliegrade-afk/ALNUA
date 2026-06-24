@@ -25,6 +25,7 @@ from crewai.tools import tool
 
 from skills.skill_coding_agent import execute_coding_task
 from skills.skill_composio import get_composio_tools
+from config.agent_operating_spec import crew_backstory
 from skills.skill_gh_issues import comment_on_issue, get_issue, get_open_issues, list_ready_issues, process_issue
 from skills.skill_langfuse import trace_agent
 from skills.skill_model_usage import format_costs_report
@@ -129,13 +130,7 @@ class DevAppAgent:
                 "(Naïa App, Eve Journey's). Créer des PRs propres, documentées, avec tests. "
                 "Respecter les conventions ALNUA : logging, gestion d'erreurs, docstrings."
             ),
-            backstory=(
-                "Tu es le Lead Developer du Pôle App d'ALNUA. "
-                "Tu maîtrises Python/FastAPI, React Native, Supabase, Docker. "
-                "Tu codes proprement, tu testes, tu documentes. "
-                "Tu ne touches jamais aux projets Gaming ou Robotique. "
-                "Tu crées des worktrees isolés pour chaque feature."
-            ),
+            backstory=crew_backstory("dev_app"),
             tools=[
                 coding_agent_tool,
                 list_issues_tool,

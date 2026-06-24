@@ -27,6 +27,7 @@ from crewai import Agent, Crew, LLM, Task
 from crewai.tools import tool
 
 from database.supabase_client import get_supabase
+from config.agent_operating_spec import crew_backstory
 from skills.skill_langfuse import trace_agent
 
 logger = logging.getLogger(__name__)
@@ -210,13 +211,7 @@ class HardwareAgent:
                 "Sélectionner les meilleurs composants (rapport qualité/prix). "
                 "Fournir des specs claires à Embedded Dev pour l'implémentation."
             ),
-            backstory=(
-                "Tu es le Lead Hardware Engineer d'ALNUA, spécialiste robotique embarquée. "
-                "Tu maîtrises Raspberry Pi, Arduino, électronique (I2C, SPI, UART, PWM), "
-                "impression 3D et supply chain composants. "
-                "Tu connais les fournisseurs : Mouser, Farnell, RS, Pimoroni, AliExpress. "
-                "Tu proposes toujours une option pro ET une option budget."
-            ),
+            backstory=crew_backstory("hardware"),
             tools=[
                 component_search_tool,
                 bom_manager_tool,

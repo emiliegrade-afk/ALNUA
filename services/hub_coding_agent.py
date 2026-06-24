@@ -15,31 +15,13 @@ from typing import Any
 
 from agents.base import LLMClient, parse_json_response, resolve_openrouter_model
 from config.agent_models import get_coding_model_for_agent, normalize_agent_id
+from config.agent_operating_spec import get_system_prompt
 from services.coding_pipeline import detect_stack, stack_rules_block
+from services.hermes_skills import inject_hermes_context
 
 logger = logging.getLogger(__name__)
 
-_SYSTEM = """Tu es un agent de développement ALNUA dans un dépôt git isolé (worktree).
-Tu dois livrer la tâche en agissant comme un IDE : lire, éditer, exécuter des commandes, corriger.
-
-À CHAQUE tour, réponds UNIQUEMENT avec un objet JSON valide (pas de markdown autour).
-
-Actions disponibles :
-- list_dir   : {"action":"list_dir","path":"."}
-- read_file  : {"action":"read_file","path":"chemin/relatif"}
-- write_file : {"action":"write_file","path":"chemin","content":"contenu complet du fichier"}
-- run_cmd    : {"action":"run_cmd","command":"npm test","cwd":"."}
-- grep       : {"action":"grep","pattern":"regex","path":"."}
-- done       : {"action":"done","summary":"ce qui a été fait"}
-
-Règles :
-- path et cwd sont relatifs à la racine du worktree
-- Après run_cmd, lis stdout/stderr dans le message utilisateur suivant
-- Ne crée jamais de fichier vide
-- Pas de noms de fichiers suspects : (aucun), parenthèses seules, etc.
-- Expo SDK 56 : npx expo install pour les deps expo-*
-- Quand les tests/tsc passent et le code est prêt : action done
-"""
+_SYSTEM = get_system_prompt("hub_coding_agent")
 
 _CMD_ALLOW = re.compile(
     r"^(npm|npx|node|python|pytest|git|tsc|expo|yarn|pnpm)\b",
@@ -150,6 +132,7 @@ def run_hub_coding_loop(
     *,
     max_turns: int = 30,
     timeout_s: int = 1800,
+    activity_id: str | None = None,
 ) -> dict[str, Any]:
     """
     Cursor-like agent loop in an isolated worktree.
@@ -180,6 +163,24 @@ Tests : {', '.join(spec.get('tests_to_pass') or spec.get('tests') or [])}
     summary = ""
     started = time.monotonic()
 
+    def _live(action: str, path: str | None = None, snippet: list[str] | None = None, prog: int | None = None) -> None:
+        if not activity_id:
+            return
+        try:
+            from services.coding_activity import record_agent_action
+
+            record_agent_action(
+                activity_id,
+                action=action,
+                path=path,
+                code_snippet=snippet,
+                progress=prog,
+            )
+        except Exception:
+            pass
+
+    _live("Démarrage boucle coding", prog=10)
+
     for turn in range(1, max_turns + 1):
         if time.monotonic() - started > timeout_s:
             return {
@@ -192,8 +193,9 @@ Tests : {', '.join(spec.get('tests_to_pass') or spec.get('tests') or [])}
             }
 
         logger.info("[HubCoding] %s turn %s/%s model=%s", agent_id, turn, max_turns, model_slug)
+        system = inject_hermes_context("coding", _SYSTEM, max_chars=6000)
         raw = llm.chat(
-            system=_SYSTEM,
+            system=system,
             messages=messages,
             model=model_api,
             agent_id=agent_id,
@@ -202,6 +204,7 @@ Tests : {', '.join(spec.get('tests_to_pass') or spec.get('tests') or [])}
             max_tokens=8192,
         )
         log_lines.append(f"--- turn {turn} ---\n{raw[:1500]}")
+        _live(f"Tour {turn}/{max_turns}", prog=min(10 + int(80 * turn / max_turns), 89))
 
         try:
             action = _parse_action(raw)
@@ -229,6 +232,23 @@ Tests : {', '.join(spec.get('tests_to_pass') or spec.get('tests') or [])}
             result = _execute_action(root, action)
         except Exception as exc:
             result = f"[action error] {exc}"
+
+        kind = (action.get("action") or "").strip().lower()
+        rel_path = str(action.get("path") or "")
+        if kind == "write_file" and rel_path:
+            try:
+                fp = _safe_path(root, rel_path)
+                if fp.is_file():
+                    lines = fp.read_text(encoding="utf-8", errors="replace").splitlines()
+                    _live("write_file", rel_path, snippet=lines[-15:])
+            except Exception:
+                _live("write_file", rel_path)
+        elif kind == "read_file":
+            _live("read_file", rel_path or None)
+        elif kind == "run_cmd":
+            _live(f"run_cmd: {str(action.get('command') or '')[:60]}")
+        elif kind == "list_dir":
+            _live("list_dir", rel_path or ".")
 
         if result == "__DONE__":
             summary = str(action.get("summary") or "done")

@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from agents.base import LLMClient, log_agent_action, parse_json_response, run_with_learning
+from config.agent_operating_spec import get_system_prompt
 from database.supabase_client import SupabaseClient, get_supabase
 from skills.skill_agent_learning import inject_learning_context
 from skills.skill_langfuse import trace_agent
@@ -13,31 +14,7 @@ from skills.skill_langfuse import trace_agent
 class DevBackendAgent:
     AGENT_NAME = "dev_backend"
 
-    SYSTEM_PROMPT = """Tu es Hao Chen, développeur Backend & API d'ALNUA.
-Théo Laurent (Dev App) construit le front, toi les fondations. Vos livraisons se mesurent en features opérationnelles end-to-end.
-
-Tes spécialités :
-- APIs REST et WebSocket (FastAPI, Node.js, Express)
-- Bases de données (Supabase / PostgreSQL, optimisation de requêtes)
-- Authentification et sécurité (JWT, OAuth, RLS Supabase)
-- Infrastructure et déploiement (Docker, CI/CD, Railway, Fly.io)
-- Intégrations tierces (webhooks, SDKs)
-
-Méthode de travail :
-Méthodique, silencieux, orienté fondations. Standards ALNUA : typage strict, docstrings, gestion d'erreurs explicite, pas de print() en production.
-Chaque endpoint que tu conçois doit être documenté, versionné (/api/v1/) et prévoir la pagination si la liste peut dépasser 100 items.
-
-Règles de format :
-Pour le code, utilise TOUJOURS le format :
-===SUMMARY===
-<résumé de ce que tu as fait>
-===FILE:path/to/file.ext===
-<contenu complet du fichier>
-===END===
-Pour les specs et analyses, réponds en JSON valide.
-
-Relation à la qualité :
-Le front, c'est la vitrine. Moi je suis la fondation."""
+    SYSTEM_PROMPT = get_system_prompt("dev_backend")
 
     def __init__(self, db: SupabaseClient | None = None, llm: LLMClient | None = None) -> None:
         self.db = db or get_supabase()

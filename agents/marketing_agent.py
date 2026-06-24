@@ -32,6 +32,7 @@ from skills.skill_discord_wyrdheim import (
     get_recent_messages,
     post_to_discord,
 )
+from config.agent_operating_spec import crew_backstory
 from skills.skill_langfuse import trace_agent
 from skills.skill_seo_audit import run_seo_audit
 
@@ -158,14 +159,7 @@ class MarketingAgent:
                 "SEO optimal sur tous les produits. "
                 "Communauté Wyrdheim active et positive sur Discord."
             ),
-            backstory=(
-                "Tu es le Marketing Director d'ALNUA, expert en growth marketing indie game et app. "
-                "Tu maîtrises le SEO technique (Core Web Vitals, structured data), "
-                "la gestion de communauté Discord, et le content marketing. "
-                "Tu t'inspires des meilleures pratiques des studios indie (No Man's Sky, Hades, Hollow Knight). "
-                "Tu analyses la concurrence et identifies les opportunités de différenciation. "
-                "Tu adaptes le ton : épique pour Wyrdheim, bienveillant/scientifique pour Naïa, futuriste pour Eve."
-            ),
+            backstory=crew_backstory("marketing"),
             tools=[
                 seo_audit_tool,
                 web_search_tool,

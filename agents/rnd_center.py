@@ -31,6 +31,7 @@ from pathlib import Path
 from typing import Any
 
 from config.settings import get_settings
+from config.agent_operating_spec import get_system_prompt
 
 logger = logging.getLogger(__name__)
 
@@ -115,12 +116,12 @@ def _llm(system: str, user: str, model: str | None = None, max_tokens: int = 400
 def get_vision() -> str:
     """Récupère le fil conducteur R&D depuis Mem0 + leçons apprises."""
     base = (
-        "ALNUA est une société virtuelle dirigée par Emilie, solopreneuse nomade. "
-        "Stack actuelle : NUAWAY (app nomades/vanlifers), Naïa (monde 3D IA open world), "
-        "Hub IA (12 agents autonomes). "
-        "Vision : rendre l'IA et la tech accessible aux créateurs indépendants et nomades. "
-        "Emilie est ouverte à tout domaine : apps, jeux, robotique, hardware, IA, SaaS, B2B. "
-        "Critère principal : y a-t-il un marché réel et peut-on construire ça ?"
+        "ALNUA — société d'Emilie (CEO), solopreneuse. "
+        "Portfolio : NUAWAY (app vanlife — UN produit, pas toute la société), Naïa (bien-être), "
+        "Wyrdheim (gaming), Eve (robotique), Hub IA (agents). "
+        "Emilie vit en vanlife mais ALNUA doit explorer TOUS les marchés : "
+        "gaming, santé, robotique, SaaS B2B, hardware, créateurs, productivité — pas seulement le nomadisme. "
+        "Règle R&D : diversifier ; max ~1 idée vanlife/nomad par cycle de 6 idées."
     )
     try:
         from skills.skill_mem0 import recall
@@ -207,6 +208,276 @@ def inject_idea(idea: str, source: str = "Emilie") -> dict:
     _save_ideas(ideas)
     logger.info("rnd_center: idée injectée par %s : %s", source, idea[:60])
     return new_idea
+
+
+def _expand_library_concept(
+    title: str,
+    summary: str,
+    *,
+    topics: list[str] | None = None,
+    source_url: str = "",
+    query: str = "",
+    bureau: str = "rd",
+    vision: str = "",
+) -> dict:
+    """Enrichit une fiche bibliothèque en concept R&D structuré (comme le cycle autonome)."""
+    topics_text = ", ".join(topics or []) or "non précisé"
+    system = get_system_prompt("rnd_library_expand")
+
+    user = f"""VISION ALNUA :
+{vision[:800] or "CEO solopreneure — portfolio apps, gaming, robotique, agents IA autonomes."}
+
+FICHE BIBLIOTHÈQUE :
+- Bureau : {bureau}
+- Titre : {title}
+- Résumé : {summary[:2500]}
+- Sujets : {topics_text}
+- Recherche d'origine : {query[:300]}
+- Source : {source_url[:500]}
+
+Développe ce concept en proposition R&D actionnable (pas une simple reprise du résumé)."""
+
+    base = {
+        "title": title[:200],
+        "domain": "autre",
+        "description": summary[:4000] or title,
+        "why_now": "",
+        "effort": "M",
+    }
+    try:
+        raw = _llm(system, user, max_tokens=2000)
+        import re
+
+        match = re.search(r"\{.*\}", raw, re.DOTALL)
+        if match:
+            parsed = json.loads(match.group())
+            if isinstance(parsed, dict):
+                base.update(
+                    {
+                        "title": str(parsed.get("title") or title)[:200],
+                        "domain": str(parsed.get("domain") or "autre"),
+                        "description": str(parsed.get("description") or summary)[:4000],
+                        "why_now": str(parsed.get("why_now") or "")[:2000],
+                        "effort": str(parsed.get("effort") or "M")[:4],
+                    }
+                )
+                insights = str(parsed.get("library_insights") or "").strip()
+                if insights:
+                    base["description"] = f"{base['description']}\n\n**Apport bibliothèque :** {insights}"
+    except Exception as exc:
+        logger.warning("rnd_center: expand_library_concept failed: %s", exc)
+
+    return base
+
+
+def develop_idea_from_library(
+    *,
+    title: str,
+    summary: str = "",
+    topics: list[str] | None = None,
+    source_url: str = "",
+    query: str = "",
+    bureau: str = "rd",
+    library_entry_id: str | None = None,
+    source: str = "bibliothèque",
+    prototype_if_go: bool = True,
+    existing_id: str | None = None,
+) -> dict:
+    """
+    Transforme une fiche bibliothèque en proposition R&D complète :
+    enrichissement → scoring → mini-spec si GO (même pipeline que le cycle R&D).
+    """
+    ideas = _load_ideas()
+    if library_entry_id:
+        for existing in ideas:
+            if existing.get("library_entry_id") == library_entry_id and existing.get("score") is not None:
+                return existing
+
+    vision = get_vision()
+    expanded = _expand_library_concept(
+        title,
+        summary or title,
+        topics=topics,
+        source_url=source_url,
+        query=query,
+        bureau=bureau,
+        vision=vision,
+    )
+
+    idea: dict[str, Any] = {
+        "id": existing_id or f"idea_{int(datetime.now().timestamp())}",
+        "title": expanded["title"],
+        "domain": expanded.get("domain", "autre"),
+        "description": expanded.get("description", summary),
+        "why_now": expanded.get("why_now", ""),
+        "effort": expanded.get("effort", "M"),
+        "source": source,
+        "status": "pending_evaluation",
+        "score": None,
+        "created_at": datetime.now().isoformat(),
+        "lifecycle_status": "raw",
+        "library_entry_id": library_entry_id,
+        "library_query": query[:500] if query else None,
+    }
+
+    idea_id = idea["id"]
+    library_meta = {
+        k: idea[k]
+        for k in ("library_entry_id", "library_query", "source", "lifecycle_status", "created_at")
+        if k in idea
+    }
+    idea = _evaluate_idea(idea, vision)
+    idea.update(library_meta)
+    idea["id"] = idea_id
+    idea["evaluated_at"] = datetime.now().isoformat()
+
+    if prototype_if_go and idea.get("verdict") == "GO" and idea.get("effort") in ("S", "M"):
+        spec_path = _prototype_idea(idea)
+        if spec_path:
+            idea["spec_file"] = spec_path
+            idea["status"] = "prototyped"
+        else:
+            idea["status"] = "go_pending_prototype"
+    elif idea.get("status") == "pending_evaluation":
+        idea["status"] = f"evaluated_{idea.get('verdict', 'unknown').lower()}"
+
+    merged: dict[str, dict] = {i["id"]: i for i in ideas if i.get("id")}
+    if existing_id and existing_id in merged:
+        merged[existing_id] = idea
+    else:
+        merged[idea["id"]] = idea
+    _save_ideas(list(merged.values()))
+
+    try:
+        from skills.skill_mem0 import remember
+
+        remember(
+            f"Bibliothèque → R&D : {idea['title']} — {idea.get('verdict', '?')} "
+            f"({idea.get('score', 0)}/30) — {idea.get('reasoning', '')[:200]}",
+            agent_id="rnd_agent",
+        )
+    except Exception:
+        pass
+
+    logger.info(
+        "rnd_center: idée bibliothèque développée — %s (%s, %s/30)",
+        idea["title"][:50],
+        idea.get("verdict"),
+        idea.get("score"),
+    )
+    return idea
+
+
+def develop_library_entries_as_rnd(
+    entries: list[dict[str, Any]],
+    *,
+    max_count: int = 3,
+) -> list[dict]:
+    """Développe les fiches bibliothèque les plus pertinentes en propositions R&D scorées."""
+    candidates = [
+        e
+        for e in entries
+        if e.get("bureau") == "rd" or e.get("timing") == "now"
+    ]
+    developed: list[dict] = []
+    for entry in candidates[:max_count]:
+        try:
+            developed.append(
+                develop_idea_from_library(
+                    title=str(entry.get("title") or ""),
+                    summary=str(entry.get("summary") or ""),
+                    topics=entry.get("topics") if isinstance(entry.get("topics"), list) else [],
+                    source_url=str(entry.get("source_url") or ""),
+                    query=str(entry.get("query") or ""),
+                    bureau=str(entry.get("bureau") or "rd"),
+                    library_entry_id=entry.get("id"),
+                    source="bibliothèque recherche",
+                )
+            )
+        except Exception as exc:
+            logger.warning("rnd_center: develop_library_entries failed: %s", exc)
+    return developed
+
+
+def develop_pending_library_ideas(*, limit: int = 5) -> list[dict]:
+    """Réévalue les anciennes injections bibliothèque restées en pending_evaluation."""
+    ideas = _load_ideas()
+    pending = [
+        i
+        for i in ideas
+        if i.get("status") == "pending_evaluation"
+        and "bibliothèque" in (i.get("source") or "").lower()
+    ]
+    developed: list[dict] = []
+    for idea in pending[:limit]:
+        try:
+            developed.append(
+                develop_idea_from_library(
+                    title=str(idea.get("title") or ""),
+                    summary=str(idea.get("description") or ""),
+                    source=str(idea.get("source") or "bibliothèque"),
+                    library_entry_id=idea.get("library_entry_id"),
+                    existing_id=idea.get("id"),
+                )
+            )
+        except Exception as exc:
+            logger.warning("rnd_center: develop_pending_library failed: %s", exc)
+    return developed
+
+
+def develop_rnd_ideas_from_ceo_report(
+    rnd_ideas: list[Any],
+    recent_entries: list[dict[str, Any]],
+    *,
+    max_count: int = 3,
+) -> list[dict]:
+    """Développe les idées R&D du rapport CEO à partir des fiches bibliothèque."""
+    developed: list[dict] = []
+    entries_by_title = {str(e.get("title") or "").lower(): e for e in recent_entries}
+
+    for item in rnd_ideas[:max_count]:
+        if isinstance(item, dict):
+            title = str(item.get("title") or item.get("pitch") or "").strip()
+            pitch = str(item.get("pitch") or item.get("description") or title).strip()
+            entry_id = item.get("source_entry_id") or item.get("library_entry_id")
+            matched = next(
+                (e for e in recent_entries if e.get("id") == entry_id),
+                None,
+            )
+        else:
+            title = str(item).strip()
+            pitch = title
+            matched = entries_by_title.get(title.lower())
+            if not matched:
+                for e in recent_entries:
+                    et = str(e.get("title") or "").lower()
+                    if et and (et in title.lower() or title.lower() in et):
+                        matched = e
+                        break
+
+        if not title:
+            continue
+
+        summary = pitch
+        if matched and matched.get("summary"):
+            summary = f"{matched.get('summary')}\n\nSynthèse CEO : {pitch}"
+
+        try:
+            developed.append(
+                develop_idea_from_library(
+                    title=title,
+                    summary=summary,
+                    topics=(matched or {}).get("topics") if isinstance((matched or {}).get("topics"), list) else [],
+                    source_url=str((matched or {}).get("source_url") or ""),
+                    query=str((matched or {}).get("query") or ""),
+                    bureau=str((matched or {}).get("bureau") or "rd"),
+                    library_entry_id=(matched or {}).get("id"),
+                    source="bibliothèque CEO",
+                )
+            )
+        except Exception as exc:
+            logger.warning("rnd_center: develop_ceo_rnd_idea failed: %s", exc)
+    return developed
 
 
 def submit_user_proposal(
@@ -346,20 +617,7 @@ def _analyze_competitor_pain_points(raw_reviews: dict[str, str], vision: str) ->
         for product, text in raw_reviews.items()
     )
 
-    system = """Tu es analyste produit pour ALNUA. Tu lis des avis négatifs sur des apps concurrentes.
-Tu extrais des leçons concrètes pour éviter les mêmes erreurs.
-
-FORMAT de réponse :
-===ANTI_PATTERNS===
-- [Produit ALNUA concerné] Ce qu'il ne faut PAS faire : explication courte
-(liste des erreurs à éviter)
-
-===OPPORTUNITES===
-- [Produit ALNUA concerné] Ce que les users réclament et que personne ne fait bien : explication
-(liste des opportunités de différenciation)
-
-===PRIORITES===
-Top 3 insights les plus actionnables pour ALNUA, classés par impact."""
+    system = get_system_prompt("rnd_competitor_pain")
 
     user = f"""VISION ALNUA : {vision[:400]}
 
@@ -442,7 +700,8 @@ def _observe_market(vision: str) -> str:
 
     queries = [
         "best startup app ideas 2026 solopreneur trending",
-        "nomad remote worker tools indie game market 2026",
+        "consumer robotics AI hardware startup trends 2026",
+        "indie game SaaS health app market opportunity 2026",
     ]
     observations = []
     for q in queries:
@@ -485,6 +744,61 @@ def _observe_user_feedback(vision: str) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Diversité domaines (éviter pipeline 100% vanlife)
+# ---------------------------------------------------------------------------
+
+_VANLIFE_KEYWORDS = (
+    "vanlife", "van life", "van ", "camping", "nomad", "nomade", "vanlifeuse",
+    "park4night", "ioverlander", "campendium", "fourgon", "vanlifer", "spot ",
+    "aire de camping", "van trip",
+)
+
+
+def count_recent_vanlife_ideas(ideas: list[dict], limit: int = 15) -> int:
+    """Compte les idées récentes orientées vanlife/nomad dans le pipeline."""
+    recent = sorted(
+        ideas,
+        key=lambda i: i.get("created_at") or i.get("evaluated_at") or "",
+        reverse=True,
+    )[:limit]
+    n = 0
+    for idea in recent:
+        blob = " ".join(
+            str(idea.get(k) or "")
+            for k in ("title", "description", "domain")
+        ).lower()
+        if any(kw in blob for kw in _VANLIFE_KEYWORDS):
+            n += 1
+    return n
+
+
+def build_rnd_diversity_block(existing_titles: list[str], ideas: list[dict]) -> str:
+    """Consignes anti-biais vanlife pour la génération d'idées."""
+    van_count = count_recent_vanlife_ideas(ideas)
+    lines = [
+        "QUOTAS OBLIGATOIRES pour les 6 idées :",
+        "- MAX 1 idée vanlife / nomad / camping / van / spots (adjacent NUAWAY)",
+        "- AU MOINS 1 : jeu OU gaming OU Wyrdheim",
+        "- AU MOINS 1 : robotique OU hardware OU Eve",
+        "- AU MOINS 1 : app SANS lien vanlife (santé, Naïa, productivité, créateurs…)",
+        "- AU MOINS 1 : SaaS B2B ou outil pro",
+        "- Varie les domaines : app|jeu|robotique|hardware|saas|ia|autre",
+    ]
+    if van_count >= 4:
+        lines.insert(
+            0,
+            f"ALERTE : {van_count} idées récentes déjà orientées vanlife — "
+            "AUCUNE nouvelle idée nomad/van ce cycle sauf opportunité exceptionnelle.",
+        )
+    elif van_count >= 2:
+        lines.insert(
+            0,
+            f"Note : {van_count} idées récentes vanlife — privilégier les autres marchés.",
+        )
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
 # ÉTAPE 2 — Générer des idées (sans bride)
 # ---------------------------------------------------------------------------
 
@@ -494,33 +808,14 @@ def _generate_ideas(market_obs: str, user_feedback: str, vision: str, existing_t
     Aucune limite de domaine. Créativité maximale.
     """
     existing = "\n".join(f"- {t}" for t in existing_titles[-20:]) if existing_titles else "Aucune"
+    diversity = build_rnd_diversity_block(existing_titles, _load_ideas())
 
-    system = """Tu es le centre R&D d'ALNUA, une société tech dirigée par une solopreneuse nomade.
-Ta mission : générer des idées de produits innovants et réalistes.
-
-RÈGLES :
-- Aucune limite de domaine : app mobile, jeu vidéo, robotique, hardware, SaaS B2B, IA, tool pour créateurs...
-- Chaque idée doit avoir un marché réel identifiable
-- Pense à ce qu'une solopreneuse peut construire avec des agents IA
-- Sois ambitieux mais pas irréaliste
-- Évite les idées déjà listées dans "existantes"
-- IMPORTANT : les observations marché contiennent les anti-patterns des concurrents — utilise-les pour proposer des idées qui évitent ces erreurs et comblent ces manques
-
-FORMAT de réponse — liste JSON d'objets :
-[
-  {
-    "title": "Nom court du produit",
-    "domain": "app|jeu|robotique|hardware|saas|ia|autre",
-    "elevator_pitch": "Description en 2 phrases max — problème résolu + marché cible",
-    "why_now": "Pourquoi 2026 est le bon moment",
-    "effort": "S|M|L|XL"
-  }
-]
-
-Génère exactement 6 idées variées. Réponds UNIQUEMENT avec le JSON."""
+    system = get_system_prompt("rnd_idea_generator")
 
     user = f"""VISION ALNUA :
 {vision}
+
+{diversity}
 
 OBSERVATIONS MARCHÉ :
 {market_obs[:2000] if market_obs else "Non disponible"}
@@ -531,7 +826,7 @@ FEEDBACK UTILISATEURS :
 IDÉES DÉJÀ EXISTANTES (ne pas répéter) :
 {existing}
 
-Génère 6 idées nouvelles et variées."""
+Génère 6 idées nouvelles, respecte les QUOTAS ci-dessus."""
 
     try:
         raw = _llm(system, user, max_tokens=3000)
@@ -566,25 +861,7 @@ Génère 6 idées nouvelles et variées."""
 
 def _evaluate_idea(idea: dict, vision: str) -> dict:
     """Score une idée sur 3 axes : marché, faisabilité ALNUA, alignement vision."""
-    system = """Tu es un analyste produit et business pour ALNUA.
-Tu évalues une idée sur 3 critères, chacun noté de 1 à 10.
-
-Réponds UNIQUEMENT en JSON :
-{
-  "market_score": 7,
-  "feasibility_score": 8,
-  "vision_score": 6,
-  "total": 21,
-  "verdict": "GO|MAYBE|NO",
-  "reasoning": "Justification en 2 phrases",
-  "next_step": "Action concrète recommandée"
-}
-
-Critères :
-- market_score : taille et accessibilité du marché (10 = marché énorme et accessible)
-- feasibility_score : peut-on construire ça avec des agents IA et peu de ressources ? (10 = très faisable)
-- vision_score : alignement avec la vision nomade/créateur/indépendant d'ALNUA (10 = parfait fit)
-- verdict : GO si total >= 21, MAYBE si 15-20, NO si < 15"""
+    system = get_system_prompt("rnd_idea_evaluator")
 
     user = f"""VISION ALNUA : {vision[:500]}
 
@@ -634,9 +911,7 @@ def _prototype_idea(idea: dict) -> str:
     concepts_dir = Path(os.getenv("HUB_REPO_PATH", "C:/Dev/ALUNA_HUB")) / "data" / "rnd_concepts"
     concepts_dir.mkdir(parents=True, exist_ok=True)
 
-    system = """Tu es le spec agent du centre R&D ALNUA.
-Tu rédiges une mini-spec d'une page pour une idée produit.
-Format Markdown. Sections : Problème | Solution | Utilisateurs cibles | Features MVP | Stack technique | Métriques de succès | Risques principaux."""
+    system = get_system_prompt("rnd_mini_spec")
 
     user = f"""Rédige la mini-spec pour :
 

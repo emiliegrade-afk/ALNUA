@@ -59,23 +59,11 @@ def _generate_skill_code(instruction: str, result: str, skill_name: str) -> str:
     """Demande au LLM de générer le code du skill."""
     try:
         from agents.base import LLMClient
+        from config.agent_operating_spec import get_system_prompt
+
         client = LLMClient()
 
-        system = textwrap.dedent("""
-            Tu es un générateur de skills Python pour le Hub ALNUA.
-            Un skill est une fonction Python autonome, documentée, sans effets de bord non contrôlés.
-
-            Règles :
-            - La fonction principale s'appelle exactement comme le skill_name fourni
-            - Elle prend des paramètres clairs et retourne un str ou dict
-            - Imports en haut du fichier
-            - Docstring en français
-            - Gestion d'erreurs avec try/except
-            - Pas d'hardcode de valeurs spécifiques à une exécution
-            - Code propre, commenté, réutilisable
-
-            Retourne UNIQUEMENT le code Python, sans balises markdown.
-        """).strip()
+        system = get_system_prompt("skill_synthesizer")
 
         user = textwrap.dedent(f"""
             Instruction originale qui a déclenché la création de ce skill :

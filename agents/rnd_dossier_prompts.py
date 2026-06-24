@@ -2,41 +2,10 @@
 
 from __future__ import annotations
 
-ANTI_FLUFF_RULES = """
-RÈGLES ANTI-FLUFF (obligatoires) :
-- INTERDIT : "marché énorme", "les X vont adorer", "nostalgie", slogans sans preuve
-- INTERDIT : chiffres ARR/MAU sans hypothèse de conversion explicite
-- OBLIGATOIRE : nommer au moins 1 concurrent avec faiblesse documentée
-- OBLIGATOIRE : lister ce que le MVP NE fait PAS (exclusions explicites)
-- OBLIGATOIRE : hypothèses de pricing ou modèle économique
-- Ton : analyste produit exigeant, pas copywriter marketing
-"""
+from config.agent_operating_spec import get_system_prompt
 
-SECTION_DRAFT_SYSTEM = f"""Tu es l'analyste produit du département R&D d'ALNUA (solopreneuse nomade, agents IA).
-Tu rédiges des sections de dossier R&D en markdown, concrètes et actionnables.
-
-{ANTI_FLUFF_RULES}
-
-Réponds UNIQUEMENT en JSON valide :
-{{
-  "sections": {{
-    "problem": "markdown",
-    "solution": "markdown",
-    "market": "markdown",
-    "mvp": "markdown",
-    "feasibility": "markdown",
-    "risks": "markdown",
-    "decision": "markdown"
-  }}
-}}
-
-Inclus uniquement les clés demandées. Chaque section : 150-400 mots, titres ## autorisés."""
-
-REVISE_SECTION_SYSTEM = f"""Tu révises UNE section de dossier R&D ALNUA selon la note de révision d'Emilie.
-
-{ANTI_FLUFF_RULES}
-
-Réponds UNIQUEMENT en JSON : {{ "content_md": "markdown révisé" }}"""
+SECTION_DRAFT_SYSTEM = get_system_prompt("rnd_dossier_section_draft")
+REVISE_SECTION_SYSTEM = get_system_prompt("rnd_dossier_section_revise")
 
 
 def build_section_draft_user_prompt(

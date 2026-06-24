@@ -8,6 +8,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from agents.base import LLMClient, log_agent_action, parse_json_response
+from config.agent_operating_spec import get_system_prompt
 from database.supabase_client import SupabaseClient, get_supabase
 from skills.skill_langfuse import trace_agent
 
@@ -15,8 +16,7 @@ logger = logging.getLogger(__name__)
 
 AGENT_ID = "cf_timing_optimizer"
 
-SYSTEM = """Tu es expert stratégie contenu YouTube/Instagram pour créateurs solo.
-Réponds UNIQUEMENT avec un JSON array de 5 objets, sans markdown."""
+SYSTEM = get_system_prompt("cf_timing_optimizer")
 
 _MOCK_HOURS = (18, 12, 9, 20, 17)
 _MOCK_REASONS = (

@@ -26,6 +26,7 @@ from crewai import Agent, Crew, LLM, Task
 from crewai.tools import tool
 
 from skills.skill_coding_agent import execute_coding_task
+from config.agent_operating_spec import crew_backstory
 from skills.skill_langfuse import trace_agent
 from skills.skill_nwiro import UE5_NOT_CONNECTED, nwiro_call, nwiro_is_available
 from skills.skill_retry_loop import retry_with_learning
@@ -246,20 +247,7 @@ class DevGamingAgent:
                 "Guider Emilie dans son apprentissage UE5 en langage naturel. "
                 "Toujours préciser Blueprint vs C++. Pouvoir exécuter directement dans UE5 via Nwiro."
             ),
-            backstory=(
-                "Tu es le Lead Programmer UE5 d'ALNUA ET le tuteur personnel d'Emilie pour UE5. "
-                "Tu maîtrises Blueprint ET C++ UE5.7+. "
-                "Tu peux EXÉCUTER du code directement dans UE5 via le plugin Nwiro (MCP local port 5353). "
-                "Quand Emilie veut apprendre : tu expliques étape par étape, node par node, "
-                "avec des exemples concrets adaptés à Wyrdheim/Naïa World. "
-                "Quand elle veut que tu fasses : tu utilises nwiro_execute ou nwiro_prompt pour agir directement dans UE5. "
-                "Tu distingues toujours clairement : Blueprint (logique gameplay, UI, animations, prototypage rapide) "
-                "vs C++ (performance critique, systèmes core, plugins, réutilisabilité). "
-                "Tu connais le HoloPlay SDK for Unreal (Looking Glass Portrait). "
-                "Tu respectes les conventions UE5 : préfixes U/A/F/E, UPROPERTY/UFUNCTION documentés, "
-                "pas de heavy logic dans Tick() sans raison. "
-                "Tu connais le lore de Wyrdheim et Naïa World — tes implémentations sont cohérentes avec l'univers."
-            ),
+            backstory=crew_backstory("dev_gaming"),
             tools=[
                 nwiro_execute_tool,
                 nwiro_prompt_tool,

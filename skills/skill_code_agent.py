@@ -22,6 +22,8 @@ import urllib.request
 from pathlib import Path
 from typing import Any
 
+from config.agent_operating_spec import get_system_prompt
+
 logger = logging.getLogger(__name__)
 
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
@@ -243,21 +245,7 @@ def fix_bug(
         canonical_id, f"fix bug {error_message[:200]}"
     )
 
-    # On demande UNE réponse structurée avec séparateurs clairs — plus fiable que JSON pur
-    system_prompt = """Tu es un agent de correction de bugs expert Python pour ALNUA Hub.
-
-RÈGLE : ta réponse doit suivre EXACTEMENT ce format, rien d'autre :
-
-===SUMMARY===
-Explication du fix en 1-2 phrases.
-===FILE:chemin/relatif/fichier.py===
-contenu complet du fichier corrigé ici
-===END===
-
-- Remplace chemin/relatif/fichier.py par le vrai chemin relatif du fichier
-- Retourne le fichier COMPLET, pas juste le diff
-- Fix minimal — ne change que ce qui est nécessaire
-- Ajoute un commentaire # FIX: pourquoi sur la ligne corrigée"""
+    system_prompt = get_system_prompt("code_agent_bug_fix")
 
     user_prompt = f"""ERREUR :
 {error_message[:1500]}

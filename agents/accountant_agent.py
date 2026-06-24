@@ -16,18 +16,12 @@ from services.rnd_finance_estimate import (
     estimate_rnd_project,
     finance_json_to_markdown,
 )
+from config.agent_operating_spec import get_system_prompt
 from skills.skill_langfuse import trace_agent
 
 logger = logging.getLogger(__name__)
 
-SYSTEM_PROMPT = """Tu es l'agent comptable d'Emilie, fondatrice solo d'ALNUA.
-Tu analyses des dossiers R&D et produis des commentaires financiers concis en français.
-
-RÈGLES :
-- Chiffres concrets, pas de "marché énorme"
-- Signale les risques de trésorerie pour une solopreneuse
-- Propose 1 recommandation actionnable (réduire scope, différer, autofinancer)
-- Max 150 mots en prose, après les chiffres fournis"""
+SYSTEM_PROMPT = get_system_prompt("accounting")
 
 
 class AccountantAgent:
