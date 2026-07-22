@@ -120,7 +120,14 @@ def _collect_recent_dev_log(
     query = db.table("dev_log").select("*").order("created_at", desc=True).limit(3)
     if project_id:
         query = query.eq("project_id", project_id)
-    response = query.execute()
+    try:
+        response = query.execute()
+    except Exception as exc:
+        msg = str(exc)
+        if "dev_log" in msg and ("PGRST205" in msg or "schema cache" in msg):
+            logger.warning("dev_log table missing — skipping dev_log in briefing")
+            return []
+        raise
     return _attach_project_names(response.data or [], names)
 
 

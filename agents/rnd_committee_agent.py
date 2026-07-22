@@ -4,12 +4,14 @@ rnd_committee_agent.py — Multi-agent R&D committee in natural language (phase 
 
 from __future__ import annotations
 
+from agents.agent_base import AgentBase
+
 import logging
 import os
 import re
 from typing import Any
 
-from agents.base import LLMClient, parse_json_response
+from agents.base import LLMClient, log_agent_action, parse_json_response
 from agents.rnd_committee_prompts import (
     KICKOFF_USER,
     build_member_system,
@@ -22,6 +24,7 @@ from services.rnd_committee import (
 )
 from services.rnd_repository import get_rnd_repository
 from services.rnd_schemas import RndDossierOut
+from skills.skill_langfuse import trace_agent
 
 logger = logging.getLogger(__name__)
 
@@ -42,14 +45,15 @@ KEYWORD_ROUTING: list[tuple[re.Pattern[str], list[str]]] = [
 ]
 
 
-class RndCommitteeAgent:
+class RndCommitteeAgent(AgentBase):
     AGENT_NAME = "rnd_committee_agent"
 
     def __init__(self) -> None:
+        super().__init__()
         self.repo = get_rnd_repository()
         self.committee = get_committee_repository()
-        self.llm = LLMClient()
 
+    @trace_agent("rnd_committee")
     def start_session(
         self,
         dossier_id: str,
@@ -143,6 +147,11 @@ class RndCommitteeAgent:
             actor,
             {"session_id": session["session_id"], "team_size": len(team)},
         )
+        log_agent_action(
+            self.db, self.AGENT_NAME, "start_session",
+            input_summary=f"dossier_id={dossier_id} mode={mode}",
+            output_summary=f"session={session['session_id']} team_size={len(team)}",
+        )
         return {
             "session": session,
             "messages": messages,
@@ -150,6 +159,7 @@ class RndCommitteeAgent:
             "read_only": False,
         }
 
+    @trace_agent("rnd_committee")
     def post_message(
         self,
         dossier_id: str,
@@ -207,6 +217,11 @@ class RndCommitteeAgent:
                 actor,
                 {"session_id": session_id, "intent": "nl"},
             )
+            log_agent_action(
+                self.db, self.AGENT_NAME, "post_message",
+                input_summary=f"dossier_id={dossier_id} session={session_id} intent=report",
+                output_summary="rapport de comité généré",
+            )
             return {"user_message": user_msg, "responses": responses}
 
         if self._should_use_llm():
@@ -243,8 +258,14 @@ class RndCommitteeAgent:
             actor,
             {"session_id": session_id, "responses": len(responses)},
         )
+        log_agent_action(
+            self.db, self.AGENT_NAME, "post_message",
+            input_summary=f"dossier_id={dossier_id} session={session_id}",
+            output_summary=f"{len(responses)} réponse(s)",
+        )
         return {"user_message": user_msg, "responses": responses}
 
+    @trace_agent("rnd_committee")
     def close_session(
         self,
         dossier_id: str,
@@ -332,6 +353,11 @@ class RndCommitteeAgent:
                 ceo_package_error = str(exc)
                 logger.warning("auto ceo package on close failed: %s", exc)
 
+        log_agent_action(
+            self.db, self.AGENT_NAME, "close_session",
+            input_summary=f"dossier_id={dossier_id} session={session_id}",
+            output_summary=f"status={new_status} sections_updated={len(updated_sections)}",
+        )
         return {
             "session": closed,
             "synthesis_md": synthesis_md,
@@ -356,6 +382,7 @@ class RndCommitteeAgent:
     def list_sessions(self, dossier_id: str) -> list[dict[str, Any]]:
         return self.committee.list_sessions(dossier_id)
 
+    @trace_agent("rnd_committee")
     def generate_session_report(
         self,
         dossier_id: str,
@@ -397,6 +424,11 @@ class RndCommitteeAgent:
             actor,
             {"session_id": session_id, "on_demand": True},
         )
+        log_agent_action(
+            self.db, self.AGENT_NAME, "generate_session_report",
+            input_summary=f"dossier_id={dossier_id} session={session_id}",
+            output_summary="rapport de session généré",
+        )
         return {"committee_report_md": report_md, "message": msg}
 
     @staticmethod
@@ -431,9 +463,9 @@ class RndCommitteeAgent:
     ) -> list[dict[str, str]]:
         member_ids = ", ".join(m["id"] for m in team)
         try:
-            raw = self.llm.complete(
-                build_member_system("pm", context),
+            raw = self._complete(
                 KICKOFF_USER.format(members=member_ids),
+                system_prompt=build_member_system("pm", context),
                 agent_id="pm",
                 temperature=0.5,
                 max_tokens=2000,
@@ -527,9 +559,9 @@ class RndCommitteeAgent:
             f"({member.get('title', '')}). Une seule intervention."
         )
         try:
-            return self.llm.complete(
-                build_member_system(member_id, dossier_context),
+            return self._complete(
                 user,
+                system_prompt=build_member_system(member_id, dossier_context),
                 agent_id=member.get("agent_id", "pm"),
                 temperature=0.55,
                 max_tokens=400,
@@ -554,9 +586,9 @@ class RndCommitteeAgent:
             "## Recommandation GO / MAYBE / NO pour le CEO"
         )
         try:
-            return self.llm.complete(
-                build_member_system("pm", self._dossier_context(dossier)),
+            return self._complete(
                 user,
+                system_prompt=build_member_system("pm", self._dossier_context(dossier)),
                 agent_id="pm",
                 temperature=0.4,
                 max_tokens=1200,
@@ -629,9 +661,9 @@ class RndCommitteeAgent:
             "manufacturing": "hardware",
             "risks": "spec",
         }.get(section_key, "pm")
-        return self.llm.complete(
-            build_member_system(member_id, self._dossier_context(dossier)),
+        return self._complete(
             user,
+            system_prompt=build_member_system(member_id, self._dossier_context(dossier)),
             agent_id=COMMITTEE_MEMBERS.get(member_id, {}).get("agent_id", "pm"),
             temperature=0.45,
             max_tokens=900,

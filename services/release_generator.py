@@ -61,15 +61,26 @@ def _format_dev_log_entries(entries: list[dict[str, Any]]) -> str:
     return "\n".join(lines) if lines else "(aucune entrée dev_log)"
 
 
+def _is_missing_table_error(exc: Exception, table_name: str) -> bool:
+    msg = str(exc)
+    return table_name in msg and ("PGRST205" in msg or "schema cache" in msg)
+
+
 def _get_last_release(db: SupabaseClient, project_id: str) -> dict[str, Any] | None:
-    rows = (
-        db.table("releases")
-        .select("*")
-        .eq("project_id", project_id)
-        .order("created_at", desc=True)
-        .limit(1)
-        .execute()
-    )
+    try:
+        rows = (
+            db.table("releases")
+            .select("*")
+            .eq("project_id", project_id)
+            .order("created_at", desc=True)
+            .limit(1)
+            .execute()
+        )
+    except Exception as exc:
+        if _is_missing_table_error(exc, "releases"):
+            logger.warning("releases table missing — treating as no prior release")
+            return None
+        raise
     data = rows.data or []
     return data[0] if data else None
 
@@ -96,42 +107,48 @@ def collect_dev_log_entries(
     dev_log_ids: list[str] | None = None,
 ) -> list[dict[str, Any]]:
     """Load dev_log rows according to selection mode."""
-    if dev_log_ids:
-        response = (
-            db.table("dev_log")
-            .select("*")
-            .eq("project_id", project_id)
-            .in_("id", dev_log_ids)
-            .order("date", desc=False)
-            .execute()
-        )
-        return response.data or []
-
-    if since_date is None:
-        last_release = _get_last_release(db, project_id)
-        if last_release:
-            since_date = _since_date_from_last_release(last_release)
-            # Strictly after last release day to avoid duplicating prior entries
+    try:
+        if dev_log_ids:
             response = (
                 db.table("dev_log")
                 .select("*")
                 .eq("project_id", project_id)
-                .gt("date", since_date.isoformat())
+                .in_("id", dev_log_ids)
                 .order("date", desc=False)
                 .execute()
             )
             return response.data or []
-        since_date = date(1970, 1, 1)
 
-    response = (
-        db.table("dev_log")
-        .select("*")
-        .eq("project_id", project_id)
-        .gte("date", since_date.isoformat())
-        .order("date", desc=False)
-        .execute()
-    )
-    return response.data or []
+        if since_date is None:
+            last_release = _get_last_release(db, project_id)
+            if last_release:
+                since_date = _since_date_from_last_release(last_release)
+                # Strictly after last release day to avoid duplicating prior entries
+                response = (
+                    db.table("dev_log")
+                    .select("*")
+                    .eq("project_id", project_id)
+                    .gt("date", since_date.isoformat())
+                    .order("date", desc=False)
+                    .execute()
+                )
+                return response.data or []
+            since_date = date(1970, 1, 1)
+
+        response = (
+            db.table("dev_log")
+            .select("*")
+            .eq("project_id", project_id)
+            .gte("date", since_date.isoformat())
+            .order("date", desc=False)
+            .execute()
+        )
+        return response.data or []
+    except Exception as exc:
+        if _is_missing_table_error(exc, "dev_log"):
+            logger.warning("dev_log table missing — no entries to generate release notes from")
+            return []
+        raise
 
 
 def _call_openrouter(
@@ -258,19 +275,27 @@ def generate_release_notes(
     notes = _call_openrouter(project_name, version, dev_log_entries)
     entry_ids = [entry["id"] for entry in dev_log_entries]
 
-    release_row = db.insert(
-        "releases",
-        {
-            "project_id": project_id,
-            "version": version,
-            "release_date": date.today().isoformat(),
-            "app_store_notes": notes["app_store"],
-            "google_play_notes": notes["google_play"],
-            "changelog_md": notes["changelog"],
-            "dev_log_ids": entry_ids,
-            "status": "draft",
-        },
-    )
+    try:
+        release_row = db.insert(
+            "releases",
+            {
+                "project_id": project_id,
+                "version": version,
+                "release_date": date.today().isoformat(),
+                "app_store_notes": notes["app_store"],
+                "google_play_notes": notes["google_play"],
+                "changelog_md": notes["changelog"],
+                "dev_log_ids": entry_ids,
+                "status": "draft",
+            },
+        )
+    except Exception as exc:
+        if _is_missing_table_error(exc, "releases"):
+            raise HTTPException(
+                status_code=503,
+                detail="Table 'releases' absente — appliquer la migration Supabase avant de générer une release.",
+            ) from exc
+        raise
 
     project_slug = BrainstormAgent.project_folder_slug(project_name, project_id)
     _write_changelog_file(project_slug, notes["changelog"])

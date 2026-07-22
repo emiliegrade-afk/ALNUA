@@ -7,6 +7,8 @@ Phase 2: LLM section drafting, finance, anti-fluff, validate/revise.
 
 from __future__ import annotations
 
+from agents.agent_base import AgentBase
+
 import json
 import logging
 import os
@@ -15,7 +17,7 @@ from pathlib import Path
 from typing import Any
 
 from agents.accountant_agent import AccountantAgent
-from agents.base import LLMClient, parse_json_response
+from agents.base import LLMClient, log_agent_action, parse_json_response
 from agents.rnd_center import get_vision
 from agents.rnd_dossier_prompts import (
     REVISE_SECTION_SYSTEM,
@@ -25,6 +27,7 @@ from agents.rnd_dossier_prompts import (
 from services.rnd_finance_estimate import finance_json_to_markdown
 from services.rnd_repository import RndRepository, get_rnd_repository
 from services.rnd_schemas import RndDossierOut, SECTION_DEFINITIONS
+from skills.skill_langfuse import trace_agent
 
 logger = logging.getLogger(__name__)
 
@@ -38,13 +41,14 @@ CORE_LLM_SECTIONS = (
 )
 
 
-class RndDossierAgent:
+class RndDossierAgent(AgentBase):
     AGENT_NAME = "rnd_dossier_agent"
 
     def __init__(self, repo: RndRepository | None = None) -> None:
+        super().__init__()
         self.repo = repo or get_rnd_repository()
-        self.llm = LLMClient()
 
+    @trace_agent("rnd_dossier")
     def promote_idea(
         self,
         idea_id: str,
@@ -95,6 +99,11 @@ class RndDossierAgent:
                 f"Dossier R&D « {dossier.title} » créé — "
                 f"{dossier.sections_total_count} sections squelette."
             )
+        log_agent_action(
+            self.db, self.AGENT_NAME, "promote_idea",
+            input_summary=f"idea_id={idea_id} enrich={enrich}",
+            output_summary=f"dossier={dossier.id} ({dossier.slug})",
+        )
         return {
             "dossier": dossier.model_dump(),
             "idea": idea.model_dump(),
@@ -102,6 +111,7 @@ class RndDossierAgent:
             "enriching": enriching,
         }
 
+    @trace_agent("rnd_dossier")
     def enrich_dossier(self, dossier_id: str, *, actor: str = "rnd_dossier_agent") -> RndDossierOut:
         """Generate LLM sections + finance estimate for an existing dossier."""
         dossier = self.repo.get_dossier(dossier_id)
@@ -151,8 +161,14 @@ class RndDossierAgent:
         updated = self.repo.get_dossier(dossier_id)
         if not updated:
             raise RuntimeError("Enrichissement échoué")
+        log_agent_action(
+            self.db, self.AGENT_NAME, "enrich_dossier",
+            input_summary=f"dossier_id={dossier_id}",
+            output_summary=f"verdict={finance_result['finance_json'].get('verdict_finance')}",
+        )
         return updated
 
+    @trace_agent("rnd_dossier")
     def regenerate_section(
         self,
         dossier_id: str,
@@ -206,8 +222,14 @@ class RndDossierAgent:
         updated = self.repo.get_dossier(dossier_id)
         if not updated:
             raise RuntimeError("Section régénérée mais lecture échouée")
+        log_agent_action(
+            self.db, self.AGENT_NAME, "regenerate_section",
+            input_summary=f"dossier_id={dossier_id} section={section_key}",
+            output_summary="section régénérée",
+        )
         return updated
 
+    @trace_agent("rnd_dossier")
     def validate_section(
         self,
         dossier_id: str,
@@ -220,8 +242,14 @@ class RndDossierAgent:
         if not dossier:
             raise ValueError("Validation impossible")
         self._sync_dossier_status(dossier_id)
+        log_agent_action(
+            self.db, self.AGENT_NAME, "validate_section",
+            input_summary=f"dossier_id={dossier_id} section={section_key}",
+            output_summary="section validée",
+        )
         return self.repo.get_dossier(dossier_id) or dossier
 
+    @trace_agent("rnd_dossier")
     def request_section_revision(
         self,
         dossier_id: str,
@@ -235,8 +263,14 @@ class RndDossierAgent:
         )
         if not dossier:
             raise ValueError("Révision impossible")
+        log_agent_action(
+            self.db, self.AGENT_NAME, "request_section_revision",
+            input_summary=f"dossier_id={dossier_id} section={section_key}",
+            output_summary="révision demandée",
+        )
         return dossier
 
+    @trace_agent("rnd_dossier")
     def estimate_finance(
         self,
         dossier_id: str,
@@ -259,6 +293,11 @@ class RndDossierAgent:
             "business_case",
             result["business_case_md"],
             status="under_review",
+        )
+        log_agent_action(
+            self.db, self.AGENT_NAME, "estimate_finance",
+            input_summary=f"dossier_id={dossier_id}",
+            output_summary=f"verdict={result['finance_json'].get('verdict_finance')}",
         )
         return result
 
@@ -331,9 +370,9 @@ class RndDossierAgent:
             section_keys=keys,
         )
         try:
-            raw = self.llm.complete(
-                SECTION_DRAFT_SYSTEM,
+            raw = self._complete(
                 user,
+                system_prompt=SECTION_DRAFT_SYSTEM,
                 agent_id="rnd_agent",
                 temperature=0.45,
                 max_tokens=6000,
@@ -359,9 +398,9 @@ class RndDossierAgent:
             f"CONTENU ACTUEL :\n{current.content_md if current else ''}\n\n"
             f"NOTE DE RÉVISION :\n{revision_note or 'Améliorer la qualité, plus concret.'}"
         )
-        raw = self.llm.complete(
-            REVISE_SECTION_SYSTEM,
+        raw = self._complete(
             user,
+            system_prompt=REVISE_SECTION_SYSTEM,
             agent_id="rnd_agent",
             temperature=0.4,
             max_tokens=2500,
@@ -384,6 +423,7 @@ class RndDossierAgent:
         self.repo.update_dossier(dossier_id, {"status": status})
 
 
+    @trace_agent("rnd_dossier")
     def create_dossier(
         self,
         idea_id: str,
@@ -394,6 +434,7 @@ class RndDossierAgent:
         """Create dossier from idea (alias promote — POST /rnd/dossiers)."""
         return self.promote_idea(idea_id, actor=actor, enrich=enrich)
 
+    @trace_agent("rnd_dossier")
     def submit_user_dossier(
         self,
         payload: dict[str, Any],
@@ -458,6 +499,11 @@ class RndDossierAgent:
         elif body.enrich:
             message += " Enrichissement agents en cours (30–60 s)."
 
+        log_agent_action(
+            self.db, self.AGENT_NAME, "submit_user_dossier",
+            input_summary=f"title={body.title} domain={body.domain}",
+            output_summary=f"dossier={dossier.id}",
+        )
         return {
             "dossier": dossier.model_dump(),
             "idea": idea_out.model_dump(),
@@ -465,6 +511,7 @@ class RndDossierAgent:
             "enriching": enriching,
         }
 
+    @trace_agent("rnd_dossier")
     def update_section(
         self,
         dossier_id: str,
@@ -493,6 +540,11 @@ class RndDossierAgent:
         updated = self.repo.get_dossier(dossier_id)
         if not updated:
             raise RuntimeError("Mise à jour section échouée")
+        log_agent_action(
+            self.db, self.AGENT_NAME, "update_section",
+            input_summary=f"dossier_id={dossier_id} section={section_key}",
+            output_summary="section mise à jour",
+        )
         return updated
 
 

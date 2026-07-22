@@ -60,6 +60,12 @@ app.add_middleware(
 register_middleware(app)
 register_routers(app)
 
+try:
+    from services.otel import instrument_fastapi
+    instrument_fastapi(app)
+except Exception:
+    pass
+
 # ---------------------------------------------------------------------------
 # MCP Server — expose tous les endpoints ALNUA comme outils MCP natifs (HTTP transport)
 # Cursor config: { "mcpServers": { "alnua-hub": { "url": "http://localhost:8000/mcp" } } }
