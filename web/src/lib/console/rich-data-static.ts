@@ -127,48 +127,29 @@ export const milestones: Milestone[] = [
   { id: "m6", title: "Identité visuelle EVE", date: "18 sep", pôle: "ARTISTIQUE", days: 71 },
 ];
 
-// ─── Activity heatmap (7 days × 24 hours, 0-100) ───────────────────────────
-export const activityHeatmap: number[][] = (() => {
-  const grid: number[][] = [];
-  for (let day = 0; day < 7; day++) {
-    const row: number[] = [];
-    const weekend = day >= 5 ? 0.45 : 1;
-    for (let hour = 0; hour < 24; hour++) {
-      const base = hour < 6 ? 5 : hour < 9 ? 28 : hour < 12 ? 72 : hour < 14 ? 80 : hour < 18 ? 88 : hour < 21 ? 54 : 18;
-      const noise = ((day * 7 + hour * 3) % 17) * 1.4;
-      row.push(Math.min(100, Math.max(2, Math.round((base + noise) * weekend))));
-    }
-    grid.push(row);
-  }
-  return grid;
-})();
-
-export const heatmapDays = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
-
 // ─── Agent communication graph ──────────────────────────────────────────────
+// Edges are the real pipeline pairings documented per agent (each persona's
+// system prompt names its counterpart) — not a live-measured interaction
+// count, since inter-agent messages aren't logged with volume yet. Weight is
+// left uniform rather than invented to avoid implying a measured intensity
+// that doesn't exist.
 export interface CommEdge { from: string; to: string; weight: number }
 export const agentComm: CommEdge[] = [
-  { from: "ATLAS Prime", to: "ORION", weight: 9 },
-  { from: "ATLAS Prime", to: "VEGA Council", weight: 6 },
-  { from: "ATLAS Prime", to: "IRIS", weight: 5 },
-  { from: "ORION", to: "IRIS", weight: 7 },
-  { from: "ORION", to: "PROMÉTHÉE", weight: 5 },
-  { from: "ORION", to: "LOOM", weight: 4 },
-  { from: "PROMÉTHÉE", to: "TESLA", weight: 9 },
-  { from: "PROMÉTHÉE", to: "CURIE", weight: 6 },
-  { from: "LOOM", to: "PIXEL", weight: 8 },
-  { from: "LOOM", to: "FORGE", weight: 7 },
-  { from: "AURA", to: "RENDER", weight: 5 },
-  { from: "RENDER", to: "MUSE", weight: 6 },
-  { from: "ÉCHO", to: "VIRAL", weight: 7 },
-  { from: "ÉCHO", to: "SAGE", weight: 5 },
-  { from: "AURA-DA", to: "CANVAS", weight: 8 },
-  { from: "AURA-DA", to: "PRISME", weight: 6 },
-  { from: "CIPHER", to: "EDGE", weight: 7 },
-  { from: "PULSE", to: "EDGE", weight: 6 },
-  { from: "ARC", to: "KILO", weight: 8 },
-  { from: "LEDGER", to: "SOLO", weight: 5 },
-  { from: "ATLAS Prime", to: "LEDGER", weight: 4 },
+  { from: "Aria (COO)", to: "Léon (Spec)", weight: 5 },
+  { from: "Aria (COO)", to: "Sam (PM)", weight: 5 },
+  { from: "Aria (COO)", to: "Nadia (Secrétaire)", weight: 5 },
+  { from: "Léon (Spec)", to: "Alex O. (QA)", weight: 5 },
+  { from: "Sam (PM)", to: "Théo (Dev App)", weight: 5 },
+  { from: "Sam (PM)", to: "Hao (Dev Backend)", weight: 5 },
+  { from: "Théo (Dev App)", to: "Hao (Dev Backend)", weight: 5 },
+  { from: "Mira (Game Director)", to: "Nova (Dev Gaming)", weight: 5 },
+  { from: "Mira (Game Director)", to: "Finn (Level Designer)", weight: 5 },
+  { from: "Idris (Brainstorm)", to: "Alex M. (R&D)", weight: 5 },
+  { from: "Camille (Marketing)", to: "Sofia (Content)", weight: 5 },
+  { from: "Jules (Compta)", to: "Rémi (Contrôle)", weight: 5 },
+  { from: "Yuki (Hardware)", to: "Zara (Embedded)", weight: 5 },
+  { from: "Layla (Analyste Business)", to: "Axel (Analyste Data)", weight: 5 },
+  { from: "Alex O. (QA)", to: "Alex M. (R&D)", weight: 5 },
 ];
 
 // ─── Per-pôle rich data ─────────────────────────────────────────────────────

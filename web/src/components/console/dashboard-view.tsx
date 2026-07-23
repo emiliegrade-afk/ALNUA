@@ -4,13 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useConsoleData } from "./console-provider";
-import {
-  timezones,
-  milestones,
-  activityHeatmap,
-  heatmapDays,
-  agentComm,
-} from "@/lib/console/rich-data";
+import { timezones, milestones, agentComm, activityHeatmapDays } from "@/lib/console/rich-data";
 import { CONSOLE_ACTIVITY } from "@/lib/console/nav";
 import { Widget, LiveDot } from "./widget";
 import { SyncBadge } from "./sync-badge";
@@ -68,6 +62,7 @@ export function DashboardView() {
     stats,
     activityFeed,
     activity24h,
+    activityHeatmap,
     decisions7d,
     incidents,
     deployments,
@@ -376,12 +371,12 @@ export function DashboardView() {
 
       {/* ─── Activity heatmap ─── */}
       <Widget
-        title="Densité d'activité — 7 jours × 24h"
+        title="Densité d'activité — aujourd'hui, par heure"
         icon={Grid3x3}
         span="lg:col-span-8"
         delay={0.26}
       >
-        <Heatmap data={activityHeatmap} days={heatmapDays} color="#B87333" />
+        <Heatmap data={activityHeatmap} days={activityHeatmapDays} color="#B87333" />
         <div className="mt-4 pt-3 border-t border-bronze-faint flex items-center justify-between">
           <span className="text-[10px] text-titane/55">Intensité</span>
           <div className="flex items-center gap-1">

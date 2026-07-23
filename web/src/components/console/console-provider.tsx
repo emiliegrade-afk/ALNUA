@@ -30,6 +30,7 @@ import {
 } from "@/lib/console/live-ops";
 import {
   buildActivity24h,
+  buildActivityHeatmap,
   buildDecisions7d,
   buildGlobalKpis,
   buildSystemMetrics,
@@ -48,6 +49,7 @@ interface ConsoleContextValue {
   globalKpis: ReturnType<typeof buildGlobalKpis>;
   systemMetrics: Record<string, Metric>;
   activity24h: number[];
+  activityHeatmap: number[][];
   decisions7d: { label: string; value: number }[];
   incidents: Incident[];
   deployments: Array<{
@@ -158,6 +160,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
       globalKpis: buildGlobalKpis(stats, activeAgents, totalAgents),
       systemMetrics: buildSystemMetrics(stats),
       activity24h: buildActivity24h(activityFeed),
+      activityHeatmap: buildActivityHeatmap(activityFeed),
       decisions7d: buildDecisions7d(activityFeed),
       incidents: buildLiveIncidents(activityFeed, liveAgents, stats),
       deployments: buildLiveDeployments(activityFeed, codingPipeline),

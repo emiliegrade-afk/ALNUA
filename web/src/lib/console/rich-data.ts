@@ -28,6 +28,15 @@ export function buildDecisions7d(feed: ConsoleActivityItem[]): { label: string; 
   return ordered.map((label) => ({ label, value: counts[label] ?? 0 }));
 }
 
+// The console only has this session's activity feed client-side — no 7-day
+// history to bucket by real day. A single honest "aujourd'hui" row (reusing
+// the same feed used everywhere else on the dashboard) beats fabricating six
+// other days of noise under a "7 jours" label that implied real history.
+export function buildActivityHeatmap(feed: ConsoleActivityItem[]): number[][] {
+  return [buildActivity24h(feed)];
+}
+export const activityHeatmapDays = ["Aujourd'hui"];
+
 export {
   systemMetrics,
   revenueSeries,
@@ -38,8 +47,6 @@ export {
   deployments,
   decisionsToday,
   milestones,
-  activityHeatmap,
-  heatmapDays,
   agentComm,
   deptRich,
 } from "./rich-data-static";
