@@ -6,6 +6,10 @@ const hubEnv = {
   OPENROUTER_API_KEY: "test-openrouter-key",
   HUB_API_KEY: "test-hub-key-for-ci",
   ENVIRONMENT: "development",
+  // page-audit.spec.ts visits ~20 pages back to back with a single worker —
+  // rate_limit_enabled defaults to true (config/settings.py) and was tripping
+  // false-positive 429s unrelated to whatever the test actually exercises.
+  RATE_LIMIT_ENABLED: "0",
   ADMIN_COSTS_PAGE_ENABLED: "1",
   ADMIN_EVENTS_PAGE_ENABLED: "1",
   ADMIN_AB_TEST_PAGE_ENABLED: "1",

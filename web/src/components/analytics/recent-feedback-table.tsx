@@ -7,6 +7,7 @@ import {
 } from "@/components/analytics/analytics.constants";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getProjectAccent } from "@/lib/projects";
+import { ROUTES } from "@/lib/routes";
 import type { FeedbackRow } from "@/lib/analytics";
 import type { Project } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -48,7 +49,7 @@ export function RecentFeedbackTable({ feedback, projects }: RecentFeedbackTableP
           Derniers avis
         </CardTitle>
         <Link
-          href="/beta"
+          href={ROUTES.beta}
           className="flex items-center gap-1 text-xs text-copper-glow hover:underline"
         >
           Voir tous

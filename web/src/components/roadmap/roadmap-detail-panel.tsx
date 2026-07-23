@@ -33,6 +33,7 @@ import {
 import { MarkdownContent } from "@/components/shared/markdown-content";
 import { deleteRoadmapItem, updateRoadmapItem } from "@/lib/roadmap";
 import { getProjectAccent } from "@/lib/projects";
+import { ticketHref } from "@/lib/routes";
 import type {
   RoadmapItem,
   RoadmapPriority,
@@ -146,7 +147,7 @@ export function RoadmapDetailPanel({
       <button
         type="button"
         aria-label="Fermer le panneau"
-        className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+        className="fixed inset-0 z-40 bg-obsidian/85 backdrop-blur-sm"
         onClick={onClose}
       />
 
@@ -348,7 +349,7 @@ export function RoadmapDetailPanel({
 
             {item.linked_ticket_id && (
               <Link
-                href={`/tickets`}
+                href={ticketHref(item.linked_ticket_id)}
                 className="inline-flex items-center gap-2 rounded-lg border border-copper/25 bg-copper/10 px-3 py-2 text-sm text-copper-glow transition hover:bg-copper/15"
               >
                 <ExternalLink className="h-4 w-4" />

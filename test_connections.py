@@ -1,3 +1,10 @@
+"""Manual smoke test — hits real Supabase/OpenRouter with credentials from .env.
+
+Not a pytest module (no test_* functions, just a script with a sys.exit at the
+end) and outside `testpaths` in pytest.ini, so it's never picked up by `pytest`
+or CI. Run directly: `python test_connections.py`.
+"""
+
 import os
 import sys
 

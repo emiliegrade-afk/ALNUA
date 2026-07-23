@@ -1,6 +1,4 @@
-import { hubApiUrl } from "./hub-api-config";
-import { hubApiKeyHeaders } from "./hub-api-key";
-import { parseHubApiError } from "./hub-api-error";
+import { hubFetch } from "./hub-fetch";
 
 export type AgentStatusKind = "idle" | "working" | "waiting" | "error";
 
@@ -23,6 +21,17 @@ export interface AgentsStatusResponse {
   agents: Record<string, AgentStatus>;
   recentLogs: OpenRoomLogEntry[];
   pipelineActive: boolean;
+  codingPipeline?: {
+    activeTasks: number;
+    githubInPipeline: number;
+    githubAgentReady: number;
+    githubFailed: number;
+    inPipelineIssues: Array<{
+      issue_number?: number;
+      title?: string;
+      repo_slug?: string;
+    }>;
+  };
 }
 
 export const EMPTY_AGENTS_STATUS: AgentsStatusResponse = {
@@ -35,21 +44,15 @@ export type AgentsStatusResult =
   | { ok: true; data: AgentsStatusResponse }
   | { ok: false; error: string; data: AgentsStatusResponse };
 
-export async function fetchAgentsStatus(): Promise<AgentsStatusResult> {
+const AGENTS_STATUS_CACHE_MS = 10_000;
+let agentsStatusInflight: Promise<AgentsStatusResult> | null = null;
+let agentsStatusCache: { at: number; result: AgentsStatusResult } | null = null;
+
+async function fetchAgentsStatusUncached(): Promise<AgentsStatusResult> {
   try {
-    const res = await fetch(hubApiUrl("/agents/status"), {
-      cache: "no-store",
-      headers: hubApiKeyHeaders(),
+    const data = await hubFetch<AgentsStatusResponse>("/agents/status", {
+      timeoutMs: 25_000,
     });
-    if (!res.ok) {
-      const text = await res.text().catch(() => res.statusText);
-      return {
-        ok: false,
-        error: parseHubApiError(text, res.status),
-        data: EMPTY_AGENTS_STATUS,
-      };
-    }
-    const data = (await res.json()) as AgentsStatusResponse;
     return { ok: true, data };
   } catch (err) {
     const message =
@@ -60,6 +63,28 @@ export async function fetchAgentsStatus(): Promise<AgentsStatusResult> {
       data: EMPTY_AGENTS_STATUS,
     };
   }
+}
+
+export async function fetchAgentsStatus(): Promise<AgentsStatusResult> {
+  const now = Date.now();
+  if (
+    agentsStatusCache &&
+    now - agentsStatusCache.at < AGENTS_STATUS_CACHE_MS
+  ) {
+    return agentsStatusCache.result;
+  }
+  if (agentsStatusInflight) {
+    return agentsStatusInflight;
+  }
+  agentsStatusInflight = fetchAgentsStatusUncached()
+    .then((result) => {
+      agentsStatusCache = { at: Date.now(), result };
+      return result;
+    })
+    .finally(() => {
+      agentsStatusInflight = null;
+    });
+  return agentsStatusInflight;
 }
 
 export function countActiveAgents(

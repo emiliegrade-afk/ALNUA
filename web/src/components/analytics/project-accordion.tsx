@@ -28,6 +28,7 @@ import type { AnalyticsRow } from "@/lib/analytics";
 import { getProjectAccent } from "@/lib/projects";
 import type { Project } from "@/lib/types";
 import type { TicketWithProject } from "@/lib/tickets";
+import { ROUTES } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 
 interface ProjectAccordionProps {
@@ -169,7 +170,7 @@ function ProjectSection({
                 size="sm"
                 className="mt-3 border-copper/25 text-copper-glow hover:bg-copper/10"
               >
-                <Link href={`/tickets?project=${project.id}`}>
+                <Link href={`${ROUTES.tickets}?project=${project.id}`}>
                   Voir les tickets
                   <ExternalLink className="ml-1.5 h-3 w-3" />
                 </Link>

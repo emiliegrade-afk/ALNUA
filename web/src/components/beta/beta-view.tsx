@@ -44,6 +44,7 @@ import {
   type BetaTester,
 } from "@/lib/beta-api";
 import type { Project } from "@/lib/types";
+import { ticketHref } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 
 type BetaTab = "feedbacks" | "testers" | "stats";
@@ -324,7 +325,7 @@ export function BetaView() {
                         </div>
                         {f.ticket_id ? (
                           <Link
-                            href={`/tickets?id=${f.ticket_id}`}
+                            href={ticketHref(f.ticket_id)}
                             onClick={(e) => e.stopPropagation()}
                             className="mt-2 inline-flex text-xs text-copper-glow hover:underline"
                           >

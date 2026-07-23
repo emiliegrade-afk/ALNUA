@@ -1,11 +1,10 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Bell, MoreHorizontal, Settings } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { AlnuaLogo } from "@/components/brand/alnua-logo";
 import { useHubNavigate } from "@/components/layout/hub-navigation";
 import { HqActivityMonitorPanel } from "@/components/lobby/hq-activity-monitor-panel";
@@ -21,9 +20,12 @@ import {
   countActiveAgents,
   fetchAgentsStatus,
   type AgentStatus,
+  type AgentsStatusResponse,
   type OpenRoomLogEntry,
 } from "@/lib/openroom-api";
-import { prefetchAllOfficeRoutes } from "@/lib/hq-prefetch";
+import { useHubHealthLive } from "@/hooks/use-hub-health-live";
+import { warmLobbyMapCache } from "@/lib/hq-prefetch";
+import { ROUTES } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 import {
   ADMIN_LINKS,
@@ -34,6 +36,10 @@ import {
 } from "@/lib/admin-flags-api";
 
 const STATIC_ADMIN_LINKS = [
+  { href: "/academy", label: "Academy" },
+  { href: "/library", label: "Bibliothèque" },
+  { href: "/ide", label: "IDE Hub" },
+  { href: "/apps", label: "Mes apps" },
   { href: "/briefing", label: "Briefing" },
   { href: "/openroom", label: "OpenRoom" },
   { href: "/beta", label: "Beta" },
@@ -55,26 +61,30 @@ const DEFAULT_STATS: LobbyStats = {
   rdSessions: 0,
   brandKits: 0,
   connectedApps: 0,
+  costTodayUsd: 0,
 };
 
 export function LobbyView() {
-  const router = useRouter();
   const { navigate } = useHubNavigate();
   const [stats, setStats] = useState<LobbyStats>(DEFAULT_STATS);
   const [agents, setAgents] = useState<Record<string, AgentStatus>>({});
   const [recentLogs, setRecentLogs] = useState<OpenRoomLogEntry[]>([]);
   const [activeAgents, setActiveAgents] = useState(0);
   const [pipelineActive, setPipelineActive] = useState(false);
+  const [codingPipeline, setCodingPipeline] =
+    useState<AgentsStatusResponse["codingPipeline"]>();
+  const { phase: hubPhase } = useHubHealthLive();
   const [selectedOffice, setSelectedOffice] = useState<HqSector | null>(null);
-  const [now, setNow] = useState(new Date());
+  const [now, setNow] = useState<Date | null>(null);
   const [adminFlags, setAdminFlags] = useState<AdminFlags | null>(null);
   const [adminOpen, setAdminOpen] = useState(false);
   const [agentsError, setAgentsError] = useState<string | null>(null);
   const [previewMode, setPreviewMode] = useState(false);
+  const agentsFailStreak = useRef(0);
 
   useEffect(() => {
-    prefetchAllOfficeRoutes(router);
-  }, [router]);
+    warmLobbyMapCache();
+  }, []);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -101,32 +111,46 @@ export function LobbyView() {
     const cached = getLobbyStatsCache();
     if (cached) setStats(cached);
 
-    const loadSecondary = () => {
+    const refreshAgents = () => {
+      fetchAgentsStatus()
+        .then((result) => {
+          if (result.ok) {
+            agentsFailStreak.current = 0;
+            setAgentsError(null);
+            setAgents(result.data.agents);
+            setRecentLogs(result.data.recentLogs);
+            setActiveAgents(countActiveAgents(result.data.agents));
+            setPipelineActive(result.data.pipelineActive);
+            setCodingPipeline(result.data.codingPipeline);
+            return;
+          }
+          agentsFailStreak.current += 1;
+          if (agentsFailStreak.current >= 4) {
+            setAgentsError(result.error);
+          }
+        })
+        .catch((err: unknown) => {
+          agentsFailStreak.current += 1;
+          if (agentsFailStreak.current >= 4) {
+            setAgentsError(
+              err instanceof Error ? err.message : "Hub déconnecté",
+            );
+          }
+        });
+    };
+
+    const refreshStats = () => {
       fetchLobbyStats()
         .then(setStats)
         .catch(() => {
           const cached = getLobbyStatsCache();
           if (cached) setStats(cached);
         });
+    };
 
-      fetchAgentsStatus()
-        .then((result) => {
-          setAgentsError(result.ok ? null : result.error);
-          setAgents(result.data.agents);
-          setRecentLogs(result.data.recentLogs);
-          setActiveAgents(countActiveAgents(result.data.agents));
-          setPipelineActive(result.data.pipelineActive);
-        })
-        .catch((err: unknown) => {
-          setAgentsError(
-            err instanceof Error ? err.message : "Agents indisponibles",
-          );
-          setAgents({});
-          setRecentLogs([]);
-          setActiveAgents(0);
-          setPipelineActive(false);
-        });
-
+    const loadSecondary = () => {
+      refreshStats();
+      refreshAgents();
       fetchAdminFlags()
         .then(setAdminFlags)
         .catch(() => setAdminFlags(null));
@@ -137,15 +161,24 @@ export function LobbyView() {
         ? requestIdleCallback(loadSecondary, { timeout: 1500 })
         : (setTimeout(loadSecondary, 80) as unknown as number);
 
-    const clock = setInterval(() => setNow(new Date()), 60_000);
+    const agentsPoll = setInterval(refreshAgents, 12_000);
+    const statsPoll = setInterval(refreshStats, 30_000);
+
     return () => {
-      clearInterval(clock);
+      clearInterval(agentsPoll);
+      clearInterval(statsPoll);
       if (typeof cancelIdleCallback !== "undefined") {
         cancelIdleCallback(idleId);
       } else {
         clearTimeout(idleId);
       }
     };
+  }, []);
+
+  useEffect(() => {
+    setNow(new Date());
+    const clock = setInterval(() => setNow(new Date()), 60_000);
+    return () => clearInterval(clock);
   }, []);
 
   const tierAdminLinks = ADMIN_LINKS.filter((link) =>
@@ -163,7 +196,7 @@ export function LobbyView() {
   ];
 
   return (
-    <div className="relative h-full min-h-0 w-full flex-1 bg-obsidian">
+    <div className="relative flex h-full min-h-0 w-full flex-1 flex-col bg-obsidian">
       {(stats.refreshError || agentsError) ? (
         <div className="pointer-events-none absolute inset-x-0 top-2 z-40 flex justify-center px-4">
           <p className="pointer-events-auto max-w-xl rounded-lg border border-amber-500/30 bg-obsidian/95 px-3 py-2 text-center font-body text-xs text-amber-200 shadow-lg backdrop-blur-sm">
@@ -194,6 +227,8 @@ export function LobbyView() {
               activeAgents={activeAgents}
               recentLogs={recentLogs}
               pipelineActive={pipelineActive}
+              codingPipeline={codingPipeline}
+              hubPhase={hubPhase}
               selectedOffice={selectedOffice}
               onSelectOffMap={setSelectedOffice}
             />
@@ -222,9 +257,22 @@ export function LobbyView() {
           </Link>
 
           <div className="flex flex-1 items-center justify-end gap-1 sm:gap-2">
+            <Link
+              href={ROUTES.ide}
+              className="hidden rounded px-2 py-1 font-body text-[11px] text-copper hover:bg-white/5 sm:inline"
+            >
+              IDE
+            </Link>
+            <Link
+              href={ROUTES.apps}
+              className="hidden rounded px-2 py-1 font-body text-[11px] text-copper hover:bg-white/5 sm:inline"
+            >
+              Mes apps
+            </Link>
+
             {activeAgents > 0 ? (
               <Link
-                href="/openroom"
+                href={ROUTES.openroom}
                 className="hidden rounded px-2 py-1 font-body text-[11px] text-emerald-400 hover:bg-white/5 sm:inline"
               >
                 {activeAgents} actif{activeAgents > 1 ? "s" : ""}
@@ -248,7 +296,7 @@ export function LobbyView() {
                     aria-label="Fermer"
                     onClick={() => setAdminOpen(false)}
                   />
-                  <div className="absolute bottom-10 right-0 z-50 min-w-[10rem] rounded-lg border border-copper/20 bg-obsidian py-1 shadow-xl">
+                  <div className="absolute top-full right-0 z-50 mt-2 min-w-[10rem] rounded-lg border border-copper/20 bg-obsidian py-1 shadow-xl">
                     {adminToolLinks.map((link) => (
                       <Link
                         key={link.href}
@@ -265,7 +313,7 @@ export function LobbyView() {
             </div>
 
             <Link
-              href="/settings"
+              href={ROUTES.settings}
               className="flex h-8 w-8 items-center justify-center rounded text-titanium transition hover:bg-white/5 hover:text-ivory"
               aria-label="Paramètres"
             >
@@ -273,7 +321,7 @@ export function LobbyView() {
             </Link>
 
             <Link
-              href="/ceo"
+              href={ROUTES.ceo}
               className="relative flex h-8 w-8 items-center justify-center rounded text-titanium transition hover:bg-white/5 hover:text-ivory"
               aria-label="Notifications CEO"
             >
@@ -289,28 +337,49 @@ export function LobbyView() {
               <p className="font-title text-[11px] font-medium text-ivory">
                 Siège social <span className="text-copper">ALNUA</span>
               </p>
-              <p className="font-body text-[10px] text-titanium/80">
-                {format(now, "EEE d MMM · HH:mm", { locale: fr })}
+              <p className="font-body text-[10px] text-titanium/80" suppressHydrationWarning>
+                {now
+                  ? format(now, "EEE d MMM · HH:mm", { locale: fr })
+                  : "…"}
               </p>
             </div>
 
             <span
               className={cn(
-                "ml-1 h-2 w-2 shrink-0 rounded-full",
-                !stats.apiOnline
-                  ? "bg-red-500"
+                "relative ml-1 flex h-2.5 w-2.5 shrink-0 items-center justify-center",
+                agentsError || !stats.apiOnline
+                  ? "text-red-500"
                   : stats.apiAuthenticated
-                    ? "bg-emerald-500"
-                    : "bg-amber-500",
+                    ? "text-emerald-500"
+                    : "text-amber-500"
               )}
               title={
-                !stats.apiOnline
-                  ? "API offline"
-                  : stats.apiAuthenticated
-                    ? "API connectée"
-                    : "Clé API invalide"
+                agentsError
+                  ? `Hub déconnecté — ${agentsError}`
+                  : !stats.apiOnline
+                    ? "Hub arrêté"
+                    : stats.apiAuthenticated
+                      ? "Hub connecté · clé OK"
+                      : "Clé API invalide"
               }
-            />
+            >
+              {stats.apiOnline && stats.apiAuthenticated && !agentsError ? (
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-40" />
+              ) : null}
+              {!stats.apiOnline || agentsError ? (
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-50" />
+              ) : null}
+              <span
+                className={cn(
+                  "relative h-2.5 w-2.5 rounded-full",
+                  agentsError || !stats.apiOnline
+                    ? "bg-red-500"
+                    : stats.apiAuthenticated
+                      ? "bg-emerald-500 hub-status-glow-ok"
+                      : "bg-amber-500"
+                )}
+              />
+            </span>
           </div>
         </div>
       </footer>

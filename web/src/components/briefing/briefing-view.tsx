@@ -18,6 +18,7 @@ import {
 import { toast } from "sonner";
 import { BriefingCooPanel } from "@/components/briefing/briefing-coo-panel";
 import { BackToLobby } from "@/components/shared/back-to-lobby";
+import { ROUTES } from "@/lib/routes";
 import { MarkdownContent } from "@/components/shared/markdown-content";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -104,7 +105,7 @@ function RawDataAccordion({ briefing }: { briefing: DailyBriefing }) {
             <div className="mb-2 flex items-center justify-between">
               <h4 className="font-medium text-ivory">Tickets urgents</h4>
               <Link
-                href="/tickets"
+                href={ROUTES.tickets}
                 className="text-xs text-copper hover:text-copper-glow"
               >
                 Voir tous →
@@ -135,7 +136,7 @@ function RawDataAccordion({ briefing }: { briefing: DailyBriefing }) {
             <div className="mb-2 flex items-center justify-between">
               <h4 className="font-medium text-ivory">Posts en attente</h4>
               <Link
-                href="/content"
+                href={ROUTES.content}
                 className="text-xs text-copper hover:text-copper-glow"
               >
                 Voir tous →
@@ -164,7 +165,7 @@ function RawDataAccordion({ briefing }: { briefing: DailyBriefing }) {
             <div className="mb-2 flex items-center justify-between">
               <h4 className="font-medium text-ivory">Roadmap imminente</h4>
               <Link
-                href="/roadmap"
+                href={ROUTES.roadmap}
                 className="text-xs text-copper hover:text-copper-glow"
               >
                 Voir roadmap →

@@ -15,6 +15,7 @@ def test_no_api_key(monkeypatch):
     assert tools == []  # graceful fallback
 
 
+@pytest.mark.integration
 @pytest.mark.skipif(not os.getenv("COMPOSIO_API_KEY"), reason="COMPOSIO_API_KEY required")
 def test_get_tools_coo():
     from skills.skill_composio import get_composio_tools
@@ -22,6 +23,7 @@ def test_get_tools_coo():
     assert isinstance(tools, list)
 
 
+@pytest.mark.integration
 @pytest.mark.skipif(not os.getenv("COMPOSIO_API_KEY"), reason="COMPOSIO_API_KEY required")
 def test_list_connected_apps():
     from skills.skill_composio import list_connected_apps

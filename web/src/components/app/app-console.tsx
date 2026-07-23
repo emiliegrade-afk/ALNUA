@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { ExternalLink, GitBranch, Loader2 } from "lucide-react";
 import { AgentActionConsole } from "@/components/shared/agent-action-console";
+import { ROUTES } from "@/lib/routes";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -212,7 +213,7 @@ export function AppConsole() {
               </ul>
             )}
             <Button asChild size="sm" variant="ghost" className="mt-3">
-              <Link href="/hub">Hub — pipeline complet</Link>
+              <Link href={ROUTES.hub}>Hub — pipeline complet</Link>
             </Button>
           </CardContent>
         </Card>

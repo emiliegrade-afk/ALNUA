@@ -28,6 +28,7 @@ import {
   type CeoPackageResponse,
   type DossierStatus,
 } from "@/lib/rnd-dossier";
+import { ROUTES } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 
 export interface RndCeoPanelProps {
@@ -290,10 +291,10 @@ export function RndCeoPanel({
                   {executionStatus === "running" ? "Agents en cours…" : "Lancer les agents"}
                 </Button>
                 <Button type="button" variant="outline" className="border-white/10" asChild>
-                  <Link href="/openroom">OpenRoom</Link>
+                  <Link href={ROUTES.openroom}>OpenRoom</Link>
                 </Button>
                 <Button type="button" variant="outline" className="border-white/10" asChild>
-                  <Link href="/roadmap">Roadmap</Link>
+                  <Link href={ROUTES.roadmap}>Roadmap</Link>
                 </Button>
               </div>
             ) : null}

@@ -12,6 +12,7 @@ import {
   severityStyle,
 } from "@/components/beta/beta.constants";
 import type { BetaFeedback } from "@/lib/beta-api";
+import { ticketHref } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 
 interface BetaFeedbackDetailPanelProps {
@@ -32,7 +33,7 @@ export function BetaFeedbackDetailPanel({
       <button
         type="button"
         aria-label="Fermer"
-        className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+        className="fixed inset-0 z-40 bg-obsidian/85 backdrop-blur-sm"
         onClick={onClose}
       />
       <aside
@@ -85,7 +86,7 @@ export function BetaFeedbackDetailPanel({
 
             {feedback.ticket_id ? (
               <Link
-                href={`/tickets?id=${feedback.ticket_id}`}
+                href={ticketHref(feedback.ticket_id)}
                 className="inline-flex items-center gap-2 rounded-lg border border-copper/30 bg-copper/10 px-3 py-2 text-sm text-copper-glow transition hover:bg-copper/15"
               >
                 🎟️ Ticket créé

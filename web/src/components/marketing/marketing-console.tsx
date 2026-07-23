@@ -12,6 +12,7 @@ import {
   runPublisherCycle,
   syncStoreReviews,
 } from "@/lib/pole-api";
+import { ROUTES } from "@/lib/routes";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
@@ -146,7 +147,7 @@ export function MarketingConsole() {
             Analytics sync
           </Button>
           <Button asChild size="sm" variant="ghost">
-            <Link href="/content">Queue de posts</Link>
+            <Link href={ROUTES.content}>Queue de posts</Link>
           </Button>
         </CardContent>
       </Card>

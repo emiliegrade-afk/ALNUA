@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchProjects } from "@/lib/api";
+import { ROUTES, ticketHref } from "@/lib/routes";
 import { fetchTicketsList, type TicketWithProject } from "@/lib/tickets";
 import type { Project } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -76,7 +77,7 @@ export function AppTicketsSection({ onTicketsChange }: AppTicketsSectionProps) {
             Nouveau ticket
           </Button>
           <Button asChild size="sm" variant="ghost">
-            <Link href="/tickets">Tous les tickets</Link>
+            <Link href={ROUTES.tickets}>Tous les tickets</Link>
           </Button>
         </div>
       </div>
@@ -97,8 +98,7 @@ export function AppTicketsSection({ onTicketsChange }: AppTicketsSectionProps) {
             </div>
           ) : tickets.length === 0 ? (
             <p className="text-sm text-titanium/70">
-              Aucun ticket pour le moment. Les apps NUAWAY et Naïa ne poussent pas
-              encore de tickets automatiquement — crée-en un manuellement si besoin.
+              Aucun ticket pour le moment. Les apps du registry poussent leurs tickets ici une fois enregistrées.
             </p>
           ) : (
             <ul className="space-y-2">
@@ -110,7 +110,7 @@ export function AppTicketsSection({ onTicketsChange }: AppTicketsSectionProps) {
                 return (
                   <li key={ticket.id}>
                     <Link
-                      href={`/tickets?id=${encodeURIComponent(ticket.id)}`}
+                      href={ticketHref(ticket.id)}
                       className={cn(
                         "flex items-center justify-between gap-3 rounded-lg border border-copper/10",
                         "px-3 py-2 text-sm transition hover:border-copper/30 hover:bg-white/[0.02]"

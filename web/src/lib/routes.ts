@@ -1,22 +1,75 @@
-/** Department portal routes — lobby-style navigation with their own BackToLobby. */
+/**
+ * Canonical path constants — import these instead of hardcoding `href="/foo"`
+ * in components. A renamed route only needs updating here; grep for the old
+ * string elsewhere would otherwise miss any literal that slipped through.
+ */
+export const ROUTES = {
+  home: "/",
+  agents: "/agents",
+  activity: "/activity",
+  hq: "/hq",
+  briefing: "/briefing",
+  openroom: "/openroom",
+  ceo: "/ceo",
+  secretary: "/secretary",
+  hub: "/hub",
+  app: "/app",
+  gaming: "/gaming",
+  robo: "/robo",
+  finances: "/finances",
+  marketing: "/marketing",
+  rd: "/rd",
+  brand: "/brand",
+  analytics: "/analytics",
+  connections: "/connections",
+  ide: "/ide",
+  academy: "/academy",
+  library: "/library",
+  settings: "/settings",
+  // Non-department utility routes also referenced from bureau components.
+  tickets: "/tickets",
+  content: "/content",
+  roadmap: "/roadmap",
+  apps: "/apps",
+  beta: "/beta",
+} as const;
+
+export function ticketHref(id: string): string {
+  return `${ROUTES.tickets}?id=${encodeURIComponent(id)}`;
+}
+
+export function openroomAgentHref(agentId: string): string {
+  return `${ROUTES.openroom}?agent=${encodeURIComponent(agentId)}`;
+}
+
+export function rdDossierHref(dossierId: string): string {
+  return `${ROUTES.rd}?tab=dossiers&dossier=${encodeURIComponent(dossierId)}`;
+}
+
+/** Department portal routes — console chrome + bureau pages. */
 export const DEPARTMENT_ROUTES = [
-  "/",
-  "/briefing",
-  "/openroom",
-  "/ceo",
-  "/secretary",
-  "/hub",
-  "/app",
-  "/gaming",
-  "/robo",
-  "/finances",
-  "/marketing",
-  "/rd",
-  "/brand",
-  "/analytics",
-  "/connections",
-  "/academy",
-  "/settings",
+  ROUTES.home,
+  ROUTES.agents,
+  ROUTES.activity,
+  ROUTES.hq,
+  ROUTES.briefing,
+  ROUTES.openroom,
+  ROUTES.ceo,
+  ROUTES.secretary,
+  ROUTES.hub,
+  ROUTES.app,
+  ROUTES.gaming,
+  ROUTES.robo,
+  ROUTES.finances,
+  ROUTES.marketing,
+  ROUTES.rd,
+  ROUTES.brand,
+  ROUTES.analytics,
+  ROUTES.connections,
+  ROUTES.ide,
+  ROUTES.academy,
+  ROUTES.library,
+  ROUTES.settings,
 ] as const;
 
 export function isDepartmentRoute(pathname: string | null): boolean {

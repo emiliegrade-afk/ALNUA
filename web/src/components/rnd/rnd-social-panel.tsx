@@ -28,6 +28,7 @@ import {
   type RndSocialCalendarItem,
   type SocialPhase,
 } from "@/lib/rnd-dossier";
+import { ROUTES } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 
 const PHASE_LABELS: Record<SocialPhase, string> = {
@@ -168,7 +169,7 @@ export function RndSocialPanel({
           <span className="text-ivory/90">{dossierTitle}</span> — débloqué après{" "}
           <strong className="font-normal text-ivory/85">validation CEO</strong>, pas pendant
           la phase R&D (comité, dossier en cours). Validation finale dans{" "}
-          <Link href="/content" className="text-copper hover:underline">
+          <Link href={ROUTES.content} className="text-copper hover:underline">
             Content
           </Link>
           .
@@ -288,7 +289,7 @@ export function RndSocialPanel({
                     </div>
                   ) : null}
                   {item.post?.text_content ? (
-                    <p className="mt-3 rounded-lg border border-white/5 bg-black/20 p-3 text-xs leading-relaxed text-ivory/75">
+                    <p className="mt-3 rounded-lg border border-white/5 bg-obsidian-deep/50 p-3 text-xs leading-relaxed text-ivory/75">
                       {item.post.text_content.slice(0, 280)}
                       {item.post.text_content.length > 280 ? "…" : ""}
                     </p>
