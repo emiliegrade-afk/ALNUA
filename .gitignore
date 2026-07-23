@@ -52,6 +52,11 @@ logs/
 # Windows shortcuts — machine-local, never portable
 *.lnk
 
+# app_factory-generated scaffolded projects — separate repos with their own
+# .git and .env, not ALNUA_HUB source. Never commit (found one nested repo
+# here with a real .env — see CLAUDE.md invariant on not committing secrets).
+_workspace_exports/
+
 # Playwright test output
 web/test-results/
 .telegram_secretary_bot.lock
@@ -62,3 +67,4 @@ models/
 *.pt
 *.bin
 
+.coverage
