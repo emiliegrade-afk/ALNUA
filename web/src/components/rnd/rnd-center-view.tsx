@@ -14,6 +14,8 @@ import {
   Target,
   Trash2,
   FolderPlus,
+  ChevronDown,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -101,7 +103,7 @@ function IdeaCard({
             {idea.title}
           </p>
           {preview ? (
-            <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-titanium/70">
+            <p className="mt-1.5 line-clamp-3 text-xs leading-relaxed text-titanium/70">
               {preview}
             </p>
           ) : null}
@@ -158,6 +160,19 @@ export function RndCenterView({ onDossierCreated }: RndCenterViewProps) {
   const [detailOpen, setDetailOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [submitModalOpen, setSubmitModalOpen] = useState(false);
+  const [visionOpen, setVisionOpen] = useState(true);
+
+  useEffect(() => {
+    setVisionOpen(sessionStorage.getItem("rnd_vision_collapsed") !== "1");
+  }, []);
+
+  function toggleVision() {
+    setVisionOpen((prev) => {
+      const next = !prev;
+      sessionStorage.setItem("rnd_vision_collapsed", next ? "0" : "1");
+      return next;
+    });
+  }
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -267,16 +282,34 @@ export function RndCenterView({ onDossierCreated }: RndCenterViewProps) {
         ))}
       </div>
 
-      {/* Vision */}
-      {vision && (
-        <div className="flex shrink-0 items-start gap-2 rounded-xl border border-copper/15 bg-copper/[0.04] px-4 py-3">
+      {/* Vision — repliable pour laisser plus de place à la liste sur petit écran */}
+      {vision && visionOpen ? (
+        <div className="flex shrink-0 items-start gap-2 rounded-xl border border-copper/15 bg-copper/[0.04] px-4 py-2.5">
           <Target className="mt-0.5 h-4 w-4 shrink-0 text-copper/70" />
-          <p className="text-xs leading-relaxed text-titanium/80">
+          <p className="min-w-0 flex-1 text-xs leading-relaxed text-titanium/80">
             <span className="mr-1 font-semibold text-copper/90">Fil conducteur :</span>
             {vision.length > 200 ? vision.slice(0, 200) + "…" : vision}
           </p>
+          <button
+            type="button"
+            onClick={toggleVision}
+            aria-label="Replier le fil conducteur"
+            title="Replier"
+            className="shrink-0 rounded p-1 text-titanium/50 transition hover:bg-white/5 hover:text-ivory/80"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
         </div>
-      )}
+      ) : vision ? (
+        <button
+          type="button"
+          onClick={toggleVision}
+          className="flex shrink-0 items-center gap-1.5 self-start rounded-lg px-2 py-1 text-[11px] text-titanium/45 transition hover:text-copper/80"
+        >
+          <ChevronDown className="h-3 w-3" />
+          Fil conducteur
+        </button>
+      ) : null}
 
       {/* Controls */}
       <div className="flex shrink-0 flex-wrap items-center gap-2">
