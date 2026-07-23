@@ -58,6 +58,9 @@ AGENT_APP_MAP: dict[str, list[str]] = {
     "game_director_agent": [
         "DISCORD", "NOTION",
     ],
+    "secretary_agent": [
+        "GMAIL", "GOOGLECALENDAR", "NOTION",
+    ],
     "spec_agent": [
         "NOTION", "GOOGLEDOCS", "GITHUB",
     ],
@@ -341,6 +344,42 @@ def has_active_connection(user_id: str, toolkit: str) -> bool:
     except Exception as exc:
         logger.warning("has_active_connection(%s, %s): %s", user_id, toolkit, exc)
         return False
+
+
+def disconnect_toolkit(user_id: str, toolkit: str) -> int:
+    """Revoke all Composio OAuth sessions for a toolkit. Returns count removed."""
+    removed = 0
+    try:
+        composio_client = _get_composio_client()
+        connections = composio_client.connected_accounts.list(
+            user_ids=[user_id],
+            toolkit_slugs=[toolkit.lower()],
+        )
+        for connection in connections.items:
+            try:
+                composio_client.connected_accounts.delete(nanoid=connection.id)
+                removed += 1
+            except Exception as exc:
+                logger.warning("disconnect_toolkit %s: %s", connection.id, exc)
+    except Exception as exc:
+        logger.error("disconnect_toolkit(%s, %s): %s", user_id, toolkit, exc)
+    return removed
+
+
+def get_gmail_profile_email(user_id: str) -> str | None:
+    """Return the email address of the active Gmail OAuth session, if any."""
+    if not has_active_connection(user_id, "gmail"):
+        return None
+    result = composio_execute("GMAIL_GET_PROFILE", {}, user_id=user_id)
+    if not result.get("success"):
+        return None
+    data = result.get("data") or {}
+    if isinstance(data, dict) and "data" in data:
+        data = data["data"]
+    if isinstance(data, dict):
+        email = data.get("emailAddress") or data.get("email")
+        return str(email).strip() if email else None
+    return None
 
 
 def list_connected_apps(user_id: str = "alnua_default") -> list[dict]:

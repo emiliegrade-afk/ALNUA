@@ -47,5 +47,5 @@ def test_default_progress_structure() -> None:
 
     p = default_progress()
     assert p["total_exercises"] == 52
-    assert "gate_nuaway" in p
+    assert "gate_academy" in p
     assert p["levels"]["1"]["total"] == 10

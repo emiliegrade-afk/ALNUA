@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+from agents.agent_base import AgentBase
+
 import logging
 from typing import Any
 
-from agents.base import LLMClient, log_agent_action, parse_json_response
+from agents.base import log_agent_action, parse_json_response
 from config.agent_operating_spec import get_system_prompt
-from database.supabase_client import SupabaseClient, get_supabase
 from skills.skill_agent_learning import inject_learning_context, record_task_learning
 from skills.skill_langfuse import trace_agent
 from services.hermes_skills import inject_hermes_context
@@ -15,14 +16,11 @@ from services.hermes_skills import inject_hermes_context
 logger = logging.getLogger(__name__)
 
 
-class CodingCoachAgent:
+class CodingCoachAgent(AgentBase):
     AGENT_NAME = "coding_coach"
 
     SYSTEM_PROMPT = get_system_prompt("coding_coach")
 
-    def __init__(self, db: SupabaseClient | None = None, llm: LLMClient | None = None) -> None:
-        self.db = db or get_supabase()
-        self.llm = llm or LLMClient()
 
     @trace_agent("coding_coach")
     def teach(
@@ -49,10 +47,9 @@ Réponds comme son prof — pédagogique, concret, encourageant.""",
             self.AGENT_NAME,
             message[:80],
         )
-        raw = self.llm.complete(
-            inject_hermes_context("coach", self.SYSTEM_PROMPT, max_chars=5000),
+        raw = self._complete(
             prompt,
-            agent_id=self.AGENT_NAME,
+            system_prompt=inject_hermes_context("coach", self.SYSTEM_PROMPT, max_chars=5000),
             temperature=0.5,
         )
         try:
@@ -97,7 +94,7 @@ JSON :
             self.AGENT_NAME,
             topic,
         )
-        raw = self.llm.complete(self.SYSTEM_PROMPT, prompt, agent_id=self.AGENT_NAME, temperature=0.4)
+        raw = self._complete(prompt, temperature=0.4)
         result = parse_json_response(raw)
         log_agent_action(
             self.db,

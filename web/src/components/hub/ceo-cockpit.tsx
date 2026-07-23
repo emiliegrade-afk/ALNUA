@@ -2,15 +2,13 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { Crown, Loader2, RefreshCw, Rocket, ShieldCheck } from "lucide-react";
+import { Crown, Loader2, RefreshCw, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  evaluateNuawayGate,
+  evaluateAcademyGate,
   fetchCeoCockpit,
-  setCeoBetaGo,
-  type BetaCriterion,
   type CeoCockpit,
   type GateCriterion,
 } from "@/lib/autonomy-api";
@@ -35,7 +33,6 @@ export function CeoCockpitPanel() {
   const [data, setData] = useState<CeoCockpit | null>(null);
   const [loading, setLoading] = useState(true);
   const [evaluating, setEvaluating] = useState(false);
-  const [ceoGoLoading, setCeoGoLoading] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -56,7 +53,7 @@ export function CeoCockpitPanel() {
   async function handleEvaluate() {
     setEvaluating(true);
     try {
-      const r = await evaluateNuawayGate();
+      const r = await evaluateAcademyGate();
       toast.success(r.message ?? "Gate évaluée");
       await load();
     } catch (err) {
@@ -66,21 +63,7 @@ export function CeoCockpitPanel() {
     }
   }
 
-  async function handleCeoGo() {
-    setCeoGoLoading(true);
-    try {
-      const r = await setCeoBetaGo(true, "Go beta NUAWAY — cockpit CEO");
-      toast.success(r.message ?? "Go CEO enregistré");
-      await load();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Go CEO échoué");
-    } finally {
-      setCeoGoLoading(false);
-    }
-  }
-
-  const gate = data?.nuaway_gate;
-  const beta = data?.beta_readiness;
+  const gate = data?.academy_gate;
   const queue = data?.ceo_queue;
 
   return (
@@ -89,10 +72,10 @@ export function CeoCockpitPanel() {
         <div>
           <CardTitle className="flex items-center gap-2 font-title text-lg text-ivory">
             <Crown className="h-5 w-5 text-copper" />
-            Cockpit CEO — Gate NUAWAY
+            Cockpit CEO — Gate Academy
           </CardTitle>
           <p className="mt-1 text-xs leading-relaxed text-titanium/65">
-            {data?.headline ?? "Readiness agents avant beta NUAWAY"}
+            {data?.headline ?? "Readiness dev_app avant produit Lounge"}
           </p>
         </div>
         <div className="flex gap-2">
@@ -147,82 +130,46 @@ export function CeoCockpitPanel() {
                 </p>
                 <p>
                   Pipeline : {data?.pipeline.agent_ready_count ?? 0} issues agent-ready
-                  {data?.pipeline.nomad_repo ? ` · ${data.pipeline.nomad_repo}` : ""}
                 </p>
               </div>
             </div>
 
-            <div className="grid gap-4 lg:grid-cols-2">
-              <div className="rounded-lg border border-white/10 p-3">
-                <p className="mb-2 text-xs font-medium text-titanium/50">
-                  Critères gate agents
-                </p>
-                <div className="space-y-1">
-                  {(gate.criteria ?? []).map((c) => (
-                    <CriterionRow key={c.id} c={c} />
-                  ))}
-                </div>
-              </div>
-
-              <div className="rounded-lg border border-white/10 p-3">
-                <div className="mb-2 flex items-center justify-between">
-                  <p className="text-xs font-medium text-titanium/50">
-                    Checklist beta (Phase 6)
-                  </p>
-                  {beta?.beta_ready ? (
-                    <span className="rounded bg-emerald-500/15 px-2 py-0.5 text-[10px] text-emerald-400">
-                      BETA READY
-                    </span>
-                  ) : null}
-                </div>
-                <div className="space-y-1">
-                  {(beta?.criteria ?? []).map((c: BetaCriterion) => (
-                    <CriterionRow key={`beta-${c.id}`} c={c} />
-                  ))}
-                </div>
-                <Button
-                  size="sm"
-                  className="mt-3 w-full bg-copper/90 text-obsidian hover:bg-copper"
-                  onClick={() => void handleCeoGo()}
-                  disabled={ceoGoLoading || beta?.ceo_beta?.approved}
-                >
-                  {ceoGoLoading ? (
-                    <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                  ) : (
-                    <Rocket className="mr-1 h-3 w-3" />
-                  )}
-                  {beta?.ceo_beta?.approved ? "Go CEO enregistré" : "Go beta CEO"}
-                </Button>
+            <div className="rounded-lg border border-white/10 p-3">
+              <p className="mb-2 text-xs font-medium text-titanium/50">Critères gate agents</p>
+              <div className="space-y-1">
+                {(gate.criteria ?? []).map((c) => (
+                  <CriterionRow key={c.id} c={c} />
+                ))}
               </div>
             </div>
 
             <div className="rounded-lg border border-white/10 p-3">
               <p className="mb-2 text-xs font-medium text-titanium/50">File CEO R&D</p>
-                {(queue?.to_validate?.length ?? 0) === 0 &&
-                (queue?.to_prepare?.length ?? 0) === 0 ? (
-                  <p className="text-xs text-titanium/45">Aucun dossier en attente.</p>
-                ) : (
-                  <ul className="space-y-2 text-xs">
-                    {queue?.to_validate?.slice(0, 4).map((d) => (
-                      <li key={d.id}>
-                        <Link
-                          href={ceoDossierHref(d, "ceo")}
-                          className="text-copper hover:underline"
-                        >
-                          {d.title}
-                        </Link>
-                        {d.recommendation ? (
-                          <span className="ml-1 text-titanium/50">({d.recommendation})</span>
-                        ) : null}
-                      </li>
-                    ))}
-                    {queue?.to_prepare?.slice(0, 2).map((d) => (
-                      <li key={`prep-${d.id}`} className="text-titanium/55">
-                        À préparer : {d.title}
-                      </li>
-                    ))}
-                  </ul>
-                )}
+              {(queue?.to_validate?.length ?? 0) === 0 &&
+              (queue?.to_prepare?.length ?? 0) === 0 ? (
+                <p className="text-xs text-titanium/45">Aucun dossier en attente.</p>
+              ) : (
+                <ul className="space-y-2 text-xs">
+                  {queue?.to_validate?.slice(0, 4).map((d) => (
+                    <li key={d.id}>
+                      <Link
+                        href={ceoDossierHref(d, "ceo")}
+                        className="text-copper hover:underline"
+                      >
+                        {d.title}
+                      </Link>
+                      {d.recommendation ? (
+                        <span className="ml-1 text-titanium/50">({d.recommendation})</span>
+                      ) : null}
+                    </li>
+                  ))}
+                  {queue?.to_prepare?.slice(0, 2).map((d) => (
+                    <li key={`prep-${d.id}`} className="text-titanium/55">
+                      À préparer : {d.title}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </>
         ) : null}

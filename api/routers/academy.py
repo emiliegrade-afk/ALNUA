@@ -9,7 +9,7 @@ router = APIRouter(prefix="/academy", tags=["academy"])
 
 @router.get("/status")
 def academy_status() -> dict[str, Any]:
-    """Progression académie + gate NUAWAY + snippet Mem0."""
+    """Progression académie + gate Lounge + snippet Mem0."""
     from services.academy_progress import get_academy_status
 
     return get_academy_status()
@@ -55,10 +55,10 @@ def academy_sync() -> dict[str, Any]:
 
 @router.get("/gate")
 def academy_gate() -> dict[str, Any]:
-    """Évalue la gate produit (Academy → Lounge, pas NUAWAY)."""
-    from services.nuaway_gate import evaluate_nuaway_gate
+    """Évalue la gate produit (Academy → Lounge)."""
+    from services.academy_gate import evaluate_academy_gate
 
-    return evaluate_nuaway_gate(refresh_academy=True)
+    return evaluate_academy_gate(refresh_academy=True)
 
 
 @router.post("/seed")
@@ -74,6 +74,51 @@ def academy_seed(body: AcademySeedRequest) -> dict[str, Any]:
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.post("/lesson")
+def academy_human_lesson(body: AcademyHumanLessonRequest) -> dict[str, Any]:
+    """Record a CEO manual fix so dev_app learns on the next coding run."""
+    from services.coding_learning import record_human_lesson
+
+    return record_human_lesson(
+        cause=body.cause,
+        fix=body.fix,
+        agent_name=body.agent_id,
+        repo_slug=body.repo_slug,
+        files=body.files or None,
+        issue_number=body.issue_number,
+    )
+
+
+@router.post("/lesson/bootstrap")
+def academy_bootstrap_lessons() -> dict[str, Any]:
+    """Seed idempotent human lessons (pipeline incidents + CEO feedback)."""
+    from services.coding_learning import bootstrap_academy_lessons
+
+    return {"added": bootstrap_academy_lessons()}
+
+
+@router.get("/pipeline")
+def academy_pipeline_status() -> dict[str, Any]:
+    """État file Academy — alias CEO pour /orchestration/pipeline-status."""
+    from services.agent_wake import get_pipeline_status
+
+    return get_pipeline_status()
+
+
+@router.post("/wake")
+def academy_wake(body: WakeAgentsRequest | None = None) -> dict[str, Any]:
+    """Réveille dev_app sur Academy (même logique que /orchestration/wake)."""
+    from services.agent_wake import wake_agents
+
+    req = body or WakeAgentsRequest()
+    return wake_agents(
+        retry_failed=req.retry_failed,
+        mark_ready_count=req.mark_ready_count,
+        sync=req.sync,
+        notify=req.notify,
+    )
 
 
 @router.post("/sprint")

@@ -20,7 +20,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#0a0a0b",
+  themeColor: "#0e1014",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -55,20 +55,14 @@ export default function RootLayout({
     <html
       lang="fr"
       className={cn(
-        "dark",
+        "dark h-full",
         inter.variable,
         spaceGrotesk.variable,
         jetbrainsMono.variable
       )}
     >
-      <body className="min-h-screen font-body antialiased">
-        <div className="relative min-h-screen bg-obsidian">
-          <div className="pointer-events-none fixed inset-0 forge-grid opacity-50" />
-          <div className="pointer-events-none fixed inset-0 bg-gradient-to-br from-copper/5 via-transparent to-transparent" />
-          <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(192,138,98,0.06),transparent_50%)]" />
-
-          <HubShell>{children}</HubShell>
-        </div>
+      <body className="h-full min-h-screen bg-obsidian font-body text-ivory antialiased">
+        <HubShell>{children}</HubShell>
       </body>
     </html>
   );

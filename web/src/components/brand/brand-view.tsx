@@ -338,7 +338,7 @@ export function BrandView() {
             <p className="text-sm font-medium text-ivory">
               Génération du kit en cours...
             </p>
-            <div className="h-2 w-full overflow-hidden rounded-full bg-black/40">
+            <div className="h-2 w-full overflow-hidden rounded-full bg-obsidian/80">
               <div
                 className="h-full rounded-full bg-copper transition-all duration-300"
                 style={{ width: `${genProgress}%` }}
@@ -535,7 +535,7 @@ export function BrandView() {
           )}
 
           {result && (
-            <div className="rounded-lg border border-copper/10 bg-black/20 px-3 py-2 text-[11px] text-titanium">
+            <div className="rounded-lg border border-copper/10 bg-obsidian-deep/50 px-3 py-2 text-[11px] text-titanium">
               {activeKitId && <p className="truncate">Kit : {activeKitId}</p>}
               <p className="truncate">
                 Formats : {formatCount}/{ALL_FORMAT_NAMES.length}

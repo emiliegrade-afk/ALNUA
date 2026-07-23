@@ -18,6 +18,8 @@ def test_llm_client_records_usage() -> None:
     from agents.base import LLMClient
 
     fake_response = MagicMock()
+    fake_response.status_code = 200
+    fake_response.text = ""
     fake_response.raise_for_status = MagicMock()
     fake_response.json.return_value = {
         "choices": [{"message": {"content": "ok"}}],

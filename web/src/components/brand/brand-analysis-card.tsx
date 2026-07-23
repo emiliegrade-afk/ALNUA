@@ -52,7 +52,7 @@ export function BrandAnalysisCard({ analysis }: BrandAnalysisCardProps) {
             {analysis.elements.map((element, index) => (
               <li
                 key={`${element.label}-${index}`}
-                className="flex items-center justify-between rounded-lg border border-copper/10 bg-black/20 px-3 py-2 text-sm"
+                className="flex items-center justify-between rounded-lg border border-copper/10 bg-obsidian-deep/50 px-3 py-2 text-sm"
               >
                 <span className="font-medium text-ivory">{element.label}</span>
                 <Badge variant="outline" className="text-titanium">

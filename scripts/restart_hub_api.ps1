@@ -5,7 +5,7 @@
 # Pour un Hub stable 24/7: .\scripts\start_hub_daemon.ps1 (watchdog + auto-restart)
 
 param(
-    [int]$Port = 8000,
+    [int]$Port = 8003,
     [switch]$Reload
 )
 

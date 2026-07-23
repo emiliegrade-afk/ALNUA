@@ -72,7 +72,7 @@ export function WaitlistDetailPanel({
       <button
         type="button"
         aria-label="Fermer"
-        className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+        className="fixed inset-0 z-40 bg-obsidian/85 backdrop-blur-sm"
         onClick={onClose}
       />
       <aside

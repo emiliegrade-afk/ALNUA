@@ -1,21 +1,18 @@
 import { AnalyticsAgentsPanel } from "@/components/analytics/analytics-agents-panel";
 import { AnalyticsView } from "@/components/analytics/analytics-view";
-import { BackToLobby } from "@/components/shared/back-to-lobby";
 import { BureauAgentsSection } from "@/components/shared/bureau-agents-section";
-import { DepartmentHeader } from "@/components/shared/department-header";
+import { BureauPage } from "@/components/shared/bureau-page";
 
 export default function AnalyticsPage() {
   return (
-    <>
-      <BackToLobby />
-      <DepartmentHeader
-        dept="analytics"
-        title="Reporting & Analytics"
-        subtitle="Layla · Axel · KPIs · Métriques · Releases"
-      />
+    <BureauPage
+      dept="analytics"
+      title="Reporting & Analytics"
+      subtitle="Layla · Axel · KPIs · Métriques · Releases"
+    >
       <BureauAgentsSection bureau="analytics" />
       <AnalyticsAgentsPanel />
       <AnalyticsView />
-    </>
+    </BureauPage>
   );
 }

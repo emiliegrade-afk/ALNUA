@@ -13,7 +13,7 @@ export interface ComposioConnectResponse {
 
 async function composioFetch<T>(
   path: string,
-  options?: RequestInit
+  options?: RequestInit & { timeoutMs?: number }
 ): Promise<T> {
   return hubFetch<T>(path, options);
 }
@@ -22,7 +22,8 @@ export async function fetchComposioApps(
   userId = "alnua_coo"
 ): Promise<ComposioApp[]> {
   const data = await composioFetch<ComposioApp[] | { apps?: ComposioApp[] }>(
-    `/composio/apps?user_id=${encodeURIComponent(userId)}`
+    `/composio/apps?user_id=${encodeURIComponent(userId)}`,
+    { timeoutMs: 60_000 },
   );
   if (Array.isArray(data)) return data;
   return data.apps ?? [];

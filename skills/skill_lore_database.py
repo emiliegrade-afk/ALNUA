@@ -27,6 +27,17 @@ def search_lore(query: str, project: str | None = None, limit: int = 5) -> list[
             .limit(limit)
             .execute()
         )
+    if not result.data:
+        try:
+            result = (
+                sb.table("lore_entries")
+                .select("*")
+                .ilike("ref_id", f"%{query}%")
+                .limit(limit)
+                .execute()
+            )
+        except Exception:
+            pass
     return result.data or []
 
 

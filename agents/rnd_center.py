@@ -955,10 +955,10 @@ def _build_report(new_ideas: list[dict], prototyped: list[str], cycle_date: str)
     lines = [
         f"🧪 Rapport R&D ALNUA — {cycle_date}",
         f"{'='*40}",
-        f"",
+        "",
         f"📊 {len(new_ideas)} idées analysées ce cycle",
         f"✅ GO : {len(go_ideas)} | 🤔 MAYBE : {len(maybe_ideas)} | ❌ NO : {len(no_ideas)}",
-        f"",
+        "",
     ]
 
     if go_ideas:
@@ -976,12 +976,12 @@ def _build_report(new_ideas: list[dict], prototyped: list[str], cycle_date: str)
     lines.append("\n🔍 Analyse concurrentielle complète → data/rnd_competitive/")
 
     if maybe_ideas:
-        lines.append(f"\n🤔 MAYBE — À reconsidérer plus tard :")
+        lines.append("\n🤔 MAYBE — À reconsidérer plus tard :")
         for idea in maybe_ideas[:3]:
             lines.append(f"  • {idea['title']} — {idea.get('reasoning', '')[:80]}")
 
-    lines.append(f"\n💡 Pour injecter une idée : dis au COO 'explore l'idée de...'")
-    lines.append(f"🎯 Pour changer le focus : dis au COO 'change le fil conducteur R&D vers...'")
+    lines.append("\n💡 Pour injecter une idée : dis au COO 'explore l'idée de...'")
+    lines.append("🎯 Pour changer le focus : dis au COO 'change le fil conducteur R&D vers...'")
 
     return "\n".join(lines)
 

@@ -5,6 +5,7 @@ from typing import Any
 from supabase import Client, create_client
 
 from config.settings import get_settings
+from database.tenant_scope import scope_filters, scope_row
 
 logger = logging.getLogger(__name__)
 _service_role_warned = False
@@ -34,8 +35,9 @@ class SupabaseClient:
         limit: int | None = None,
     ) -> list[dict[str, Any]]:
         query = self.table(table).select(columns)
-        if filters:
-            for key, value in filters.items():
+        scoped = scope_filters(table, filters)
+        if scoped:
+            for key, value in scoped.items():
                 query = query.eq(key, value)
         if is_null:
             for column in is_null:
@@ -48,7 +50,7 @@ class SupabaseClient:
         return response.data or []
 
     def insert(self, table: str, row: dict[str, Any]) -> dict[str, Any]:
-        response = self.table(table).insert(row).execute()
+        response = self.table(table).insert(scope_row(table, row)).execute()
         if not response.data:
             raise RuntimeError(f"Insert into {table} returned no data")
         return response.data[0]
@@ -56,7 +58,7 @@ class SupabaseClient:
     def insert_many(self, table: str, rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
         if not rows:
             return []
-        response = self.table(table).insert(rows).execute()
+        response = self.table(table).insert([scope_row(table, r) for r in rows]).execute()
         if not response.data:
             raise RuntimeError(f"Insert into {table} returned no data")
         return response.data

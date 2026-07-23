@@ -1,6 +1,8 @@
 """R&D Agent — Alex Mercer. Thin facade for plan_executor / parallel_runner."""
 from __future__ import annotations
 
+from agents.agent_base import AgentBase
+
 from typing import Any
 
 from agents.base import LLMClient, log_agent_action, parse_json_response
@@ -10,7 +12,7 @@ from config.agent_operating_spec import get_system_prompt
 from skills.skill_langfuse import trace_agent
 
 
-class RndAgent:
+class RndAgent(AgentBase):
     """R&D lead — research and prototype specs via rnd_center / deep_research."""
 
     AGENT_NAME = "rnd_agent"
@@ -58,12 +60,7 @@ class RndAgent:
             self.AGENT_NAME,
             idea,
         )
-        raw = self.llm.complete(
-            self.SYSTEM_PROMPT,
-            prompt,
-            agent_id=self.AGENT_NAME,
-            temperature=0.4,
-        )
+        raw = self._complete(prompt, temperature=0.4)
         result = parse_json_response(raw)
         log_agent_action(
             self.db,

@@ -207,22 +207,20 @@ def resolve_repo_slug_from_sentry(event: SentryIngestEvent) -> str:
         ]
     ).lower()
 
-    if any(k in haystack for k in ("nomad", "nuaway", "vanlife")):
-        if get_target_by_slug("nomad"):
-            return "nomad"
-    if "naia" in haystack and get_target_by_slug("naia"):
-        return "naia"
     if any(k in haystack for k in ("hub", "alnua")):
+        if get_target_by_slug("hub"):
+            return "hub"
+    if "academy" in haystack and get_target_by_slug("academy"):
+        return "academy"
+    if get_target_by_slug("hub"):
         return "hub"
-    if get_target_by_slug("nomad"):
-        return "nomad"
+    if get_target_by_slug("academy"):
+        return "academy"
     return "hub"
 
 
 def resolve_agent_from_sentry(event: SentryIngestEvent, repo_slug: str) -> str:
-    if repo_slug in ("nomad", "naia"):
-        return "dev_app"
-    if repo_slug == "academy":
+    if repo_slug in ("academy",):
         return "dev_app"
     platform = (event.platform or "").lower()
     if platform in ("python", "fastapi"):
@@ -317,7 +315,7 @@ def _stack_hint(event: SentryIngestEvent, repo_slug: str) -> str:
         return "react_native_expo"
     if repo_slug == "hub":
         return "python_fastapi"
-    if repo_slug in ("nomad", "naia"):
+    if repo_slug in ("academy",):
         return "react_native_expo"
     return "python_fastapi"
 

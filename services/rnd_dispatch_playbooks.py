@@ -517,17 +517,227 @@ Retourne les deux documents séparés par `---SPLIT---`.""",
 }
 
 
-def get_playbook(agent_id: str) -> AgentPlaybook | None:
-    """Retourne le playbook pour un agent_id normalisé, ou None si inconnu."""
+# Hub-internal playbooks — repo ALNUA_HUB, not external product scaffolds
+_HUB_PLAYBOOK_OVERRIDES: dict[str, AgentPlaybook] = {
+    "spec": AgentPlaybook(
+        pole="hub",
+        files=["hub/spec-cursor-prompt.md"],
+        description="Spec Cursor pour ALNUA_HUB — fichiers api/ web/ services/",
+        template="""Génère un **prompt Cursor** pour implémenter cette amélioration **dans ALNUA_HUB** (infra interne).
+
+# Spec Hub — {title}
+
+## Contexte entreprise
+[Pourquoi ALNUA a besoin de cette capacité — pas un produit marché externe]
+
+## Repo cible
+- **Uniquement** `C:/Dev/ALUNA_HUB` (FastAPI + Next.js web/)
+- **Ne pas** modifier nomad, naia, wyrdheim
+
+## Fichiers à créer ou modifier
+- `api/routers/...` ou `services/...` ou `web/src/...`
+
+## Étapes d'implémentation
+1. ...
+
+## Tests
+```bash
+pytest tests/ -q -x
+```
+
+## Critères d'acceptation
+- [ ] Tests passent
+- [ ] Pas de régression pipeline agents
+- [ ] UI cohérente avec le Hub existant""",
+        dod=[
+            "spec-cursor-prompt.md dans hub/",
+            "Mention explicite ALNUA_HUB",
+            "Au moins 3 critères d'acceptation",
+        ],
+    ),
+    "pm": AgentPlaybook(
+        pole="hub",
+        files=["hub/backlog-infra.md", "hub/acceptance-criteria.md"],
+        description="Backlog infra Hub + critères done",
+        template="""Génère deux documents pour l'amélioration Hub **{title}** :
+
+## Document 1 : backlog-infra.md
+# Backlog Infra Hub — {title}
+## User stories P0 (Emilie / agents)
+| # | Story | Agent | Effort |
+|---|-------|-------|--------|
+
+## Hors périmètre v1
+- ...
+
+---
+## Document 2 : acceptance-criteria.md
+# Critères done — {title}
+- [ ] API testée
+- [ ] UI si applicable
+- [ ] Pas d'impact produits externes
+
+Retourne les deux documents séparés par `---SPLIT---`.""",
+        dod=["backlog-infra.md", "acceptance-criteria.md"],
+    ),
+    "dev_backend": AgentPlaybook(
+        pole="hub",
+        files=["hub/api-implementation-brief.md"],
+        description="Brief API FastAPI dans ALNUA_HUB",
+        template="""Génère un **brief d'implémentation backend** pour {title} dans ALNUA_HUB.
+
+# Brief API Hub — {title}
+## Endpoints
+| Method | Path | Description |
+|--------|------|-------------|
+
+## Services (`services/`)
+## Schémas Pydantic (`api/schemas.py` ou router)
+## Tests pytest à ajouter
+## Issue GitHub suggérée
+- Repo: ALNUA_HUB, label: agent-ready, slug: hub""",
+        dod=["api-implementation-brief.md", "Endpoints listés"],
+    ),
+    "dev_app": AgentPlaybook(
+        pole="hub",
+        files=["hub/ui-implementation-brief.md"],
+        description="Brief UI Next.js dans web/src/",
+        template="""Génère un **brief UI Hub** pour {title}.
+
+# Brief UI Hub — {title}
+## Pages / routes (`web/src/app/`)
+## Composants (`web/src/components/`)
+## Client API (`web/src/lib/`)
+## États loading / error
+## Critères UX Emilie (CEO)
+
+> Repo: ALNUA_HUB/web/ — pas create-next-app externe.""",
+        dod=["ui-implementation-brief.md", "Routes listées"],
+    ),
+    "qa": AgentPlaybook(
+        pole="hub",
+        files=["hub/qa-plan.md"],
+        description="Plan QA non-régression Hub",
+        template="""Génère un **plan QA** pour {title} sur ALNUA_HUB.
+
+# Plan QA Hub — {title}
+## Tests automatisés
+## Smoke tests manuels
+## Régression agents / pipeline
+## Seuils de blocage (ECART)""",
+        dod=["qa-plan.md", "Smoke tests listés"],
+    ),
+}
+
+# Gaming ship playbooks — Godot release + GDD sign-off
+_GAMING_PLAYBOOK_OVERRIDES: dict[str, AgentPlaybook] = {
+    "game_director": AgentPlaybook(
+        pole="gaming",
+        files=["gaming/release-gdd-checklist.md"],
+        description="Checklist release GDD — core loop, scope build, risques design",
+        template="""Génère une **checklist release GDD** pour le jeu {title}.
+
+# Release GDD — {title}
+## Core loop validé (oui/non + preuve playtest)
+## Scope build vs wishlist (ce qui ship / ce qui wait)
+## Mécaniques P0 testées
+## Risques design résiduels
+## Critères wishlist / early access CEO""",
+        dod=["release-gdd-checklist.md", "Core loop mentionné", "Scope build explicite"],
+    ),
+    "dev_gaming": AgentPlaybook(
+        pole="gaming",
+        files=["gaming/release-build-checklist.md"],
+        description="Checklist build Godot — export, perfs, crash-free",
+        template="""Génère une **checklist build Godot 4** pour {title}.
+
+# Release Build — {title}
+## Scènes P0 jouables sans crash
+## Exports cibles (Windows / mobile / web)
+## Budget perfs (FPS, mémoire)
+## Tests automatisés / GUT
+## Bloquants release listés""",
+        dod=["release-build-checklist.md", "Exports listés", "Perfs cibles"],
+    ),
+    "qa": AgentPlaybook(
+        pole="gaming",
+        files=["gaming/qa-ship-plan.md"],
+        description="Plan QA ship jeu — smoke, régression gameplay",
+        template="""Génère un **plan QA ship** pour {title}.
+
+# QA Ship Gaming — {title}
+## Smoke tests gameplay (15 min)
+## Régression mécaniques core
+## Save/load · edge cases
+## Seuils ECART release""",
+        dod=["qa-ship-plan.md", "Smoke tests listés"],
+    ),
+}
+
+# Robotics ship playbooks — BOM + firmware release
+_ROBOTICS_PLAYBOOK_OVERRIDES: dict[str, AgentPlaybook] = {
+    "hardware": AgentPlaybook(
+        pole="hardware",
+        files=["hardware/release-bom-signoff.md"],
+        description="Sign-off BOM release — composants, coût, fournisseurs",
+        template="""Génère un **sign-off BOM** pour {title}.
+
+# Release BOM — {title}
+## BOM v1 figée (composant · ref · qty · coût)
+## Fournisseurs validés / lead time
+## Risques supply chain
+## Certifications / conformité cibles
+## Go / No-Go hardware CEO""",
+        dod=["release-bom-signoff.md", "BOM tabulaire", "Risques supply"],
+    ),
+    "embedded_dev": AgentPlaybook(
+        pole="hardware",
+        files=["hardware/firmware-release-brief.md"],
+        description="Brief release firmware — version, flash, rollback",
+        template="""Génère un **brief release firmware** pour {title}.
+
+# Firmware Release — {title}
+## Version semver + changelog
+## Procédure flash / OTA
+## Tests HIL passés
+## Plan rollback
+## Dépendances capteurs/drivers""",
+        dod=["firmware-release-brief.md", "Procédure flash", "Rollback"],
+    ),
+    "qa": AgentPlaybook(
+        pole="hardware",
+        files=["hardware/qa-ship-plan.md"],
+        description="Plan QA ship robotique — bench, sécurité, endurance",
+        template="""Génère un **plan QA ship robotique** pour {title}.
+
+# QA Ship Robotics — {title}
+## Tests bench (mouvement, capteurs)
+## Sécurité mécanique / électrique
+## Endurance 24h
+## Seuils ECART release""",
+        dod=["qa-ship-plan.md", "Tests sécurité listés"],
+    ),
+}
+
+
+def get_playbook(agent_id: str, branch: str | None = None) -> AgentPlaybook | None:
+    """Retourne le playbook pour un agent_id; overrides par branche hub/gaming/robotics."""
+    branch_norm = (branch or "").strip().lower()
+    if branch_norm == "hub" and agent_id in _HUB_PLAYBOOK_OVERRIDES:
+        return _HUB_PLAYBOOK_OVERRIDES[agent_id]
+    if branch_norm == "gaming" and agent_id in _GAMING_PLAYBOOK_OVERRIDES:
+        return _GAMING_PLAYBOOK_OVERRIDES[agent_id]
+    if branch_norm == "robotics" and agent_id in _ROBOTICS_PLAYBOOK_OVERRIDES:
+        return _ROBOTICS_PLAYBOOK_OVERRIDES[agent_id]
     return _PLAYBOOKS.get(agent_id)
 
 
-def all_required_files(agent_ids: list[str]) -> list[str]:
+def all_required_files(agent_ids: list[str], branch: str | None = None) -> list[str]:
     """Agrège tous les fichiers requis pour un set d'agents dispatch."""
     files: list[str] = []
     seen: set[str] = set()
     for aid in agent_ids:
-        pb = get_playbook(aid)
+        pb = get_playbook(aid, branch=branch)
         if pb:
             for f in pb.files:
                 if f not in seen:
@@ -551,13 +761,14 @@ def build_instruction_with_paths(
     workspace_path: str,
     context_excerpt: str,
     extra: dict[str, Any] | None = None,
+    branch: str | None = None,
 ) -> str:
     """Construit l'instruction enrichie avec paths workspace pour un agent dispatch.
 
     Convention Option A : ALNUA/{pole}/{slug}/{filename}
     Les fichiers dans pb.files sont au format 'pole/filename'.
     """
-    pb = get_playbook(agent_id)
+    pb = get_playbook(agent_id, branch=branch)
     if not pb:
         # Fallback générique
         return (

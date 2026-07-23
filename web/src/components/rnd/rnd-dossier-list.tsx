@@ -27,6 +27,26 @@ const STATUS_LABELS: Record<string, string> = {
   archived: "Archivé",
 };
 
+function BranchBadge({ domain, branch }: { domain: string; branch?: string | null }) {
+  const isHub =
+    branch === "hub" ||
+    domain === "hub" ||
+    domain === "plateforme" ||
+    domain === "infra";
+  if (isHub) {
+    return (
+      <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-300">
+        Hub interne
+      </span>
+    );
+  }
+  return (
+    <span className="rounded-full border border-white/10 px-2 py-0.5 text-[10px] text-titanium/60">
+      {domain}
+    </span>
+  );
+}
+
 function StatusBadge({ status }: { status: string }) {
   const cls =
     status === "ceo_approved"
@@ -151,9 +171,7 @@ export function RndDossierList({
           >
             <div className="mb-2 flex flex-wrap items-center gap-2">
               <StatusBadge status={d.status} />
-              <span className="rounded-full border border-white/10 px-2 py-0.5 text-[10px] text-titanium/60">
-                {d.domain}
-              </span>
+              <BranchBadge domain={d.domain} branch={d.branch} />
             </div>
             <p className="text-sm font-medium text-ivory/90">{d.title}</p>
             <p className="mt-1 text-[11px] text-titanium/50">

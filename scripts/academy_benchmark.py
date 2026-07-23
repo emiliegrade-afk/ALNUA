@@ -48,8 +48,8 @@ def main() -> int:
             f"{lv.get('in_progress', 0)} in progress"
         )
 
-    print("\nGate NUAWAY :")
-    gate = progress.get("gate_nuaway", {})
+    print("\nGate Academy :")
+    gate = progress.get("gate_academy") or progress.get("gate_nuaway", {})
     for k, v in gate.items():
         mark = "OK" if v else "--"
         print(f"  [{mark}] {k}")

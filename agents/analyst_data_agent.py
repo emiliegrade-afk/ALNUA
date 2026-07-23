@@ -2,23 +2,21 @@
 
 from __future__ import annotations
 
+from agents.agent_base import AgentBase
+
 from typing import Any
 
-from agents.base import LLMClient, log_agent_action, parse_json_response
+from agents.base import log_agent_action, parse_json_response
 from config.agent_operating_spec import get_system_prompt
-from database.supabase_client import SupabaseClient, get_supabase
 from skills.skill_agent_learning import inject_learning_context, record_task_learning
 from skills.skill_langfuse import trace_agent
 
 
-class DataAnalystAgent:
+class DataAnalystAgent(AgentBase):
     AGENT_NAME = "analyst_data"
 
     SYSTEM_PROMPT = get_system_prompt("analyst_data")
 
-    def __init__(self, db: SupabaseClient | None = None, llm: LLMClient | None = None) -> None:
-        self.db = db or get_supabase()
-        self.llm = llm or LLMClient()
 
     @trace_agent("analyst_data")
     def sql_query(
@@ -46,9 +44,7 @@ Réponds en JSON :
 }}""",
             self.AGENT_NAME, question,
         )
-        raw = self.llm.complete(
-            self.SYSTEM_PROMPT, prompt, agent_id=self.AGENT_NAME, temperature=0.2
-        )
+        raw = self._complete(prompt, temperature=0.2)
         result = parse_json_response(raw)
         log_agent_action(
             self.db, self.AGENT_NAME, "sql_query",
@@ -99,9 +95,7 @@ Réponds en JSON :
 }}""",
             self.AGENT_NAME, funnel_name,
         )
-        raw = self.llm.complete(
-            self.SYSTEM_PROMPT, prompt, agent_id=self.AGENT_NAME, temperature=0.3
-        )
+        raw = self._complete(prompt, temperature=0.3)
         result = parse_json_response(raw)
         log_agent_action(
             self.db, self.AGENT_NAME, "funnel_analysis",
@@ -140,9 +134,7 @@ Réponds en JSON :
 }}""",
             self.AGENT_NAME, f"anomaly {metric}",
         )
-        raw = self.llm.complete(
-            self.SYSTEM_PROMPT, prompt, agent_id=self.AGENT_NAME, temperature=0.2
-        )
+        raw = self._complete(prompt, temperature=0.2)
         return parse_json_response(raw)
 
     @trace_agent("analyst_data")
@@ -188,9 +180,7 @@ Réponds en JSON :
 }}""",
             self.AGENT_NAME, dashboard_name,
         )
-        raw = self.llm.complete(
-            self.SYSTEM_PROMPT, prompt, agent_id=self.AGENT_NAME, temperature=0.4, max_tokens=4096
-        )
+        raw = self._complete(prompt, temperature=0.4, max_tokens=4096)
         result = parse_json_response(raw)
         log_agent_action(
             self.db, self.AGENT_NAME, "dashboard_spec",

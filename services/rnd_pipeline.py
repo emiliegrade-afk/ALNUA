@@ -44,6 +44,7 @@ def build_dossier_pipeline(dossier: RndDossierOut) -> dict[str, Any]:
         "in_conception",
         "published",
     )
+    is_hub_internal = (dossier.branch or "").lower() == "hub"
 
     stages: list[dict[str, Any]] = []
 
@@ -97,8 +98,11 @@ def build_dossier_pipeline(dossier: RndDossierOut) -> dict[str, Any]:
     s4["detail"] = f"{len(assets)} visuel(s) · {'deck OK' if has_deck else 'deck absent'}"
     stages.append(s4)
 
-    # Phase 5 — social (locked pre-CEO)
-    if not ceo_unlocked:
+    # Phase 5 — social (locked pre-CEO; skipped for Hub interne)
+    if is_hub_internal:
+        s5 = _stage("social", "skipped")
+        s5["detail"] = "N/A — amélioration Hub interne (pas de calendrier social)"
+    elif not ceo_unlocked:
         s5 = _stage("social", "locked")
         s5["detail"] = "Verrouillé — validation CEO requise"
     elif len(calendar) >= 5:
@@ -132,7 +136,10 @@ def build_dossier_pipeline(dossier: RndDossierOut) -> dict[str, Any]:
     stages.append(s6)
 
     # Phase 7 — product page
-    if not is_product_pipeline_unlocked(dossier.status, dossier.ceo_status):
+    if is_hub_internal:
+        s7 = _stage("product", "skipped")
+        s7["detail"] = "N/A — pas de fiche produit publique pour infra Hub"
+    elif not is_product_pipeline_unlocked(dossier.status, dossier.ceo_status):
         s7 = _stage("product", "locked")
         s7["detail"] = "Verrouillé — validation CEO requise"
     elif product_page and product_page.published:

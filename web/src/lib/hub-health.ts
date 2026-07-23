@@ -3,6 +3,8 @@ import { hubApiUrl } from "./hub-api-config";
 export interface ApiHealthStatus {
   online: boolean;
   authenticated: boolean;
+  /** When offline: which layer failed (web UI vs FastAPI). */
+  layer?: "web" | "api";
 }
 
 const CACHE_TTL_MS = 120_000;
@@ -47,6 +49,11 @@ function writeStorageCache(entry: CachedHealth): void {
 
 function notifyListeners(status: ApiHealthStatus): void {
   listeners.forEach((listener) => listener(status));
+}
+
+/** Broadcast any probe result (including offline) to live monitors. */
+export function publishHubHealthStatus(status: ApiHealthStatus): void {
+  notifyListeners(status);
 }
 
 function isFresh(entry: CachedHealth, ttlMs: number): boolean {
@@ -119,7 +126,7 @@ async function fetchHealthPath(
 
 function parseHealthResponse(res: Response): ApiHealthStatus {
   const offline: ApiHealthStatus = { online: false, authenticated: false };
-  if (res.status === 502) return offline;
+  if (res.status === 502) return { online: false, authenticated: false, layer: "api" };
   if (res.status === 503) return { online: true, authenticated: false };
   if (res.status === 401) return { online: true, authenticated: false };
   if (res.ok) return { online: true, authenticated: true };
@@ -130,18 +137,30 @@ function parseHealthResponse(res: Response): ApiHealthStatus {
 export async function probeHubApi(
   timeoutMs = DEFAULT_TIMEOUT_MS
 ): Promise<ApiHealthStatus> {
-  const offline: ApiHealthStatus = { online: false, authenticated: false };
-  const statusTimeout = Math.min(timeoutMs, 8_000);
-  const healthTimeout = Math.min(4_000, Math.max(2_000, Math.floor(timeoutMs / 4)));
+  const staleOk = getLastKnownGoodHealth();
+  const healthTimeout = Math.min(10_000, Math.max(5_000, Math.floor(timeoutMs / 2)));
+  const statusTimeout = Math.min(timeoutMs, 20_000);
+
+  // /health first — lightweight when agents are coding and the API is busy.
+  const healthRes = await fetchHealthPath("/health", healthTimeout);
+  if (!healthRes) {
+    if (staleOk) return staleOk;
+    return { online: false, authenticated: false, layer: "api" };
+  }
+  if (!healthRes.ok) {
+    return parseHealthResponse(healthRes);
+  }
 
   const statusRes = await fetchHealthPath("/status", statusTimeout);
-  if (statusRes) return parseHealthResponse(statusRes);
+  if (statusRes) {
+    const parsed = parseHealthResponse(statusRes);
+    if (parsed.online && parsed.authenticated) return parsed;
+    if (staleOk && !parsed.authenticated) return staleOk;
+    return parsed;
+  }
 
-  // Backend may be busy (coding agent) — /health stays lightweight.
-  const healthRes = await fetchHealthPath("/health", healthTimeout);
-  if (healthRes?.ok) return { online: true, authenticated: true };
-
-  return offline;
+  if (staleOk) return staleOk;
+  return { online: true, authenticated: true };
 }
 
 /** Cached health with retries — avoids false "offline" during Next.js cold compiles. */
@@ -183,12 +202,32 @@ export async function checkApiHealth(options?: {
   return lastProbe;
 }
 
+/** Fast live probe — masks transient offline if we were healthy recently. */
+export async function probeHubApiLive(
+  timeoutMs = 12_000
+): Promise<ApiHealthStatus> {
+  const probed = await probeHubApi(timeoutMs);
+  if (probed.online && probed.authenticated) {
+    setHubHealthCache(probed);
+    return probed;
+  }
+  const staleOk = getLastKnownGoodHealth();
+  if (staleOk) {
+    return staleOk;
+  }
+  return probed;
+}
+
+export const HUB_HEALTH_POLL_OK_MS = 45_000;
+export const HUB_HEALTH_POLL_DOWN_MS = 30_000;
+
 /** Background refresh — never blocks UI with a false negative. */
 export function refreshHubHealthInBackground(): void {
-  void probeHubApi().then((status) => {
+  void probeHubApiLive(12_000).then((status) => {
     if (status.online && status.authenticated) {
       setHubHealthCache(status);
     }
+    publishHubHealthStatus(status);
   });
 }
 

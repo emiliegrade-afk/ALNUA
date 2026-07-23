@@ -1,8 +1,10 @@
-# Redemarre le frontend Next.js (libere le port 3000 + cache .next)
-# Usage: .\scripts\restart_hub_web.ps1 [-Port 3000]
+# Redemarre le frontend Next.js
+# Usage: .\scripts\restart_hub_web.ps1 [-Port 3000] [-Clean]
+# -Clean : supprime .next (seulement si erreur ChunkLoadError)
 
 param(
-    [int]$Port = 3000
+    [int]$Port = 3000,
+    [switch]$Clean
 )
 
 $ErrorActionPreference = "Stop"
@@ -22,7 +24,7 @@ Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinu
 Start-Sleep -Seconds 2
 
 $nextCache = Join-Path $WebRoot ".next"
-if (Test-Path $nextCache) {
+if ($Clean -and (Test-Path $nextCache)) {
     Write-Host "Suppression du cache .next..." -ForegroundColor Cyan
     Remove-Item -Recurse -Force $nextCache
 }

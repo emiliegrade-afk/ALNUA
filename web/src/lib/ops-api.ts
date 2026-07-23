@@ -38,7 +38,7 @@ export async function simulateSentryEvent(options: {
     body: JSON.stringify({
       title: options.title,
       message: options.message ?? "",
-      project_slug: options.projectSlug ?? "nuaway",
+      project_slug: options.projectSlug ?? "hub",
       dry_run: options.dryRun ?? false,
     }),
   });

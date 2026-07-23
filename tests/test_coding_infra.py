@@ -10,7 +10,7 @@ from services.coding_error_journal import (
     record_coding_error,
     resolve_matching_errors,
 )
-from services.nuaway_gate import _lounge_product_ready
+from services.academy_gate import _lounge_product_ready
 
 
 def test_record_and_resolve_coding_error(tmp_path: Path, monkeypatch) -> None:

@@ -73,15 +73,51 @@ export interface LobbyStats {
   brandKits: number;
 
   connectedApps: number;
+  costTodayUsd: number;
   /** Present when the last live refresh hit API/auth issues */
   refreshError?: string;
+}
+
+const DEFAULT_LOBBY_STATS: LobbyStats = {
+  apiOnline: false,
+  apiAuthenticated: false,
+  ceoNotifications: 0,
+  hubPrCount: 0,
+  appOpenTickets: 0,
+  gamingStatus: "Wyrdheim R&D en cours",
+  roboStatus: "Eve — Prototype",
+  financesMonthTotal: "$0.00",
+  marketingPendingPosts: 0,
+  rdSessions: 0,
+  brandKits: 0,
+  connectedApps: 0,
+  costTodayUsd: 0,
+};
+
+/** Merge partial/stale cache payloads with safe defaults. */
+export function normalizeLobbyStats(
+  partial: Partial<LobbyStats> | null | undefined,
+): LobbyStats {
+  if (!partial) return { ...DEFAULT_LOBBY_STATS };
+  return {
+    ...DEFAULT_LOBBY_STATS,
+    ...partial,
+    costTodayUsd: Number(partial.costTodayUsd ?? 0),
+    ceoNotifications: Number(partial.ceoNotifications ?? 0),
+    hubPrCount: Number(partial.hubPrCount ?? 0),
+    appOpenTickets: Number(partial.appOpenTickets ?? 0),
+    marketingPendingPosts: Number(partial.marketingPendingPosts ?? 0),
+    rdSessions: Number(partial.rdSessions ?? 0),
+    brandKits: Number(partial.brandKits ?? 0),
+    connectedApps: Number(partial.connectedApps ?? 0),
+  };
 }
 
 
 
 const LOBBY_STATS_CACHE_TTL_MS = 120_000;
 
-const LOBBY_STATS_STORAGE_KEY = "alnua_lobby_stats_v2";
+const LOBBY_STATS_STORAGE_KEY = "alnua_lobby_stats_v3";
 
 
 
@@ -109,7 +145,7 @@ function readLobbyStatsStorage(): LobbyStats | null {
 
     if (Date.now() - parsed.at > LOBBY_STATS_CACHE_TTL_MS) return null;
 
-    return parsed.stats;
+    return normalizeLobbyStats(parsed.stats);
 
   } catch {
 
@@ -157,7 +193,7 @@ export function getLobbyStatsCache(): LobbyStats | null {
 
   ) {
 
-    return lobbyStatsCache;
+    return normalizeLobbyStats(lobbyStatsCache);
 
   }
 
@@ -165,11 +201,11 @@ export function getLobbyStatsCache(): LobbyStats | null {
 
   if (stored) {
 
-    lobbyStatsCache = stored;
+    lobbyStatsCache = normalizeLobbyStats(stored);
 
     lobbyStatsCacheAt = Date.now();
 
-    return stored;
+    return lobbyStatsCache;
 
   }
 
@@ -181,13 +217,15 @@ export function getLobbyStatsCache(): LobbyStats | null {
 
 function storeLobbyStats(stats: LobbyStats): LobbyStats {
 
-  lobbyStatsCache = stats;
+  const normalized = normalizeLobbyStats(stats);
+
+  lobbyStatsCache = normalized;
 
   lobbyStatsCacheAt = Date.now();
 
-  writeLobbyStatsStorage(stats);
+  writeLobbyStatsStorage(normalized);
 
-  return stats;
+  return normalized;
 
 }
 
@@ -229,6 +267,8 @@ async function fetchLobbyStatsUncached(): Promise<LobbyStats> {
 
     sessions,
 
+    costsToday,
+
   ] = await Promise.all([
 
     resolveHubHealthFast(),
@@ -248,6 +288,8 @@ async function fetchLobbyStatsUncached(): Promise<LobbyStats> {
     fetchComposioApps().catch(() => []),
 
     apiGet<unknown[]>("/brainstorm/sessions", 5_000),
+
+    apiGet<{ total_usd?: number }>("/costs/today", 5_000),
 
   ]);
 
@@ -313,11 +355,15 @@ async function fetchLobbyStatsUncached(): Promise<LobbyStats> {
     rdSessions: sessions?.length ?? 0,
     brandKits: Array.isArray(kits) ? kits.length : 0,
     connectedApps: apps.length,
-    refreshError: !apiHealth.online
-      ? "API Hub hors ligne — stats partielles ou en cache."
-      : !apiHealth.authenticated
-        ? "Clé API Hub invalide — vérifie HUB_API_KEY dans web/.env.local."
-        : undefined,
+    costTodayUsd: costsToday?.total_usd ?? 0,
+    refreshError:
+      !apiHealth.online && !previous?.apiOnline && !staleAuth?.online
+        ? "API Hub hors ligne — stats partielles ou en cache."
+        : !apiHealth.authenticated &&
+            !previous?.apiAuthenticated &&
+            !staleAuth?.authenticated
+          ? "Clé API Hub invalide — vérifie HUB_API_KEY dans web/.env.local."
+          : undefined,
   };
 }
 

@@ -22,7 +22,8 @@ import {
 import { cn } from "@/lib/utils";
 
 const DOMAINS = [
-  { id: "app", label: "App / SaaS" },
+  { id: "hub", label: "Hub ALNUA (infra interne)" },
+  { id: "app", label: "App / SaaS produit" },
   { id: "gaming", label: "Jeu / Gaming" },
   { id: "hardware", label: "Hardware / IoT" },
   { id: "autre", label: "Autre" },
@@ -88,7 +89,7 @@ export function RndSubmitDossierModal({
 }: RndSubmitDossierModalProps) {
   const [title, setTitle] = useState("");
   const [tagline, setTagline] = useState("");
-  const [domain, setDomain] = useState<string>("app");
+  const [domain, setDomain] = useState<string>("hub");
   const [whyNow, setWhyNow] = useState("");
   const [sections, setSections] = useState<RndUserSubmitSections>({});
   const [enrichWithAgents, setEnrichWithAgents] = useState(false);
@@ -97,7 +98,7 @@ export function RndSubmitDossierModal({
   function resetForm() {
     setTitle("");
     setTagline("");
-    setDomain("app");
+    setDomain("hub");
     setWhyNow("");
     setSections({});
     setEnrichWithAgents(false);

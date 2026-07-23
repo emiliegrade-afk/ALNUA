@@ -44,6 +44,14 @@ BRANCH_BLOCKS: dict[str, list[dict[str, str]]] = {
         {"key": "business_model", "title": "5. Business model"},
         {"key": "risk_matrix", "title": "6. Matrice des risques spécifiques"},
     ],
+    "hub": [
+        {"key": "executive_summary", "title": "1. Executive Summary — amélioration Hub ALNUA"},
+        {"key": "technical_assessment", "title": "2. Bilan technique — repo ALNUA_HUB"},
+        {"key": "compliance_security", "title": "3. Stabilité ops & sécurité"},
+        {"key": "go_to_market", "title": "4. Rollout interne & déploiement"},
+        {"key": "business_model", "title": "5. ROI interne (temps gagné / coûts IA)"},
+        {"key": "risk_matrix", "title": "6. Risques régression plateforme"},
+    ],
     "other": [
         {"key": "executive_summary", "title": "1. Executive Summary"},
         {"key": "technical_assessment", "title": "2. Bilan technique"},
@@ -164,6 +172,43 @@ DISPATCH_POLES: dict[str, list[dict[str, Any]]] = {
             "deliverables": ["Wishlist strategy", "Teasers post-launch CEO"],
             "priority": "medium",
             "phase": "launch_prep",
+        },
+    ],
+    "hub": [
+        {
+            "pole": "Spec & Architecture Hub",
+            "agent_id": "spec_agent",
+            "deliverables": ["Spec ALNUA_HUB (fichiers impactés)", "Prompt Cursor prêt"],
+            "priority": "critical",
+            "phase": "conception",
+        },
+        {
+            "pole": "PM Ops",
+            "agent_id": "pm_agent",
+            "deliverables": ["Backlog infra Hub", "Critères d'acceptation"],
+            "priority": "high",
+            "phase": "conception",
+        },
+        {
+            "pole": "Dev Backend Hub",
+            "agent_id": "dev_backend",
+            "deliverables": ["Routes API / services Python", "Tests pytest"],
+            "priority": "high",
+            "phase": "build",
+        },
+        {
+            "pole": "Dev App (UI Hub)",
+            "agent_id": "dev_app",
+            "deliverables": ["Composants web/src/", "Intégration API Hub"],
+            "priority": "high",
+            "phase": "build",
+        },
+        {
+            "pole": "QA Hub",
+            "agent_id": "qa",
+            "deliverables": ["Plan de tests", "Checklist non-régression"],
+            "priority": "high",
+            "phase": "qa",
         },
     ],
     "other": [
@@ -314,6 +359,18 @@ def _build_block_content(key: str, dossier: RndDossierOut, sections: dict[str, s
                 + "\n\n### Enveloppe budgétaire globale\n"
                 + _finance_summary(dossier)
             )
+        if branch == "hub":
+            return (
+                "### Capacité visée pour ALNUA (entreprise)\n"
+                + _excerpt(sections.get("problem", ""), 280)
+                + "\n\n### Solution proposée dans ALNUA_HUB\n"
+                + _excerpt(sections.get("solution", ""), 350)
+                + "\n\n### Périmètre v1 (MVP interne)\n"
+                + _excerpt(sections.get("mvp", ""), 300)
+                + "\n\n### Coût / effort estimé\n"
+                + _finance_summary(dossier)
+                + "\n\n> **Cible repo :** `ALNUA_HUB` — infra interne, pas produit marché externe."
+            )
         return (
             "### La promesse produit\n"
             + _excerpt(sections.get("problem", ""), 280)
@@ -352,6 +409,18 @@ def _build_block_content(key: str, dossier: RndDossierOut, sections: dict[str, s
                 + _excerpt(sections.get("lore", ""), 300)
                 + "\n\n"
                 + _excerpt(sections.get("visual_identity", ""), 300)
+            )
+        if branch == "hub":
+            return (
+                "### Backend (FastAPI)\n"
+                + _excerpt(sections.get("feasibility", ""), 400)
+                + "\n- `api/routers/` · `services/` · `agents/`\n\n"
+                "### Frontend (Next.js web/)\n"
+                + _excerpt(sections.get("solution", ""), 350)
+                + "\n\n### Agents & workflows impactés\n"
+                + _excerpt(sections.get("mvp", ""), 350)
+                + "\n\n### Repo cible\n"
+                "- **ALNUA_HUB** uniquement — pas nomad/naia/wyrdheim."
             )
         return (
             "### Produit & UX\n"
@@ -393,6 +462,17 @@ def _build_block_content(key: str, dossier: RndDossierOut, sections: dict[str, s
         )
 
     if key == "go_to_market":
+        if branch == "hub":
+            return (
+                "### Rollout interne\n"
+                + _excerpt(sections.get("mvp", ""), 400)
+                + "\n\n### Déploiement Hub\n"
+                "- Redémarrage API uvicorn + rebuild web si UI\n"
+                "- Tests `pytest` + smoke test UI\n"
+                "- Pas de page publique `/p/` ni marketing externe\n\n"
+                "### Communication\n"
+                "- Brief Emilie (CEO) + note dans agent_logs"
+            )
         return (
             "### Acquisition & scalabilité cloud\n"
             + _excerpt(sections.get("market", ""), 450)
@@ -488,6 +568,7 @@ def build_portfolio_summary(
         "app": "Software / App",
         "robotics": "Robotique / Hardware full stack",
         "gaming": "Logiciel lourd / Plateforme 3D",
+        "hub": "Hub ALNUA — infra interne entreprise",
         "other": "Transverse",
     }.get(branch, branch)
     lines = [

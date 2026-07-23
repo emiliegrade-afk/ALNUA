@@ -26,8 +26,35 @@ data/rnd_ideas.json
 data/rnd_concepts/
 data/rnd_competitive/
 data/agent_models.json
+data/ide_sandbox/
+# Runtime-generated state — never commit (see CLAUDE.md invariant on data/agent_scores.json)
+data/academy_progress.json
+data/app_factory/
+data/apps_registry.json
+data/bureau_library.json
+data/coding_errors.json
+data/cost_log.json
+data/event_log.json
+data/hub.supervisor.json
+data/hub.supervisor.lock
+data/hub_active_port.txt
+data/library_distribution.json
+data/lounge_product.json
+data/nadia_desktop.json
+data/rnd_trees/
+data/rnd_watch_topics.json
+data/sentry_ingest.json
+data/supervisor_debug.txt
+data/workflow_runs/
 brand_kits/
 logs/
+
+# Windows shortcuts — machine-local, never portable
+*.lnk
+
+# Playwright test output
+web/test-results/
+.telegram_secretary_bot.lock
 
 # Model weights
 models/

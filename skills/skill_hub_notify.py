@@ -17,8 +17,12 @@ def notify_hub(message: str) -> dict[str, Any]:
 
     try:
         from skills.skill_telegram_notify import notify_telegram
+        from services.notify_dedup import should_send_notify
 
-        result["telegram"] = notify_telegram(message)
+        if should_send_notify("telegram", message):
+            result["telegram"] = notify_telegram(message)
+        else:
+            logger.debug("notify_hub telegram skipped (duplicate)")
     except Exception as exc:
         logger.debug("notify_hub telegram: %s", exc)
 

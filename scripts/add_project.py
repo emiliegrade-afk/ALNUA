@@ -207,5 +207,5 @@ except Exception as e:
 # ──────────────────────────────────────────────
 print(f"\n{'─'*50}")
 print(f"  🎉 Projet {name} ajouté avec succès !")
-print(f"  Relance l'API pour que le pipeline le détecte.")
+print("  Relance l'API pour que le pipeline le détecte.")
 print(f"{'─'*50}\n")

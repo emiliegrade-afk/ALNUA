@@ -41,32 +41,6 @@ def get_repo_targets() -> tuple[GitHubRepoTarget, ...]:
             )
         )
 
-    naia_repo = os.getenv("GITHUB_REPO_NAIA", "").strip()
-    if naia_repo:
-        targets.append(
-            GitHubRepoTarget(
-                slug="naia",
-                name="Naïa",
-                github_repo=naia_repo,
-                local_path=Path(
-                    os.getenv("REPO_PATH_NAIA", str(_dev_parent() / "naia")).strip()
-                ).resolve(),
-            )
-        )
-
-    nomad_repo = os.getenv("GITHUB_REPO_NOMAD", "").strip()
-    if nomad_repo:
-        targets.append(
-            GitHubRepoTarget(
-                slug="nomad",
-                name="NOMAD",
-                github_repo=nomad_repo,
-                local_path=Path(
-                    os.getenv("REPO_PATH_NOMAD", str(_dev_parent() / "nomad")).strip()
-                ).resolve(),
-            )
-        )
-
     academy_repo = os.getenv("GITHUB_REPO_ACADEMY", "").strip()
     if academy_repo:
         targets.append(
@@ -107,6 +81,55 @@ def get_target_by_github_repo(github_repo: str) -> GitHubRepoTarget | None:
     for target in get_repo_targets():
         if target.github_repo.lower() == needle:
             return target
+    return _target_from_registry(github_repo=github_repo)
+
+
+def _target_from_registry(
+    *,
+    slug: str | None = None,
+    github_repo: str | None = None,
+) -> GitHubRepoTarget | None:
+    """Build a pipeline target from data/apps_registry.json (Phase 2)."""
+    try:
+        from services.app_registry import get_app, list_apps
+
+        if slug:
+            entry = get_app(slug)
+            if entry and entry.github_configured and entry.enabled:
+                local = (
+                    Path(entry.local_path).expanduser().resolve()
+                    if entry.local_path
+                    else _dev_parent() / entry.slug
+                )
+                return GitHubRepoTarget(
+                    slug=entry.slug,
+                    name=entry.name,
+                    github_repo=entry.github_repo.strip(),
+                    local_path=local,
+                )
+            return None
+
+        if github_repo:
+            needle = github_repo.strip().lower()
+            for entry in list_apps():
+                if (
+                    entry.enabled
+                    and entry.github_configured
+                    and entry.github_repo.strip().lower() == needle
+                ):
+                    local = (
+                        Path(entry.local_path).expanduser().resolve()
+                        if entry.local_path
+                        else _dev_parent() / entry.slug
+                    )
+                    return GitHubRepoTarget(
+                        slug=entry.slug,
+                        name=entry.name,
+                        github_repo=entry.github_repo.strip(),
+                        local_path=local,
+                    )
+    except Exception:
+        pass
     return None
 
 
@@ -117,6 +140,9 @@ def resolve_target(
 ) -> GitHubRepoTarget:
     if repo_slug:
         target = get_target_by_slug(repo_slug)
+        if target:
+            return target
+        target = _target_from_registry(slug=repo_slug)
         if target:
             return target
         raise ValueError(f"Repo inconnu : {repo_slug}")
@@ -147,6 +173,9 @@ def issue_target(issue: dict) -> GitHubRepoTarget:
         target = get_target_by_slug(slug)
         if target:
             return target
+        reg = _target_from_registry(slug=slug)
+        if reg:
+            return reg
 
     github_repo = issue.get("_github_repo")
     if github_repo:

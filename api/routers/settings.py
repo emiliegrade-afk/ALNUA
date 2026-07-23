@@ -39,9 +39,19 @@ def settings_get_models() -> list[dict]:
 
 @router.get("/settings/models/available")
 def settings_available_models() -> dict:
-    """Retourne la liste des modèles disponibles par tier."""
-    from config.agent_models import AVAILABLE_MODELS, TIER_DEFAULTS
-    return {"models": AVAILABLE_MODELS, "tier_defaults": TIER_DEFAULTS}
+    """Catalogue modèles classés par usage (code, chat, reasoning…)."""
+    from config.agent_models import (
+        MODEL_CATEGORIES,
+        MODEL_CATEGORY_ORDER,
+        TIER_DEFAULTS,
+        get_enriched_available_models,
+    )
+    return {
+        "models": get_enriched_available_models(),
+        "categories": MODEL_CATEGORIES,
+        "category_order": MODEL_CATEGORY_ORDER,
+        "tier_defaults": TIER_DEFAULTS,
+    }
 
 
 @router.post("/settings/models")

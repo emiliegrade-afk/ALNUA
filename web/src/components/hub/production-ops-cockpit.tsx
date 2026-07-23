@@ -38,7 +38,7 @@ export function ProductionOpsCockpit() {
     try {
       const res = await simulateSentryEvent({
         title: "Simulated map crash on HomeScreen",
-        projectSlug: "nuaway",
+        projectSlug: "hub",
       });
       const action = String(res.action ?? "done");
       toast.success(`Simulation Sentry : ${action}`);

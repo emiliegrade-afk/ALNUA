@@ -96,18 +96,19 @@ def _collect_events() -> dict[str, Any]:
         return {"error": str(e)}
 
 
-def _collect_nuaway_gate() -> dict[str, Any]:
+def _collect_academy_gate() -> dict[str, Any]:
     try:
-        from services.nuaway_readiness import evaluate_beta_readiness
+        from services.academy_gate import evaluate_academy_gate
 
-        beta = evaluate_beta_readiness(refresh_gate=False)
-        gate = beta.get("agents_gate") or {}
+        gate = evaluate_academy_gate(refresh_academy=False)
         return {
             "gate_open": gate.get("gate_open"),
             "readiness_pct": gate.get("readiness_pct"),
-            "beta_ready": beta.get("beta_ready"),
-            "beta_readiness_pct": beta.get("readiness_pct"),
-            "missing_critical": beta.get("missing_critical") or [],
+            "missing_critical": [
+                c["label"]
+                for c in (gate.get("criteria") or [])
+                if c.get("critical") and not c.get("passed")
+            ],
         }
     except Exception as e:
         return {"error": str(e)}
@@ -195,7 +196,7 @@ def run_daily_briefing(
             "costs": executor.submit(_collect_costs) if include_costs else None,
             "events": executor.submit(_collect_events) if include_events else None,
             "memory_health": executor.submit(_collect_memory_health),
-            "nuaway_gate": executor.submit(_collect_nuaway_gate),
+            "academy_gate": executor.submit(_collect_academy_gate),
         }
         if include_trends:
             futures["trends"] = executor.submit(_collect_trends)
@@ -229,7 +230,7 @@ def run_daily_briefing(
             "events": data.get("events", {}),
             "trends_collected": bool(data.get("trends")),
             "memory_health": data.get("memory_health", {}),
-            "nuaway_gate": data.get("nuaway_gate", {}),
+            "academy_gate": data.get("academy_gate", {}),
         },
     }
 

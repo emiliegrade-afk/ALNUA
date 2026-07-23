@@ -76,6 +76,15 @@ const config: Config = {
           glow: "#D4A882",
           muted: "#7A5540",
         },
+        bronze: {
+          DEFAULT: "#C08A62",
+          bright: "#D4A882",
+        },
+        cuivre: "#b87333",
+        titane: "#a7adb5",
+        ivoire: "#f5f2ea",
+        glow: "#ffa500",
+        "obsidian-deep": "#07080a",
       },
       fontFamily: {
         title: ["var(--font-space-grotesk)", "Space Grotesk", "sans-serif"],

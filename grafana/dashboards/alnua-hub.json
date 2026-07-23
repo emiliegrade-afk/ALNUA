@@ -1,0 +1,61 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "id": 1,
+      "targets": [
+        {
+          "expr": "rate(http_requests_total[5m])",
+          "legendFormat": "status={{status}}",
+          "refId": "A"
+        }
+      ],
+      "title": "HTTP Requests / sec",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "id": 2,
+      "targets": [
+        {
+          "expr": "http_request_duration_ms_p95",
+          "legendFormat": "p95 latency",
+          "refId": "A"
+        }
+      ],
+      "title": "API Latency p95",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "id": 3,
+      "targets": [
+        {
+          "expr": "assistant_chat_total",
+          "legendFormat": "agent={{agent}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Assistant Chat Volume",
+      "type": "timeseries"
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["alnua", "hub"],
+  "templating": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" },
+  "title": "ALNUA Hub",
+  "uid": "alnua-hub-main",
+  "version": 1
+}

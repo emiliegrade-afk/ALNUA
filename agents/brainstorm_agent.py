@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from agents.agent_base import AgentBase
+
 import json
 import re
 import unicodedata
@@ -10,9 +12,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from agents.base import LLMClient, log_agent_action, parse_json_response
+from agents.base import log_agent_action, parse_json_response
 from config.agent_operating_spec import get_system_prompt
-from database.supabase_client import SupabaseClient, get_supabase
 from config.agent_system_prompts import (
     BRAINSTORM_CHAT_PROMPT,
     BRAINSTORM_SUMMARIZE_PROMPT,
@@ -95,16 +96,13 @@ tags: [2-4 mots-clés]
 *Compte-rendu généré automatiquement par ALNUA Hub*"""
 
 
-class BrainstormAgent:
+class BrainstormAgent(AgentBase):
     AGENT_NAME = "brainstorm_agent"
 
     SYSTEM_PROMPT = get_system_prompt("brainstorm_ideas")
 
     SESSION_ACTIONS = ("session_start", "brainstorm_chat")
 
-    def __init__(self, db: SupabaseClient | None = None, llm: LLMClient | None = None) -> None:
-        self.db = db or get_supabase()
-        self.llm = llm or LLMClient()
 
     # ------------------------------------------------------------------
     # Session storage (agent_logs)
@@ -395,9 +393,9 @@ TRANSCRIPT DE LA SESSION :
 
 Génère la fiche complète en markdown en suivant EXACTEMENT le template fourni."""
 
-        summary_md = self.llm.complete(
-            SUMMARIZE_SYSTEM_PROMPT,
+        summary_md = self._complete(
             user_prompt,
+            system_prompt=SUMMARIZE_SYSTEM_PROMPT,
             agent_id="brainstorm",
             temperature=0.35,
             max_tokens=4096,
@@ -650,9 +648,7 @@ Feedback récent : {recent_feedback}
 Génère 5 à 8 idées originales."""
 
         try:
-            raw = self.llm.complete(
-                self.SYSTEM_PROMPT, user_prompt, agent_id="brainstorm", temperature=0.9
-            )
+            raw = self._complete(user_prompt, temperature=0.9)
             result = parse_json_response(raw)
             log_agent_action(
                 self.db,

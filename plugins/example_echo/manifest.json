@@ -1,0 +1,9 @@
+{
+  "id": "example_echo",
+  "name": "Echo Agent (Example)",
+  "version": "0.1.0",
+  "author": "ALNUA",
+  "description": "Example plugin — echoes user input. Template for custom agents.",
+  "agent_module": "agent",
+  "compatible_hub": ">=0.1.0"
+}

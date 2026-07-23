@@ -108,6 +108,38 @@ def orchestration_academy_poll(body: AcademyPollRequest | None = None) -> dict[s
     )
 
 
+@router.get("/pipeline-status")
+def orchestration_pipeline_status() -> dict[str, Any]:
+    """État agents coding — working / idle / stuck (CEO cockpit)."""
+    from services.agent_wake import get_pipeline_status
+
+    return get_pipeline_status()
+
+
+@router.post("/wake")
+def orchestration_wake(body: WakeAgentsRequest | None = None) -> dict[str, Any]:
+    """Réveille les agents : sync + retry échecs + alimente agent-ready."""
+    from services.agent_wake import wake_agents
+
+    req = body or WakeAgentsRequest()
+    return wake_agents(
+        retry_failed=req.retry_failed,
+        mark_ready_count=req.mark_ready_count,
+        sync=req.sync,
+        notify=req.notify,
+    )
+
+
+@router.post("/team-enrich")
+def orchestration_team_enrich(body: LibraryEnrichRequest | None = None) -> dict[str, Any]:
+    """Phase 3 — diffuse la bibliothèque vers Mem0 (n8n / CEO)."""
+    from services.team_enrichment import enrich_team_from_library
+
+    req = body or LibraryEnrichRequest()
+    timing = req.timing if req.timing in ("now", "later") else None
+    return enrich_team_from_library(days=req.days, timing=timing, limit=req.limit)
+
+
 @router.post("/prd-decompose")
 def orchestration_prd_decompose(body: PrdDecomposeOrchestrationRequest) -> dict[str, Any]:
     """CEO approved → engineering spec → GitHub issues (n8n workflow 07)."""
@@ -130,25 +162,9 @@ def orchestration_sentry_ingest(body: dict[str, Any]) -> dict[str, Any]:
     return run_sentry_ingest_orchestration(body)
 
 
-@router.post("/nuaway-gate")
-def orchestration_nuaway_gate() -> dict[str, Any]:
-    """Évalue gate NUAWAY + notification CEO (n8n workflow 10)."""
-    from services.orchestration import run_nuaway_gate_orchestration
+@router.post("/academy-gate")
+def orchestration_academy_gate() -> dict[str, Any]:
+    """Évalue gate Academy → Lounge + notification CEO (n8n workflow 10)."""
+    from services.orchestration import run_academy_gate_orchestration
 
-    return run_nuaway_gate_orchestration()
-
-
-@router.post("/nuaway-readiness-report")
-def orchestration_nuaway_readiness_report() -> dict[str, Any]:
-    """Rapport readiness beta NUAWAY (n8n workflow 11)."""
-    from services.orchestration import run_nuaway_readiness_report_orchestration
-
-    return run_nuaway_readiness_report_orchestration()
-
-
-@router.post("/nuaway-bootstrap")
-def orchestration_nuaway_bootstrap() -> dict[str, Any]:
-    """Bootstrap ops NUAWAY — diagnostic + prochaines actions (Phase 7)."""
-    from services.orchestration import run_nuaway_bootstrap_orchestration
-
-    return run_nuaway_bootstrap_orchestration()
+    return run_academy_gate_orchestration()

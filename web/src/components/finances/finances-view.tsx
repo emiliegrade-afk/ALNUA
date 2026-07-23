@@ -1,10 +1,10 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Loader2, Plus, Wallet } from "lucide-react";
 import { FinancesAccountingPanel } from "@/components/finances/finances-accounting-panel";
 import { FinancesControllerPanel } from "@/components/finances/finances-controller-panel";
-import { FinancesCharts } from "@/components/finances/finances-charts";
 import { FinancesKpiCards } from "@/components/finances/finances-kpi-cards";
 import { FinancesMonthNav } from "@/components/finances/finances-month-nav";
 import { FinancesRecurringSection } from "@/components/finances/finances-recurring-section";
@@ -23,6 +23,18 @@ import {
   type TransactionType,
 } from "@/lib/finances-api";
 import type { Project } from "@/lib/types";
+
+const FinancesCharts = dynamic(
+  () =>
+    import("@/components/finances/finances-charts").then((m) => ({
+      default: m.FinancesCharts,
+    })),
+  {
+    loading: () => (
+      <div className="h-64 animate-pulse rounded-xl border border-copper/10 bg-obsidian-2/40" />
+    ),
+  },
+);
 
 export function FinancesView() {
   const [month, setMonth] = useState(currentMonthKey);

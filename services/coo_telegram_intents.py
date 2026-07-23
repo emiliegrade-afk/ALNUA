@@ -39,6 +39,10 @@ IDEA_CAPTURE_PATTERNS: tuple[re.Pattern[str], ...] = (
 )
 
 INVESTIGATION_MARKERS = (
+    "recherche r&d",
+    "recherche rnd",
+    "lance une recherche r&d",
+    "lance une recherche rnd",
     "investiguer",
     "investigue",
     "investigation",
@@ -82,6 +86,10 @@ INVESTIGATION_PATTERNS: tuple[re.Pattern[str], ...] = (
     ),
     re.compile(
         r"(?:retour sur investissement|roi)\s+(?:du |de la |de l['']|pour )?(.+?)(?:\?|$)",
+        re.I | re.S,
+    ),
+    re.compile(
+        r"(?:lance(?:r)?\s+(?:une\s+)?)?recherche(?:r)?\s+(?:pour\s+)?(?:r&?d|rnd)\s*[:.]?\s*(.+)$",
         re.I | re.S,
     ),
 )
@@ -260,7 +268,8 @@ def _run_investigation_worker(query: str, chat_id: int | None = None) -> None:
 
 def launch_rnd_investigation(query: str, chat_id: int | None = None) -> str:
     """
-    Start async R&D investigation. Returns immediate COO acknowledgment for Telegram.
+    Start async R&D investigation via hypothesis tree (Arbor-lite).
+    Returns immediate acknowledgment for Telegram.
     """
     topic = _clean_extracted(query)
     if len(topic) < 4:
@@ -269,11 +278,32 @@ def launch_rnd_investigation(query: str, chat_id: int | None = None) -> str:
             "(ex: « VPN russe trending »)."
         )
 
-    ack = (
-        f"✅ Investigation R&D lancée\n"
-        f"Sujet : {topic[:120]}\n"
-        f"Alex (R&D) prépare le brief — réponse dans ~1-3 min."
-    )
+    try:
+        from services.rnd_hypothesis_tree import start_investigation
+
+        result = start_investigation(topic, requested_by="telegram", chat_id=chat_id)
+        ack = (
+            f"🌳 **Arbre R&D lancé** (Arbor-lite)\n"
+            f"Sujet : {topic[:120]}\n"
+            f"Alex explore la racine + 3 branches — bilans au fil de l'eau (~3-8 min).\n"
+            f"{result.get('message', '')}"
+        )
+        log_summary = result.get("message", "Arbre en cours…")
+    except Exception as exc:
+        logger.warning("hypothesis tree failed, fallback single investigation: %s", exc)
+        ack = (
+            f"✅ Investigation R&D lancée\n"
+            f"Sujet : {topic[:120]}\n"
+            f"Alex (R&D) prépare le brief — réponse dans ~1-3 min."
+        )
+        log_summary = "Investigation en cours…"
+        threading.Thread(
+            target=_run_investigation_worker,
+            args=(topic, chat_id),
+            daemon=False,
+            name=f"rnd-investigation-{topic[:24]}",
+        ).start()
+        return ack
 
     try:
         from database.supabase_client import get_supabase
@@ -282,21 +312,13 @@ def launch_rnd_investigation(query: str, chat_id: int | None = None) -> str:
             "agent_logs",
             {
                 "agent_name": "rnd_agent",
-                "action": "rnd_investigation",
+                "action": "rnd_hypothesis_tree",
                 "input_summary": topic[:200],
-                "output_summary": "Investigation en cours…",
+                "output_summary": log_summary[:200],
                 "status": "pending",
             },
         )
     except Exception:
         logger.debug("rnd_investigation: pending log skipped", exc_info=True)
-
-    # Non-daemon: survive until notify completes (uvicorn reload may still kill it).
-    threading.Thread(
-        target=_run_investigation_worker,
-        args=(topic, chat_id),
-        daemon=False,
-        name=f"rnd-investigation-{topic[:24]}",
-    ).start()
 
     return ack

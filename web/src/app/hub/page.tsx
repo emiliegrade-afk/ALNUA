@@ -3,10 +3,9 @@
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
 import { Play, Loader2 } from "lucide-react";
-import { BackToLobby } from "@/components/shared/back-to-lobby";
 import { BureauAgentsSection } from "@/components/shared/bureau-agents-section";
 import { BureauOfficeHero } from "@/components/openroom/bureau-office-hero";
-import { DepartmentHeader } from "@/components/shared/department-header";
+import { BureauPage } from "@/components/shared/bureau-page";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -18,6 +17,18 @@ import {
   type GithubPr,
   type PipelineIssue,
 } from "@/lib/lobby-api";
+
+const HubWorkflowsPanel = dynamic(
+  () =>
+    import("@/components/hub/hub-workflows-panel").then((m) => ({
+      default: m.HubWorkflowsPanel,
+    })),
+  {
+    loading: () => (
+      <p className="mb-6 text-sm text-titanium/60">Chargement Company OS…</p>
+    ),
+  }
+);
 
 const HubAutomationPanel = dynamic(
   () =>
@@ -156,14 +167,11 @@ export default function HubPage() {
   }
 
   return (
-    <>
-      <BackToLobby />
-      <DepartmentHeader
-        dept="hub"
-        title="Direction"
-        subtitle="Aria · Sam · Léon · Alex · Pipeline"
-      />
-
+    <BureauPage
+      dept="hub"
+      title="Direction"
+      subtitle="Aria · Sam · Léon · Alex · Pipeline"
+    >
       <BureauOfficeHero agentId="coo" />
 
       <BureauAgentsSection
@@ -172,6 +180,7 @@ export default function HubPage() {
         className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
       />
 
+      <HubWorkflowsPanel />
       <HubAutomationPanel />
 
       <CeoCockpitPanel />
@@ -256,13 +265,13 @@ export default function HubPage() {
                     </span>
                   )}
                 </div>
-                <div className="mb-2 h-1.5 overflow-hidden rounded-full bg-black/30">
+                <div className="mb-2 h-1.5 overflow-hidden rounded-full bg-obsidian-deep/70">
                   <div
                     className="h-full rounded-full bg-copper/70 transition-all duration-500"
                     style={{ width: `${pipelineProgress}%` }}
                   />
                 </div>
-                <div className="max-h-32 overflow-y-auto rounded-lg bg-black/30 p-2 font-mono text-[11px] text-gray-500">
+                <div className="max-h-32 overflow-y-auto rounded-lg bg-obsidian-deep/70 p-2 font-mono text-[11px] text-gray-500">
                   {pipelineLog.length === 0
                     ? "Démarrage…"
                     : pipelineLog.map((line, i) => (
@@ -308,6 +317,6 @@ export default function HubPage() {
           </CardContent>
         </Card>
       </div>
-    </>
+    </BureauPage>
   );
 }

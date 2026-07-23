@@ -152,7 +152,7 @@ export function AgentActionConsole({
           </Button>
         </form>
         {result ? (
-          <pre className="mt-4 max-h-64 overflow-auto rounded-lg border border-copper/10 bg-black/30 p-3 font-mono text-xs text-ivory/80 whitespace-pre-wrap">
+          <pre className="mt-4 max-h-64 overflow-auto rounded-lg border border-copper/10 bg-obsidian-deep/70 p-3 font-mono text-xs text-ivory/80 whitespace-pre-wrap">
             {result}
           </pre>
         ) : null}

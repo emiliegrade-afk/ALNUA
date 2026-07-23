@@ -72,14 +72,10 @@ export function HubNavigationProvider({ children }: { children: ReactNode }) {
 
   return (
     <HubNavigationContext.Provider value={{ navigate, isNavigating }}>
-      <NavigationProgress active={isNavigating} />
-      {isNavigating ? (
-        <div
-          aria-hidden
-          className="pointer-events-none fixed inset-0 z-[90] bg-obsidian/15 backdrop-blur-[1px] transition-opacity duration-150"
-        />
-      ) : null}
-      {children}
+      <div className="min-h-screen">
+        <NavigationProgress active={isNavigating} />
+        {children}
+      </div>
     </HubNavigationContext.Provider>
   );
 }

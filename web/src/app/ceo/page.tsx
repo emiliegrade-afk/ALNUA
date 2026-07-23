@@ -6,23 +6,22 @@ import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import { AgentFeed } from "@/components/dashboard/agent-feed";
 import { CeoPendingDossiersCard } from "@/components/ceo/ceo-pending-dossiers-card";
-import { BackToLobby } from "@/components/shared/back-to-lobby";
-import { DepartmentHeader } from "@/components/shared/department-header";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BureauPage } from "@/components/shared/bureau-page";
+import { BureauPanel } from "@/components/shared/bureau-panel";
 import { fetchTodayBriefing } from "@/lib/briefing-api";
 import { fetchGithubPrs } from "@/lib/lobby-api";
 import { fetchAgentLogs } from "@/lib/supabase";
 import type { AgentLog } from "@/lib/types";
 
-const COOChat = dynamic(
+const AssistantChat = dynamic(
   () =>
-    import("@/components/dashboard/coo-chat").then((m) => ({
-      default: m.COOChat,
+    import("@/components/assistant/assistant-chat").then((m) => ({
+      default: m.AssistantChat,
     })),
   {
     loading: () => (
-      <div className="flex h-96 items-center justify-center rounded-xl border border-copper/20 bg-obsidian-2/60">
-        <p className="text-sm text-titanium/60">Chargement COO…</p>
+      <div className="flex h-96 items-center justify-center rounded-2xl border border-bronze-faint bg-obsidian/70">
+        <p className="text-sm text-titane/60">Chargement assistants…</p>
       </div>
     ),
   }
@@ -83,102 +82,81 @@ export default function CeoPage() {
   }, [load]);
 
   return (
-    <>
-      <BackToLobby />
-      <DepartmentHeader
-        dept="ceo"
-        title="Bureau du CEO"
-        subtitle="Mission Control · Brief · Décisions en attente"
-        breadcrumb="Bureau du CEO"
-      />
-
+    <BureauPage
+      dept="ceo"
+      title="Bureau du CEO"
+      subtitle="Mission Control · Brief · Décisions en attente"
+      breadcrumb="Bureau du CEO"
+    >
       <div className="grid gap-6 lg:grid-cols-5">
         <div className="lg:col-span-3">
-          <COOChat variant="ceo" />
+          <AssistantChat variant="ceo" />
         </div>
 
         <div className="space-y-6 lg:col-span-2">
           <CeoPendingDossiersCard />
 
-          <Card className="border-copper/20 bg-obsidian-2/90">
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between gap-2">
-                <CardTitle className="font-title text-base text-ivory">
-                  Brief du jour
-                </CardTitle>
-                <Link
-                  href="/briefing"
-                  className="font-body text-xs text-copper hover:underline"
-                >
-                  Historique →
-                </Link>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <p className="font-body text-sm text-titanium/60">Chargement…</p>
-              ) : error ? (
-                <p className="font-body text-sm text-red-400">{error}</p>
-              ) : brief?.summary ? (
-                <p className="whitespace-pre-line font-body text-sm leading-relaxed text-ivory/90">
-                  {brief.summary}
-                </p>
-              ) : (
-                <p className="font-body text-sm text-titanium/60">
-                  Brief indisponible.
-                </p>
-              )}
-              {brief?.urgent && brief.urgent.length > 0 ? (
-                <ul className="mt-3 space-y-1 border-t border-copper/10 pt-3">
-                  {brief.urgent.map((item) => (
-                    <li key={item} className="font-body text-xs text-copper">
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-            </CardContent>
-          </Card>
+          <BureauPanel title="Brief du jour">
+            <div className="mb-3 flex items-center justify-end">
+              <Link
+                href="/briefing"
+                className="font-body text-xs text-bronze-bright hover:underline"
+              >
+                Historique →
+              </Link>
+            </div>
+            {loading ? (
+              <p className="font-body text-sm text-titane/60">Chargement…</p>
+            ) : error ? (
+              <p className="font-body text-sm text-red-400">{error}</p>
+            ) : brief?.summary ? (
+              <p className="whitespace-pre-line font-body text-sm leading-relaxed text-ivoire/90">
+                {brief.summary}
+              </p>
+            ) : (
+              <p className="font-body text-sm text-titane/60">Brief indisponible.</p>
+            )}
+            {brief?.urgent && brief.urgent.length > 0 ? (
+              <ul className="mt-3 space-y-1 border-t border-bronze-faint pt-3">
+                {brief.urgent.map((item) => (
+                  <li key={item} className="font-body text-xs text-bronze-bright">
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </BureauPanel>
 
           <AgentFeed logs={logs} loading={loading} />
 
-          <Card className="border-copper/20 bg-obsidian-2/90">
-            <CardHeader className="pb-2">
-              <CardTitle className="font-title text-base text-ivory">
-                PRs GitHub
-              </CardTitle>
-              <p className="font-body text-xs text-titanium/60">
-                Pull requests ouvertes (hors dossiers R&D)
-              </p>
-            </CardHeader>
-            <CardContent>
-              {prs.length === 0 ? (
-                <p className="font-body text-sm text-titanium/60">
-                  Aucune PR en attente.
-                </p>
-              ) : (
-                <ul className="space-y-2">
-                  {prs.map((pr) => (
-                    <li key={pr.number}>
-                      <a
-                        href={pr.html_url ?? pr.url ?? "#"}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-start gap-2 font-body text-sm text-ivory/80 transition hover:text-ivory"
-                      >
-                        <ExternalLink className="mt-0.5 h-3.5 w-3.5 shrink-0 text-copper" />
-                        <span>
-                          #{pr.number} — {pr.title}
-                        </span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </CardContent>
-          </Card>
+          <BureauPanel title="PRs GitHub">
+            <p className="label-caps mb-4">
+              Pull requests ouvertes (hors dossiers R&D)
+            </p>
+            {prs.length === 0 ? (
+              <p className="font-body text-sm text-titane/60">Aucune PR en attente.</p>
+            ) : (
+              <ul className="space-y-2">
+                {prs.map((pr) => (
+                  <li key={pr.number}>
+                    <a
+                      href={pr.html_url ?? pr.url ?? "#"}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-start gap-2 font-body text-sm text-ivoire/80 transition hover:text-ivoire"
+                    >
+                      <ExternalLink className="mt-0.5 h-3.5 w-3.5 shrink-0 text-bronze" />
+                      <span>
+                        #{pr.number} — {pr.title}
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </BureauPanel>
         </div>
       </div>
-    </>
+    </BureauPage>
   );
 }

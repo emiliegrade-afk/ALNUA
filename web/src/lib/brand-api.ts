@@ -1,4 +1,4 @@
-import { hubApiUrl } from "./hub-api-config";
+import { hubApiUrl, hubPublicApiUrl } from "./hub-api-config";
 import { hubApiKeyHeaders } from "./hub-api-key";
 import { hubFetch } from "./hub-fetch";
 
@@ -167,11 +167,11 @@ export const FORMAT_DIMENSIONS: Record<string, string> = {
 
 export function brandAssetUrl(relativePath: string): string {
   const params = new URLSearchParams({ path: relativePath });
-  return hubApiUrl(`/brand/assets?${params.toString()}`);
+  return hubPublicApiUrl(`/brand/assets?${params.toString()}`);
 }
 
 export function brandKitDownloadUrl(kitId: string): string {
-  return hubApiUrl(`/brand/kits/${kitId}/download`);
+  return hubPublicApiUrl(`/brand/kits/${kitId}/download`);
 }
 
 async function brandFetch<T>(

@@ -27,6 +27,7 @@ import {
   type QuickCaptureType,
 } from "@/lib/quick-capture";
 import type { Project } from "@/lib/types";
+import { useQuickCaptureStore } from "@/store/quick-capture-store";
 import { cn } from "@/lib/utils";
 
 const CAPTURE_TYPES: {
@@ -54,18 +55,50 @@ const TYPE_LABELS: Record<QuickCaptureType, string> = {
   note: "Note",
 };
 
+export function QuickCaptureTrigger({ className }: { className?: string }) {
+  const setOpen = useQuickCaptureStore((s) => s.setOpen);
+  const todayCount = useQuickCaptureStore((s) => s.todayCount);
+  const refreshTodayCount = useQuickCaptureStore((s) => s.refreshTodayCount);
+
+  useEffect(() => {
+    refreshTodayCount();
+  }, [refreshTodayCount]);
+
+  return (
+    <button
+      type="button"
+      onClick={() => setOpen(true)}
+      aria-label="Capturer rapidement (Ctrl+Shift+Espace)"
+      className={cn(
+        "relative inline-flex h-9 items-center gap-1.5 rounded-lg border border-copper/40 bg-copper/10 px-3 text-xs font-semibold text-copper-glow transition-colors hover:bg-copper/20",
+        className,
+      )}
+    >
+      <Plus className="h-3.5 w-3.5" />
+      <span className="hidden sm:inline">Capture</span>
+      {todayCount > 0 ? (
+        <span className="rounded bg-copper/25 px-1.5 py-0.5 font-mono text-[10px]">
+          {todayCount > 9 ? "9+" : todayCount}
+        </span>
+      ) : null}
+    </button>
+  );
+}
+
+/** Dialog host — mount once in HubShell; trigger lives in the topbar. */
 export function QuickCaptureButton() {
   const router = useRouter();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const [open, setOpen] = useState(false);
+  const open = useQuickCaptureStore((s) => s.open);
+  const setOpen = useQuickCaptureStore((s) => s.setOpen);
+  const setTodayCount = useQuickCaptureStore((s) => s.setTodayCount);
   const [projects, setProjects] = useState<Project[]>([]);
   const [content, setContent] = useState("");
   const [captureType, setCaptureType] = useState<QuickCaptureType>("note");
   const [projectId, setProjectId] = useState("");
   const [priority, setPriority] = useState<QuickCapturePriority>("medium");
   const [submitting, setSubmitting] = useState(false);
-  const [todayCount, setTodayCount] = useState(0);
 
   const showPriority = captureType === "ticket" || captureType === "roadmap";
 
@@ -94,7 +127,7 @@ export function QuickCaptureButton() {
         }
       })
       .catch(() => setProjects([]));
-  }, []);
+  }, [setTodayCount]);
 
   useEffect(() => {
     if (open) {
@@ -113,7 +146,7 @@ export function QuickCaptureButton() {
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
+  }, [setOpen]);
 
   function handleProjectChange(value: string, id: string | null) {
     if (id) {
@@ -175,32 +208,7 @@ export function QuickCaptureButton() {
   }
 
   return (
-    <>
-      {!open && (
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          aria-label="Capturer rapidement (Ctrl+Shift+Espace)"
-          className={cn(
-            "fixed bottom-6 right-24 z-[9999] flex h-14 w-14 items-center justify-center",
-            "rounded-full bg-copper text-white shadow-lg shadow-black/30",
-            "transition-transform duration-150 hover:scale-110",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian"
-          )}
-        >
-          <Plus className="h-6 w-6" strokeWidth={2.5} />
-          {todayCount > 0 && (
-            <span
-              className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white ring-2 ring-obsidian"
-              aria-label={`${todayCount} capture${todayCount > 1 ? "s" : ""} aujourd'hui`}
-            >
-              {todayCount > 9 ? "9+" : todayCount}
-            </span>
-          )}
-        </button>
-      )}
-
-      <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="border-copper/20 bg-surface-raised sm:max-w-[480px]">
           <DialogHeader>
             <DialogTitle className="text-ivory">Capturer rapidement</DialogTitle>
@@ -312,6 +320,5 @@ export function QuickCaptureButton() {
           </form>
         </DialogContent>
       </Dialog>
-    </>
   );
 }

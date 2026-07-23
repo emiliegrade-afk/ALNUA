@@ -2,23 +2,21 @@
 
 from __future__ import annotations
 
+from agents.agent_base import AgentBase
+
 from typing import Any
 
-from agents.base import LLMClient, log_agent_action, parse_json_response
+from agents.base import log_agent_action, parse_json_response
 from config.agent_operating_spec import get_system_prompt
-from database.supabase_client import SupabaseClient, get_supabase
 from skills.skill_agent_learning import inject_learning_context
 from skills.skill_langfuse import trace_agent
 
 
-class ControllerAgent:
+class ControllerAgent(AgentBase):
     AGENT_NAME = "controller"
 
     SYSTEM_PROMPT = get_system_prompt("controller")
 
-    def __init__(self, db: SupabaseClient | None = None, llm: LLMClient | None = None) -> None:
-        self.db = db or get_supabase()
-        self.llm = llm or LLMClient()
 
     @trace_agent("controller")
     def analyze_costs(
@@ -52,9 +50,7 @@ Réponds en JSON :
 }}""",
             self.AGENT_NAME, f"cost analysis {period}",
         )
-        raw = self.llm.complete(
-            self.SYSTEM_PROMPT, prompt, agent_id=self.AGENT_NAME, temperature=0.2
-        )
+        raw = self._complete(prompt, temperature=0.2)
         result = parse_json_response(raw)
         log_agent_action(
             self.db, self.AGENT_NAME, "analyze_costs",
@@ -93,9 +89,7 @@ Réponds en JSON :
 }}""",
             self.AGENT_NAME, f"forecast {project}",
         )
-        raw = self.llm.complete(
-            self.SYSTEM_PROMPT, prompt, agent_id=self.AGENT_NAME, temperature=0.3, max_tokens=4096
-        )
+        raw = self._complete(prompt, temperature=0.3, max_tokens=4096)
         result = parse_json_response(raw)
         log_agent_action(
             self.db, self.AGENT_NAME, "build_forecast",
@@ -138,9 +132,7 @@ Réponds en JSON :
 }}""",
             self.AGENT_NAME, "llm cost alert",
         )
-        raw = self.llm.complete(
-            self.SYSTEM_PROMPT, prompt, agent_id=self.AGENT_NAME, temperature=0.1
-        )
+        raw = self._complete(prompt, temperature=0.1)
         return parse_json_response(raw)
 
     @trace_agent("controller")
@@ -166,7 +158,5 @@ Réponds en JSON :
 }}""",
             self.AGENT_NAME, f"monthly report {month}",
         )
-        raw = self.llm.complete(
-            self.SYSTEM_PROMPT, prompt, agent_id=self.AGENT_NAME, temperature=0.2, max_tokens=3000
-        )
+        raw = self._complete(prompt, temperature=0.2, max_tokens=3000)
         return parse_json_response(raw)

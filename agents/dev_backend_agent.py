@@ -2,23 +2,21 @@
 
 from __future__ import annotations
 
+from agents.agent_base import AgentBase
+
 from typing import Any
 
-from agents.base import LLMClient, log_agent_action, parse_json_response, run_with_learning
+from agents.base import log_agent_action, parse_json_response, run_with_learning
 from config.agent_operating_spec import get_system_prompt
-from database.supabase_client import SupabaseClient, get_supabase
 from skills.skill_agent_learning import inject_learning_context
 from skills.skill_langfuse import trace_agent
 
 
-class DevBackendAgent:
+class DevBackendAgent(AgentBase):
     AGENT_NAME = "dev_backend"
 
     SYSTEM_PROMPT = get_system_prompt("dev_backend")
 
-    def __init__(self, db: SupabaseClient | None = None, llm: LLMClient | None = None) -> None:
-        self.db = db or get_supabase()
-        self.llm = llm or LLMClient()
 
     @trace_agent("dev_backend")
     def design_api(
@@ -52,9 +50,7 @@ Réponds en JSON :
 }}""",
             self.AGENT_NAME, feature,
         )
-        raw = self.llm.complete(
-            self.SYSTEM_PROMPT, prompt, agent_id=self.AGENT_NAME, temperature=0.3
-        )
+        raw = self._complete(prompt, temperature=0.3)
         result = parse_json_response(raw)
         log_agent_action(
             self.db, self.AGENT_NAME, "design_api",
@@ -125,9 +121,7 @@ Réponds en JSON :
 }}""",
             self.AGENT_NAME, "code review",
         )
-        raw = self.llm.complete(
-            self.SYSTEM_PROMPT, prompt, agent_id=self.AGENT_NAME, temperature=0.2
-        )
+        raw = self._complete(prompt, temperature=0.2)
         return parse_json_response(raw)
 
     @trace_agent("dev_backend")
@@ -153,7 +147,5 @@ Réponds en JSON :
 }}""",
             self.AGENT_NAME, error[:100],
         )
-        raw = self.llm.complete(
-            self.SYSTEM_PROMPT, prompt, agent_id=self.AGENT_NAME, temperature=0.2
-        )
+        raw = self._complete(prompt, temperature=0.2)
         return parse_json_response(raw)

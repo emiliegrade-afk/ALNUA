@@ -2,7 +2,6 @@
 
 import { Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DEPT_COLORS, type DeptKey } from "@/lib/dept-colors";
 import { useCooStore } from "@/store/coo-store";
 import { cn } from "@/lib/utils";
@@ -21,6 +20,13 @@ export interface AgentCardProps {
   onDelegate?: () => void;
 }
 
+const STATUS_LABEL: Record<NonNullable<AgentCardProps["status"]>, string> = {
+  idle: "Veille",
+  working: "Actif",
+  waiting: "En attente",
+  error: "Erreur",
+};
+
 export function AgentCard({
   icon,
   name,
@@ -29,7 +35,7 @@ export function AgentCard({
   description,
   skills,
   badge,
-  status,
+  status = "idle",
   currentTask,
   onClick,
   onDelegate,
@@ -47,62 +53,89 @@ export function AgentCard({
     openDrawer();
   }
 
+  const statusDot =
+    status === "working"
+      ? "bg-bronze-bright"
+      : status === "error"
+        ? "bg-red-400"
+        : status === "waiting"
+          ? "bg-glow"
+          : "bg-titane";
+
   return (
     <div>
-    <Card
-      className={cn(
-        "border-copper/20 bg-obsidian-2/90 backdrop-blur-sm transition-all duration-300 hover:border-copper/40 hover:shadow-copper-glow",
-        onClick && "cursor-pointer",
-      )}
-      style={{ borderColor: colors.border }}
-      onClick={onClick}
-    >
-      <CardHeader className="pb-2">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex items-center gap-3">
+      <article
+        className={cn(
+          "group relative overflow-hidden rounded-xl border border-bronze-faint bg-obsidian/70 p-4 transition-all hover:border-bronze/50 hover:bg-obsidian sm:p-5",
+          onClick && "cursor-pointer",
+        )}
+        onClick={onClick}
+      >
+        <div
+          className="pointer-events-none absolute -right-10 -top-10 h-24 w-24 rounded-full opacity-0 blur-2xl transition-opacity group-hover:opacity-100"
+          style={{ backgroundColor: colors.bg }}
+        />
+
+        <div className="relative flex items-start gap-3">
+          <div className="relative shrink-0">
             <div
-              className="flex h-10 w-10 items-center justify-center rounded-lg text-lg"
-              style={{ backgroundColor: colors.bg }}
+              className="flex h-11 w-11 items-center justify-center rounded-xl border border-bronze-faint bg-obsidian-deep text-lg"
+              style={{ boxShadow: `0 0 0 1px ${colors.border}` }}
             >
               {icon ? (
                 <span className="text-xl leading-none">{icon}</span>
               ) : (
-                <Bot className="h-5 w-5" style={{ color: colors.main }} />
+                <Bot className="h-5 w-5 text-bronze" />
               )}
             </div>
-            <div>
-              <CardTitle className="font-title text-base text-ivory">
-                {name}
-              </CardTitle>
-              <p className="font-body text-xs" style={{ color: colors.main }}>
-                {role}
-              </p>
+            <span
+              className={cn(
+                "absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-obsidian",
+                statusDot,
+                status === "working" && "animate-alnua-pulse",
+              )}
+            />
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <h3 className="font-title text-base font-semibold text-ivoire">{name}</h3>
+                <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-bronze-bright/90">
+                  {role}
+                </p>
+              </div>
+              {badge ? (
+                <span className="shrink-0 rounded-full border border-bronze-faint bg-bronze/10 px-2 py-0.5 text-[10px] font-medium text-bronze-bright">
+                  {badge}
+                </span>
+              ) : null}
+            </div>
+
+            <p className="mt-2 font-body text-sm leading-relaxed text-titane/80">{description}</p>
+
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {skills.map((skill) => (
+                <span
+                  key={skill}
+                  className="rounded-full border border-bronze-faint bg-obsidian-deep/50 px-2 py-0.5 font-body text-[10px] text-titane/70"
+                >
+                  {skill}
+                </span>
+              ))}
             </div>
           </div>
-          {badge ? (
-            <span
-              className="badge-copper shrink-0 px-2 py-1 text-[10px] font-medium"
-              style={{ backgroundColor: colors.bg, color: colors.main }}
-            >
-              {badge}
-            </span>
+        </div>
+
+        <div className="relative mt-4 rounded-lg border border-bronze-faint bg-obsidian-deep/60 px-3 py-2">
+          <p className="text-[10px] uppercase tracking-[0.14em] text-titane/45">
+            {STATUS_LABEL[status]}
+          </p>
+          {status === "working" && currentTask ? (
+            <p className="mt-0.5 truncate text-xs text-bronze-bright">{currentTask}</p>
           ) : null}
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <p className="font-body text-sm text-titanium">{description}</p>
-        <div className="flex flex-wrap gap-1.5">
-          {skills.map((skill) => (
-            <span
-              key={skill}
-              className={cn(
-                "rounded-full px-2 py-0.5 font-body text-[11px] text-titanium ring-1 ring-copper/10"
-              )}
-            >
-              {skill}
-            </span>
-          ))}
-        </div>
+
         <Button
           variant="outline"
           size="sm"
@@ -110,24 +143,12 @@ export function AgentCard({
             e.stopPropagation();
             handleDelegate();
           }}
-          className="w-full border-copper/30 font-body text-titanium hover:border-copper/50 hover:bg-copper/5 hover:text-ivory"
+          className="relative mt-4 w-full border-bronze-faint bg-transparent font-body text-titane/80 hover:border-bronze/40 hover:bg-bronze/10 hover:text-ivoire"
         >
           Déléguer une tâche
         </Button>
-      </CardContent>
-    </Card>
-    {status === "working" && (
-      <div className="mt-2 flex items-center gap-2 text-xs text-copper animate-pulse">
-        <span className="h-1.5 w-1.5 rounded-full bg-copper" />
-        {currentTask ?? "En train de coder..."}
-      </div>
-    )}
-    {status === "idle" && (
-      <div className="mt-2 flex items-center gap-2 text-xs text-titanium/40">
-        <span className="h-1.5 w-1.5 rounded-full bg-titanium/20" />
-        Inactif
-      </div>
-    )}
+      </article>
     </div>
   );
 }
+

@@ -13,8 +13,8 @@ Labels utilisés :
 
 Variables d'env requises :
 - GITHUB_TOKEN : token GitHub avec scope repo
-- GITHUB_REPO, GITHUB_REPO_NAIA, GITHUB_REPO_NOMAD, GITHUB_REPO_ACADEMY : owner/repo-name
-- HUB_REPO_PATH, REPO_PATH_NAIA, REPO_PATH_NOMAD, REPO_PATH_ACADEMY : chemins locaux (worktrees)
+- GITHUB_REPO, GITHUB_REPO_ACADEMY : owner/repo-name
+- HUB_REPO_PATH, REPO_PATH_ACADEMY : chemins locaux (worktrees)
 - CODING_TIMEOUT_S, CODING_MAX_TURNS, CODING_AUTO_MERGE, CODING_MERGE_BASE_BRANCH (Phase 1)
 """
 
@@ -129,7 +129,7 @@ def list_ready_issues() -> list[dict]:
     """Issues agent-ready sur tous les repos configurés."""
     targets = get_repo_targets()
     if not targets:
-        raise ValueError("Aucun repo GitHub configuré (GITHUB_REPO, GITHUB_REPO_NAIA, …)")
+        raise ValueError("Aucun repo GitHub configuré (GITHUB_REPO, GITHUB_REPO_ACADEMY, …)")
 
     all_issues: list[dict] = []
     for target in targets:
@@ -183,6 +183,19 @@ def get_open_prs() -> list[dict]:
     return all_prs
 
 
+_PLACEHOLDER_FILES = frozenset({"(aucun)", "aucun", "n/a", "none", "-", "—", "(none)"})
+
+
+def _is_real_file_path(item: str) -> bool:
+    """Ignore issue template placeholders like '(aucun)' that agents must not create."""
+    s = item.strip().lower()
+    if s in _PLACEHOLDER_FILES:
+        return False
+    if s.startswith("(") and s.endswith(")"):
+        return False
+    return True
+
+
 def _git_branch_slug(title: str, *, max_len: int = 30) -> str:
     """Sanitize issue title for git branch names (no brackets, spaces, etc.)."""
     slug = title.lower()
@@ -227,11 +240,11 @@ def issue_to_spec(issue: dict, repo_path: str | None = None) -> dict:
             current_section = "tests"
         elif line.startswith("- ") and current_section == "create":
             item = line[2:].strip()
-            if item and not item.startswith("<!--"):
+            if item and not item.startswith("<!--") and _is_real_file_path(item):
                 files_to_create.append(item)
         elif line.startswith("- ") and current_section == "modify":
             item = line[2:].strip()
-            if item and not item.startswith("<!--"):
+            if item and not item.startswith("<!--") and _is_real_file_path(item):
                 files_to_modify.append(item)
         elif line.startswith("- ") and current_section == "tests":
             item = line[2:].strip()
@@ -359,13 +372,40 @@ def process_issue(
         github_repo=github_repo,
     )
 
+    from services.coding_activity import append_log, finish_task, set_progress, start_task
+
+    activity_id = start_task(
+        issue_number=number,
+        title=title,
+        repo_slug=target.slug,
+        github_repo=github_repo,
+    )
+    try:
+        from agents.base import log_agent_action
+        from database.supabase_client import get_supabase
+
+        log_agent_action(
+            get_supabase(),
+            "dev_app",
+            "coding_pipeline",
+            input_summary=f"#{number} {title[:80]}",
+            output_summary="en cours",
+            status="pending",
+        )
+    except Exception:
+        pass
+
     if telegram_notify_fn:
         telegram_notify_fn(
             f"🔧 Pipeline démarré ({target.name})\n**Issue #{number}** : {title}"
         )
 
     spec = issue_to_spec(issue, local_path)
+    spec["activity_id"] = activity_id
+    append_log(activity_id, "Lancement coding agent (worktree + PR)...")
+    set_progress(activity_id, 25)
     result = execute_coding_task(spec, telegram_notify_fn=telegram_notify_fn)
+    set_progress(activity_id, 90)
 
     if result["success"]:
         set_label(
@@ -396,7 +436,7 @@ def process_issue(
         test_passed = bool(result.get("qa_passed"))
         if match:
             pr_number = int(match.group(1))
-            # Hub/NAIA: run full pytest suite post-PR; academy already gated pre-PR (tsc)
+            # Hub: run full pytest suite post-PR; academy already gated pre-PR (tsc)
             if target.slug != "academy":
                 try:
                     qa = run_and_report(
@@ -427,6 +467,7 @@ def process_issue(
                     try:
                         from services.academy_issue_sync import close_issue
                         from services.coding_learning import record_coding_success
+                        from services.agent_wake import queue_academy_if_idle
 
                         record_coding_success(
                             agent_name="dev_app",
@@ -439,6 +480,13 @@ def process_issue(
                             github_repo=github_repo,
                             comment="[BOT] PR mergée — exercice terminé.",
                         )
+                        wake = queue_academy_if_idle()
+                        if wake.get("marked_count"):
+                            logger.info(
+                                "[GHIssues] Auto-queue après merge #%s: %s",
+                                number,
+                                wake.get("marked"),
+                            )
                     except Exception as exc:
                         logger.warning("[GHIssues] academy post-merge sync: %s", exc)
                 if telegram_notify_fn:
@@ -454,9 +502,25 @@ def process_issue(
             elif not test_passed:
                 post_comment(
                     number,
-                    f"[ATTENTION] PR créée mais QA non validée — review manuelle requise.",
+                    "[ATTENTION] PR créée mais QA non validée — review manuelle requise.",
                     github_repo=github_repo,
                 )
+        pr_line = result.get("pr_url") or "PR ok"
+        finish_task(activity_id, success=True, message=f"[OK] {pr_line[:120]}")
+        try:
+            from agents.base import log_agent_action
+            from database.supabase_client import get_supabase
+
+            log_agent_action(
+                get_supabase(),
+                "dev_app",
+                "coding_pipeline",
+                input_summary=f"#{number} {title[:80]}",
+                output_summary=str(pr_line)[:200],
+                status="success",
+            )
+        except Exception:
+            pass
     else:
         set_label(
             number,
@@ -488,6 +552,21 @@ def process_issue(
                 )
         except Exception:
             pass
+        finish_task(activity_id, success=False, message=f"[ERREUR] {result.get('error', '')[:120]}")
+        try:
+            from agents.base import log_agent_action
+            from database.supabase_client import get_supabase
+
+            log_agent_action(
+                get_supabase(),
+                "dev_app",
+                "coding_pipeline",
+                input_summary=f"#{number} {title[:80]}",
+                output_summary=str(result.get("error", ""))[:200],
+                status="error",
+            )
+        except Exception:
+            pass
 
     return result
 
@@ -499,7 +578,7 @@ def _resolve_github_repo(repo_slug: str = "hub") -> str:
 
 @tool("get_open_issues")
 def get_open_issues(repo_slug: str = "hub") -> str:
-    """Liste les issues GitHub ouvertes sur un repo ALNUA (hub, naia, nomad)."""
+    """Liste les issues GitHub ouvertes sur un repo ALNUA (hub, academy, registry)."""
     try:
         target = resolve_target(repo_slug=repo_slug)
         url = f"{GITHUB_API}/repos/{target.github_repo}/issues"
@@ -638,7 +717,9 @@ async def poll_issues_loop(telegram_notify_fn=None):
     Vérifie toutes les POLL_INTERVAL secondes sur tous les repos configurés.
     """
     logger.info("[GHIssues] Démarrage du polling GitHub Issues (multi-repo)...")
+    cycle = 0
     while True:
+        cycle += 1
         try:
             issues = list_ready_issues()
             if issues:
@@ -651,6 +732,26 @@ async def poll_issues_loop(telegram_notify_fn=None):
                     t.add_done_callback(_task_done_callback)
             else:
                 logger.debug("[GHIssues] Aucune issue à traiter")
+                try:
+                    from services.agent_wake import queue_academy_if_idle
+
+                    wake = queue_academy_if_idle()
+                    if wake.get("marked_count"):
+                        logger.info(
+                            "[GHIssues] Auto-wake idle pipeline: %s",
+                            wake.get("marked"),
+                        )
+                except Exception as exc:
+                    logger.debug("[GHIssues] Auto-wake skipped: %s", exc)
+                # Full sync every ~10 min when idle (closes agent-done, advances level)
+                if cycle % 10 == 0:
+                    try:
+                        from services.orchestration import run_academy_poll_orchestration
+
+                        run_academy_poll_orchestration(notify=False, mark_ready_count=1)
+                        logger.info("[GHIssues] Academy sync cycle (idle backup)")
+                    except Exception as exc:
+                        logger.debug("[GHIssues] Academy sync backup skipped: %s", exc)
         except httpx.HTTPStatusError as e:
             if e.response is not None and e.response.status_code in (403, 429):
                 retry_after = int(

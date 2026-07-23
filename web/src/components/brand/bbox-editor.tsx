@@ -178,7 +178,7 @@ export function BboxEditor({
 
       <div
         ref={canvasRef}
-        className="relative w-full overflow-hidden rounded-xl border border-copper/20 bg-black/40"
+        className="relative w-full overflow-hidden rounded-xl border border-copper/20 bg-obsidian/80"
       >
         <BrandAssetImage
           filePath={uploadPath}
@@ -203,7 +203,7 @@ export function BboxEditor({
               onMouseDown={(e) => startDrag(e, index, "move")}
               onClick={() => setSelectedIndex(index)}
             >
-              <span className="absolute -top-5 left-0 max-w-[140px] truncate rounded bg-black/80 px-1.5 py-0.5 text-[10px] text-ivory">
+              <span className="absolute -top-5 left-0 max-w-[140px] truncate rounded bg-obsidian/90 px-1.5 py-0.5 text-[10px] text-ivoire">
                 {element.label}
               </span>
               {isSelected && (
@@ -217,7 +217,7 @@ export function BboxEditor({
         })}
       </div>
 
-      <ul className="max-h-36 space-y-1 overflow-y-auto rounded-lg border border-copper/10 bg-black/20 p-2">
+      <ul className="max-h-36 space-y-1 overflow-y-auto rounded-lg border border-copper/10 bg-obsidian-deep/50 p-2">
         {elements.map((element, index) => (
           <li key={`${element.label}-${index}`}>
             <button

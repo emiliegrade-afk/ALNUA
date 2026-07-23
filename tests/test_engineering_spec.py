@@ -16,8 +16,8 @@ def _sample_dossier() -> RndDossierOut:
     return RndDossierOut(
         id="dossier-001",
         idea_id="idea-001",
-        slug="nuaway-mvp",
-        title="NUAWAY",
+        slug="lounge-mvp",
+        title="Lounge MVP",
         domain="app",
         branch="app",
         sections=[
@@ -26,7 +26,7 @@ def _sample_dossier() -> RndDossierOut:
                 dossier_id="dossier-001",
                 section_key="problem",
                 title="Problème",
-                content_md="Vanlifers need safe overnight spots.",
+                content_md="Users need a social arcade experience.",
                 status="validated",
             ),
             RndDossierSectionOut(
@@ -43,9 +43,9 @@ def _sample_dossier() -> RndDossierOut:
 
 def test_build_dossier_context_includes_sections():
     ctx = build_dossier_context(_sample_dossier())
-    assert "NUAWAY" in ctx
+    assert "Lounge MVP" in ctx
     assert "problem" in ctx
-    assert "Vanlifers" in ctx
+    assert "arcade" in ctx
 
 
 def test_normalize_tasks_skips_invalid():

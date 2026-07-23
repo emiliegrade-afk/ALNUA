@@ -26,6 +26,7 @@ from typing import Any
 
 from services.agent_pipeline_registry import LOG_NAME_TO_AGENT_ID, PIPELINE_METHODS
 from services.plan_executor import ExecutionPlan, ExecutionStep, execute_plan
+from services.rnd_ceo_package import resolve_branch
 from services.rnd_dispatch_playbooks import (
     AgentPlaybook,
     all_required_files,
@@ -113,6 +114,7 @@ def _task_instruction(
         workspace_path=workspace_path,
         context_excerpt=excerpt,
         extra=extra or None,
+        branch=resolve_branch(dossier),
     )
 
 
@@ -573,7 +575,8 @@ def run_dispatch_execution(
                 continue
 
         # Ecriture disque via playbook
-        playbook = get_playbook(aid)
+        dossier_branch = resolve_branch(dossier)
+        playbook = get_playbook(aid, branch=dossier_branch)
         written_files: list[str] = []
 
         # Spec : generate_and_write_dispatch a deja ecrit le fichier
@@ -586,11 +589,11 @@ def run_dispatch_execution(
             written_files = list(playbook.files)
         elif playbook and aid != "coo":
             written_files = _write_playbook_deliverables(slug, aid, output_text, playbook)
-            # Item 3 : scaffold dev_app
-            if aid == "dev_app":
+            # Item 3 : scaffold dev_app — external products only
+            if aid == "dev_app" and dossier_branch != "hub":
                 _create_dev_app_scaffold(slug, workspace_root)
         elif aid == "coo":
-            coo_pb = get_playbook("coo")
+            coo_pb = get_playbook("coo", branch=dossier_branch)
             if coo_pb:
                 written_files = _write_playbook_deliverables(slug, "coo", output_text, coo_pb)
         else:
@@ -632,7 +635,7 @@ def run_dispatch_execution(
             dispatched_agent_ids.append(aid)
 
     # --- Validation finale globale ---
-    required_files = all_required_files(dispatched_agent_ids)
+    required_files = all_required_files(dispatched_agent_ids, branch=resolve_branch(dossier))
     missing = missing_deliverables(slug, required_files) if required_files else []
     dispatch_success = len(missing) == 0
 
@@ -670,6 +673,28 @@ def run_dispatch_execution(
     result["workspace"] = workspace_root
     result["workspace_path"] = workspace_root
     result["validation"] = workspace_validation
+
+    # Hub branch: CEO chose WHAT — auto-create coding issues (HOW)
+    if resolve_branch(dossier) == "hub":
+        try:
+            from services.hub_dispatch_coding import create_hub_coding_issues
+
+            coding = create_hub_coding_issues(
+                dossier.title,
+                slug,
+                dossier_id=dossier.id,
+            )
+            result["hub_coding_issues"] = coding
+            if coding.get("count"):
+                logger.info(
+                    "Hub dispatch: %s GitHub issue(s) created for %s",
+                    coding["count"],
+                    slug,
+                )
+        except Exception as exc:
+            logger.warning("hub_dispatch_coding failed: %s", exc)
+            result["hub_coding_issues"] = {"success": False, "error": str(exc)}
+
     return result
 
 

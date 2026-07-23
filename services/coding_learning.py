@@ -112,3 +112,95 @@ def enrich_spec_with_lessons(spec: dict[str, Any]) -> dict[str, Any]:
     enriched = dict(spec)
     enriched["description"] = (spec.get("description") or "") + block
     return enriched
+
+
+def record_human_lesson(
+    *,
+    cause: str,
+    fix: str,
+    agent_name: str = "dev_app",
+    repo_slug: str = "academy",
+    files: list[str] | None = None,
+    issue_number: int | None = None,
+) -> dict[str, Any]:
+    """CEO manual fix → coding_errors.json (resolved) + Mem0 dev_app."""
+    from services.coding_error_journal import record_coding_error
+    from skills.skill_agent_learning import learn_from_outcome, memory_agent_id
+
+    task_id = f"GH-{issue_number}" if issue_number else "human-fix"
+    file_hint = f" Fichiers: {', '.join(files)}." if files else ""
+    error_message = f"{cause.strip()}{file_hint}"
+
+    entry = record_coding_error(
+        agent_name=agent_name,
+        task_id=task_id,
+        repo_slug=repo_slug,
+        error_type="HumanLesson",
+        error_message=error_message[:2000],
+        qa_errors=None,
+        status="resolved",
+        solution=fix.strip()[:2000],
+    )
+
+    lesson = (
+        f"Leçon humaine Emilie — {repo_slug}: {cause.strip()} "
+        f"Correction: {fix.strip()}.{file_hint} "
+        "Appliquer sur les prochains exercices Academy."
+    )
+    try:
+        learn_from_outcome(
+            agent_id=memory_agent_id(agent_name),
+            task=f"{repo_slug}:{task_id}",
+            outcome=lesson[:800],
+            success=True,
+        )
+    except Exception as exc:
+        logger.warning("[CodingLearning] human lesson mem0: %s", exc)
+
+    return {"recorded": True, "entry_id": entry.get("id"), "task_id": task_id}
+
+
+def bootstrap_academy_lessons() -> int:
+    """Idempotent seed — pipeline incidents + CEO feedback."""
+    from services.coding_error_journal import load_journal
+
+    journal = load_journal()
+    existing = {
+        (e.get("error_type"), (e.get("solution") or "")[:80])
+        for e in journal.get("entries", [])
+    }
+    seeds = [
+        (
+            "expo-symbols SymbolView plante sur web (Cannot convert Symbol to string)",
+            "Utiliser @expo/vector-icons MaterialIcons via TabBarIcon — jamais expo-symbols sur tab bar",
+        ),
+        (
+            "Boilerplate Expo laissé (EditScreenInfo, Tab One)",
+            "Remplacer app/(tabs)/index.tsx par un écran Accueil — supprimer EditScreenInfo",
+        ),
+        (
+            "Chemins Expo Router (tabs) rejetés par QA à tort",
+            "Les dossiers (tabs) et (auth) sont valides — ne jamais créer de fichier (aucun)",
+        ),
+        (
+            "Géoloc web navigateur échoue sans fallback",
+            "useLocation: si web ou getCurrentPosition échoue, coords Paris par défaut + placeholder carte",
+        ),
+        (
+            "PR mergée sans npm test",
+            "Toujours npm test avant PR — les tests existants doivent passer",
+        ),
+        (
+            "UI brute Button React Native par défaut",
+            "Préférer Pressable + StyleSheet cohérent — pas de Button HTML bleu sur web",
+        ),
+    ]
+    added = 0
+    for cause, fix in seeds:
+        key = ("HumanLesson", fix[:80])
+        if key in existing:
+            continue
+        record_human_lesson(cause=cause, fix=fix, agent_name="dev_app", repo_slug="academy")
+        existing.add(key)
+        added += 1
+    return added

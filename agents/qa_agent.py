@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from agents.agent_base import AgentBase
+
 from typing import Any
 
 from crewai import Agent, LLM
@@ -9,18 +11,21 @@ from crewai import Agent, LLM
 from agents.base import LLMClient, log_agent_action, parse_json_response
 from agents.tools.hub_tools import QA_TOOLS
 from config.agent_operating_spec import get_system_prompt
-from database.supabase_client import SupabaseClient, get_supabase
+from database.supabase_client import SupabaseClient
 from skills.skill_langfuse import trace_agent
 
 
-class QAAgent:
+class QAAgent(AgentBase):
     AGENT_NAME = "qa_agent"
 
     SYSTEM_PROMPT = get_system_prompt("qa")
 
-    def __init__(self, db: SupabaseClient | None = None, llm: LLMClient | None = None) -> None:
-        self.db = db or get_supabase()
-        self.llm = llm or LLMClient()
+    def __init__(
+        self,
+        db: SupabaseClient | None = None,
+        llm: LLMClient | None = None,
+    ) -> None:
+        super().__init__(db, llm)
         self._crew_llm: LLM | None = None
         self._crew_agent: Agent | None = None
 
@@ -72,9 +77,7 @@ Tickets ouverts existants (éviter doublons) :
         )
 
         try:
-            raw = self.llm.complete(
-                self.SYSTEM_PROMPT, user_prompt, agent_id="qa", temperature=0.2
-            )
+            raw = self._complete(user_prompt, temperature=0.2)
             result = parse_json_response(raw)
             created: list[dict[str, Any]] = []
 

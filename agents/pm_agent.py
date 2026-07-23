@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from agents.agent_base import AgentBase
+
 import logging
 from typing import Any
 
@@ -10,7 +12,7 @@ from crewai import Agent, Crew, LLM, Process, Task
 from agents.base import LLMClient, log_agent_action, parse_json_response
 from agents.tools.hub_tools import PM_TOOLS
 from config.agent_operating_spec import get_system_prompt
-from database.supabase_client import SupabaseClient, get_supabase
+from database.supabase_client import SupabaseClient
 from skills.skill_composio import get_composio_tools
 from skills.skill_gh_issues import get_open_issues, label_issue
 from skills.skill_langfuse import trace_agent
@@ -20,7 +22,7 @@ logger = logging.getLogger(__name__)
 PM_SYSTEM_PROMPT = get_system_prompt("pm")
 
 
-class PMAgent:
+class PMAgent(AgentBase):
     AGENT_NAME = "pm_agent"
 
     SYSTEM_PROMPT = get_system_prompt("pm")
@@ -31,8 +33,7 @@ class PMAgent:
         llm: LLMClient | None = None,
         verbose: bool = False,
     ) -> None:
-        self.db = db or get_supabase()
-        self.llm = llm or LLMClient()
+        super().__init__(db, llm)
         self.verbose = verbose
         self._crew_llm: LLM | None = None
         self._crew_agent: Agent | None = None
@@ -166,9 +167,7 @@ Propose un triage et plan de sprint."""
         )
 
         try:
-            raw = self.llm.complete(
-                self.SYSTEM_PROMPT, user_prompt, agent_id="pm", temperature=0.3
-            )
+            raw = self._complete(user_prompt, temperature=0.3)
             result = parse_json_response(raw)
 
             for action in result.get("ticket_actions", []):

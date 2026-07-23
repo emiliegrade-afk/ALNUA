@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from agents.agent_base import AgentBase
+
 from typing import Any
 
 from crewai import Agent, LLM
@@ -9,18 +11,21 @@ from crewai import Agent, LLM
 from agents.base import LLMClient, log_agent_action
 from agents.tools.hub_tools import SPEC_TOOLS
 from config.agent_operating_spec import get_system_prompt
-from database.supabase_client import SupabaseClient, get_supabase
+from database.supabase_client import SupabaseClient
 from skills.skill_langfuse import trace_agent
 
 
-class SpecAgent:
+class SpecAgent(AgentBase):
     AGENT_NAME = "spec_agent"
 
     SYSTEM_PROMPT = get_system_prompt("spec")
 
-    def __init__(self, db: SupabaseClient | None = None, llm: LLMClient | None = None) -> None:
-        self.db = db or get_supabase()
-        self.llm = llm or LLMClient()
+    def __init__(
+        self,
+        db: SupabaseClient | None = None,
+        llm: LLMClient | None = None,
+    ) -> None:
+        super().__init__(db, llm)
         self._crew_llm: LLM | None = None
         self._crew_agent: Agent | None = None
 
@@ -81,13 +86,7 @@ class SpecAgent:
         user_prompt = inject_learning_context(
             user_prompt, "spec", ticket.get("title", "") or "cursor prompt"
         )
-        return self.llm.complete(
-            self.SYSTEM_PROMPT,
-            user_prompt,
-            agent_id="spec",
-            temperature=0.25,
-            max_tokens=8192,
-        )
+        return self._complete(user_prompt, temperature=0.25, max_tokens=8192)
 
     @trace_agent("spec_agent")
     def generate_and_write_dispatch(
@@ -178,13 +177,7 @@ Genere le prompt Cursor complet en suivant EXACTEMENT la structure demandee."""
         )
 
         try:
-            cursor_prompt = self.llm.complete(
-                self.SYSTEM_PROMPT,
-                user_prompt,
-                agent_id="spec",
-                temperature=0.25,
-                max_tokens=8192,
-            )
+            cursor_prompt = self._complete(user_prompt, temperature=0.25, max_tokens=8192)
             updates: dict[str, Any] = {"cursor_prompt": cursor_prompt}
             if ticket.get("status") == "open":
                 updates["status"] = "in_progress"

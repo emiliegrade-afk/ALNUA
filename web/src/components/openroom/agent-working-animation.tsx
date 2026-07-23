@@ -11,14 +11,13 @@ export function AgentWorkingAnimation({
 }: AgentWorkingAnimationProps) {
   if (status !== "working") return null;
 
-  const fallbackLines = [
-    "// Analyse en cours...",
-    "import { useState } from 'react';",
-    "export function Component() {",
-    "  const [data, setData] = useState(null);",
-    "  return <View />;",
-    "}",
-  ];
+  if (!currentCodeLines.length) {
+    return (
+      <div className="mb-4 rounded-lg border border-copper/10 bg-obsidian px-3 py-2 font-mono text-[10px] text-titanium/60">
+        Agent en cours — en attente du flux code live (IDE / pipeline)…
+      </div>
+    );
+  }
 
   return (
     <div className="relative mb-4 h-32 w-full overflow-hidden rounded-lg border border-copper/10 bg-obsidian">
@@ -32,9 +31,7 @@ export function AgentWorkingAnimation({
       </div>
 
       <div className="absolute bottom-3 right-3 top-3 w-44 overflow-hidden rounded border border-copper/20 bg-[#0a0c10] p-2 font-mono text-[8px]">
-        <TypewriterCode
-          lines={currentCodeLines.length ? currentCodeLines : fallbackLines}
-        />
+        <TypewriterCode lines={currentCodeLines} />
       </div>
 
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent to-copper/[0.03]" />

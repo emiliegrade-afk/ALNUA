@@ -23,7 +23,7 @@ export function AgentFocusPanel({
   return (
     <>
       <div
-        className="fixed inset-0 z-40 bg-black/30"
+        className="fixed inset-0 z-40 bg-obsidian-deep/70"
         onClick={onClose}
         aria-hidden
       />

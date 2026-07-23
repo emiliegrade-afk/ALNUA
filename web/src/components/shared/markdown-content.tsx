@@ -1,13 +1,6 @@
 "use client";
 
-import dynamic from "next/dynamic";
-
-const ReactMarkdown = dynamic(() => import("react-markdown"), {
-  ssr: false,
-  loading: () => (
-    <p className="text-sm italic text-titanium/60">Chargement…</p>
-  ),
-});
+import ReactMarkdown from "react-markdown";
 
 interface MarkdownContentProps {
   children: string;

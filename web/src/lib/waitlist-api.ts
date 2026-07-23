@@ -1,4 +1,4 @@
-import { hubApiUrl } from "./hub-api-config";
+import { hubPublicApiUrl } from "./hub-api-config";
 import { hubFetch } from "./hub-fetch";
 
 export type WaitlistStatus = "waiting" | "notified" | "converted";
@@ -150,7 +150,7 @@ export async function deleteWaitlistEntry(entryId: string): Promise<void> {
 }
 
 export function waitlistCsvUrl(projectId: string): string {
-  return hubApiUrl(`/waitlist/export/${encodeURIComponent(projectId)}`);
+  return hubPublicApiUrl(`/waitlist/export/${encodeURIComponent(projectId)}`);
 }
 
 export async function fetchWaitlistPageUrl(

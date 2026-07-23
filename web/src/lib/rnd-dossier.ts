@@ -1,4 +1,4 @@
-import { hubApiUrl } from "./hub-api-config";
+import { hubPublicApiUrl } from "./hub-api-config";
 import { hubFetch } from "./hub-fetch";
 import { fetchRndIdea } from "./rnd";
 
@@ -38,6 +38,7 @@ export interface RndDossierListItem {
   slug: string;
   title: string;
   domain: string;
+  branch?: string | null;
   status: DossierStatus;
   ceo_status: string;
   idea_legacy_id?: string | null;
@@ -712,7 +713,7 @@ export function dossierAssetFileUrl(
   dossierId: string,
   assetType: string
 ): string {
-  return hubApiUrl(
+  return hubPublicApiUrl(
     `/rnd/dossiers/${dossierId}/assets/file?asset_type=${encodeURIComponent(assetType)}`
   );
 }
@@ -858,7 +859,7 @@ export async function generateDossierDeck(
 }
 
 export function dossierDeckFileUrl(dossierId: string, type: "html" | "pdf"): string {
-  return hubApiUrl(`/rnd/dossiers/${dossierId}/deck/file?type=${type}`);
+  return hubPublicApiUrl(`/rnd/dossiers/${dossierId}/deck/file?type=${type}`);
 }
 
 export type SocialPhase =

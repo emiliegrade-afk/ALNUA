@@ -1,0 +1,19 @@
+# requirements_desktop.txt
+# Installe dans le venv du Hub :
+# .venv\Scripts\pip install -r nadia_desktop\requirements_desktop.txt
+
+# ── STT ──────────────────────────────────────────────────────────────────────
+faster-whisper>=1.0.0      # Whisper optimisé CPU/GPU
+sounddevice>=0.4.6         # Capture micro + lecture audio
+soundfile>=0.12.1          # Lecture fichiers audio (Edge TTS output)
+
+# ── TTS ──────────────────────────────────────────────────────────────────────
+edge-tts>=6.1.9            # Microsoft Edge TTS (gratuit, voix FR excellente)
+# kokoro-onnx>=0.4.0       # Alternative locale — décommenter si tu préfères Kokoro
+
+# ── UI ───────────────────────────────────────────────────────────────────────
+# tkinter est inclus dans Python standard — rien à installer
+
+# ── Fallback LLM ─────────────────────────────────────────────────────────────
+openai>=1.0.0              # Utilisé pour GLM-5.2 (compatible OpenAI API) et fallback
+requests>=2.31.0           # Ollama API

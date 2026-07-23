@@ -47,7 +47,7 @@ def default_progress() -> dict[str, Any]:
         "failed_exercises": 0,
         "success_rate_pct": 0.0,
         "levels": levels,
-        "gate_nuaway": {
+        "gate_academy": {
             "academy_n4_stable": False,
             "success_rate_65": False,
             "mem0_lessons_35": False,
@@ -59,13 +59,31 @@ def default_progress() -> dict[str, Any]:
     }
 
 
+def _migrate_gate_keys(data: dict[str, Any]) -> dict[str, Any]:
+    """Legacy gate_nuaway → gate_academy (Academy → Lounge, not NUAWAY app)."""
+    if "gate_nuaway" in data:
+        if "gate_academy" not in data:
+            data["gate_academy"] = data.pop("gate_nuaway")
+        else:
+            data.pop("gate_nuaway", None)
+    if "gate_academy" not in data:
+        data["gate_academy"] = default_progress()["gate_academy"]
+    return data
+
+
 def load_progress() -> dict[str, Any]:
     if not _PROGRESS_PATH.is_file():
         data = default_progress()
         save_progress(data)
         return data
     try:
-        return json.loads(_PROGRESS_PATH.read_text(encoding="utf-8"))
+        raw = _PROGRESS_PATH.read_text(encoding="utf-8")
+        data = json.loads(raw)
+        migrated = "gate_nuaway" in data
+        data = _migrate_gate_keys(data)
+        if migrated:
+            save_progress(data)
+        return data
     except Exception as exc:
         logger.warning("academy progress read failed: %s", exc)
         return default_progress()
@@ -131,27 +149,42 @@ def sync_from_github_issues(issues: list[dict[str, Any]]) -> dict[str, Any]:
     attempted = completed + failed
     success_rate = round(100.0 * completed / attempted, 1) if attempted else 0.0
 
-    # Current level = first level not fully done
-    current_level = 4
-    for lv in (1, 2, 3, 4):
-        key = str(lv)
-        if levels[key]["done"] < levels[key]["total"]:
-            current_level = lv
-            break
+    # Current level = lowest level with open work, else first level not fully done
+    open_levels: list[int] = []
+    for issue in issues:
+        title = issue.get("title") or ""
+        m = _ACADEMY_TITLE_RE.match(title)
+        if not m or issue.get("state") != "open" or "pull_request" in issue:
+            continue
+        labels = {lbl.get("name", "") for lbl in issue.get("labels", [])}
+        if "agent-done" in labels:
+            continue
+        open_levels.append(_level_from_exercise_id(m.group(1).upper()))
+
+    if open_levels:
+        current_level = min(open_levels)
+    else:
+        current_level = 4
+        for lv in (1, 2, 3, 4):
+            key = str(lv)
+            if levels[key]["done"] < levels[key]["total"]:
+                current_level = lv
+                break
 
     progress["levels"] = levels
     progress["current_level"] = current_level
     progress["completed_exercises"] = completed
     progress["failed_exercises"] = failed
     progress["success_rate_pct"] = success_rate
-    progress["gate_nuaway"]["success_rate_65"] = success_rate >= 65.0
-    progress["gate_nuaway"]["academy_n4_stable"] = (
+    gate = _migrate_gate_keys(progress)["gate_academy"]
+    gate["success_rate_65"] = success_rate >= 65.0
+    gate["academy_n4_stable"] = (
         levels["4"]["done"] >= levels["4"]["total"] and failed == 0
     )
     try:
         from services.coding_error_journal import count_resolved
 
-        progress["gate_nuaway"]["error_journal_top5"] = count_resolved() >= 5
+        gate["error_journal_top5"] = count_resolved() >= 5
     except Exception:
         pass
 
@@ -212,7 +245,8 @@ def get_academy_status() -> dict[str, Any]:
     except Exception:
         pass
 
-    progress["gate_nuaway"]["mem0_lessons_35"] = len(mem0_snippet) > 200
+    gate = _migrate_gate_keys(progress)["gate_academy"]
+    gate["mem0_lessons_35"] = len(mem0_snippet) > 200
 
     target_configured = bool(os.getenv("GITHUB_REPO_ACADEMY", "").strip())
     local_path = os.getenv("REPO_PATH_ACADEMY", "")

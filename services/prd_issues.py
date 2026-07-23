@@ -37,22 +37,20 @@ def resolve_repo_slug_for_dossier(
     *,
     repo_slug: str | None = None,
 ) -> str:
-    """Pick GitHub target: explicit override → slug heuristics → nomad → hub."""
+    """Pick GitHub target: explicit override → registry match → hub."""
     if repo_slug:
         return repo_slug
 
-    haystack = f"{dossier.slug} {dossier.title} {dossier.domain}".lower()
-    if any(k in haystack for k in ("nomad", "nuaway", "vanlife", "park4")):
-        if get_target_by_slug("nomad"):
-            return "nomad"
-    if "naia" in haystack and get_target_by_slug("naia"):
-        return "naia"
-    if get_target_by_slug("nomad"):
-        return "nomad"
+    slug = (dossier.slug or "").strip().lower()
+    if slug and get_target_by_slug(slug):
+        return slug
+
     if get_target_by_slug("hub"):
         return "hub"
+    if get_target_by_slug("academy"):
+        return "academy"
     raise ValueError(
-        "Aucun repo GitHub configuré — définir GITHUB_REPO_NOMAD ou GITHUB_REPO"
+        "Aucun repo GitHub configuré — définir GITHUB_REPO ou enregistrer l'app dans le registry"
     )
 
 

@@ -1,39 +1,84 @@
 "use client";
 
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
-type LogoVariant = "lockup" | "symbol" | "icon";
-
-const SOURCES: Record<LogoVariant, { src: string; width: number; height: number }> = {
-  lockup: { src: "/alnua-logo.png", width: 1024, height: 682 },
-  symbol: { src: "/alnua-symbol.png", width: 1024, height: 682 },
-  icon: { src: "/alnua-icon.png", width: 1024, height: 682 },
-};
+type LogoVariant = "lockup" | "symbol" | "icon" | "ring";
 
 interface AlnuaLogoProps {
   variant?: LogoVariant;
   className?: string;
   height?: number;
+  size?: number;
+  withWordmark?: boolean;
+  animated?: boolean;
+  staticMark?: boolean;
 }
 
+const MARK_SRC = "/brand/alnua-mark.png";
+const LOCKUP_SRC = "/brand/alnua-lockup.png";
+
+/**
+ * Logo ALNUA — assets DA officiels (mark circulaire + lockup PNG).
+ */
 export function AlnuaLogo({
-  variant = "lockup",
+  variant = "icon",
   className,
   height,
+  size,
+  withWordmark = false,
+  animated = true,
+  staticMark = false,
 }: AlnuaLogoProps) {
-  const { src, width, height: naturalHeight } = SOURCES[variant];
-  const displayHeight = height ?? (variant === "lockup" ? 56 : variant === "icon" ? 40 : 48);
-  const displayWidth = Math.round((width / naturalHeight) * displayHeight);
+  const markOnly = variant === "icon" || variant === "symbol";
+  const showWordmark = withWordmark || variant === "lockup";
+  const dim =
+    size ??
+    height ??
+    (variant === "lockup" ? 52 : variant === "icon" ? 32 : 44);
+  const anim = animated && !staticMark;
+
+  if (variant === "lockup") {
+    return (
+      <div className={cn("flex flex-col items-center", className)} role="img" aria-label="ALNUA">
+        <Image
+          src={LOCKUP_SRC}
+          alt="ALNUA"
+          width={Math.round(dim * 2.4)}
+          height={Math.round(dim * 1.1)}
+          className="h-auto w-auto max-h-[88px] object-contain"
+          priority
+        />
+      </div>
+    );
+  }
 
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={src}
-      alt="ALNUA"
-      width={displayWidth}
-      height={displayHeight}
-      className={cn("block object-contain", className)}
-    />
+    <div className={cn("flex items-center gap-3", className)} role="img" aria-label="ALNUA">
+      <Image
+        src={MARK_SRC}
+        alt=""
+        width={dim}
+        height={dim}
+        className={cn(
+          "shrink-0 object-contain",
+          variant === "ring" && "drop-shadow-[0_0_12px_rgba(192,138,98,0.35)]",
+          anim && "animate-alnua-glow",
+        )}
+        priority
+      />
+
+      {showWordmark && !markOnly ? (
+        <div className="flex flex-col leading-none font-title">
+          <span className="text-xl font-medium tracking-[0.35em] text-gradient-bronze">
+            ALNUA
+          </span>
+          <span className="mt-1 text-[9px] tracking-[0.38em] text-titane/70">
+            VIRTUAL AI ENTERPRISE
+          </span>
+        </div>
+      ) : null}
+    </div>
   );
 }
 
@@ -41,8 +86,8 @@ export function AlnuaWordmark({ className }: { className?: string }) {
   return (
     <p
       className={cn(
-        "text-sm font-semibold tracking-[0.35em] text-ivory",
-        className
+        "font-title text-sm font-medium tracking-[0.35em] text-gradient-bronze",
+        className,
       )}
     >
       ALNUA

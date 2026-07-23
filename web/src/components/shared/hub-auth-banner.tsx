@@ -6,25 +6,19 @@ import {
   checkApiHealth,
   getHubHealthCache,
   getLastKnownGoodHealth,
-  refreshHubHealthInBackground,
   subscribeHubHealth,
   type ApiHealthStatus,
 } from "@/lib/hub-health";
 
-const CACHE_REFRESH_MS = 120_000;
-
 function shouldShowError(status: ApiHealthStatus): boolean {
   if (status.online && status.authenticated) return false;
-  // Session was healthy recently — ignore transient compile/offline blips on bureau nav.
   if (getLastKnownGoodHealth() != null) return false;
   if (status.online && !status.authenticated) return true;
   return true;
 }
 
 export function HubAuthBanner() {
-  const [health, setHealth] = useState<ApiHealthStatus | null>(() =>
-    getHubHealthCache() ?? getLastKnownGoodHealth()
-  );
+  const [health, setHealth] = useState<ApiHealthStatus | null>(null);
   const [confirmedError, setConfirmedError] = useState(false);
 
   useEffect(() => {
@@ -44,20 +38,20 @@ export function HubAuthBanner() {
     }
 
     void verify();
-    refreshHubHealthInBackground();
 
     const unsubscribe = subscribeHubHealth((status) => {
       if (cancelled) return;
       setHealth(status);
-      setConfirmedError(false);
+      if (shouldShowError(status)) {
+        setConfirmedError(true);
+      } else {
+        setConfirmedError(false);
+      }
     });
-
-    const interval = setInterval(refreshHubHealthInBackground, CACHE_REFRESH_MS);
 
     return () => {
       cancelled = true;
       unsubscribe();
-      clearInterval(interval);
     };
   }, []);
 
@@ -69,8 +63,8 @@ export function HubAuthBanner() {
         <p className="mx-auto flex max-w-7xl items-center gap-2 font-body text-sm text-red-300">
           <AlertTriangle className="h-4 w-4 shrink-0" />
           Backend inaccessible — lance{" "}
-          <code className="rounded bg-black/30 px-1.5 py-0.5 text-xs">
-            uvicorn api.main:app --reload --port 8000
+          <code className="rounded bg-obsidian-deep/70 px-1.5 py-0.5 text-xs">
+            Demarrer-Hub.bat
           </code>
         </p>
       </div>
@@ -82,11 +76,11 @@ export function HubAuthBanner() {
       <p className="mx-auto max-w-7xl font-body text-sm text-amber-200">
         <AlertTriangle className="mr-2 inline h-4 w-4 shrink-0 align-text-bottom" />
         Clé API Hub manquante côté Next.js — ajoute{" "}
-        <code className="rounded bg-black/30 px-1.5 py-0.5 text-xs">
+        <code className="rounded bg-obsidian-deep/70 px-1.5 py-0.5 text-xs">
           HUB_API_KEY
         </code>{" "}
         dans <code className="text-xs">web/.env.local</code>, puis redémarre{" "}
-        <code className="text-xs">npm run dev</code>.
+        <code className="text-xs">Demarrer-Hub.bat</code>.
       </p>
     </div>
   );

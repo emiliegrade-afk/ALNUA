@@ -26,7 +26,6 @@ from crewai import Agent, Crew, LLM, Task
 from crewai.tools import tool
 
 from skills.skill_coding_agent import execute_coding_task
-from skills.skill_naia_embodied import call_naia_embodied
 from config.agent_operating_spec import crew_backstory
 from skills.skill_langfuse import trace_agent
 from skills.skill_pi_ssh import PI_NOT_CONFIGURED, pi_is_configured, run_pi_command
@@ -107,18 +106,20 @@ def pi_ssh_tool(command_json: str) -> str:
         return f"[ERREUR] Erreur SSH : {e}"
 
 
-@tool("naia_embodied_call")
-def naia_embodied_tool(action_json: str) -> str:
+@tool("robotics_edge_call")
+def robotics_edge_tool(action_json: str) -> str:
     """
-    Appelle la Edge Function naia-embodied sur Supabase.
-    Input JSON : {"action": "speak|move|look|gesture|status", "params": {...}}
+    Placeholder — edge robotics API (configure when hardware project is registered).
+    Input JSON : {"action": "speak|move|status", "params": {...}}
     """
     try:
-        data = json.loads(action_json)
-        result = call_naia_embodied(data["action"], data.get("params", {}))
-        return f"naia-embodied → {result['status_code']} : {result['body'][:200]}"
+        json.loads(action_json)
+        return (
+            "Robotics edge API non configurée — enregistrez le projet dans le registry "
+            "quand le hardware sera prêt."
+        )
     except Exception as e:
-        return f"[ERREUR] Erreur naia-embodied : {e}"
+        return f"[ERREUR] JSON invalide : {e}"
 
 
 @tool("deploy_to_pi")
@@ -217,7 +218,7 @@ class EmbeddedDevAgent:
             backstory=crew_backstory("embedded_dev"),
             tools=[
                 pi_ssh_tool,
-                naia_embodied_tool,
+                robotics_edge_tool,
                 deploy_pi_tool,
                 eve_code_tool,
             ],

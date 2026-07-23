@@ -1,4 +1,4 @@
-import { hubApiUrl } from "./hub-api-config";
+import { hubPublicApiUrl } from "./hub-api-config";
 import { hubFetch } from "./hub-fetch";
 
 export type BetaFeedbackType = "bug" | "suggestion" | "crash" | "ux" | "autre";
@@ -160,5 +160,5 @@ export async function createBetaInvite(projectId: string): Promise<{
 
 export function betaTestersCsvUrl(projectId?: string): string {
   const qs = projectId ? `?project_id=${encodeURIComponent(projectId)}` : "";
-  return hubApiUrl(`/beta/testers/export${qs}`);
+  return hubPublicApiUrl(`/beta/testers/export${qs}`);
 }

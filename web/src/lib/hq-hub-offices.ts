@@ -76,7 +76,7 @@ export const HQ_MAP_OFFICES: HqMapOffice[] = [
     number: 2,
     title: "Secrétariat",
     shortcutLabel: "Secrétariat",
-    subtitle: "Nadia Faure · Filtre & agenda",
+    subtitle: "Nadia Faure · Ta secrétaire · mails & planning",
     href: "/secretary",
     icon: "📎",
     dept: "secretary",
@@ -303,7 +303,38 @@ export const HQ_MAP_OFFICES: HqMapOffice[] = [
 ];
 
 /** Quick-access shortcuts not duplicated on map (empty when all rooms are on artwork). */
-export const HQ_OFF_MAP_ACCESS: HqOffMapAccess[] = [];
+export const HQ_OFF_MAP_ACCESS: HqOffMapAccess[] = [
+  {
+    id: "library",
+    number: 14,
+    title: "Bibliothèque",
+    shortcutLabel: "Bibliothèque",
+    subtitle: "Recherche · archives · rapport CEO",
+    href: "/library",
+    icon: "📚",
+    dept: "hub",
+  },
+  {
+    id: "ide",
+    number: 16,
+    title: "IDE Hub",
+    shortcutLabel: "IDE",
+    subtitle: "Monaco · Bac à sable · Luca",
+    href: "/ide",
+    icon: "💻",
+    dept: "academy",
+  },
+  {
+    id: "admin",
+    number: 15,
+    title: "Admin",
+    shortcutLabel: "Admin",
+    subtitle: "Coûts LLM · événements · A/B tests",
+    href: "/admin",
+    icon: "⚙️",
+    dept: "hub",
+  },
+];
 
 export const HQ_CEO_ACCESS: HqOffMapAccess = {
   id: "ceo",
@@ -383,6 +414,12 @@ export function getOfficeBadge(
       return { label: "Briefing" };
     case "academy":
       return { label: "Training" };
+    case "ide":
+      return { label: "IDE" };
+    case "library":
+      return { label: "Archives" };
+    case "admin":
+      return { label: "Outils" };
     case "dev_lounge":
       return { label: "Détente" };
     default:

@@ -1,17 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AgentCard } from "@/components/shared/agent-card";
 import { AgentFocusPanel } from "@/components/openroom/agent-focus-panel";
+import { BureauLibraryPopup } from "@/components/library/bureau-library-popup";
 import {
   getAgentById,
   getAgentsForBureau,
   type BureauAgentDef,
   type BureauKey,
 } from "@/lib/agent-bureau";
-import { fetchAgentsStatus, type AgentStatus } from "@/lib/openroom-api";
-
-const POLL_MS = 3000;
+import { useAgentStatuses } from "@/hooks/use-agent-statuses";
 
 interface BureauAgentsSectionProps {
   bureau: BureauKey;
@@ -19,6 +18,8 @@ interface BureauAgentsSectionProps {
   mapAgent?: (agent: BureauAgentDef) => BureauAgentDef & { badge?: string };
   /** Hide agents already shown elsewhere (e.g. bureau hero) */
   excludeAgentIds?: string[];
+  /** Show bureau library shelf below agents */
+  showLibrary?: boolean;
   className?: string;
 }
 
@@ -26,46 +27,15 @@ export function BureauAgentsSection({
   bureau,
   mapAgent,
   excludeAgentIds = [],
+  showLibrary = true,
   className,
 }: BureauAgentsSectionProps) {
   const [focusedAgentId, setFocusedAgentId] = useState<string | null>(null);
-  const [agentStatuses, setAgentStatuses] = useState<Record<string, AgentStatus>>({});
+  const agentStatuses = useAgentStatuses();
 
   const agents = getAgentsForBureau(bureau)
     .filter((a) => !excludeAgentIds.includes(a.id))
     .map((a) => mapAgent?.(a) ?? a);
-
-  useEffect(() => {
-    let cancelled = false;
-    let intervalId: ReturnType<typeof setInterval> | undefined;
-
-    async function poll() {
-      const result = await fetchAgentsStatus();
-      if (cancelled) return;
-      setAgentStatuses(result.data.agents);
-    }
-
-    const start = () => {
-      void poll();
-      intervalId = setInterval(() => void poll(), POLL_MS);
-    };
-
-    if (typeof requestIdleCallback !== "undefined") {
-      const idleId = requestIdleCallback(start, { timeout: 600 });
-      return () => {
-        cancelled = true;
-        cancelIdleCallback(idleId);
-        if (intervalId) clearInterval(intervalId);
-      };
-    }
-
-    const timeoutId = setTimeout(start, 0);
-    return () => {
-      cancelled = true;
-      clearTimeout(timeoutId);
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, []);
 
   const focused = focusedAgentId ? getAgentById(focusedAgentId) : null;
 
@@ -93,6 +63,8 @@ export function BureauAgentsSection({
           />
         ))}
       </section>
+
+      {showLibrary ? <BureauLibraryPopup bureau={bureau} /> : null}
 
       {focused ? (
         <AgentFocusPanel

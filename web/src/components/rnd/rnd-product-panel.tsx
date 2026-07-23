@@ -22,7 +22,7 @@ import {
   type RndProductPage,
   type DossierStatus,
 } from "@/lib/rnd-dossier";
-import { hubApiUrl } from "@/lib/hub-api-config";
+import { hubPublicApiUrl } from "@/lib/hub-api-config";
 
 export interface RndProductPanelProps {
   dossierId: string;
@@ -246,7 +246,7 @@ function ProductPreview({ page }: { page: RndProductPage }) {
             src={
               page.hero_url.startsWith("http")
                 ? page.hero_url
-                : hubApiUrl(page.hero_url)
+                : hubPublicApiUrl(page.hero_url)
             }
             alt=""
             className="mx-auto max-h-48 w-full object-contain"

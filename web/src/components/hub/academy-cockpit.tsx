@@ -1,14 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { GraduationCap, Loader2, Play, RefreshCw, Sprout } from "lucide-react";
+import { GraduationCap, Loader2, Play, RefreshCw, Sprout, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
+  fetchAcademyPipeline,
   fetchAcademyStatus,
   runAcademySprint,
   seedAcademyLevel,
+  wakeAcademyAgents,
+  type AcademyPipelineStatus,
   type AcademyStatus,
 } from "@/lib/academy-api";
 
@@ -25,17 +28,23 @@ function GateRow({ label, ok }: { label: string; ok: boolean }) {
 
 export function AcademyCockpit() {
   const [data, setData] = useState<AcademyStatus | null>(null);
+  const [pipeline, setPipeline] = useState<AcademyPipelineStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const status = await fetchAcademyStatus();
+      const [status, pipe] = await Promise.all([
+        fetchAcademyStatus(),
+        fetchAcademyPipeline(),
+      ]);
       setData(status);
+      setPipeline(pipe);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erreur académie");
       setData(null);
+      setPipeline(null);
     } finally {
       setLoading(false);
     }
@@ -55,6 +64,19 @@ export function AcademyCockpit() {
       await load();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Seed échoué");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function handleWake() {
+    setBusy("wake");
+    try {
+      const res = await wakeAcademyAgents();
+      toast.success(res.summary ?? res.status.message ?? "Agents relancés");
+      await load();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Relance échouée");
     } finally {
       setBusy(null);
     }
@@ -81,6 +103,15 @@ export function AcademyCockpit() {
   const levelKey = String(currentLevel);
   const lv = progress?.levels[levelKey];
 
+  const pipelineTone =
+    pipeline?.verdict === "working"
+      ? "border-emerald-500/25 bg-emerald-500/5 text-emerald-300"
+      : pipeline?.verdict === "stuck"
+        ? "border-amber-500/25 bg-amber-500/5 text-amber-300"
+        : pipeline?.verdict === "idle"
+          ? "border-copper/25 bg-copper/5 text-copper-light"
+          : "border-titanium/15 bg-obsidian-deep/50 text-titanium/60";
+
   return (
     <Card className="mb-6 border-copper/20 bg-obsidian-2/90">
       <CardHeader className="flex flex-row items-center justify-between gap-4 space-y-0">
@@ -89,7 +120,7 @@ export function AcademyCockpit() {
             <GraduationCap className="h-4 w-4 text-copper" />
             Académie ALNUA
           </CardTitle>
-          <p className="label-caps mt-1">Entraînement dev_app avant NUAWAY</p>
+          <p className="label-caps mt-1">Entraînement dev_app avant Lounge</p>
         </div>
         <Button
           size="sm"
@@ -148,7 +179,7 @@ export function AcademyCockpit() {
             <div>
               <div className="mb-2 flex items-center justify-between">
                 <p className="text-xs font-medium text-titanium/50">Gate Produit (Lounge)</p>
-                {progress.gate_nuaway.gate_open ? (
+                {progress.gate_academy.gate_open ? (
                   <span className="rounded bg-emerald-500/15 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
                     OPEN
                   </span>
@@ -157,23 +188,23 @@ export function AcademyCockpit() {
               <div className="space-y-1 rounded-lg border border-copper/10 p-3">
                 <GateRow
                   label="Taux succès ≥ 65%"
-                  ok={progress.gate_nuaway.success_rate_65}
+                  ok={progress.gate_academy.success_rate_65}
                 />
                 <GateRow
                   label="N4 stable"
-                  ok={progress.gate_nuaway.academy_n4_stable}
+                  ok={progress.gate_academy.academy_n4_stable}
                 />
                 <GateRow
                   label="Mem0 enrichi"
-                  ok={progress.gate_nuaway.mem0_lessons_35}
+                  ok={progress.gate_academy.mem0_lessons_35}
                 />
                 <GateRow
                   label="≥ 5 erreurs résolues"
-                  ok={Boolean(progress.gate_nuaway.error_journal_top5)}
+                  ok={Boolean(progress.gate_academy.error_journal_top5)}
                 />
                 <GateRow
                   label="Pipeline Academy actif"
-                  ok={Boolean(progress.gate_nuaway.github_pipeline)}
+                  ok={Boolean(progress.gate_academy.github_pipeline)}
                 />
               </div>
             </div>
@@ -181,9 +212,42 @@ export function AcademyCockpit() {
             {data.mem0_snippet ? (
               <div>
                 <p className="mb-1 text-xs text-titanium/50">Dernières leçons Mem0</p>
-                <p className="max-h-20 overflow-y-auto rounded bg-black/30 p-2 font-mono text-[10px] text-titanium/70">
+                <p className="max-h-20 overflow-y-auto rounded bg-obsidian-deep/70 p-2 font-mono text-[10px] text-titanium/70">
                   {data.mem0_snippet.slice(0, 400)}
                 </p>
+              </div>
+            ) : null}
+
+            {pipeline ? (
+              <div
+                className={`flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between ${pipelineTone}`}
+              >
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wider opacity-80">
+                    Théo (dev_app)
+                  </p>
+                  <p className="text-sm">{pipeline.message}</p>
+                  {pipeline.academy ? (
+                    <p className="mt-1 text-[11px] opacity-70">
+                      {pipeline.academy.in_pipeline} en cours ·{" "}
+                      {pipeline.academy.agent_ready} en file ·{" "}
+                      {pipeline.academy.agent_failed} échec(s)
+                    </p>
+                  ) : null}
+                </div>
+                <Button
+                  size="sm"
+                  disabled={busy !== null || !data.repo_configured}
+                  onClick={() => void handleWake()}
+                  className="shrink-0 bg-copper text-obsidian hover:bg-copper/90"
+                >
+                  {busy === "wake" ? (
+                    <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Zap className="mr-1.5 h-3.5 w-3.5" />
+                  )}
+                  Relancer les agents
+                </Button>
               </div>
             ) : null}
 

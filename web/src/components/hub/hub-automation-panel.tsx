@@ -107,7 +107,7 @@ export function HubAutomationPanel() {
             {workflows.map((wf) => (
               <li
                 key={wf.id}
-                className="flex flex-wrap items-baseline justify-between gap-2 rounded-lg border border-copper/10 bg-black/20 px-3 py-2"
+                className="flex flex-wrap items-baseline justify-between gap-2 rounded-lg border border-copper/10 bg-obsidian-deep/50 px-3 py-2"
               >
                 <span className="font-medium text-ivory/90">{wf.name}</span>
                 <span className="text-titanium/50">{wf.trigger}</span>
@@ -117,7 +117,7 @@ export function HubAutomationPanel() {
         ) : null}
 
         {lastResult ? (
-          <pre className="max-h-48 overflow-auto rounded-lg border border-copper/10 bg-black/30 p-3 font-mono text-xs text-ivory/80 whitespace-pre-wrap">
+          <pre className="max-h-48 overflow-auto rounded-lg border border-copper/10 bg-obsidian-deep/70 p-3 font-mono text-xs text-ivory/80 whitespace-pre-wrap">
             {lastResult}
           </pre>
         ) : null}

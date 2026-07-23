@@ -15,18 +15,38 @@ _TELEGRAM_MAX = 4096
 
 def notify_telegram(message: str, chat_id: int | None = None) -> bool:
     """
-    Envoie un message à chat_id ou TELEGRAM_CHAT_ID (fallback).
+    Envoie un message via le bot COO (TELEGRAM_BOT_TOKEN).
     Retourne False si non configuré ou en cas d'échec (dégradé silencieux).
     """
     settings = get_settings()
     token = settings.telegram_bot_token.strip()
+    return _send_telegram(token, message, chat_id, settings.telegram_chat_id.strip())
+
+
+def notify_telegram_secretary(message: str, chat_id: int | None = None) -> bool:
+    """
+    Envoie un message via le bot Nadia (TELEGRAM_SECRETARY_BOT_TOKEN).
+    Fallback sur le bot COO si le token secrétaire n'est pas défini.
+    """
+    settings = get_settings()
+    token = settings.telegram_secretary_bot_token.strip() or settings.telegram_bot_token.strip()
+    default_chat = settings.telegram_secretary_chat_id_effective
+    return _send_telegram(token, message, chat_id, default_chat)
+
+
+def _send_telegram(
+    token: str,
+    message: str,
+    chat_id: int | None,
+    default_chat_raw: str,
+) -> bool:
     if not token:
         logger.debug("Telegram notify ignoré — token manquant")
         return False
 
     target = chat_id
     if target is None:
-        chat_raw = settings.telegram_chat_id.strip()
+        chat_raw = default_chat_raw
         if not chat_raw:
             logger.debug("Telegram notify ignoré — chat_id manquant")
             return False

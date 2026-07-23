@@ -46,6 +46,9 @@ export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
+  agentId?: string;
+  responseId?: string;
+  userMessage?: string;
   issueCreated?: boolean;
   issueNumber?: number;
   issueUrl?: string;

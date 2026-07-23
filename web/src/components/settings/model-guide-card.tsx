@@ -18,18 +18,19 @@ const AGENT_RECS: { agent: string; auto: string; force?: string }[] = [
 const TASK_RECS: { task: string; models: string; why: string }[] = [
   { task: "Stratégie & décisions", models: "Opus 4.8 · GPT-5.5 Pro · Kimi K2.6", why: "Raisonnement long, nuances" },
   { task: "Specs & prompts Cursor", models: "Sonnet 4.6 · GPT-5.3 Codex · DeepSeek V3.1", why: "Structuré, précis, markdown" },
-  { task: "Code & fix de bugs", models: "GPT-5.3 Codex · Qwen3 Coder · DeepSeek V3.2", why: "SWE-bench, agents code" },
-  { task: "Travail autonome long", models: "Claude Fable 5 · Opus 4.8 · GPT-5.5", why: "Tâches multi-jours, agents" },
-  { task: "Agents autonomes", models: "Kimi K2.6 · GLM 4.6 · MiniMax M2.7", why: "Multi-agent, tool use" },
-  { task: "Brainstorm créatif", models: "Grok 3 · GLM 4.6 · Sonnet 4.6", why: "Idéation, peu de censure" },
+  { task: "Code & fix de bugs", models: "Kimi K2.7 Code · GPT-5.3 Codex · Codestral 2508 · Qwen3 Coder", why: "SWE-bench, agents code" },
+  { task: "Travail autonome long", models: "Claude Fable 5 · GLM 5.2 · Opus 4.8 · GPT-5.5", why: "Tâches multi-jours, agents" },
+  { task: "Agents autonomes long contexte", models: "MiniMax 3 (M3) · GLM 5.2 · Kimi K2.7 Code", why: "1M tokens, tool use, agents" },
+  { task: "Code local / économique", models: "Gemma 4 31B · Gemma 4 26B A4B", why: "Apache 2.0, 256K ctx, raisonnement" },
+  { task: "Brainstorm créatif", models: "Grok 3/4 · Euryale · Dolphin Venice · MythoMax", why: "Peu de censure, idéation libre" },
   { task: "Rédaction marketing", models: "Sonnet 4.6 · GPT-5.4 · Kimi K2.6", why: "Ton naturel, créatif" },
   { task: "Triage / résumés", models: "Haiku 4.5 · GPT-5 Nano · GLM 4.5 Air", why: "Rapide, quasi gratuit" },
 ];
 
 const BUDGET_RULES = [
-  { emoji: "💰", label: "Économique", models: "MiniMax M2.7 · Haiku 4.5 · GLM 4.5 Air · DeepSeek R1×Qwen3 8B" },
-  { emoji: "⚖️", label: "Équilibré", models: "Sonnet 4 · DeepSeek V3.1 · Qwen3 Coder · Gemini Flash" },
-  { emoji: "🧠", label: "Qualité max", models: "Opus 4.8 · Fable 5 · GPT-5.5 Pro · Kimi K2.6" },
+  { emoji: "💰", label: "Économique", models: "MiniMax M2.7 · Nemotron 3 Nano · Haiku 4.5 · GLM 4.5 Air" },
+  { emoji: "⚖️", label: "Équilibré", models: "Sonnet 4 · Mistral Medium 3.5 · DeepSeek V3.1 · Qwen3 Coder" },
+  { emoji: "🧠", label: "Qualité max", models: "Opus 4.8 · GLM 5.2 · Kimi K2.7 Code · Nemotron 3 Ultra" },
 ];
 
 const AVOID = [
@@ -53,7 +54,7 @@ export function ModelGuideCard() {
           <div>
             <p className="text-sm font-medium text-ivory/90">Guide — Quelle IA pour quel travail ?</p>
             <p className="text-[11px] text-titanium/50">
-              55 modèles · Sonnet/Opus/Fable/GPT + Chine (DeepSeek, Qwen, GLM, Kimi)
+              Classés par usage : raisonnement · code · chat · rapide · non censuré
             </p>
           </div>
         </div>

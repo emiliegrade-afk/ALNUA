@@ -129,6 +129,43 @@ def resolve_matching_errors(
     return resolved
 
 
+def purge_open_errors(*, note: str = "archived — hub cleanup") -> int:
+    """Mark all open journal entries resolved (ops reset)."""
+    journal = load_journal()
+    resolved = 0
+    for entry in journal.get("entries", []):
+        if entry.get("status") != "open":
+            continue
+        entry["status"] = "resolved"
+        entry["solution"] = note[:2000]
+        entry["resolved_at"] = _now_iso()
+        resolved += 1
+    if resolved:
+        save_journal(journal)
+    return resolved
+
+
+def list_open_errors(
+    *,
+    repo_slug: str | None = None,
+    agent_name: str | None = None,
+    limit: int = 50,
+) -> list[dict[str, Any]]:
+    from services.company_errors import list_open_errors as unified_list
+
+    return unified_list(repo_slug=repo_slug, agent_name=agent_name, limit=limit)
+
+
+def count_open_errors(
+    *,
+    repo_slug: str | None = None,
+    agent_name: str | None = None,
+) -> int:
+    from services.company_errors import count_open_errors as unified_count
+
+    return unified_count(repo_slug=repo_slug, agent_name=agent_name)
+
+
 def count_resolved() -> int:
     journal = load_journal()
     return sum(1 for e in journal.get("entries", []) if e.get("status") == "resolved" and e.get("solution"))
@@ -141,13 +178,40 @@ def get_top_patterns(limit: int = 5) -> list[dict[str, Any]]:
     return patterns[:limit]
 
 
-def build_lessons_block(limit: int = 5) -> str:
-    """Inject recurring QA failures into coding prompts."""
-    patterns = get_top_patterns(limit)
-    if not patterns:
+def get_human_lessons(limit: int = 8) -> list[dict[str, Any]]:
+    """Resolved lessons (human fixes + successful solutions) newest first."""
+    journal = load_journal()
+    entries = [
+        e
+        for e in journal.get("entries", [])
+        if e.get("status") == "resolved" and (e.get("solution") or "").strip()
+    ]
+    entries.sort(key=lambda e: e.get("resolved_at") or e.get("created_at") or "", reverse=True)
+    return entries[:limit]
+
+
+def build_lessons_block(limit: int = 8) -> str:
+    """Inject QA failures + human lessons into coding prompts."""
+    patterns = get_top_patterns(min(limit, 5))
+    lessons = get_human_lessons(limit)
+    if not patterns and not lessons:
         return ""
-    lines = ["\n⚠️ LEÇONS QA ACADEMY (ne pas répéter ces erreurs) :\n"]
-    for i, pat in enumerate(patterns, 1):
-        lines.append(f"{i}. [{pat.get('error_type', '?')}] {pat.get('sample', '')[:180]}")
+    lines = ["\n⚠️ LEÇONS CODING ACADEMY (obligatoires — ne pas répéter) :\n"]
+    idx = 1
+    for entry in lessons:
+        etype = entry.get("error_type", "?")
+        cause = (entry.get("error_message") or "")[:160]
+        fix = (entry.get("solution") or "")[:200]
+        lines.append(f"{idx}. [{etype}] {cause}")
+        if fix:
+            lines.append(f"   → Fix: {fix}")
+        idx += 1
+    for pat in patterns:
+        if idx > limit + 3:
+            break
+        lines.append(
+            f"{idx}. [pattern×{pat.get('count', 1)}] {pat.get('sample', '')[:180]}"
+        )
+        idx += 1
     lines.append("")
     return "\n".join(lines)

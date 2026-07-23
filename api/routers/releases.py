@@ -28,11 +28,19 @@ def _enrich_releases_with_project_names(
 @router.get("/releases")
 def list_releases(project_id: str | None = None) -> list[dict[str, Any]]:
     db = get_supabase()
-    query = db.table("releases").select("*").order("created_at", desc=True)
-    if project_id:
-        query = query.eq("project_id", project_id)
-    response = query.execute()
-    return _enrich_releases_with_project_names(db, response.data or [])
+    try:
+        query = db.table("releases").select("*").order("created_at", desc=True)
+        if project_id:
+            query = query.eq("project_id", project_id)
+        response = query.execute()
+        return _enrich_releases_with_project_names(db, response.data or [])
+    except Exception as exc:
+        msg = str(exc)
+        if "releases" in msg and ("PGRST205" in msg or "schema cache" in msg):
+            logger.warning("releases table missing — returning empty list")
+            return []
+        logger.exception("list_releases failed")
+        raise HTTPException(status_code=500, detail="Impossible de charger les releases") from exc
 
 
 @router.post("/releases/generate")
@@ -139,6 +147,35 @@ async def telegram_webhook(request: Request) -> dict[str, bool]:
 
     update_data = await request.json()
     await get_telegram_bot().process_update(update_data)
+    return {"ok": True}
+
+
+@router.post("/webhook/telegram/secretary")
+async def telegram_secretary_webhook(request: Request) -> dict[str, bool]:
+    """Webhook Telegram — bot Nadia (secrétaire)."""
+    import secrets
+
+    settings = get_settings()
+    if not settings.telegram_secretary_bot_token:
+        raise HTTPException(status_code=503, detail="Telegram secretary bot not configured")
+
+    webhook_secret = settings.telegram_secretary_webhook_secret.strip()
+    env = settings.environment.strip().lower()
+    is_prod = env in {"production", "prod", "staging"}
+    if webhook_secret:
+        provided = request.headers.get("X-Telegram-Bot-Api-Secret-Token", "")
+        if not provided or not secrets.compare_digest(provided, webhook_secret):
+            raise HTTPException(status_code=401, detail="Telegram secretary webhook secret invalide")
+    elif is_prod:
+        raise HTTPException(
+            status_code=503,
+            detail="TELEGRAM_SECRETARY_WEBHOOK_SECRET requis en production",
+        )
+
+    from bots.telegram_secretary_bot import get_telegram_secretary_bot
+
+    update_data = await request.json()
+    await get_telegram_secretary_bot().process_update(update_data)
     return {"ok": True}
 
 

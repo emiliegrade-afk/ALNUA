@@ -57,14 +57,37 @@ export function HqHubMap({
     if (!el) return;
 
     const measure = () => {
-      const { width, height } = el.getBoundingClientRect();
-      setFrame(fitContain(Math.floor(width), Math.floor(height)));
+      const rect = el.getBoundingClientRect();
+      let width = Math.floor(rect.width);
+      let height = Math.floor(rect.height);
+
+      // Cursor Simple Browser / embedded WebViews can report 0 height briefly.
+      if (height <= 0) {
+        height = Math.max(
+          Math.floor(window.innerHeight - 36),
+          Math.floor(document.documentElement.clientHeight - 36),
+          480,
+        );
+      }
+      if (width <= 0) {
+        width = Math.max(
+          Math.floor(window.innerWidth),
+          Math.floor(document.documentElement.clientWidth),
+          320,
+        );
+      }
+
+      setFrame(fitContain(width, height));
     };
 
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);
-    return () => ro.disconnect();
+    window.addEventListener("resize", measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
+    };
   }, []);
 
   const handleEnter = useCallback(
@@ -158,7 +181,9 @@ export function HqHubMap({
             );
           })}
         </div>
-      ) : null}
+      ) : (
+        <p className="font-body text-sm text-titanium/60">Chargement du siège social…</p>
+      )}
 
       <AnimatePresence>
         {hovered ? (

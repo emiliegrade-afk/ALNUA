@@ -1,16 +1,53 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { BrainstormView } from "@/components/brainstorm/brainstorm-view";
-import { RndCenterView } from "@/components/rnd/rnd-center-view";
-import { RndDossiersView } from "@/components/rnd/rnd-dossiers-view";
-import { BackToLobby } from "@/components/shared/back-to-lobby";
 import { BureauAgentsSection } from "@/components/shared/bureau-agents-section";
-import { DepartmentHeader } from "@/components/shared/department-header";
-import { Lightbulb, Beaker, FolderOpen } from "lucide-react";
+import { BureauPage } from "@/components/shared/bureau-page";
+import { Lightbulb, Beaker, FolderOpen, TreePine } from "lucide-react";
 
-type Tab = "brainstorm" | "rnd" | "dossiers";
+const BrainstormView = dynamic(
+  () =>
+    import("@/components/brainstorm/brainstorm-view").then((m) => ({
+      default: m.BrainstormView,
+    })),
+  { loading: () => <TabSkeleton /> },
+);
+
+const RndCenterView = dynamic(
+  () =>
+    import("@/components/rnd/rnd-center-view").then((m) => ({
+      default: m.RndCenterView,
+    })),
+  { loading: () => <TabSkeleton /> },
+);
+
+const RndHypothesisTreePanel = dynamic(
+  () =>
+    import("@/components/rnd/rnd-hypothesis-tree-panel").then((m) => ({
+      default: m.RndHypothesisTreePanel,
+    })),
+  { loading: () => <TabSkeleton /> },
+);
+
+const RndDossiersView = dynamic(
+  () =>
+    import("@/components/rnd/rnd-dossiers-view").then((m) => ({
+      default: m.RndDossiersView,
+    })),
+  { loading: () => <TabSkeleton /> },
+);
+
+function TabSkeleton() {
+  return (
+    <div className="flex flex-1 items-center justify-center text-sm text-titanium/50">
+      Chargement…
+    </div>
+  );
+}
+
+type Tab = "brainstorm" | "rnd" | "trees" | "dossiers";
 
 const CEO_VIEWS = new Set(["ceo", "committee", "deck", "visuals", "social", "product", "pipeline"]);
 
@@ -20,8 +57,11 @@ export function RdPageContent() {
   const viewFromUrl = searchParams.get("view");
   const tabFromUrl = searchParams.get("tab");
 
+  const treeFromUrl = searchParams.get("tree");
+
   const resolveInitialTab = (): Tab => {
     if (dossierFromUrl) return "dossiers";
+    if (treeFromUrl || tabFromUrl === "trees") return "trees";
     if (tabFromUrl === "rnd") return "rnd";
     if (tabFromUrl === "dossiers") return "dossiers";
     if (tabFromUrl === "brainstorm") return "brainstorm";
@@ -41,23 +81,21 @@ export function RdPageContent() {
   }
 
   return (
-    <>
-      <BackToLobby />
-      <DepartmentHeader
-        dept="rd"
-        title="R&D"
-        subtitle="Nova · Mira · Brainstorm · Dossiers · Comité"
-      />
+    <BureauPage
+      dept="rd"
+      title="R&D"
+      subtitle="Nova · Mira · Brainstorm · Dossiers · Comité"
+      flush
+    >
+      <BureauAgentsSection bureau="rd" className="grid gap-4 sm:grid-cols-2" />
 
-      <BureauAgentsSection bureau="rd" className="mb-6 grid gap-4 sm:grid-cols-2" />
-
-      <div className="mb-4 flex w-fit flex-wrap gap-1 rounded-xl border border-white/10 bg-white/[0.02] p-1">
+      <div className="mb-4 flex w-fit flex-wrap gap-1 rounded-2xl border border-bronze-faint bg-obsidian/70 p-1">
         <button
           onClick={() => setTab("brainstorm")}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition ${
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition ${
             tab === "brainstorm"
-              ? "bg-copper text-obsidian shadow"
-              : "text-titanium/70 hover:text-ivory/80"
+              ? "bg-bronze text-obsidian shadow-glow"
+              : "text-titane/70 hover:text-ivoire"
           }`}
         >
           <Lightbulb className="h-4 w-4" />
@@ -65,24 +103,35 @@ export function RdPageContent() {
         </button>
         <button
           onClick={() => setTab("rnd")}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition ${
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition ${
             tab === "rnd"
-              ? "bg-copper text-obsidian shadow"
-              : "text-titanium/70 hover:text-ivory/80"
+              ? "bg-bronze text-obsidian shadow-glow"
+              : "text-titane/70 hover:text-ivoire"
           }`}
         >
           <Beaker className="h-4 w-4" />
           Centre R&D
         </button>
         <button
+          onClick={() => setTab("trees")}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition ${
+            tab === "trees"
+              ? "bg-bronze text-obsidian shadow-glow"
+              : "text-titane/70 hover:text-ivoire"
+          }`}
+        >
+          <TreePine className="h-4 w-4" />
+          Arbres
+        </button>
+        <button
           onClick={() => {
             setDossiersReloadKey((k) => k + 1);
             setTab("dossiers");
           }}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition ${
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition ${
             tab === "dossiers"
-              ? "bg-copper text-obsidian shadow"
-              : "text-titanium/70 hover:text-ivory/80"
+              ? "bg-bronze text-obsidian shadow-glow"
+              : "text-titane/70 hover:text-ivoire"
           }`}
         >
           <FolderOpen className="h-4 w-4" />
@@ -95,6 +144,11 @@ export function RdPageContent() {
           <BrainstormView />
         ) : tab === "rnd" ? (
           <RndCenterView onDossierCreated={handleDossierCreated} />
+        ) : tab === "trees" ? (
+          <RndHypothesisTreePanel
+            initialSlug={treeFromUrl}
+            onDossierCreated={handleDossierCreated}
+          />
         ) : (
           <RndDossiersView
             initialDossierId={dossierFocusId ?? dossierFromUrl}
@@ -103,6 +157,6 @@ export function RdPageContent() {
           />
         )}
       </div>
-    </>
+    </BureauPage>
   );
 }

@@ -8,7 +8,7 @@ export interface GateCriterion {
   passed: boolean;
 }
 
-export interface NuawayGate {
+export interface AcademyGate {
   gate_open: boolean;
   readiness_pct: number;
   passed: number;
@@ -31,8 +31,7 @@ export interface CeoQueueItem {
 
 export interface CeoCockpit {
   headline: string;
-  nuaway_gate: NuawayGate;
-  beta_readiness: BetaReadiness;
+  academy_gate: AcademyGate;
   academy: Record<string, unknown>;
   production_ops: Record<string, unknown>;
   ceo_queue: {
@@ -43,59 +42,17 @@ export interface CeoCockpit {
   pipeline: {
     agent_ready_count: number;
     github_configured: boolean;
-    nomad_repo: string | null;
   };
-}
-
-export interface BetaCriterion extends GateCriterion {
-  category?: string;
-}
-
-export interface BetaReadiness {
-  beta_ready: boolean;
-  readiness_pct: number;
-  passed: number;
-  total: number;
-  critical_passed: number;
-  critical_total: number;
-  criteria: BetaCriterion[];
-  missing_critical?: string[];
-  ceo_beta?: {
-    approved?: boolean;
-    note?: string;
-    at?: string | null;
-  };
-  headline?: string;
-  markdown?: string;
-  error?: string;
 }
 
 export async function fetchCeoCockpit(): Promise<CeoCockpit> {
   return hubFetch<CeoCockpit>("/autonomy/ceo-cockpit");
 }
 
-export async function fetchNuawayGate(refresh = true): Promise<NuawayGate> {
-  return hubFetch<NuawayGate>(`/autonomy/nuaway-gate?refresh=${refresh}`);
+export async function fetchAcademyGate(refresh = true): Promise<AcademyGate> {
+  return hubFetch<AcademyGate>(`/autonomy/academy-gate?refresh=${refresh}`);
 }
 
-export async function evaluateNuawayGate(): Promise<NuawayGate & { message: string }> {
-  return hubFetch("/autonomy/nuaway-gate/evaluate", { method: "POST" });
-}
-
-export async function fetchBetaReadiness(refresh = true): Promise<BetaReadiness> {
-  return hubFetch<BetaReadiness>(`/autonomy/nuaway-readiness?refresh=${refresh}`);
-}
-
-export async function generateReadinessReport(): Promise<BetaReadiness & { message: string }> {
-  return hubFetch("/autonomy/nuaway-readiness/report", { method: "POST" });
-}
-
-export async function setCeoBetaGo(
-  approved: boolean,
-  note = ""
-): Promise<BetaReadiness & { message: string }> {
-  return hubFetch("/autonomy/nuaway-readiness/ceo-go", {
-    method: "POST",
-    body: JSON.stringify({ approved, note }),
-  });
+export async function evaluateAcademyGate(): Promise<AcademyGate & { message: string }> {
+  return hubFetch("/autonomy/academy-gate/evaluate", { method: "POST" });
 }

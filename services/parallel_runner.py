@@ -130,9 +130,14 @@ async def _run_single_task(
 
     while True:
         try:
+            import inspect
+
             method = _get_agent_method(task.agent_id, task.method)
-            loop = asyncio.get_event_loop()
-            result = await loop.run_in_executor(None, lambda: method(**task.kwargs))
+            if inspect.iscoroutinefunction(method):
+                result = await method(**task.kwargs)
+            else:
+                loop = asyncio.get_event_loop()
+                result = await loop.run_in_executor(None, lambda: method(**task.kwargs))
             duration_ms = int((time.monotonic() - start) * 1000)
 
             points = 0

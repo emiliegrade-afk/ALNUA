@@ -3,11 +3,10 @@
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { BackToLobby } from "@/components/shared/back-to-lobby";
 import { BureauAgentsSection } from "@/components/shared/bureau-agents-section";
-import { DepartmentHeader } from "@/components/shared/department-header";
+import { BureauPage } from "@/components/shared/bureau-page";
+import { BureauPanel } from "@/components/shared/bureau-panel";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchPosts } from "@/lib/content";
 
 const MarketingConsole = dynamic(
@@ -17,9 +16,9 @@ const MarketingConsole = dynamic(
     })),
   {
     loading: () => (
-      <p className="text-sm text-titanium/60">Chargement console marketing…</p>
+      <p className="text-sm text-titane/60">Chargement console marketing…</p>
     ),
-  }
+  },
 );
 
 export default function MarketingPage() {
@@ -34,47 +33,40 @@ export default function MarketingPage() {
   }, []);
 
   return (
-    <>
-      <BackToLobby />
-      <DepartmentHeader
-        dept="marketing"
-        title="Marketing"
-        subtitle="Lena · Eliot · Contenu · SEO · Réseaux"
-      />
-
+    <BureauPage
+      dept="marketing"
+      title="Marketing"
+      subtitle="Lena · Eliot · Contenu · SEO · Réseaux"
+    >
       <BureauAgentsSection bureau="marketing" />
 
-      <div className="mb-8">
-        <Card className="border-copper/20 bg-obsidian-2/90">
-          <CardHeader>
-            <CardTitle className="font-title text-base text-ivory">Posts en attente</CardTitle>
-            <p className="label-caps">
-              {pendingPosts.length} post{pendingPosts.length !== 1 ? "s" : ""} pending
-            </p>
-          </CardHeader>
-          <CardContent>
-            {pendingPosts.length === 0 ? (
-              <p className="font-body text-sm text-titanium/60">Aucun post en attente.</p>
-            ) : (
-              <ul className="space-y-3">
-                {pendingPosts.map((post) => (
-                  <li key={post.id} className="rounded-lg border border-copper/10 p-3">
-                    <span className="font-body text-xs text-copper">{post.platform}</span>
-                    <p className="mt-1 line-clamp-2 font-body text-sm text-ivory/80">
-                      {post.text_content}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <Button asChild size="sm" variant="ghost" className="mt-4">
-              <Link href="/content">Voir tout le contenu</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <BureauPanel title="Posts en attente">
+        <p className="label-caps mb-4">
+          {pendingPosts.length} post{pendingPosts.length !== 1 ? "s" : ""} pending
+        </p>
+        {pendingPosts.length === 0 ? (
+          <p className="font-body text-sm text-titane/60">Aucun post en attente.</p>
+        ) : (
+          <ul className="space-y-3">
+            {pendingPosts.map((post) => (
+              <li
+                key={post.id}
+                className="rounded-lg border border-bronze-faint bg-obsidian-deep/50 p-3"
+              >
+                <span className="font-body text-xs text-bronze-bright">{post.platform}</span>
+                <p className="mt-1 line-clamp-2 font-body text-sm text-ivoire/85">
+                  {post.text_content}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+        <Button asChild size="sm" variant="ghost" className="mt-4 text-bronze-bright">
+          <Link href="/content">Voir tout le contenu</Link>
+        </Button>
+      </BureauPanel>
 
       <MarketingConsole />
-    </>
+    </BureauPage>
   );
 }

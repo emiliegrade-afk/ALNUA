@@ -64,7 +64,7 @@ export function KitHistory({
               className={`h-auto w-full justify-start gap-3 rounded-xl border px-3 py-3 text-left ${
                 isActive
                   ? "border-copper/40 bg-copper/10"
-                  : "border-copper/10 bg-black/20 hover:bg-copper/5"
+                  : "border-copper/10 bg-obsidian-deep/50 hover:bg-copper/5"
               }`}
             >
               <History className="mt-0.5 h-4 w-4 shrink-0 text-copper/70" />

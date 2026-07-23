@@ -11,7 +11,7 @@ import {
   fetchPublicProductPage,
   type RndProductPage,
 } from "@/lib/rnd-dossier";
-import { hubApiUrl } from "@/lib/hub-api-config";
+import { hubPublicApiUrl } from "@/lib/hub-api-config";
 import { joinWaitlist } from "@/lib/waitlist-api";
 import { cn } from "@/lib/utils";
 
@@ -22,7 +22,7 @@ interface RndProductPublicPageProps {
 function resolveHeroUrl(page: RndProductPage): string | null {
   if (!page.hero_url) return null;
   if (page.hero_url.startsWith("http")) return page.hero_url;
-  return hubApiUrl(page.hero_url);
+  return hubPublicApiUrl(page.hero_url);
 }
 
 export function RndProductPublicPage({ slug }: RndProductPublicPageProps) {

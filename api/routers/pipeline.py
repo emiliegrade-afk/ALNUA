@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
+import time
+
 from api.route_common import *  # noqa: F403
 
 router = APIRouter()
 
 
 _pipeline_tasks: dict[str, dict[str, Any]] = {}
+_agents_status_cache: tuple[float, dict[str, Any]] | None = None
+_AGENTS_STATUS_TTL_S = 3.0
 
 
 async def run_pipeline_background(
@@ -37,7 +41,7 @@ async def run_pipeline_background(
             repo_path = issue.get("_repo_path")
             if not repo_path:
                 raise ValueError(
-                    f"Issue #{issue_number} sans métadonnée repo — préciser ?repo=hub|academy|nomad|naia"
+                    f"Issue #{issue_number} sans métadonnée repo — préciser ?repo=hub|academy"
                 )
 
             task["progress"] = 40
@@ -79,7 +83,7 @@ async def get_ready_issues():
 
 @router.post("/pipeline/run/{issue_number}")
 async def run_pipeline(issue_number: int, repo: str | None = None):
-    """Déclenche le pipeline sur une issue spécifique (repo=hub|naia|nomad)."""
+    """Déclenche le pipeline sur une issue spécifique (repo=hub|academy)."""
     task_id = str(uuid.uuid4())
     _pipeline_tasks[task_id] = {
         "status": "starting",
@@ -183,7 +187,12 @@ def _apply_task_details(
     if agent_id not in agents:
         return
     task_logs = [str(line) for line in task.get("log", [])]
-    current_file, recent_code = extract_file_mentions(task_logs)
+    current_file = task.get("current_file")
+    recent_code = task.get("recent_code") or []
+    if not current_file or not recent_code:
+        parsed_file, parsed_code = extract_file_mentions(task_logs)
+        current_file = current_file or parsed_file
+        recent_code = recent_code or parsed_code
     agents[agent_id]["currentFile"] = current_file
     agents[agent_id]["recentCode"] = recent_code
     agents[agent_id]["log"] = task_logs
@@ -211,15 +220,81 @@ async def agents_pipeline_audit() -> dict[str, Any]:
 @router.get("/agents/status")
 async def agents_status() -> dict[str, Any]:
     """Statut OpenRoom — agents + 20 derniers logs."""
+    global _agents_status_cache
+
+    def _pipeline_busy() -> bool:
+        if any(
+            t.get("status") in {"starting", "running"}
+            for t in _pipeline_tasks.values()
+        ):
+            return True
+        try:
+            from services.coding_activity import active_tasks as poll_active_tasks
+
+            return bool(poll_active_tasks())
+        except Exception:
+            return False
+
+    busy = _pipeline_busy()
+    now = time.monotonic()
+    if (
+        not busy
+        and _agents_status_cache is not None
+        and now - _agents_status_cache[0] < _AGENTS_STATUS_TTL_S
+    ):
+        return _agents_status_cache[1]
+
     agents = _openroom_idle_agents()
     recent_logs: list[dict[str, str]] = []
+    pipeline_active = False
 
     active_tasks = [
         task
         for task in _pipeline_tasks.values()
         if task.get("status") in {"starting", "running"}
     ]
-    pipeline_active = len(active_tasks) > 0
+    try:
+        from services.coding_activity import active_tasks as poll_active_tasks
+
+        for pt in poll_active_tasks():
+            active_tasks.append(
+                {
+                    "status": "running",
+                    "log": pt.get("log", []),
+                    "progress": pt.get("progress", 0),
+                    "issue_number": pt.get("issue_number"),
+                    "started_at": pt.get("started_at"),
+                    "repo": pt.get("repo_slug"),
+                    "current_file": pt.get("current_file"),
+                    "recent_code": pt.get("recent_code", []),
+                }
+            )
+    except Exception:
+        pass
+
+    # GitHub in-pipeline (survives Hub restart — label set before coding starts)
+    try:
+        from services.coding_activity import github_academy_in_pipeline
+
+        for gh in github_academy_in_pipeline():
+            num = gh.get("issue_number")
+            title = str(gh.get("title", ""))[:80]
+            msg = f"Academy #{num}: {title}"
+            if agents["dev_app"]["status"] == "idle":
+                _set_openroom_status(agents, "dev_app", "working", msg)
+            recent_logs.insert(
+                0,
+                {
+                    "time": _format_log_time(datetime.now(timezone.utc).isoformat()),
+                    "agent": "DEV",
+                    "message": msg,
+                },
+            )
+            pipeline_active = True
+    except Exception:
+        pass
+
+    pipeline_active = pipeline_active or len(active_tasks) > 0
 
     for task in active_tasks:
         last_log = task.get("log", [""])[-1]
@@ -305,11 +380,30 @@ async def agents_status() -> dict[str, Any]:
 
     recent_logs = recent_logs[:20]
 
-    return {
+    try:
+        from services.coding_activity import github_academy_in_pipeline
+        from services.agent_wake import academy_label_counts
+
+        gh_counts = academy_label_counts()
+    except Exception:
+        gh_counts = {}
+        github_academy_in_pipeline = lambda: []  # type: ignore[assignment,misc]
+
+    result = {
         "agents": agents,
         "recentLogs": recent_logs,
         "pipelineActive": pipeline_active,
+        "codingPipeline": {
+            "activeTasks": len(active_tasks),
+            "githubInPipeline": gh_counts.get("in-pipeline", 0),
+            "githubAgentReady": gh_counts.get("agent-ready", 0),
+            "githubFailed": gh_counts.get("agent-failed", 0),
+            "inPipelineIssues": github_academy_in_pipeline(),
+        },
     }
+    if not busy:
+        _agents_status_cache = (time.monotonic(), result)
+    return result
 
 
 @router.get("/costs/today")

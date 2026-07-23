@@ -212,7 +212,7 @@ export function ReleaseGenerateForm({
         </fieldset>
 
         {sourceMode === "pick_entries" && (
-          <div className="rounded-lg border border-white/10 bg-black/20">
+          <div className="rounded-lg border border-white/10 bg-obsidian-deep/50">
             {loadingLogs ? (
               <div className="flex items-center justify-center py-8 text-sm text-titanium">
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

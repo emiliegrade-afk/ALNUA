@@ -4,13 +4,12 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { BackToLobby } from "@/components/shared/back-to-lobby";
 import { BureauAgentsSection } from "@/components/shared/bureau-agents-section";
-import { DepartmentHeader } from "@/components/shared/department-header";
+import { BureauPage } from "@/components/shared/bureau-page";
+import { BureauPanel } from "@/components/shared/bureau-panel";
 import { AppConsole } from "@/components/app/app-console";
 import { AppTicketsSection } from "@/components/app/app-tickets-section";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { deleteProject, fetchProjects, fetchTickets } from "@/lib/api";
 import type { Project } from "@/lib/types";
 
@@ -74,41 +73,41 @@ export default function AppPolePage() {
   }
 
   return (
-    <>
-      <BackToLobby />
-      <DepartmentHeader
-        dept="app"
-        title="Pôle App"
-        subtitle="NUAWAY · Naïa App · Dev mobile & backend"
-      />
+    <BureauPage
+      dept="app"
+      title="Pôle App"
+      subtitle="App Office · Dev mobile & backend"
+    >
+      <p className="rounded-xl border border-bronze-faint bg-obsidian/70 px-4 py-3 font-body text-sm text-titane/80">
+        Pour lier tes repos GitHub ou lancer une nouvelle app (Factory) :{" "}
+        <Link href="/apps" className="text-bronze-bright underline hover:text-ivoire">
+          Mes apps
+        </Link>
+      </p>
 
       <BureauAgentsSection bureau="app" />
-
       <AppTicketsSection />
 
       {loadingProjects ? (
-        <p className="mb-8 text-sm text-titanium/60">Chargement des projets…</p>
+        <p className="text-sm text-titane/60">Chargement des projets…</p>
       ) : projectStats.length > 0 ? (
-        <section className="mb-8">
+        <section>
           <h2 className="label-caps mb-4">Projets</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             {projectStats.map(({ project, openTickets }) => (
-              <Card key={project.id} className="border-copper/20 bg-obsidian-2/90">
-                <CardHeader className="pb-2">
-                  <CardTitle className="font-title text-base text-ivory">
-                    {project.name}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="flex items-center justify-between gap-3">
+              <BureauPanel key={project.id} title={project.name}>
+                <div className="flex items-center justify-between gap-3">
                   <div className="space-y-1">
-                    <span className="badge-copper px-2 py-0.5 text-xs">{project.status}</span>
-                    <p className="font-body text-sm text-titanium">
+                    <span className="rounded-full border border-bronze-faint bg-bronze/10 px-2 py-0.5 text-xs text-bronze-bright">
+                      {project.status}
+                    </span>
+                    <p className="font-body text-sm text-titane/80">
                       {openTickets} ticket{openTickets !== 1 ? "s" : ""} actif
                       {openTickets !== 1 ? "s" : ""}
                     </p>
                   </div>
                   <div className="flex shrink-0 items-center gap-1">
-                    <Button asChild size="sm" variant="ghost">
+                    <Button asChild size="sm" variant="ghost" className="text-bronze-bright">
                       <Link href={`/tickets?project=${encodeURIComponent(project.id)}`}>
                         Ouvrir
                       </Link>
@@ -116,7 +115,7 @@ export default function AppPolePage() {
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="text-titanium/60 hover:text-red-400"
+                      className="text-titane/60 hover:text-red-400"
                       disabled={deletingId === project.id}
                       aria-label={`Supprimer ${project.name}`}
                       onClick={() => void handleDeleteProject(project)}
@@ -128,14 +127,14 @@ export default function AppPolePage() {
                       )}
                     </Button>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </BureauPanel>
             ))}
           </div>
         </section>
       ) : null}
 
       <AppConsole />
-    </>
+    </BureauPage>
   );
 }

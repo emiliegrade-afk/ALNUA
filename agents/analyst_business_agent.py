@@ -2,23 +2,21 @@
 
 from __future__ import annotations
 
+from agents.agent_base import AgentBase
+
 from typing import Any
 
-from agents.base import LLMClient, log_agent_action, parse_json_response
+from agents.base import log_agent_action, parse_json_response
 from config.agent_operating_spec import get_system_prompt
-from database.supabase_client import SupabaseClient, get_supabase
 from skills.skill_agent_learning import inject_learning_context, record_task_learning
 from skills.skill_langfuse import trace_agent
 
 
-class BusinessAnalystAgent:
+class BusinessAnalystAgent(AgentBase):
     AGENT_NAME = "analyst_business"
 
     SYSTEM_PROMPT = get_system_prompt("analyst_business")
 
-    def __init__(self, db: SupabaseClient | None = None, llm: LLMClient | None = None) -> None:
-        self.db = db or get_supabase()
-        self.llm = llm or LLMClient()
 
     @trace_agent("analyst_business")
     def market_analysis(
@@ -56,9 +54,7 @@ Réponds en JSON :
 }}""",
             self.AGENT_NAME, f"market analysis {product}",
         )
-        raw = self.llm.complete(
-            self.SYSTEM_PROMPT, prompt, agent_id=self.AGENT_NAME, temperature=0.5, max_tokens=4096
-        )
+        raw = self._complete(prompt, temperature=0.5, max_tokens=4096)
         result = parse_json_response(raw)
         log_agent_action(
             self.db, self.AGENT_NAME, "market_analysis",
@@ -97,9 +93,7 @@ Réponds en JSON :
 }}""",
             self.AGENT_NAME, f"kpis {project}",
         )
-        raw = self.llm.complete(
-            self.SYSTEM_PROMPT, prompt, agent_id=self.AGENT_NAME, temperature=0.3
-        )
+        raw = self._complete(prompt, temperature=0.3)
         result = parse_json_response(raw)
         log_agent_action(
             self.db, self.AGENT_NAME, "define_kpis",
@@ -135,9 +129,7 @@ Réponds en JSON :
 }}""",
             self.AGENT_NAME, research_question,
         )
-        raw = self.llm.complete(
-            self.SYSTEM_PROMPT, prompt, agent_id=self.AGENT_NAME, temperature=0.5
-        )
+        raw = self._complete(prompt, temperature=0.5)
         return parse_json_response(raw)
 
     @trace_agent("analyst_business")
@@ -168,7 +160,5 @@ Réponds en JSON :
 }}""",
             self.AGENT_NAME, topic,
         )
-        raw = self.llm.complete(
-            self.SYSTEM_PROMPT, prompt, agent_id=self.AGENT_NAME, temperature=0.4, max_tokens=3000
-        )
+        raw = self._complete(prompt, temperature=0.4, max_tokens=3000)
         return parse_json_response(raw)

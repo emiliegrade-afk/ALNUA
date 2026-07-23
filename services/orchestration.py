@@ -80,7 +80,7 @@ def _resolve_project_id(
     return None
 
 
-def run_morning_orchestration(*, weekly_plan: bool = False) -> dict[str, Any]:
+def run_morning_orchestration(*, weekly_plan: bool = False, notify: bool = True) -> dict[str, Any]:
     """Briefing quotidien enrichi (trends, coûts, events) + notification Telegram/Discord."""
     from services.daily_briefing import run_daily_briefing
 
@@ -159,7 +159,8 @@ def run_morning_orchestration(*, weekly_plan: bool = False) -> dict[str, Any]:
         except Exception:
             pass
         message = f"☀️ ALNUA — {mode}\n\n{coo_plan}{alert_block}{opp_block}{academy_line}"
-        notifications = _notify(message)
+        if notify:
+            notifications = _notify(message)
 
     return {
         "workflow": "morning",
@@ -172,6 +173,36 @@ def run_morning_orchestration(*, weekly_plan: bool = False) -> dict[str, Any]:
         "coo_plan": coo_plan,
         "coo_error": briefing_error if not coo_plan else None,
         "notifications": notifications,
+    }
+
+
+def run_secretary_morning_notify(*, weekly_plan: bool = False) -> dict[str, Any]:
+    """
+    8h Paris — briefing COO (sans Telegram) puis un message Nadia via son bot dédié.
+    """
+    from services.secretary_intents import build_combined_morning_message
+    from skills.skill_telegram_notify import notify_telegram_secretary
+
+    orch = run_morning_orchestration(weekly_plan=weekly_plan, notify=False)
+    message = build_combined_morning_message()
+    telegram_ok = False
+    try:
+        from services.notify_dedup import should_send_notify
+
+        if should_send_notify("telegram_secretary", message):
+            telegram_ok = notify_telegram_secretary(message)
+    except Exception:
+        telegram_ok = notify_telegram_secretary(message)
+    _log_run(
+        "secretary_morning",
+        (orch.get("coo_plan") or "partial")[:120],
+        success=bool(orch.get("success")),
+    )
+    return {
+        "workflow": "secretary_morning",
+        "orchestration": orch,
+        "notifications": {"telegram": telegram_ok},
+        "message_preview": message[:300],
     }
 
 
@@ -445,22 +476,21 @@ def run_academy_poll_orchestration(
     Called by Hub poll_issues_loop backup + n8n workflow 12 every 30min.
     """
     from services.academy_issue_sync import run_academy_sync
-    from services.academy_seed import mark_next_agent_ready
-    from services.nuaway_gate import evaluate_nuaway_gate
+    from services.academy_gate import evaluate_academy_gate
 
     try:
         sync = run_academy_sync()
         progress = sync.get("progress") or {}
-        levels = progress.get("levels") or {}
-        lv1 = levels.get("1") or {}
-        in_pipeline = int(lv1.get("in_progress") or 0)
 
         queued: dict[str, Any] | None = None
-        if mark_ready_if_idle and in_pipeline == 0:
-            current = int(progress.get("current_level") or 1)
-            queued = mark_next_agent_ready(level=current, count=mark_ready_count)
+        if mark_ready_if_idle:
+            from services.agent_wake import queue_academy_if_idle
 
-        gate = evaluate_nuaway_gate(refresh_academy=False)
+            queued = queue_academy_if_idle(
+                count=mark_ready_count if mark_ready_count > 0 else None
+            )
+
+        gate = evaluate_academy_gate(refresh_academy=False)
 
         summary = (
             f"L{progress.get('current_level')} "
@@ -562,15 +592,15 @@ def run_sentry_ingest_orchestration(payload: dict[str, Any]) -> dict[str, Any]:
         return {"workflow": "sentry_ingest", "success": False, "error": str(exc)}
 
 
-def run_nuaway_gate_orchestration(*, notify: bool = True) -> dict[str, Any]:
-    """Évalue la gate NUAWAY et notifie si bloquante (n8n workflow 10)."""
-    from services.nuaway_gate import evaluate_nuaway_gate
+def run_academy_gate_orchestration(*, notify: bool = True) -> dict[str, Any]:
+    """Évalue la gate Academy → Lounge et notifie si bloquante (n8n workflow 10)."""
+    from services.academy_gate import evaluate_academy_gate
 
     try:
-        result = evaluate_nuaway_gate(refresh_academy=True)
+        result = evaluate_academy_gate(refresh_academy=True)
         pct = result.get("readiness_pct", 0)
         open_ = bool(result.get("gate_open"))
-        _log_run("nuaway_gate", f"readiness={pct}% open={open_}")
+        _log_run("academy_gate", f"readiness={pct}% open={open_}")
         if notify:
             status = "✅ OPEN" if open_ else f"🔒 {pct}%"
             missing = [
@@ -578,58 +608,17 @@ def run_nuaway_gate_orchestration(*, notify: bool = True) -> dict[str, Any]:
                 for c in result.get("criteria", [])
                 if c.get("critical") and not c.get("passed")
             ]
-            msg = f"🚦 Gate NUAWAY — {status}"
+            msg = f"🚦 Gate Academy — {status}"
             if missing and not open_:
                 msg += f"\nBloquant : {missing[0]}"
             _notify(msg)
-        return {**result, "success": True, "workflow": "nuaway_gate"}
+        return {**result, "success": True, "workflow": "academy_gate"}
     except Exception as exc:
-        logger.exception("nuaway_gate failed")
-        _log_run("nuaway_gate", str(exc), success=False)
+        logger.exception("academy_gate failed")
+        _log_run("academy_gate", str(exc), success=False)
         if notify:
-            _notify(f"❌ Évaluation gate NUAWAY échouée : {exc}")
-        return {"workflow": "nuaway_gate", "success": False, "error": str(exc)}
-
-
-def run_nuaway_readiness_report_orchestration(*, notify: bool = True) -> dict[str, Any]:
-    """Rapport readiness beta NUAWAY (n8n workflow 11)."""
-    from services.nuaway_readiness import generate_readiness_report
-
-    try:
-        report = generate_readiness_report(refresh_gate=True)
-        headline = report.get("headline", "")
-        _log_run("nuaway_readiness_report", headline[:120])
-        if notify:
-            status = "✅ BETA READY" if report.get("beta_ready") else f"🔒 {report.get('readiness_pct')}%"
-            _notify(f"📊 Rapport readiness NUAWAY\n{status}\n{headline}")
-        return {**report, "success": True, "workflow": "nuaway_readiness_report"}
-    except Exception as exc:
-        logger.exception("nuaway_readiness_report failed")
-        _log_run("nuaway_readiness_report", str(exc), success=False)
-        if notify:
-            _notify(f"❌ Rapport readiness échoué : {exc}")
-        return {"workflow": "nuaway_readiness_report", "success": False, "error": str(exc)}
-
-
-def run_nuaway_bootstrap_orchestration(*, notify: bool = True) -> dict[str, Any]:
-    """Bootstrap ops NUAWAY — diagnostic + next steps (Phase 7)."""
-    from services.nuaway_bootstrap import run_nuaway_bootstrap
-
-    try:
-        result = run_nuaway_bootstrap(refresh=True)
-        headline = result.get("headline", "")
-        _log_run("nuaway_bootstrap", headline[:120])
-        if notify:
-            steps = result.get("next_steps") or []
-            step_txt = steps[0]["action"] if steps else "RAS"
-            _notify(f"🚀 Bootstrap NUAWAY\n{headline}\n→ {step_txt}")
-        return {**result, "success": True, "workflow": "nuaway_bootstrap"}
-    except Exception as exc:
-        logger.exception("nuaway_bootstrap failed")
-        _log_run("nuaway_bootstrap", str(exc), success=False)
-        if notify:
-            _notify(f"❌ Bootstrap NUAWAY échoué : {exc}")
-        return {"workflow": "nuaway_bootstrap", "success": False, "error": str(exc)}
+            _notify(f"❌ Évaluation gate Academy échouée : {exc}")
+        return {"workflow": "academy_gate", "success": False, "error": str(exc)}
 
 
 WORKFLOW_CATALOG: list[dict[str, Any]] = [
@@ -706,27 +695,11 @@ WORKFLOW_CATALOG: list[dict[str, Any]] = [
         "level": 4,
     },
     {
-        "id": "nuaway_gate",
-        "name": "Évaluation gate readiness NUAWAY",
-        "endpoint": "POST /orchestration/nuaway-gate",
+        "id": "academy_gate",
+        "name": "Évaluation gate readiness Academy → Lounge",
+        "endpoint": "POST /orchestration/academy-gate",
         "trigger": "n8n workflow 10 — check quotidien CEO",
         "agents": ["coo"],
         "level": 3,
-    },
-    {
-        "id": "nuaway_readiness_report",
-        "name": "Rapport readiness beta NUAWAY",
-        "endpoint": "POST /orchestration/nuaway-readiness-report",
-        "trigger": "n8n workflow 11 — rapport hebdo CEO",
-        "agents": ["coo"],
-        "level": 3,
-    },
-    {
-        "id": "nuaway_bootstrap",
-        "name": "Bootstrap ops NUAWAY",
-        "endpoint": "POST /orchestration/nuaway-bootstrap",
-        "trigger": "Manuel / post-setup — diagnostic + next steps",
-        "agents": ["coo"],
-        "level": 2,
     },
 ]

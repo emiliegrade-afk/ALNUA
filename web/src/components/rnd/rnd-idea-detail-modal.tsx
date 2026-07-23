@@ -10,12 +10,14 @@ export function RndIdeaDetailModal({
   onOpenChange,
   onPromoted,
   onRefresh,
+  onArchive,
 }: {
   idea: RndIdea | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onPromoted?: (dossierId: string) => void;
   onRefresh?: () => void;
+  onArchive?: (idea: RndIdea) => void | Promise<void>;
 }) {
   return (
     <RndPitchModal
@@ -24,6 +26,7 @@ export function RndIdeaDetailModal({
       onOpenChange={onOpenChange}
       onPromoted={onPromoted}
       onRefresh={onRefresh}
+      onArchive={onArchive}
     />
   );
 }

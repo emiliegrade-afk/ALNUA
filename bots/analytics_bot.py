@@ -52,7 +52,7 @@ class AnalyticsBot:
         try:
             with httpx.Client(timeout=30.0) as client:
                 response = client.get(
-                    f"https://plausible.io/api/v1/stats/aggregate",
+                    "https://plausible.io/api/v1/stats/aggregate",
                     params={
                         "site_id": site_id,
                         "period": "day",

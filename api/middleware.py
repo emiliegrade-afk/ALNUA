@@ -1,4 +1,4 @@
-"""Hub API key middleware."""
+"""Hub API middleware — auth, tenant context, rate limiting, metrics."""
 
 from __future__ import annotations
 
@@ -9,13 +9,26 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 
 from config.settings import get_settings
+from models.tenant import TenantContext, resolve_tenant_id
+from services.rate_limiter import ASSISTANT_LIMIT, API_LIMIT, assistant_limiter, api_limiter
+from services.telemetry import RequestTimer, metrics
 
 logger = logging.getLogger(__name__)
 _warned_open_dev_api = False
 
 
+def _strip_v1_prefix(path: str) -> str:
+    """Normalize /v1/foo → /foo for middleware route matching."""
+    if path.startswith("/v1/"):
+        return path[3:]  # keep leading slash: /v1/health → /health
+    if path == "/v1":
+        return "/"
+    return path
+
+
 def _is_beta_public(path: str, method: str) -> bool:
     """Tester-facing beta routes — no hub key (JWT on feedback routes in handlers)."""
+    path = _strip_v1_prefix(path)
     if method == "GET" and path.startswith("/beta/info/"):
         return True
     if path == "/beta/register" and method == "POST":
@@ -29,7 +42,8 @@ def _is_beta_public(path: str, method: str) -> bool:
 
 def _is_hub_api_key_exempt(path: str, method: str) -> bool:
     """Routes callable without X-Hub-Key (webhooks, public portals, affiliate redirects)."""
-    if path == "/health":
+    path = _strip_v1_prefix(path)
+    if path == "/health" or path == "/metrics":
         return True
     if _is_beta_public(path, method):
         return True
@@ -99,5 +113,57 @@ async def hub_api_key_middleware(request: Request, call_next):
     return await call_next(request)
 
 
+async def tenant_middleware(request: Request, call_next):
+    """Resolve tenant from X-Tenant-ID and attach to request.state."""
+    settings = get_settings()
+    tenant_id = resolve_tenant_id(
+        request.headers.get("X-Tenant-ID"),
+        default=settings.default_tenant_id,
+    )
+    request.state.tenant = TenantContext(tenant_id=tenant_id)
+    from database.tenant_scope import set_current_tenant_id
+
+    set_current_tenant_id(tenant_id)
+    return await call_next(request)
+
+
+async def rate_limit_middleware(request: Request, call_next):
+    """Rate-limit assistant chat and general API by client IP."""
+    settings = get_settings()
+    if not settings.rate_limit_enabled:
+        return await call_next(request)
+
+    path = request.url.path
+    norm_path = _strip_v1_prefix(path)
+    client_ip = request.client.host if request.client else "unknown"
+
+    if norm_path in ("/assistant/chat",):
+        if not assistant_limiter.is_allowed(f"assistant:{client_ip}", ASSISTANT_LIMIT):
+            return JSONResponse(
+                status_code=429,
+                content={"detail": "Trop de requêtes — réessaie dans 1 minute."},
+            )
+    elif not _is_hub_api_key_exempt(path, request.method) and request.method != "OPTIONS":
+        if not api_limiter.is_allowed(f"api:{client_ip}", API_LIMIT):
+            return JSONResponse(
+                status_code=429,
+                content={"detail": "Rate limit API atteint."},
+            )
+
+    return await call_next(request)
+
+
+async def metrics_middleware(request: Request, call_next):
+    """Record request latency for Prometheus."""
+    path = request.url.path
+    with RequestTimer("http_request_duration_ms", {"path": path.split("?")[0][:80]}):
+        response = await call_next(request)
+    metrics.inc("http_requests_total", labels={"status": str(response.status_code)})
+    return response
+
+
 def register_middleware(app) -> None:
+    app.middleware("http")(metrics_middleware)
+    app.middleware("http")(tenant_middleware)
+    app.middleware("http")(rate_limit_middleware)
     app.middleware("http")(hub_api_key_middleware)

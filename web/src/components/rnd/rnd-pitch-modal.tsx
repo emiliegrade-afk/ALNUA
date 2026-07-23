@@ -16,6 +16,7 @@ import {
   Rocket,
   Sparkles,
   Target,
+  Trash2,
   Users,
   XCircle,
   Zap,
@@ -259,6 +260,7 @@ export interface RndPitchModalProps {
   initialViewMode?: string;
   onPromoted?: (dossierId: string) => void;
   onRefresh?: () => void;
+  onArchive?: (idea: RndIdea) => void | Promise<void>;
 }
 
 function parseInitialViewMode(value?: string): PitchViewMode {
@@ -283,11 +285,13 @@ export function RndPitchModal({
   initialViewMode,
   onPromoted,
   onRefresh,
+  onArchive,
 }: RndPitchModalProps) {
   const [dossier, setDossier] = useState<RndDossierDetail | null>(null);
   const [ideaFromApi, setIdeaFromApi] = useState<RndIdea | null>(null);
   const [loading, setLoading] = useState(false);
   const [promoting, setPromoting] = useState(false);
+  const [archiving, setArchiving] = useState(false);
   const [activeBlock, setActiveBlock] = useState("pitch");
   const [viewMode, setViewMode] = useState<PitchViewMode>("pitch");
 
@@ -392,6 +396,16 @@ export function RndPitchModal({
       toast.error(e instanceof Error ? e.message : "Erreur création dossier");
     } finally {
       setPromoting(false);
+    }
+  }
+
+  async function handleArchive() {
+    if (!idea || !onArchive) return;
+    setArchiving(true);
+    try {
+      await onArchive(idea);
+    } finally {
+      setArchiving(false);
     }
   }
 
@@ -769,23 +783,46 @@ export function RndPitchModal({
               </>
             ) : null}
             {!resolvedDossierId && !dossier ? (
-              <Button
-                onClick={handlePromote}
-                disabled={promoting}
-                className="bg-copper text-obsidian hover:bg-copper/90"
-              >
-                {promoting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Génération du dossier…
-                  </>
-                ) : (
-                  <>
-                    <FolderPlus className="mr-2 h-4 w-4" />
-                    Créer le dossier & pitch complet
-                  </>
-                )}
-              </Button>
+              <>
+                {onArchive ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={archiving || promoting}
+                    className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+                    onClick={() => void handleArchive()}
+                  >
+                    {archiving ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Archivage…
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Archiver la proposition
+                      </>
+                    )}
+                  </Button>
+                ) : null}
+                <Button
+                  onClick={handlePromote}
+                  disabled={promoting || archiving}
+                  className="bg-copper text-obsidian hover:bg-copper/90"
+                >
+                  {promoting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Génération du dossier…
+                    </>
+                  ) : (
+                    <>
+                      <FolderPlus className="mr-2 h-4 w-4" />
+                      Créer le dossier & pitch complet
+                    </>
+                  )}
+                </Button>
+              </>
             ) : null}
             <Button variant="outline" className="border-white/10" onClick={() => onOpenChange(false)}>
               Fermer

@@ -6,7 +6,11 @@ import { ArrowLeft } from "lucide-react";
 import { useHubNavigate } from "@/components/layout/hub-navigation";
 import { prefetchLobby } from "@/lib/hq-prefetch";
 
-export function BackToLobby() {
+interface BackToLobbyProps {
+  className?: string;
+}
+
+export function BackToLobby({ className }: BackToLobbyProps) {
   const router = useRouter();
   const { navigate } = useHubNavigate();
 
@@ -18,9 +22,12 @@ export function BackToLobby() {
     <button
       type="button"
       onClick={() => navigate("/")}
-      className="fixed left-6 top-6 z-50 flex items-center gap-2 rounded-lg border border-copper/20 bg-obsidian-2/90 px-3 py-2 font-body text-sm text-titanium backdrop-blur-sm transition hover:border-copper/40 hover:text-ivory"
+      className={
+        className ??
+        "mb-4 inline-flex items-center gap-1.5 rounded-lg border border-bronze-faint bg-obsidian/70 px-2.5 py-1.5 text-[11px] font-medium uppercase tracking-[0.12em] text-titane/70 transition hover:border-bronze/40 hover:text-ivoire"
+      }
     >
-      <ArrowLeft className="h-4 w-4" />
+      <ArrowLeft className="h-3.5 w-3.5" />
       Lobby
     </button>
   );

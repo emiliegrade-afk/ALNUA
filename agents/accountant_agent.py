@@ -6,11 +6,12 @@ Wraps rule-based estimates + optional LLM commentary.
 
 from __future__ import annotations
 
+from agents.agent_base import AgentBase
+
 import logging
 from typing import Any
 
-from agents.base import LLMClient, log_agent_action, parse_json_response
-from database.supabase_client import get_supabase
+from agents.base import log_agent_action, parse_json_response
 from skills.skill_agent_learning import inject_learning_context, record_task_learning
 from services.rnd_finance_estimate import (
     estimate_rnd_project,
@@ -21,15 +22,11 @@ from skills.skill_langfuse import trace_agent
 
 logger = logging.getLogger(__name__)
 
-SYSTEM_PROMPT = get_system_prompt("accounting")
 
-
-class AccountantAgent:
+class AccountantAgent(AgentBase):
     AGENT_NAME = "accounting"
+    SYSTEM_PROMPT = get_system_prompt("accounting")
 
-    def __init__(self) -> None:
-        self.db = get_supabase()
-        self.llm = LLMClient()
 
     @trace_agent("accountant_agent")
     def estimate_for_dossier(
@@ -75,13 +72,7 @@ class AccountantAgent:
                     "accounting",
                     dossier.get("title", "estimate"),
                 )
-                commentary = self.llm.complete(
-                    SYSTEM_PROMPT,
-                    commentary_prompt,
-                    agent_id="accounting",
-                    temperature=0.3,
-                    max_tokens=400,
-                )
+                commentary = self._complete(commentary_prompt, temperature=0.3, max_tokens=400)
                 md += f"\n\n### Analyse comptable\n\n{commentary.strip()}"
                 finance["accountant_commentary"] = commentary.strip()
             except Exception as exc:
@@ -141,13 +132,7 @@ Réponds en JSON :
             self.AGENT_NAME,
             month,
         )
-        raw = self.llm.complete(
-            SYSTEM_PROMPT,
-            prompt,
-            agent_id=self.AGENT_NAME,
-            temperature=0.3,
-            max_tokens=800,
-        )
+        raw = self._complete(prompt, temperature=0.3, max_tokens=800)
         result = parse_json_response(raw)
         log_agent_action(
             self.db,

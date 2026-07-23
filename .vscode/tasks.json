@@ -1,0 +1,22 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Open ALNUA Hub (Cursor Browser)",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}/scripts/open-hub-in-cursor.ps1"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "never",
+        "panel": "shared"
+      }
+    }
+  ]
+}

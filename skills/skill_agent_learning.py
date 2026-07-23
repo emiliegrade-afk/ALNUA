@@ -62,8 +62,8 @@ LEARNING_LENS: dict[str, str] = {
         "les erreurs récurrentes à ne plus répéter (RLS Supabase, navigation Expo, Mapbox, Realtime)."
     ),
     "dev_gaming": (
-        "Tu es le Dev Gaming d'ALNUA. Tu apprends à développer des mécaniques de jeu solides. "
-        "Retiens : les patterns de code qui tiennent sous charge, les bugs courants dans UE5/Unity, "
+        "Tu es le Dev Gaming d'ALNUA. Tu apprends à développer des mécaniques de jeu solides (Godot 4). "
+        "Retiens : les patterns de code qui tiennent sous charge, les bugs courants Godot, "
         "les optimisations de performance qui marchent."
     ),
     "embedded_dev": (
@@ -116,6 +116,62 @@ LEARNING_LENS: dict[str, str] = {
         "Retiens : quelles explorations ont débouché sur des améliorations concrètes, "
         "quels domaines méritent plus d'investissement, les signaux faibles à surveiller."
     ),
+    "secretary": (
+        "Tu es Nadia, secrétaire de direction ALNUA. Tu apprends à mieux filtrer et formuler pour Emilie. "
+        "Retiens : formulations qui clarifient, recherches utiles à archiver, relances efficaces."
+    ),
+    "brainstorm": (
+        "Tu es Idris, brainstorm ALNUA. Tu apprends à générer des idées originales mais réalisables. "
+        "Retiens : angles qui surprennent positivement, idées déjà explorées à éviter."
+    ),
+    "dev_backend": (
+        "Tu es Hao, Dev Backend ALNUA. Tu apprends APIs et data layers fiables (FastAPI, Supabase). "
+        "Retiens : RLS correctes, schémas qui tiennent, intégrations qui échouent souvent."
+    ),
+    "level_designer": (
+        "Tu es Finn, Level Designer ALNUA. Tu apprends pacing et engagement niveau. "
+        "Retiens : points de friction joueur, playtests qui ont révélé des problèmes réels."
+    ),
+    "analyst_business": (
+        "Tu es Layla, Analyste Business ALNUA. Tu apprends à transformer signaux marché en décisions. "
+        "Retiens : KPIs prédictifs, biais d'analyse à éviter."
+    ),
+    "analyst_data": (
+        "Tu es Axel, Analyste Data ALNUA. Tu apprends à interroger code et données du Hub. "
+        "Retiens : requêtes utiles, graphes qui répondent aux questions CEO."
+    ),
+    "controller": (
+        "Tu es Rémi, Contrôleur de gestion ALNUA. Tu apprends à détecter écarts budget. "
+        "Retiens : seuils d'alerte pertinents, patterns de dépenses à surveiller."
+    ),
+    "marketing": (
+        "Tu es Camille, Marketing ALNUA. Tu apprends campagnes plus efficaces. "
+        "Retiens : formats qui performent, canaux rentables."
+    ),
+    "content": (
+        "Tu es Sofia, Content ALNUA. Tu apprends contenu qui performe. "
+        "Retiens : tons et sujets qui génèrent de l'engagement."
+    ),
+    "hardware": (
+        "Tu es Yuki, Hardware ALNUA. Tu apprends à évaluer le matériel. "
+        "Retiens : specs fiables, fournisseurs validés."
+    ),
+    "pm": (
+        "Tu es Léa, PM ALNUA. Tu apprends estimation et pilotage projet. "
+        "Retiens : tâches sous-estimées, dépendances critiques."
+    ),
+    "qa": (
+        "Tu es Sven, QA ALNUA. Tu apprends détection de bugs. "
+        "Retiens : patterns récurrents, zones à surveiller."
+    ),
+    "spec": (
+        "Tu es Marcus, Spec ALNUA. Tu apprends specs sans ambiguïté. "
+        "Retiens : specs qui évitent les bugs, architectures durables."
+    ),
+    "accounting": (
+        "Tu es Jules, Comptable ALNUA. Tu apprends anomalies financières. "
+        "Retiens : dépenses anormales, signaux d'alerte."
+    ),
 }
 
 DEFAULT_LENS = (
@@ -144,7 +200,7 @@ def _get_lens(agent_id: str) -> str:
     if aid in LEARNING_LENS:
         return LEARNING_LENS[aid]
     if aid == "accounting":
-        return LEARNING_LENS.get("accountant_agent", DEFAULT_LENS)
+        return LEARNING_LENS.get("accounting", LEARNING_LENS.get("accountant_agent", DEFAULT_LENS))
     legacy = f"{aid}_agent"
     if legacy in LEARNING_LENS:
         return LEARNING_LENS[legacy]
@@ -175,10 +231,44 @@ def get_learning_context(agent_id: str, task: str) -> str:
         return ""
 
 
+def get_library_context(agent_id: str, task: str = "") -> str:
+    """Recent bureau library entries relevant to this agent."""
+    try:
+        from services.bureau_library import bureau_for_agent, list_entries
+
+        bureau = bureau_for_agent(agent_id)
+        res = list_entries(bureau=bureau, limit=12)
+        entries = list(res.get("entries", []))
+        if not entries and bureau != "hub":
+            hub_res = list_entries(bureau="hub", timing="now", limit=4)
+            entries = list(hub_res.get("entries", []))
+        if not entries:
+            return ""
+
+        now_items = [e for e in entries if e.get("timing") == "now"]
+        later_items = [e for e in entries if e.get("timing") != "now"]
+        picks = (now_items + later_items)[:5]
+        lines = [
+            f"- [{e.get('timing', 'later')}] {e.get('title', '')}: "
+            f"{str(e.get('summary', ''))[:220]}"
+            for e in picks
+        ]
+        return (
+            "\n\n─── BIBLIOTHÈQUE DU BUREAU (recherches archivées) ───\n"
+            + "\n".join(lines)
+            + "\n─── Applique ce qui est marqué « now » en priorité ───"
+        )
+    except Exception as exc:
+        logger.debug("get_library_context failed for %s: %s", agent_id, exc)
+        return ""
+
+
 def inject_learning_context(prompt: str, agent_id: str, task: str) -> str:
-    """Injecte les leçons Mem0 dans un prompt utilisateur."""
+    """Injecte leçons Mem0 + fiches bibliothèque dans un prompt utilisateur."""
     block = get_learning_context(agent_id, task)
-    return prompt + block if block else prompt
+    library = get_library_context(agent_id, task)
+    extra = block + library
+    return prompt + extra if extra else prompt
 
 
 def record_task_learning(

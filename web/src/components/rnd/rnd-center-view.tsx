@@ -124,7 +124,7 @@ function IdeaCard({
         variant="ghost"
         disabled={deleting}
         aria-label="Archiver la proposition"
-        className="absolute right-3 top-3 h-8 w-8 text-titanium/40 opacity-0 transition hover:bg-red-500/10 hover:text-red-400 group-hover:opacity-100"
+        className="absolute right-3 top-3 z-10 h-8 w-8 text-titanium/55 opacity-100 transition hover:bg-red-500/10 hover:text-red-400 sm:opacity-70 sm:group-hover:opacity-100"
         onClick={(e) => {
           e.stopPropagation();
           onDelete(idea);
@@ -403,6 +403,9 @@ export function RndCenterView({ onDossierCreated }: RndCenterViewProps) {
         onOpenChange={setDetailOpen}
         onRefresh={load}
         onPromoted={onDossierCreated}
+        onArchive={async (archivedIdea) => {
+          await handleDelete(archivedIdea);
+        }}
       />
 
       <RndSubmitDossierModal

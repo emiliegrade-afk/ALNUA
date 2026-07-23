@@ -1,4 +1,7 @@
-const DEFAULT_BACKEND = "http://localhost:8000";
+const DEFAULT_BACKEND = "http://127.0.0.1:8003";
+
+/** Ports tried when HUB_API_BACKEND_URL is unset or backend is down (dev). */
+export const HUB_BACKEND_FALLBACK_PORTS = [8003, 8002, 8000, 8001] as const;
 
 /** Direct FastAPI origin — used by the Next.js /api/hub proxy only. */
 export function hubBackendBaseUrl(): string {
@@ -6,7 +9,6 @@ export function hubBackendBaseUrl(): string {
   if (configured) {
     return configured;
   }
-  // Never fall back to NEXT_PUBLIC_API_URL (/api/hub) — that would loop through the proxy.
   return DEFAULT_BACKEND;
 }
 
@@ -23,4 +25,10 @@ export function hubApiUrl(path: string): string {
   const base = hubApiBase().replace(/\/$/, "");
   const normalized = path.startsWith("/") ? path : `/${path}`;
   return `${base}${normalized}`;
+}
+
+/** Same-origin proxy URL for href/src/download in UI — avoids SSR/client hydration mismatch. */
+export function hubPublicApiUrl(path: string): string {
+  const normalized = path.startsWith("/") ? path : `/${path}`;
+  return `/api/hub${normalized}`;
 }

@@ -16,7 +16,7 @@ export interface AcademyProgress {
   failed_exercises: number;
   success_rate_pct: number;
   levels: Record<string, AcademyLevelProgress>;
-  gate_nuaway: Record<string, boolean> & { gate_open?: boolean; readiness_pct?: number };
+  gate_academy: Record<string, boolean> & { gate_open?: boolean; readiness_pct?: number };
   last_sprint_at: string | null;
 }
 
@@ -72,6 +72,39 @@ export async function runAcademySprint(
       seed_if_missing: true,
       mark_ready_count: markReadyCount,
     }),
+    timeoutMs: 120_000,
+  });
+}
+
+export interface AcademyPipelineStatus {
+  verdict: "working" | "idle" | "stuck" | "unconfigured";
+  message: string;
+  academy?: {
+    agent_ready: number;
+    in_pipeline: number;
+    agent_failed: number;
+    slots_free: number;
+    max_parallel: number;
+    current_level?: number;
+    completed?: number;
+    total?: number;
+  };
+}
+
+export interface WakeAcademyAgentsResult {
+  success: boolean;
+  summary?: string;
+  status: AcademyPipelineStatus;
+}
+
+export async function fetchAcademyPipeline(): Promise<AcademyPipelineStatus> {
+  return hubFetch<AcademyPipelineStatus>("/academy/pipeline");
+}
+
+export async function wakeAcademyAgents(): Promise<WakeAcademyAgentsResult> {
+  return hubFetch<WakeAcademyAgentsResult>("/academy/wake", {
+    method: "POST",
+    body: JSON.stringify({ retry_failed: true, sync: true, notify: false }),
     timeoutMs: 120_000,
   });
 }

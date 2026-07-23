@@ -197,7 +197,7 @@ export function TicketDetailPanel({
       <button
         type="button"
         aria-label="Fermer le panneau"
-        className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+        className="fixed inset-0 z-40 bg-obsidian/85 backdrop-blur-sm"
         onClick={onClose}
       />
 
