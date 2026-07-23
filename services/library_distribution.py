@@ -348,14 +348,23 @@ def _create_job(kind: JobKind, total: int) -> str:
     return job_id
 
 
-def verify_entry_in_mem0(entry_id: str, agent_id: str) -> bool:
+def verify_entry_in_mem0(entry: dict[str, Any], agent_id: str) -> bool:
+    """Check whether a library entry actually landed in Mem0 for an agent.
+
+    Mem0's search is semantic (vector nearest-neighbor), so querying with the
+    entry's own UUID — a string with no semantic content — almost never
+    surfaces the right memory once an agent has more than a handful of
+    entries. Querying with the entry's real title instead reuses the same
+    text that was embedded at write time (see `_memory_line`), which is what
+    actually gives the vector search something to match on.
+    """
+    entry_id = str(entry.get("id") or "")
+    query = str(entry.get("title") or "").strip() or f"library:{entry_id}"
     try:
         from skills.skill_mem0 import recall
 
-        snippet = recall(f"library:{entry_id}", agent_id=agent_id)
-        found = bool(snippet) and (
-            entry_id in snippet or f"library:{entry_id}" in snippet.lower()
-        )
+        snippet = recall(query, agent_id=agent_id)
+        found = bool(snippet) and f"library:{entry_id}".lower() in snippet.lower()
         record_verified(entry_id, agent_id, mem0_found=found)
         return found
     except Exception as exc:
@@ -499,13 +508,13 @@ def _run_verify_all_job(job_id: str) -> None:
     ledger = _load_ledger()
     receipts = ledger.get("receipts", {})
 
-    pairs: list[tuple[str, str]] = []
+    pairs: list[tuple[dict[str, Any], str]] = []
     for entry in entries:
         entry_id = str(entry.get("id") or "")
         for agent_id in expected_slots_for_entry(entry):
             row = receipts.get(receipt_key(entry_id, agent_id), {})
             if row.get("distributed_at"):
-                pairs.append((entry_id, agent_id))
+                pairs.append((entry, agent_id))
 
     _update_job(
         job_id,
@@ -517,9 +526,9 @@ def _run_verify_all_job(job_id: str) -> None:
     confirmed = 0
     errors = 0
 
-    for i, (entry_id, agent_id) in enumerate(pairs):
+    for i, (entry, agent_id) in enumerate(pairs):
         try:
-            if verify_entry_in_mem0(entry_id, agent_id):
+            if verify_entry_in_mem0(entry, agent_id):
                 confirmed += 1
             verified += 1
         except Exception:
