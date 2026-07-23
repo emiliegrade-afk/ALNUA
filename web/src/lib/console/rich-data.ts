@@ -49,12 +49,11 @@ export function buildGlobalKpis(
   activeAgents: number,
   totalAgents: number,
 ): ConsoleGlobalKpi[] {
-  const costTrend = Array.from({ length: 12 }, (_, i) =>
-    Math.max(0, stats.costTodayUsd * (0.6 + i * 0.04)),
-  );
-  const agentTrend = Array.from({ length: 12 }, (_, i) =>
-    Math.max(0, activeAgents - 2 + (i % 4)),
-  );
+  // No real history is available client-side, so the honest sparkline is a
+  // flat line at the current value — the previous hardcoded wavy series drew
+  // lively fake activity under KPIs that read 0.
+  const flatTrend = (v: number) =>
+    Array.from({ length: 12 }, () => Math.max(0, v));
 
   return [
     {
@@ -62,38 +61,38 @@ export function buildGlobalKpis(
       value: String(activeAgents),
       unit: `/ ${totalAgents}`,
       delta: stats.apiOnline ? "live" : "offline",
-      trend: agentTrend,
+      trend: flatTrend(activeAgents),
     },
     {
       label: "Coût LLM / jour",
       value: stats.costTodayUsd.toFixed(2),
       unit: "USD",
       delta: stats.apiOnline ? "API ok" : "—",
-      trend: costTrend,
+      trend: flatTrend(stats.costTodayUsd),
     },
     {
       label: "PRs Hub",
       value: String(stats.hubPrCount),
       delta: stats.hubPrCount > 0 ? "review" : "clear",
-      trend: [1, 2, 1, 3, 2, stats.hubPrCount, 2, 1, 3, 2, 1, stats.hubPrCount],
+      trend: flatTrend(stats.hubPrCount),
     },
     {
       label: "Tickets APP",
       value: String(stats.appOpenTickets),
       delta: stats.appOpenTickets > 0 ? "open" : "0",
-      trend: [2, 3, 2, 4, 3, stats.appOpenTickets, 2, 1, 2, 3, 2, stats.appOpenTickets],
+      trend: flatTrend(stats.appOpenTickets),
     },
     {
       label: "Sessions R&D",
       value: String(stats.rdSessions),
       delta: "lab",
-      trend: [1, 2, 3, 2, 4, stats.rdSessions, 3, 2, 4, 3, 2, stats.rdSessions],
+      trend: flatTrend(stats.rdSessions),
     },
     {
       label: "Apps connectées",
       value: String(stats.connectedApps),
       delta: "Composio",
-      trend: [1, 1, 2, 2, 3, stats.connectedApps, 3, 3, 4, 4, stats.connectedApps, stats.connectedApps],
+      trend: flatTrend(stats.connectedApps),
     },
   ];
 }
