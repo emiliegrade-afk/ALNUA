@@ -282,7 +282,13 @@ export function CommGraph({
   const r = size / 2 - 28;
   const nodes = nodeNames.map((name, i) => {
     const angle = (i / n) * Math.PI * 2 - Math.PI / 2;
-    return { name, x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) };
+    // Round: server and client float math differ in the last digits, which
+    // triggered React hydration mismatches on these SVG coordinates.
+    return {
+      name,
+      x: Number((cx + r * Math.cos(angle)).toFixed(2)),
+      y: Number((cy + r * Math.sin(angle)).toFixed(2)),
+    };
   });
   const pos = (name: string) => nodes.find((x) => x.name === name)!;
   const maxW = Math.max(...edges.map((e) => e.weight));
