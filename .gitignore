@@ -68,3 +68,4 @@ models/
 *.bin
 
 .coverage
+.gstack/
