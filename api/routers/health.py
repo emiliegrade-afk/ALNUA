@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import time
-
 from api.route_common import *  # noqa: F403
+
+import time
 
 router = APIRouter()
 

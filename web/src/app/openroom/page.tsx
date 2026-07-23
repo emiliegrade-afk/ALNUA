@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BackToLobby } from "@/components/shared/back-to-lobby";
+import { BureauPage } from "@/components/shared/bureau-page";
 import { OpenRoomAgentTile } from "@/components/openroom/openroom-agent-tile";
 import { AgentFocusPanel } from "@/components/openroom/agent-focus-panel";
 import { BUREAU_AGENTS } from "@/lib/agent-bureau";
@@ -20,7 +20,7 @@ const OPENROOM_AGENTS = BUREAU_AGENTS.map((agent) => ({
   branch: agent.branch,
 }));
 
-const POLL_MS = 3000;
+const POLL_MS = 12_000;
 
 export default function OpenRoomPage() {
   const [agentStatuses, setAgentStatuses] = useState<
@@ -60,27 +60,19 @@ export default function OpenRoomPage() {
     ? OPENROOM_AGENTS.find((a) => a.id === focusedAgent)
     : null;
 
+  const subtitle = `${activeCount} agent${activeCount !== 1 ? "s" : ""} actif${
+    activeCount !== 1 ? "s" : ""
+  }${pipelineActive ? " · Pipeline en cours" : ""}`;
+
   return (
-    <>
-      <BackToLobby />
-
-      <header className="mb-8">
-        <h1 className="font-title text-3xl text-ivory">
-          OpenRoom <span className="text-copper">ALNUA</span>
-        </h1>
-        {statusError ? (
-          <p className="mt-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 font-body text-sm text-amber-200">
-            {statusError}
-          </p>
-        ) : null}
-        <p className="mt-2 font-body text-sm text-titanium">
-          {activeCount} agent{activeCount !== 1 ? "s" : ""} actif
-          {activeCount !== 1 ? "s" : ""}
-          {pipelineActive ? " · Pipeline en cours" : ""}
+    <BureauPage dept="openroom" title="OpenRoom" subtitle={subtitle}>
+      {statusError ? (
+        <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 font-body text-sm text-amber-200">
+          {statusError}
         </p>
-      </header>
+      ) : null}
 
-      <div className="mb-12 grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-5">
         {OPENROOM_AGENTS.map((agent) => (
           <OpenRoomAgentTile
             key={agent.id}
@@ -121,6 +113,6 @@ export default function OpenRoomPage() {
           onClose={() => setFocusedAgent(null)}
         />
       ) : null}
-    </>
+    </BureauPage>
   );
 }

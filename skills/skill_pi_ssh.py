@@ -11,11 +11,46 @@ Implémentation principale : agents/embedded_dev_agent.py (pi_ssh_command tool)
 
 from __future__ import annotations
 
+import logging
 import os
+import re
 import subprocess
 from typing import Any
 
+logger = logging.getLogger(__name__)
+
 PI_NOT_CONFIGURED = "Raspberry Pi non configuré — renseigne PI_HOST dans .env"
+PI_COMMAND_BLOCKED = "Commande bloquée — motif destructeur détecté : {pattern}"
+PI_COMMAND_TOO_LONG = "Commande trop longue (max 4000 caractères)"
+
+# This is a trust boundary, not a sandbox: whoever holds HUB_API_KEY can already
+# run arbitrary commands on Eve by design (agent tool, /agents/embedded/pi-command).
+# This blocklist catches catastrophic accidents and injected payloads — a wipe,
+# a fork bomb, an unattended reboot, curl|sh from the open internet — not a
+# fully malicious authenticated caller.
+_DESTRUCTIVE_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
+    re.compile(p, re.IGNORECASE)
+    for p in (
+        r"\brm\b(?=.*-[a-z]*r)(?=.*-[a-z]*f)",  # rm with both -r and -f, any order/grouping
+        r"mkfs\.",
+        r"dd\s+.*of=/dev/",
+        r":\(\)\s*\{\s*:\s*\|\s*:\s*&\s*\}\s*;\s*:",  # classic fork bomb
+        r"\bshutdown\b|\breboot\b|\bpoweroff\b|\bhalt\b",
+        r">\s*/dev/sd[a-z]",
+        r"chmod\s+-R\s+777\s+/",
+        r"(curl|wget)\s+.*\|\s*(sh|bash)",
+    )
+)
+
+
+def _check_command_safety(command: str) -> str | None:
+    """Returns a rejection reason, or None if the command is allowed to run."""
+    if len(command) > 4000:
+        return PI_COMMAND_TOO_LONG
+    for pattern in _DESTRUCTIVE_PATTERNS:
+        if pattern.search(command):
+            return PI_COMMAND_BLOCKED.format(pattern=pattern.pattern)
+    return None
 
 
 def pi_is_configured() -> bool:
@@ -40,6 +75,18 @@ def run_pi_command(command: str, timeout: int = 30) -> dict[str, Any]:
             "host": "",
             "command": command,
         }
+
+    rejection = _check_command_safety(command)
+    if rejection:
+        logger.warning("Pi SSH command rejected: %s | command=%r", rejection, command[:200])
+        return {
+            "success": False,
+            "output": rejection,
+            "host": pi_host,
+            "command": command,
+        }
+
+    logger.info("Pi SSH command: %s@%s: %s", pi_user, pi_host, command[:200])
 
     try:
         result = subprocess.run(
