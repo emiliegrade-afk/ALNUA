@@ -62,6 +62,7 @@ def start_task(
     repo_slug: str,
     github_repo: str,
     worktree_path: str | None = None,
+    agent_id: str = "dev_app",
 ) -> str:
     task_id = f"gh-{repo_slug}-{issue_number}"
     _tasks[task_id] = {
@@ -72,6 +73,7 @@ def start_task(
         "repo_slug": repo_slug,
         "github_repo": github_repo,
         "worktree_path": worktree_path,
+        "agent_id": agent_id,
         "current_file": None,
         "recent_code": [],
         "progress": 5,

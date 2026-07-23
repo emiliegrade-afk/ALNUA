@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { Loader2, Play, Terminal, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { IdeLiveTask } from "@/lib/ide-api";
+import { codingAgentLabel, type IdeLiveTask } from "@/lib/ide-api";
 
 export type BottomPanelTab = "terminal" | "output" | "agent";
 
@@ -147,7 +147,7 @@ export function IdeBottomPanel({
             {activeTask ? (
               <>
                 <p className="font-mono text-[10px] text-emerald-300/90">
-                  Théo · #{activeTask.issue_number} · {activeTask.title} ·{" "}
+                  {codingAgentLabel(activeTask.agent_id)} · #{activeTask.issue_number} · {activeTask.title} ·{" "}
                   {activeTask.progress ?? 0}%
                 </p>
                 <pre className="flex-1 overflow-auto rounded bg-obsidian p-2 font-mono text-[10px] leading-relaxed text-emerald-400/85">

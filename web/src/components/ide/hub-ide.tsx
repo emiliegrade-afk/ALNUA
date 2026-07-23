@@ -18,6 +18,7 @@ import { IdeStatusBar } from "./ide-status-bar";
 import { ResizeHandle } from "./use-panel-resize";
 import {
   askCodingCoach,
+  codingAgentLabel,
   fetchIdeDiff,
   fetchIdeFile,
   fetchIdeHermesCatalog,
@@ -322,7 +323,7 @@ export function HubIde() {
   }, [activePath, closeTab, handleSave]);
 
   const activeAgentLabel = liveTasks[0]
-    ? `Théo · #${liveTasks[0].issue_number} · ${liveTasks[0].progress ?? 0}%`
+    ? `${codingAgentLabel(liveTasks[0].agent_id)} · #${liveTasks[0].issue_number} · ${liveTasks[0].progress ?? 0}%`
     : undefined;
 
   return (

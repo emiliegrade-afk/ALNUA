@@ -35,6 +35,19 @@ export interface IdeLiveTask {
   recent_code?: string[];
   log?: string[];
   worktree_path?: string;
+  agent_id?: string;
+}
+
+const CODING_AGENT_LABELS: Record<string, string> = {
+  dev_app: "Théo",
+  dev_backend: "Hao",
+  dev_gaming: "Nova",
+  embedded_dev: "Zara",
+};
+
+export function codingAgentLabel(agentId?: string): string {
+  if (!agentId) return "Agent";
+  return CODING_AGENT_LABELS[agentId] ?? agentId;
 }
 
 async function ideFetch<T>(path: string, init?: RequestInit): Promise<T> {
