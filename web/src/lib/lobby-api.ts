@@ -129,7 +129,7 @@ let lobbyStatsInflight: Promise<LobbyStats> | null = null;
 
 
 
-function readLobbyStatsStorage(): LobbyStats | null {
+function readLobbyStatsStorage(): { stats: LobbyStats; at: number } | null {
 
   if (typeof window === "undefined") return null;
 
@@ -145,7 +145,7 @@ function readLobbyStatsStorage(): LobbyStats | null {
 
     if (Date.now() - parsed.at > LOBBY_STATS_CACHE_TTL_MS) return null;
 
-    return normalizeLobbyStats(parsed.stats);
+    return { stats: normalizeLobbyStats(parsed.stats), at: parsed.at };
 
   } catch {
 
@@ -201,9 +201,12 @@ export function getLobbyStatsCache(): LobbyStats | null {
 
   if (stored) {
 
-    lobbyStatsCache = normalizeLobbyStats(stored);
+    lobbyStatsCache = stored.stats;
 
-    lobbyStatsCacheAt = Date.now();
+    // Carry the snapshot's original timestamp — re-stamping with Date.now()
+    // gave stale (e.g. offline-at-capture) snapshots a fresh TTL lease on
+    // every page load, keeping "Hors ligne" on screen long after recovery.
+    lobbyStatsCacheAt = stored.at;
 
     return lobbyStatsCache;
 

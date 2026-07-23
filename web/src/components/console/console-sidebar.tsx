@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { AlnuaLogo } from "./alnua-logo";
 import { useConsoleData } from "./console-provider";
+import { useHubHealthLive } from "@/hooks/use-hub-health-live";
 import { CONSOLE_POLES } from "@/lib/console/departments";
 import { ROUTES } from "@/lib/routes";
 import {
@@ -76,6 +77,10 @@ function isActivePath(pathname: string, href: string): boolean {
 export function ConsoleSidebar({ mobileOpen, onMobileClose }: ConsoleSidebarProps) {
   const pathname = usePathname();
   const { activeAgents, totalAgents, stats } = useConsoleData();
+  // Same live probe as the topbar badge — the aggregated lobby stats lag by
+  // up to their cache TTL, which made this row say "Hors ligne" while the
+  // topbar said "Hub connecté".
+  const { phase: hubPhase } = useHubHealthLive();
 
   return (
     <>
@@ -235,8 +240,20 @@ export function ConsoleSidebar({ mobileOpen, onMobileClose }: ConsoleSidebarProp
           </div>
           <div className="flex items-center justify-between text-[11px]">
             <span className="text-titane/60">API Hub</span>
-            <span className={stats.apiOnline ? "text-bronze-bright" : "text-red-400"}>
-              {stats.apiOnline ? "En ligne" : "Hors ligne"}
+            <span
+              className={
+                hubPhase === "ok" || hubPhase === "key"
+                  ? "text-bronze-bright"
+                  : hubPhase === "checking"
+                    ? "text-titane/60"
+                    : "text-red-400"
+              }
+            >
+              {hubPhase === "ok" || hubPhase === "key"
+                ? "En ligne"
+                : hubPhase === "checking"
+                  ? "Sync…"
+                  : "Hors ligne"}
             </span>
           </div>
           <div className="flex items-center justify-between text-[11px]">
