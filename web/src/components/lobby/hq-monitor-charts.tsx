@@ -2,8 +2,8 @@
 
 /** Decorative copper-rose HUD chart primitives — inspired by sci-fi monitoring dashboards. */
 
-const COPPER = "#C08A62";
-const COPPER_LIGHT = "#D4A882";
+const COPPER = "#B87333";
+const COPPER_LIGHT = "#CF8D50";
 const COPPER_GLOW = "rgba(192, 138, 98, 0.35)";
 
 export function HudPanel({

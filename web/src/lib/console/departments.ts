@@ -59,7 +59,7 @@ const POLES: PoleDef[] = [
     icon: UserRound,
     dept: "secretary",
     bureau: "secretary",
-    glow: "#C08A62",
+    glow: "#B87333",
   },
   {
     id: "ceo",
@@ -82,7 +82,7 @@ const POLES: PoleDef[] = [
     icon: FlaskConical,
     dept: "rd",
     bureau: "rd",
-    glow: "#C08A62",
+    glow: "#B87333",
   },
   {
     id: "app",
@@ -130,7 +130,7 @@ const POLES: PoleDef[] = [
     icon: Megaphone,
     dept: "marketing",
     bureau: "marketing",
-    glow: "#C08A62",
+    glow: "#B87333",
   },
   {
     id: "finances",
@@ -154,7 +154,7 @@ const POLES: PoleDef[] = [
     icon: Compass,
     dept: "analytics",
     bureau: "analytics",
-    glow: "#C08A62",
+    glow: "#B87333",
   },
   {
     id: "brand",

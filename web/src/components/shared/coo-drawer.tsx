@@ -41,13 +41,13 @@ export function CooDrawer() {
       <div
         className={cn(
           "fixed right-0 top-0 bottom-0 z-50 w-full max-w-md",
-          "bg-[#0E1014] border-l border-[#C08A62]/20",
+          "bg-[#111111] border-l border-[#B87333]/20",
           "shadow-[-8px_0_40px_rgba(0,0,0,0.5)]",
           "transition-transform duration-300",
           isOpen ? "translate-x-0" : "translate-x-full"
         )}
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#C08A62]/15">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#B87333]/15">
           <div>
             <h3 className="font-['Space_Grotesk'] text-[#F5F2EA] font-medium">
               Aria & Nadia

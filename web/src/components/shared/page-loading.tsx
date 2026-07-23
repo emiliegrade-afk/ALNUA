@@ -1,7 +1,7 @@
 export function PageLoading() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0E1014]">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#C08A62]/30 border-t-[#C08A62]" />
+    <div className="flex min-h-screen items-center justify-center bg-[#111111]">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#B87333]/30 border-t-[#B87333]" />
     </div>
   );
 }

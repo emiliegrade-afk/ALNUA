@@ -95,7 +95,7 @@ export function AgentOfficeAvatar({
         </div>
       ) : null}
 
-      <div className="pointer-events-none absolute inset-0 z-20 bg-gradient-to-t from-[#0E1014]/85 via-transparent to-[#0E1014]/10" />
+      <div className="pointer-events-none absolute inset-0 z-20 bg-gradient-to-t from-[#111111]/85 via-transparent to-[#111111]/10" />
 
       {status === "error" ? (
         <span className="absolute right-2 top-2 z-30 text-base" aria-hidden>
