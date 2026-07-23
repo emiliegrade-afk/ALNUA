@@ -89,7 +89,7 @@ export function ConsoleTopbar({ onMobileMenu }: ConsoleTopbarProps) {
 
         {/* min-w floor: without it the fixed-width search + button row crushed
             the page title to 2-3 characters ("B…", "P…") at 1280px. */}
-        <div className="min-w-[9rem] flex-[2]">
+        <div className="min-w-[11rem] flex-[2]">
           <div className="flex items-center gap-1.5 overflow-hidden text-[10px] uppercase tracking-[0.2em] text-titane/45">
             {crumb.split(" / ").map((c, i, arr) => (
               <span key={i} className="flex items-center gap-1.5">
