@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from config.agent_operating_spec import AgentOperatingSpec
-from config.agent_specs_registry import _MEM_HUB, _MEM_IGNORE
 
 TOOL_OPERATING_SPECS: dict[str, AgentOperatingSpec] = {}
 

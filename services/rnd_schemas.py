@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from datetime import datetime
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field
@@ -30,7 +29,7 @@ SectionKey = Literal[
     "manufacturing", "lore", "visual_identity", "social_strategy", "risks", "decision",
 ]
 
-Branch = Literal["app", "gaming", "robotics", "other"]
+Branch = Literal["app", "gaming", "robotics", "hub", "other"]
 
 # ---------------------------------------------------------------------------
 # Section definitions
@@ -61,6 +60,13 @@ DOMAIN_TO_BRANCH: dict[str, str] = {
     "hardware": "robotics",
     "robotique": "robotics",
     "robotics": "robotics",
+    "hub": "hub",
+    "plateforme": "hub",
+    "platform": "hub",
+    "infra": "hub",
+    "interne": "hub",
+    "alnua hub": "hub",
+    "company os": "hub",
 }
 
 # ---------------------------------------------------------------------------
@@ -197,6 +203,7 @@ class RndDossierListItem(BaseModel):
     slug: str
     title: str
     domain: str
+    branch: str | None = None
     status: DossierStatus
     ceo_status: CeoStatus
     idea_legacy_id: str | None = None

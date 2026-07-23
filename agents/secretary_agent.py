@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+from agents.agent_base import AgentBase
+
 import logging
 from typing import Any
 
-from agents.base import LLMClient, log_agent_action, parse_json_response
-from database.supabase_client import SupabaseClient, get_supabase
+from agents.base import log_agent_action, parse_json_response
 from skills.skill_agent_learning import inject_learning_context, record_task_learning
 from config.agent_operating_spec import get_system_prompt
 from skills.skill_langfuse import trace_agent
@@ -14,14 +15,11 @@ from skills.skill_langfuse import trace_agent
 logger = logging.getLogger(__name__)
 
 
-class SecretaryAgent:
+class SecretaryAgent(AgentBase):
     AGENT_NAME = "secretary"
 
     SYSTEM_PROMPT = get_system_prompt("secretary")
 
-    def __init__(self, db: SupabaseClient | None = None, llm: LLMClient | None = None) -> None:
-        self.db = db or get_supabase()
-        self.llm = llm or LLMClient()
 
     # ------------------------------------------------------------------
     # Email
@@ -53,7 +51,7 @@ Réponds en JSON :
 }}""",
             self.AGENT_NAME, subject,
         )
-        raw = self.llm.complete(self.SYSTEM_PROMPT, prompt, agent_id=self.AGENT_NAME)
+        raw = self._complete(prompt)
         result = parse_json_response(raw)
         log_agent_action(
             self.db, self.AGENT_NAME, "draft_email",
@@ -86,7 +84,7 @@ Réponds en JSON :
 }}""",
             self.AGENT_NAME, "triage emails",
         )
-        raw = self.llm.complete(self.SYSTEM_PROMPT, prompt, agent_id=self.AGENT_NAME)
+        raw = self._complete(prompt)
         return parse_json_response(raw)
 
     # ------------------------------------------------------------------
@@ -132,9 +130,7 @@ Réponds en JSON :
 }}""",
             self.AGENT_NAME, f"contrat {contract_type} {party_name}",
         )
-        raw = self.llm.complete(
-            self.SYSTEM_PROMPT, prompt, agent_id=self.AGENT_NAME, temperature=0.3, max_tokens=6000
-        )
+        raw = self._complete(prompt, temperature=0.3, max_tokens=6000)
         result = parse_json_response(raw)
         log_agent_action(
             self.db, self.AGENT_NAME, "draft_contract",
@@ -175,7 +171,7 @@ Réponds en JSON :
 }}""",
             self.AGENT_NAME, f"réunion {topic}",
         )
-        raw = self.llm.complete(self.SYSTEM_PROMPT, prompt, agent_id=self.AGENT_NAME)
+        raw = self._complete(prompt)
         return parse_json_response(raw)
 
     @trace_agent("secretary")
@@ -208,7 +204,7 @@ Réponds en JSON :
 }}""",
             self.AGENT_NAME, meeting_title,
         )
-        raw = self.llm.complete(self.SYSTEM_PROMPT, prompt, agent_id=self.AGENT_NAME)
+        raw = self._complete(prompt)
         result = parse_json_response(raw)
         log_agent_action(
             self.db, self.AGENT_NAME, "write_meeting_notes",
@@ -248,9 +244,6 @@ Réponds en JSON :
             detect_research_intent,
             detect_send_confirm,
             detect_wake_ops,
-            extract_aria_delegation_message,
-            extract_research_query,
-            format_json_reply,
         )
 
         try:
@@ -337,7 +330,7 @@ Réponds en JSON :
             self.AGENT_NAME,
             instruction[:80],
         )
-        raw = self.llm.complete(self.SYSTEM_PROMPT, prompt, agent_id=self.AGENT_NAME, temperature=0.3)
+        raw = self._complete(prompt, temperature=0.3)
         meta = parse_json_response(raw)
         recipient = meta.get("recipient") or "À confirmer"
         draft = self.draft_email(
@@ -428,7 +421,6 @@ Réponds en JSON :
 
     def _handle_calendar_nl(self, instruction: str) -> str:
         from services.secretary_composio import (
-            create_calendar_event,
             fetch_calendar_events,
             is_connected,
         )
@@ -464,7 +456,7 @@ JSON : {{"contract_type": "nda|prestation|partenariat", "party_name": "...", "sc
             self.AGENT_NAME,
             instruction[:80],
         )
-        raw = self.llm.complete(self.SYSTEM_PROMPT, prompt, agent_id=self.AGENT_NAME, temperature=0.2)
+        raw = self._complete(prompt, temperature=0.2)
         meta = parse_json_response(raw)
         draft = self.draft_contract(
             contract_type=meta.get("contract_type") or "prestation",
@@ -506,7 +498,7 @@ JSON : {{"participants": ["..."], "topic": "...", "duration_minutes": 60, "const
             self.AGENT_NAME,
             instruction[:80],
         )
-        raw = self.llm.complete(self.SYSTEM_PROMPT, prompt, agent_id=self.AGENT_NAME, temperature=0.2)
+        raw = self._complete(prompt, temperature=0.2)
         meta = parse_json_response(raw)
         plan = self.plan_meeting(
             participants=meta.get("participants") or ["Emilie"],
@@ -663,9 +655,7 @@ Pas de JSON — texte direct.""",
             instruction[:80],
         )
         try:
-            raw = self.llm.complete(
-                self.SYSTEM_PROMPT, prompt, agent_id=self.AGENT_NAME, temperature=0.5
-            )
+            raw = self._complete(prompt, temperature=0.5)
             text = (raw or "").strip()
             if not text:
                 text = CANNOT_DO_NADIA

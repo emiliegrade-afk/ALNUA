@@ -17,12 +17,10 @@ Vérifie :
 
 from __future__ import annotations
 
-import json
 import os
 import sys
 import tempfile
 from pathlib import Path
-from typing import Any
 from unittest.mock import patch
 
 _ROOT = Path(__file__).resolve().parent.parent

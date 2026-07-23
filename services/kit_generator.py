@@ -13,7 +13,6 @@ from services.segmentation import (
     _apply_rembg,
     _crop_element,
     _find_element,
-    _fit_on_canvas,
     _hex_to_rgba,
     _primary_bg_color,
     _relative_path,

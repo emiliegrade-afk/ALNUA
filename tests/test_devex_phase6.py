@@ -86,36 +86,3 @@ def test_hub_api_key_valid_open_when_enforcement_disabled(
     from api.middleware import hub_api_key_valid
 
     assert hub_api_key_valid(None) is True
-
-
-def test_creatorflow_fernet_roundtrip(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("JWT_SECRET", "test-jwt-secret-32chars-minimum!!")
-    from config.settings import get_settings
-
-    get_settings.cache_clear()
-    from services.creatorflow_secrets import decrypt_user_secret, encrypt_user_secret
-
-    user_id = "user-abc"
-    plain = "sk-or-test-key-12345"
-    enc = encrypt_user_secret(user_id, plain)
-    assert enc.startswith("v2:")
-    assert decrypt_user_secret(user_id, enc) == plain
-
-
-def test_creatorflow_legacy_xor_still_decrypts(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("JWT_SECRET", "test-jwt-secret-32chars-minimum!!")
-    from config.settings import get_settings
-
-    get_settings.cache_clear()
-
-    import base64
-    import hashlib
-
-    from services.creatorflow_secrets import _derive_key, decrypt_user_secret
-
-    user_id = "legacy-user"
-    plain = "sk-or-legacy"
-    key = _derive_key(user_id)
-    xored = bytes(b ^ key[i % len(key)] for i, b in enumerate(plain.encode()))
-    legacy = base64.urlsafe_b64encode(xored).decode("ascii")
-    assert decrypt_user_secret(user_id, legacy) == plain

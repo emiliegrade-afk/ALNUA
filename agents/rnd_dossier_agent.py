@@ -9,22 +9,19 @@ from __future__ import annotations
 
 from agents.agent_base import AgentBase
 
-import json
 import logging
 import os
 import re
-from pathlib import Path
 from typing import Any
 
 from agents.accountant_agent import AccountantAgent
-from agents.base import LLMClient, log_agent_action, parse_json_response
+from agents.base import log_agent_action, parse_json_response
 from agents.rnd_center import get_vision
 from agents.rnd_dossier_prompts import (
     REVISE_SECTION_SYSTEM,
     SECTION_DRAFT_SYSTEM,
     build_section_draft_user_prompt,
 )
-from services.rnd_finance_estimate import finance_json_to_markdown
 from services.rnd_repository import RndRepository, get_rnd_repository
 from services.rnd_schemas import RndDossierOut, SECTION_DEFINITIONS
 from skills.skill_langfuse import trace_agent

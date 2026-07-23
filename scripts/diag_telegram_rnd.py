@@ -17,7 +17,6 @@ from agents.coo_agent import COOAgent
 from services.coo_telegram_intents import (
     detect_rnd_investigation,
     extract_investigation_query,
-    launch_rnd_investigation,
     _run_investigation_worker,
 )
 from skills.skill_telegram_notify import notify_telegram

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import hashlib
 import hmac
-import json
 from unittest.mock import patch
 
 from services.sentry_ops import (
@@ -38,7 +37,7 @@ def test_parse_sentry_issue_alert():
                 "culprit": "app/screens/Home.tsx",
                 "level": "error",
                 "permalink": "https://sentry.io/issues/123",
-                "project": {"slug": "nuaway"},
+                "project": {"slug": "hub"},
             },
             "event": {
                 "event_id": "evt-1",
@@ -52,15 +51,15 @@ def test_parse_sentry_issue_alert():
     assert event is not None
     assert event.title == "TypeError in HomeScreen"
     assert event.environment == "production"
-    assert event.project_slug == "nuaway"
+    assert event.project_slug == "hub"
 
 
 def test_parse_sentry_resolved_ignored():
     assert parse_sentry_webhook({"action": "resolved", "data": {}}) is None
 
 
-def test_resolve_repo_slug_nomad(monkeypatch):
-    monkeypatch.setenv("GITHUB_REPO_NOMAD", "org/nomad")
+def test_resolve_repo_slug_hub(monkeypatch):
+    monkeypatch.setenv("GITHUB_REPO", "org/hub")
     from config.github_repos import get_repo_targets
 
     get_repo_targets.cache_clear()
@@ -68,9 +67,9 @@ def test_resolve_repo_slug_nomad(monkeypatch):
         fingerprint="abc",
         title="Crash",
         message="err",
-        project_slug="nuaway",
+        project_slug="hub",
     )
-    assert resolve_repo_slug_from_sentry(event) == "nomad"
+    assert resolve_repo_slug_from_sentry(event) == "hub"
     get_repo_targets.cache_clear()
 
 

@@ -6,6 +6,8 @@ Calendar → posts_queue with rnd_dossier_id / rnd_social_calendar_id links.
 
 from __future__ import annotations
 
+from agents.agent_base import AgentBase
+
 import logging
 import os
 import re
@@ -19,7 +21,6 @@ from database.supabase_client import get_supabase
 from services.rnd_repository import get_rnd_repository
 from services.rnd_schemas import RndDossierOut, RndSocialCalendarItemOut
 from services.rnd_social import (
-    RndSocialRepository,
     assert_social_pipeline_unlocked,
     build_template_calendar,
     default_launch_anchor,
@@ -32,7 +33,7 @@ logger = logging.getLogger(__name__)
 USE_LLM = os.getenv("RND_DOSSIER_USE_LLM", "true").lower() not in ("0", "false", "no")
 
 
-class RndSocialAgent:
+class RndSocialAgent(AgentBase):
     AGENT_NAME = "rnd_social_agent"
 
     def __init__(self) -> None:
@@ -345,9 +346,9 @@ Règles plateforme : {PLATFORM_RULES.get(platform, platform)}
 
 Génère exactement 1 post."""
             try:
-                raw = self.llm.complete(
-                    SOCIAL_POST_SYSTEM,
+                raw = self._complete(
                     user,
+                    system_prompt=SOCIAL_POST_SYSTEM,
                     agent_id="content",
                     temperature=0.85,
                 )
@@ -384,9 +385,9 @@ Jalons template :
 
 Réponds en JSON : {{ "items": [ {{ "phase": "...", "milestone": "...", "notes": "..." }} ] }}
 Adapte les milestones au projet (concret, pas de fluff). Garde les mêmes phases et dates."""
-            raw = self.llm.complete(
-                SOCIAL_STRATEGY_SYSTEM,
+            raw = self._complete(
                 user,
+                system_prompt=SOCIAL_STRATEGY_SYSTEM,
                 agent_id="content",
                 temperature=0.7,
             )
@@ -459,7 +460,7 @@ def ensure_project_for_dossier(dossier: RndDossierOut, db) -> str:
             return str(p["id"])
 
     branch = dossier.branch or "other"
-    if branch not in ("app", "gaming", "robotics"):
+    if branch not in ("app", "gaming", "robotics", "hub"):
         branch = "other"
 
     created = db.insert(

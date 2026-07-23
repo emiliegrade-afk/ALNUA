@@ -24,7 +24,6 @@ from __future__ import annotations
 import asyncio
 import logging
 import os
-from datetime import datetime, timezone
 from typing import Any
 
 from config.agent_operating_spec import get_system_prompt
@@ -42,9 +41,9 @@ _stop_event: asyncio.Event | None = None
 
 # Repos locaux par agent (pour OpenHands)
 AGENT_REPO_PATHS: dict[str, str] = {
-    "dev_app": os.getenv("REPO_PATH_NOMAD", "C:/Dev/nomad"),
-    "dev_gaming": os.getenv("REPO_PATH_NAIA", "C:/Dev/naia"),
-    "embedded": os.getenv("REPO_PATH_NAIA", "C:/Dev/naia"),
+    "dev_app": os.getenv("REPO_PATH_ACADEMY", "C:/Dev/alnua-academy"),
+    "dev_gaming": os.getenv("HUB_REPO_PATH", "C:/Dev/ALUNA_HUB"),
+    "embedded": os.getenv("HUB_REPO_PATH", "C:/Dev/ALUNA_HUB"),
     "coo": os.getenv("HUB_REPO_PATH", "C:/Dev/ALUNA_HUB"),
     "pm_agent": os.getenv("HUB_REPO_PATH", "C:/Dev/ALUNA_HUB"),
     "qa_agent": os.getenv("HUB_REPO_PATH", "C:/Dev/ALUNA_HUB"),

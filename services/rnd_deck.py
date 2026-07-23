@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from services.rnd_deck_generator import build_deck_html, write_deck_files
+from services.rnd_deck_generator import write_deck_files
 from services.rnd_repository import get_rnd_repository
 
 logger = logging.getLogger(__name__)

@@ -13,7 +13,7 @@ from fastapi import HTTPException
 
 from agents.brainstorm_agent import BrainstormAgent
 from config.settings import get_settings
-from database.supabase_client import SupabaseClient, get_supabase
+from database.supabase_client import SupabaseClient
 
 BETA_STORAGE_BUCKET = "beta-screenshots"
 JWT_ALGORITHM = "HS256"

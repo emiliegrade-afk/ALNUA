@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from config.agent_operating_spec import compile_system_prompt, get_system_prompt, list_spec_agent_ids
+from config.agent_operating_spec import get_system_prompt, list_spec_agent_ids
 from config.agent_specs_registry import AGENT_OPERATING_SPECS
 
 

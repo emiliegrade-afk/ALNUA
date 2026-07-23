@@ -13,10 +13,8 @@ Usage (appelé en background par coo_agent.py) :
 from __future__ import annotations
 
 import logging
-import os
 import re
 import textwrap
-from datetime import datetime
 from pathlib import Path
 
 logger = logging.getLogger(__name__)

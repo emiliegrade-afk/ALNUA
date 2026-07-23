@@ -4,7 +4,7 @@ import pytest
 
 
 def test_import():
-    from skills.skill_composio import get_composio_tools, composio_execute, get_oauth_link
+    from skills.skill_composio import get_composio_tools
     assert callable(get_composio_tools)
 
 

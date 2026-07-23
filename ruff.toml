@@ -4,8 +4,12 @@
 # `from api.route_common import *` per the invariant rule in CLAUDE.md — that's
 # the intended architecture, not a bug.
 #
-# F401 (unused import) is ignored for now: ~240 pre-existing hits across the
-# codebase, too large a sweep to fix blind as part of wiring up CI lint.
+# F401 (unused import) is enforced everywhere except api/route_common.py (see
+# per-file-ignores below) — that file's entire job is to import a long list of
+# names so every router can wildcard-import them via `from api.route_common
+# import *`; F401 can't tell "unused in this file" from "re-exported on
+# purpose" without an explicit __all__, and building/maintaining one felt more
+# fragile than just carving out this one file.
 #
 # E402 (import not at top) is ignored: many agents deliberately do
 # `from agents.agent_base import AgentBase` before stdlib imports — an
@@ -24,4 +28,7 @@ target-version = "py312"
 
 [lint]
 select = ["E4", "E7", "E9", "F"]
-ignore = ["F401", "F403", "F405", "E402", "E741", "E401", "E731"]
+ignore = ["F403", "F405", "E402", "E741", "E401", "E731"]
+
+[lint.per-file-ignores]
+"api/route_common.py" = ["F401"]

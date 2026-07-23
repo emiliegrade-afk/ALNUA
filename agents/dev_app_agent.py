@@ -18,7 +18,6 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 
 from crewai import Agent, Crew, LLM, Task
 from crewai.tools import tool

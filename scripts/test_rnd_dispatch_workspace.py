@@ -11,7 +11,6 @@ Ce script NE nécessite PAS de Supabase ni de clé OpenRouter.
 
 from __future__ import annotations
 
-import json
 import os
 import sys
 import tempfile
@@ -38,11 +37,8 @@ from services.rnd_workspace import (  # noqa: E402
     update_manifest_agent,
     validate_deliverables,
     write_deliverable,
-    write_manifest,
-    workspace_root,
 )
 from services.rnd_dispatch_playbooks import (  # noqa: E402
-    AgentPlaybook,
     all_required_files,
     build_instruction_with_paths,
     get_playbook,

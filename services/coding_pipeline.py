@@ -9,7 +9,6 @@ import subprocess
 from dataclasses import dataclass
 from enum import StrEnum
 from functools import lru_cache
-from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -103,9 +102,7 @@ _STACK_HINTS: dict[DevStack, tuple[str, ...]] = {
 
 _REPO_DEFAULT_STACK: dict[str, DevStack] = {
     "academy": DevStack.REACT_NATIVE_EXPO,
-    "nomad": DevStack.REACT_NATIVE_EXPO,
     "hub": DevStack.PYTHON_FASTAPI,
-    "naia": DevStack.PYTHON_FASTAPI,
 }
 
 
@@ -177,7 +174,12 @@ _STACK_PROMPTS: dict[DevStack, str] = {
 - Nouvelles deps Expo : versions ~56.x uniquement — jamais ~12.x (utiliser `npx expo install <pkg>`)
 - Auth : @supabase/supabase-js ; session via supabase.auth
 - Ne jamais créer de fichier vide ni de fichier hors arborescence app/lib/hooks/components
-- Tests : `npx tsc --noEmit` doit passer avant commit""",
+- Ne pas ajouter CLAUDE.md, AGENTS.md, .aider.* (réservés au Hub ALNUA, pas Academy)
+- Tab bar : MaterialIcons (TabBarIcon) — jamais expo-symbols/SymbolView (crash web)
+- Supprimer boilerplate Expo (EditScreenInfo, « Tab One ») — écran Accueil réel
+- Géoloc : fallback coords par défaut si permission refusée (surtout web)
+- UI : Pressable + StyleSheet — éviter Button RN brut sur web
+- Tests : `npx tsc --noEmit` ET `npm test` doivent passer avant PR""",
     DevStack.NEXTJS: """STACK : Next.js 14+ App Router + TypeScript + Tailwind + shadcn/ui.
 - Server Components par défaut ; 'use client' seulement si requis
 - Appels API via web/src/lib/* — pas de fetch dans les composants UI

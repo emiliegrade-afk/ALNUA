@@ -10,7 +10,6 @@ from __future__ import annotations
 import logging
 import queue
 import re
-import threading
 import tkinter as tk
 from tkinter import scrolledtext
 from datetime import datetime

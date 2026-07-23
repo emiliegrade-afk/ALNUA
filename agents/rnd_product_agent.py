@@ -9,7 +9,6 @@ from typing import Any
 from agents.rnd_social_agent import ensure_project_for_dossier
 from services.beta_portal import project_slug_for
 from services.rnd_product import (
-    ProductPipelineLockedError,
     assert_product_pipeline_unlocked,
     build_product_page_payload,
     enrich_public_page,

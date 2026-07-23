@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from database.supabase_client import SupabaseClient, get_supabase
+from database.supabase_client import SupabaseClient
 
 
 def log_bot_action(

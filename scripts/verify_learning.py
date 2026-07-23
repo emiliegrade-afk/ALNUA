@@ -80,7 +80,7 @@ def main() -> int:
 
     print("\n--- 4. Helpers ---")
     try:
-        from skills.skill_agent_learning import inject_learning_context, record_task_learning
+        from skills.skill_agent_learning import inject_learning_context
 
         out = inject_learning_context("prompt", "qa", "test")
         assert isinstance(out, str)

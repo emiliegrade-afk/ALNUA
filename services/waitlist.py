@@ -8,7 +8,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from agents.base import LLMClient, log_agent_action
-from database.supabase_client import SupabaseClient, get_supabase
+from database.supabase_client import SupabaseClient
 from services.beta_portal import project_slug_for, resolve_project_by_slug
 
 

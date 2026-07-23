@@ -14,7 +14,6 @@ Lance avec :
 import asyncio
 import os
 import sys
-import tempfile
 from pathlib import Path
 
 # Ajoute le root au path

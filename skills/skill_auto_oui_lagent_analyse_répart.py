@@ -1,8 +1,6 @@
-```python
 import requests
-import json
 from datetime import datetime
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 
 def skill_auto_oui_lagent_analyse_répart(api_key: str = None, hub_url: str = "https://api.hub.alnua.com", 
                                        include_briefing: bool = True, auto_assign: bool = False) -> Dict[str, Any]:
@@ -124,7 +122,23 @@ def _analyser_projets(projects: List[Dict]) -> Dict[str, Any]:
 def _generer_repartition(projects: List[Dict], auto_assign: bool = False) -> List[Dict]:
     """Génère les recommandations de répartition des tâches."""
     
-    repartition = []
-    
-    # Tri par priorité et urgence
-    projects_sorted =
+    # Ce module semble être une “placeholder” générationnelle.
+    # Pour la stabilité (migration VPS), on le rend volontairement inoffensif :
+    # - pas d'assignation automatique
+    # - retourne une structure vide si on ne sait pas répartir.
+    _ = auto_assign  # reserved for future
+    repartition: List[Dict[str, Any]] = []
+    for project in projects:
+        repartition.append(
+            {
+                "project": project.get("name") or project.get("id") or "",
+                "recommendations": [],
+            }
+        )
+    return repartition
+
+
+def _generer_recommandations(result: Dict[str, Any]) -> List[str]:
+    """Fallback minimal pour éviter tout crash si le skill est appelé."""
+    _ = result
+    return []

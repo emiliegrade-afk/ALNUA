@@ -17,7 +17,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from config.agent_models import get_model_for_agent, AGENT_TIERS
+from config.agent_models import AGENT_TIERS
 
 # ---------------------------------------------------------------------------
 # Seuils de complexité

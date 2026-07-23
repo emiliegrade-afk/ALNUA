@@ -11,7 +11,7 @@ from typing import Any
 import httpx
 
 from config.settings import get_settings
-from database.supabase_client import SupabaseClient, get_supabase
+from database.supabase_client import SupabaseClient
 
 logger = logging.getLogger(__name__)
 

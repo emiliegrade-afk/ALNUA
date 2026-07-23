@@ -15,9 +15,7 @@ import argparse
 import base64
 import mimetypes
 import os
-import sys
 import tempfile
-import time
 from pathlib import Path
 
 import imageio.v3 as iio

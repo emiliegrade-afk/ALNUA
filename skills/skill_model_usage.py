@@ -23,7 +23,6 @@ Variables d'env :
 """
 
 import logging
-import os
 from datetime import date, datetime
 
 logger = logging.getLogger(__name__)

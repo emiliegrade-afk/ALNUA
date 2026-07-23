@@ -17,7 +17,7 @@ from services.brand_schemas import BrandAnalysis
 from services.brand_storage import BRAND_KITS_ROOT, ensure_brand_kit_dirs
 from services.kit_generator import ALL_FORMAT_NAMES, generate_full_kit
 from services.palette import extract_kmeans_colors, merge_palettes
-from services.report_generator import REPORT_FILENAME, generate_brand_report
+from services.report_generator import generate_brand_report
 from services.segmentation import generate_isolated_assets, segment_elements
 from services.vision_llm import analyze_brand_image, prepare_brand_image
 from skills.skill_langfuse import trace_agent

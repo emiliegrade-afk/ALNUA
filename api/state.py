@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-import asyncio
 import logging
 from typing import TYPE_CHECKING
 
-from fastapi import WebSocket, WebSocketDisconnect
+from fastapi import WebSocket
 
 from agents.coo_agent import COOAgent
 from api.middleware import hub_api_key_valid

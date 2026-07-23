@@ -8,7 +8,6 @@ from typing import Any
 from agents.base import log_agent_action
 from database.supabase_client import get_supabase
 from services.engineering_spec import (
-    EngineeringSpecResult,
     append_engineering_spec_to_package,
     generate_engineering_spec,
 )

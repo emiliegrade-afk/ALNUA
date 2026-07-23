@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import hashlib
 import logging
 import re
 import textwrap
@@ -37,6 +36,13 @@ BRANCH_PALETTES: dict[str, dict[str, tuple[int, int, int]]] = {
         "text": (230, 240, 238),
         "muted": (120, 140, 135),
         "card": (20, 32, 36),
+    },
+    "hub": {
+        "bg": (16, 14, 12),
+        "accent": (212, 165, 116),
+        "text": (240, 236, 228),
+        "muted": (150, 145, 135),
+        "card": (28, 26, 22),
     },
     "other": {
         "bg": (18, 18, 22),

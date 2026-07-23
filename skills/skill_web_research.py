@@ -25,7 +25,6 @@ import threading
 import urllib.parse
 import urllib.request
 from datetime import datetime
-from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -190,11 +189,11 @@ def _distill_research(agent_id: str, topic: str, raw_results: list[dict]) -> str
     )
 
     system = f"""Tu es l'agent {agent_id} d'ALNUA.
-Tu lis des résultats de recherche sur "{topic}" et tu retiens UNIQUEMENT
-ce qui est utile et actionnable pour ton travail quotidien.
+Tu lis des résultats de recherche sur "{topic}" et tu retiens ce qui pourrait servir
+aujourd'hui ou plus tard — rien ne doit être ignoré.
 Réponds en 3 bullet points max, en français, très concis.
-Pas d'introduction. Format : "• [point clé et implication pratique]"
-Si rien n'est pertinent ou nouveau, réponds : "Rien de nouveau à retenir." """
+Format : "• [point clé et quand ça pourrait servir]"
+Si le contenu est faible, résume quand même en 1 bullet "à garder pour plus tard"."""
 
     user = f"""Résultats de recherche sur : {topic}
 
@@ -262,11 +261,30 @@ def research_domain(
                 continue
 
             lesson = _distill_research(agent_id, t, results)
-            if not lesson or "Rien de nouveau" in lesson:
-                continue
+            if not lesson:
+                lesson = f"• Source archivée — à relire plus tard ({t})"
 
-            memory_entry = f"[Veille {date}] {t} :\n{lesson}"
+            memory_entry = f"[Recherche {date}] {t} :\n{lesson}"
             remember(memory_entry, agent_id=agent_id)
+
+            try:
+                from services.bureau_library import add_entry, bureau_for_agent
+
+                add_entry(
+                    bureau=bureau_for_agent(agent_id),
+                    title=t[:200],
+                    summary=lesson,
+                    timing="later",
+                    source_url=str(results[0].get("url") or ""),
+                    source_title=str(results[0].get("title") or t),
+                    topics=[t],
+                    agent_id=agent_id,
+                    requested_by="scheduler",
+                    query=t,
+                )
+            except Exception:
+                pass
+
             total_learned += 1
             logger.info("research_domain: %s — leçon enregistrée pour '%s'", agent_id, t)
 

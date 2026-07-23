@@ -5,15 +5,13 @@ from __future__ import annotations
 import json
 import logging
 import re
-from datetime import datetime, timezone
-from pathlib import Path
 from typing import Any
 
 from config.settings import get_settings
 from database.supabase_client import SupabaseClient, get_supabase
 from services.rnd_deck_generator import _is_placeholder, md_to_html
 from services.rnd_schemas import RndDossierOut, RndProductPageOut
-from services.rnd_social import SOCIAL_UNLOCK_STATUSES, is_social_pipeline_unlocked
+from services.rnd_social import is_social_pipeline_unlocked
 
 logger = logging.getLogger(__name__)
 

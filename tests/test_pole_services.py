@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
 
 from services.eve_bom import BOM_CATEGORIES, BOM_STATUSES, bom_totals
 

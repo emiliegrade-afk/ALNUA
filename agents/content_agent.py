@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-import json
+from agents.agent_base import AgentBase
+
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -10,7 +11,7 @@ from crewai import Agent, LLM
 
 from agents.base import LLMClient, log_agent_action, parse_json_response
 from agents.tools.hub_tools import CONTENT_TOOLS
-from database.supabase_client import SupabaseClient, get_supabase
+from database.supabase_client import SupabaseClient
 from skills.skill_composio import get_composio_tools
 from config.agent_operating_spec import get_system_prompt
 from skills.skill_langfuse import trace_agent
@@ -46,14 +47,17 @@ CONTENT_TYPE_HINTS: dict[str, str] = {
 }
 
 
-class ContentAgent:
+class ContentAgent(AgentBase):
     AGENT_NAME = "content_agent"
 
     SYSTEM_PROMPT = get_system_prompt("content")
 
-    def __init__(self, db: SupabaseClient | None = None, llm: LLMClient | None = None) -> None:
-        self.db = db or get_supabase()
-        self.llm = llm or LLMClient()
+    def __init__(
+        self,
+        db: SupabaseClient | None = None,
+        llm: LLMClient | None = None,
+    ) -> None:
+        super().__init__(db, llm)
         self._crew_llm: LLM | None = None
         self._crew_agent: Agent | None = None
 
@@ -156,9 +160,7 @@ Chaque post doit respecter les contraintes de SA plateforme."""
         )
 
         try:
-            raw = self.llm.complete(
-                self.SYSTEM_PROMPT, user_prompt, agent_id="content", temperature=0.85
-            )
+            raw = self._complete(user_prompt, temperature=0.85)
             result = parse_json_response(raw)
             scheduled_base = datetime.now(timezone.utc) + timedelta(days=1)
             created: list[dict[str, Any]] = []

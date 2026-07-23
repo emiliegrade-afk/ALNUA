@@ -11,7 +11,6 @@ from database.supabase_client import SupabaseClient, get_supabase
 from services.rnd_pricing_model import revenue_from_pricing
 from services.finance_agent import (
     build_dashboard,
-    compute_totals,
     fetch_recurring_expenses,
     fetch_transactions,
 )
