@@ -1,11 +1,11 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { BureauAgentsSection } from "@/components/shared/bureau-agents-section";
 import { BureauPage } from "@/components/shared/bureau-page";
-import { Lightbulb, Beaker, FolderOpen, TreePine } from "lucide-react";
+import { ChevronDown, ChevronUp, Lightbulb, Beaker, FolderOpen, TreePine } from "lucide-react";
 
 const BrainstormView = dynamic(
   () =>
@@ -71,6 +71,21 @@ export function RdPageContent() {
   const [tab, setTab] = useState<Tab>(resolveInitialTab);
   const [dossierFocusId, setDossierFocusId] = useState<string | null>(dossierFromUrl);
   const [dossiersReloadKey, setDossiersReloadKey] = useState(0);
+  // Collapsed by default — the agent cards + library shelf were eating most
+  // of a 15" viewport before any tab content became visible at all.
+  const [agentsOpen, setAgentsOpen] = useState(false);
+
+  useEffect(() => {
+    setAgentsOpen(sessionStorage.getItem("rd_agents_open") === "1");
+  }, []);
+
+  function toggleAgents() {
+    setAgentsOpen((prev) => {
+      const next = !prev;
+      sessionStorage.setItem("rd_agents_open", next ? "1" : "0");
+      return next;
+    });
+  }
   const initialPitchView =
     viewFromUrl && CEO_VIEWS.has(viewFromUrl) ? viewFromUrl : undefined;
 
@@ -86,10 +101,23 @@ export function RdPageContent() {
       title="R&D"
       subtitle="Nova · Mira · Brainstorm · Dossiers · Comité"
       flush
+      fill
     >
-      <BureauAgentsSection bureau="rd" className="grid gap-4 sm:grid-cols-2" />
+      <div className="shrink-0">
+        <button
+          type="button"
+          onClick={toggleAgents}
+          className="mb-3 flex items-center gap-1.5 text-xs font-medium text-titane/60 transition hover:text-bronze-bright"
+        >
+          {agentsOpen ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+          Agents &amp; bibliothèque R&amp;D
+        </button>
+        {agentsOpen ? (
+          <BureauAgentsSection bureau="rd" className="mb-4 grid gap-4 sm:grid-cols-2" />
+        ) : null}
+      </div>
 
-      <div className="mb-4 flex w-fit flex-wrap gap-1 rounded-2xl border border-bronze-faint bg-obsidian/70 p-1">
+      <div className="flex w-fit shrink-0 flex-wrap gap-1 rounded-2xl border border-bronze-faint bg-obsidian/70 p-1">
         <button
           onClick={() => setTab("brainstorm")}
           className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition ${
@@ -139,7 +167,7 @@ export function RdPageContent() {
         </button>
       </div>
 
-      <div className="-mx-6 flex h-[calc(100dvh-15rem)] flex-col overflow-hidden px-6">
+      <div className="-mx-6 flex flex-1 min-h-0 flex-col overflow-hidden px-6">
         {tab === "brainstorm" ? (
           <BrainstormView />
         ) : tab === "rnd" ? (
