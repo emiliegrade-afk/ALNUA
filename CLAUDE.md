@@ -34,19 +34,27 @@ api/
   schemas.py          ← tous les modèles Pydantic
   routers/
     __init__.py       ← register_routers(app)
-    agents_pole.py    ← 24 endpoints agents (secretary, dev-backend, level-designer,
-                         controller, analyst-business, analyst-data + anciens)
+    agents_pole.py    ← endpoints agents (secretary, dev-backend, level-designer,
+                         controller, analyst-business, analyst-data + anciens) —
+                         entrées libres passées aux LLM assainies via
+                         services/input_sanitizer.py (services/input_sanitizer.py::sanitize_user_input,
+                         PII redaction désactivée ici — ces endpoints véhiculent
+                         volontairement des données business réelles)
     competition.py    ← GET/POST /agents/scores, /agents/leaderboard
     advanced_services.py ← endpoints LLM router, adversarial spec, parallel runner
     core.py           ← endpoints principaux (COO, PM, QA, spec...)
-    [+ 14 autres routers]
+    [+ 31 autres routers (35 au total + gdd.py conditionnel) — cf. api/routers/__init__.py::ALL_ROUTERS pour la liste exhaustive à jour]
 ```
 
 **Règle invariante :** chaque router commence par `from api.route_common import *` — ne jamais dupliquer les imports.
 
+**Montage unique :** `register_routers()` monte chaque router **une seule fois** (pas de préfixe `/v1` en plus — ça dupliquait les `operation_id` OpenAPI et risquait des collisions d'outils `fastapi-mcp`). Ne pas réintroduire un double montage.
+
 ---
 
-## 20 agents ALNUA
+## 27 agents ALNUA
+
+> Source de vérité pour room/team/tier : `config/agent_personas.py` (`AGENT_PERSONAS`, `ROOMS`, `TEAMS`) + `config/agent_models.py` (`AGENT_TIERS`). Cette table est une vue de lecture — en cas de divergence, ce sont ces deux fichiers qui font foi, pas ce document.
 
 ### Direction (`direction`)
 | Agent ID | Fichier | Persona | Tier |
@@ -56,37 +64,47 @@ api/
 | `qa` | `agents/qa_agent.py` | Alex Okafor — QA | standard |
 | `pm` | `agents/pm_agent.py` | Sam Rivera — PM | standard |
 
+> Note : `agents/coo_agent.py` a `AGENT_NAME = "coo_agent"` en interne (pas `"coo"`), sans alias dans `AGENT_ID_ALIASES` (`config/agent_models.py`) contrairement aux autres agents en `_agent`. Historique connu, pas encore corrigé — vérifier avant de router dynamiquement sur cet agent_id.
+
 ### App Office (`app_office`) — Équipe `app`
 | Agent ID | Fichier | Persona | Tier |
 |----------|---------|---------|------|
 | `dev_app` | `agents/dev_app_agent.py` | Théo Laurent | standard |
 | `dev_backend` | `agents/dev_backend_agent.py` | Hao Chen | standard |
+| `coding_coach` | `agents/coding_coach_agent.py` | Luca Bernard — mentor CEO, non compétitif | fast |
+| `rnd_product` | `agents/rnd_product_agent.py` | Naïm Tessier — fiche produit R&D | standard |
 
-### Gaming Studio (`gaming_studio`) — Équipe `innovation`
+### Gaming Studio (`gaming_studio`) — Équipe `gaming`
 | Agent ID | Fichier | Persona | Tier |
 |----------|---------|---------|------|
-| `game_director` | `agents/game_director_agent.py` | Mira Chen | standard |
+| `game_director` | `agents/game_director_agent.py` | Mira Chen | premium |
 | `dev_gaming` | `agents/dev_gaming_agent.py` | Nova Fischer | standard |
+| `level_designer` | `agents/level_designer_agent.py` | Finn Larsen | fast |
 
-### R&D Lab (`rnd_lab`)
+### R&D Lab (`rnd_lab`) — Équipe `innovation`
 | Agent ID | Fichier | Persona | Tier |
 |----------|---------|---------|------|
-| `brainstorm` | `agents/brainstorm_agent.py` | Idris Okonkwo | standard |
+| `brainstorm` | `agents/brainstorm_agent.py` | Idris Okonkwo | premium |
 | `rnd_agent` | `agents/rnd_agent.py` | Alex Mercer | premium |
+| `rnd_dossier` | `agents/rnd_dossier_agent.py` | Iris Coste — assemblage dossier | premium |
+| `rnd_ceo` | `agents/rnd_ceo_agent.py` | Noé Fabre — package CEO | premium |
+| `rnd_committee` | `agents/rnd_committee_agent.py` | Cléo Vasseur — facilite le comité, non compétitive | premium |
 
-### Comms Hub (`comms_hub`)
+### Comms Hub (`comms_hub`) — Équipe `business`
 | Agent ID | Fichier | Persona | Tier |
 |----------|---------|---------|------|
 | `marketing` | `agents/marketing_agent.py` | Camille Rousseau | standard |
 | `content` | `agents/content_agent.py` | Sofia Reyes | standard |
+| `rnd_social` | `agents/rnd_social_agent.py` | Léa Fontaine — stratégie sociale dossier | standard |
+| `rnd_visual` | `agents/rnd_visual_agent.py` | Max Delacroix — moodboard & brand dossier | standard |
 
 ### Accounting Office (`accounting_office`) — Équipe `finance`
 | Agent ID | Fichier | Persona | Tier |
 |----------|---------|---------|------|
-| `accounting` | `agents/accounting_agent.py` | Jules Bernard | fast |
+| `accounting` | `agents/accountant_agent.py` | Jules Bernard | fast |
 | `controller` | `agents/controller_agent.py` | Rémi Chassagne | fast |
 
-### Hardware Workshop (`hardware_workshop`)
+### Hardware Workshop (`hardware_workshop`) — Équipe `robo`
 | Agent ID | Fichier | Persona | Tier |
 |----------|---------|---------|------|
 | `hardware` | `agents/hardware_agent.py` | Yuki Tanaka | fast |
@@ -96,53 +114,46 @@ api/
 | Agent ID | Fichier | Persona | Tier |
 |----------|---------|---------|------|
 | `analyst_business` | `agents/analyst_business_agent.py` | Layla Hassan | standard |
-| `analyst_data` | `agents/analyst_data_agent.py` | Axel Roux | fast |
+| `analyst_data` | `agents/analyst_data_agent.py` | Axel Roux | standard |
 
 ### Sans room fixe
 | Agent ID | Fichier | Persona | Tier |
 |----------|---------|---------|------|
 | `secretary` | `agents/secretary_agent.py` | Nadia Faure | standard |
-| `level_designer` | `agents/level_designer_agent.py` | Finn Larsen | fast |
+
+Agents infra/orchestrateurs sans `AGENT_NAME` persona (pas dans `AGENT_PERSONAS`, pas de compétition) : `agents/rnd_center.py` (orchestrateur Centre R&D), `agents/bug_watchdog.py` (boucle de surveillance, délègue à `agents/fix_pipeline.py`), `agents/project_scanner.py`, `agents/skill_synthesizer.py`, `agents/brand_agent.py`.
 
 ---
 
 ## Pattern agent — règle de création
 
+Depuis la migration "9-layer operating specs" (commit `1a46408`), les agents héritent de `agents/agent_base.py::AgentBase` (18+ agents) plutôt que de gérer `db`/`llm` à la main. `AgentBase.__init__` fixe déjà `self.db` et `self.llm` — **si une sous-classe redéfinit `__init__`, elle doit appeler `super().__init__()`** (oubli réel corrigé sur `rnd_dossier_agent`/`rnd_committee_agent` : `self.db` restait `None`, `self._log()` aurait levé `AttributeError` au premier appel).
+
 ```python
 """[Role] Agent — [Prénom Nom], [Titre] ALNUA."""
 from __future__ import annotations
+from agents.agent_base import AgentBase
+
 from typing import Any
-from agents.base import LLMClient, log_agent_action, parse_json_response
-from database.supabase_client import SupabaseClient, get_supabase
+from agents.base import log_agent_action, parse_json_response
+from config.agent_operating_spec import get_system_prompt
 from skills.skill_agent_learning import inject_learning_context, record_task_learning
 from skills.skill_langfuse import trace_agent
 
-class MyAgent:
+class MyAgent(AgentBase):
     AGENT_NAME = "my_agent"
 
-    SYSTEM_PROMPT = """Tu es [Prénom], [Titre] d'ALNUA.
-[Relation pipeline avec un autre agent nommé explicitement]
+    SYSTEM_PROMPT = get_system_prompt("my_agent")  # 9-layer spec — config/agent_operating_spec.py
 
-Tes spécialités :
-- ...
-
-Méthode de travail :
-[1-2 règles comportementales concrètes]
-
-Règles de format :
-Réponds en JSON valide structuré.
-
-Relation à la qualité :
-[Une phrase manifeste courte]"""
-
-    def __init__(self, db=None, llm=None):
-        self.db = db or get_supabase()
-        self.llm = llm or LLMClient()
+    # Si __init__ est redéfini (ex: pour injecter un repo), appeler super().__init__() en premier :
+    # def __init__(self, repo=None) -> None:
+    #     super().__init__()
+    #     self.repo = repo or get_my_repository()
 
     @trace_agent("my_agent")
     def my_method(self, param: str) -> dict[str, Any]:
         prompt = inject_learning_context(f"...", self.AGENT_NAME, param)
-        raw = self.llm.complete(self.SYSTEM_PROMPT, prompt, agent_id=self.AGENT_NAME, temperature=0.4)
+        raw = self._complete(prompt, temperature=0.4)  # self.llm_agent_id résolu automatiquement
         result = parse_json_response(raw)
         log_agent_action(self.db, self.AGENT_NAME, "my_method",
             input_summary=param[:100], output_summary=str(result)[:100])
@@ -152,6 +163,10 @@ Relation à la qualité :
             pass
         return result
 ```
+
+`AgentBase` fournit aussi `_complete_async`, `llm_agent_id` (normalise `xxx_agent`→`xxx` pour le routage modèle/coûts), `memory_agent_id` (clé Mem0), et `_log(...)` (wrapper `log_agent_action`, actuellement non utilisé par les agents existants qui appellent encore `log_agent_action(...)` directement — les deux sont valides, `_log` est juste plus court).
+
+Le SYSTEM_PROMPT en 5 sections inline (identité/spécialités/méthode/format/qualité) reste valide pour un agent simple, mais la majorité des agents actuels le génèrent via `get_system_prompt(agent_id)` (`config/agent_operating_spec.py`) — un système de spec en 9 couches plus riche. Vérifier lequel des deux patterns est déjà utilisé par les agents voisins avant d'en créer un troisième.
 
 ---
 
@@ -230,11 +245,11 @@ Milestones : 100=coffee_break | 200=tier_upgrade_7d | 500=tier_upgrade_30d
 
 ## Ajouter un nouvel agent — checklist 6 étapes
 
-1. `agents/my_agent.py` — SYSTEM_PROMPT en 5 sections (identité/spécialités/méthode/format/qualité)
+1. `agents/my_agent.py` — hérite de `agents/agent_base.py::AgentBase`, `SYSTEM_PROMPT` via `get_system_prompt(agent_id)` (`config/agent_operating_spec.py`) ou 5 sections inline
 2. `config/agent_models.py` — ajouter tier dans `AGENT_TIERS`
-3. `config/agent_personas.py` — ajouter dans `AGENT_PERSONAS`, `ROOMS`, `TEAMS` si compétitif
-4. `api/schemas.py` — ajouter les Pydantic models
-5. `api/routers/agents_pole.py` — ajouter les endpoints
+3. `config/agent_personas.py` — ajouter dans `AGENT_PERSONAS`, `ROOMS`, `TEAMS` si compétitif — **sans cette étape, `get_competitive_context()` ne s'applique jamais à l'agent** (arrivé aux 6 agents R&D dossier hub, resté non détecté plusieurs semaines)
+4. `api/schemas.py` — ajouter les Pydantic models ; toute entrée texte libre destinée à un LLM passe par `services/input_sanitizer.py::sanitize_user_input` côté router
+5. `api/routers/agents_pole.py` (ou routeur dédié) — ajouter les endpoints
 6. `web/src/components/settings/model-settings-view.tsx` — ajouter dans `AGENT_LABELS`
 
 ---
@@ -270,7 +285,7 @@ Cursor peut alors appeler directement `POST /agents/analyst-data/sql` etc. comme
 | Skill | Usage |
 |-------|-------|
 | `/alnua-hub` | Architecture complète (à invoquer en début de session) |
-| `/alnua-agents` | Cheat sheet 20 agents + endpoints |
+| `/alnua-agents` | Cheat sheet 27 agents + endpoints |
 | `/alnua-new-agent` | Template + checklist création agent |
 | `/alnua-caveman` | Mode compression tokens |
 | `/alnua-test` | Patterns Playwright + stratégie tests |
@@ -296,4 +311,9 @@ Cursor peut alors appeler directement `POST /agents/analyst-data/sql` etc. comme
 - `@trace_agent("agent_name")` sur chaque méthode publique
 - Dégradé silencieux partout (`try/except pass`) sauf l'appel LLM principal
 - `from api.route_common import *` — ne jamais dupliquer les imports dans les routers
+- Chaque router monté **une seule fois** dans `register_routers()` — pas de double-montage `/v1`
 - `data/agent_scores.json` créé automatiquement — ne jamais le committer avec des données
+- Toute sous-classe de `AgentBase` qui redéfinit `__init__` doit appeler `super().__init__()` en premier (sinon `self.db` reste `None`)
+- Nouvel agent compétitif → enregistrement obligatoire dans `config/agent_personas.py` (room/team/persona), sinon la compétition ne s'applique jamais silencieusement
+- `ruff check agents/ services/ api/ config/ database/ bots/ skills/` doit passer (bloquant en CI, config `ruff.toml`) — voir ce fichier pour la liste des règles volontairement ignorées (star-imports, style pré-existant) et pourquoi
+- Dépendances Python figées en `==` dans `requirements.txt` ; `requirements.lock.txt` = snapshot pip freeze complet pour reproductibilité — mettre à jour les deux en cas d'ajout/upgrade de dépendance

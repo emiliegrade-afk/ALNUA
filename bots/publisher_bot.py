@@ -91,7 +91,7 @@ class PublisherBot:
             try:
                 if self.publish_post(post):
                     published += 1
-            except Exception as exc:
+            except Exception:
                 logger.exception("Failed to publish post %s", post["id"])
                 self.db.update("posts_queue", post["id"], {"status": "failed"})
                 failed += 1

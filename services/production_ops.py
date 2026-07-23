@@ -52,7 +52,7 @@ def simulate_sentry_event(
     *,
     title: str,
     message: str = "",
-    project_slug: str = "nuaway",
+    project_slug: str = "hub",
     level: str = "error",
     dry_run: bool = False,
 ) -> dict[str, Any]:
@@ -97,6 +97,7 @@ def get_production_ops_status() -> dict[str, Any]:
     return {
         "sentry": {
             "tracked_fingerprints": len(fingerprints),
+            "open_count": sentry_open,
             "recent_ingests": recent[:10],
             "auto_issue": True,
         },

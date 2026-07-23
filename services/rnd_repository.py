@@ -191,6 +191,30 @@ class RndRepository:
     # Ideas — read / sync
     # ------------------------------------------------------------------
 
+    def _mark_json_idea_archived(
+        self,
+        idea_id: str,
+        *,
+        legacy_id: str | None = None,
+        db_id: str | None = None,
+    ) -> None:
+        """Persist archived status in rnd_ideas.json (prevents R&D cycle from resurrecting)."""
+        json_ideas = self._load_json_ideas()
+        changed = False
+        for j in json_ideas:
+            jid = j.get("id")
+            jdb = j.get("db_id")
+            if (
+                jid == idea_id
+                or (legacy_id and jid == legacy_id)
+                or (db_id and jdb == db_id)
+                or jdb == idea_id
+            ):
+                j["lifecycle_status"] = "archived"
+                changed = True
+        if changed:
+            self._save_json_ideas(json_ideas)
+
     def sync_idea_to_db(self, idea: dict[str, Any]) -> dict[str, Any] | None:
         """Upsert one idea from JSON dict into Supabase. Returns DB row or None."""
         if not self._use_db:
@@ -202,6 +226,10 @@ class RndRepository:
         try:
             existing = self.db.select("rnd_ideas", filters={"legacy_id": legacy_id}, limit=1)
             if existing:
+                # Never resurrect an archived idea when JSON is stale (e.g. after partial archive).
+                if existing[0].get("lifecycle_status") == "archived":
+                    row_data["lifecycle_status"] = "archived"
+                    idea["lifecycle_status"] = "archived"
                 updated = self.db.update("rnd_ideas", existing[0]["id"], row_data)
                 idea["db_id"] = updated["id"]
                 return updated
@@ -271,11 +299,13 @@ class RndRepository:
         """Soft-delete a proposal (not allowed if already linked to a dossier)."""
         db_row = self.get_idea_db_row(idea_id)
         legacy_id: str | None = None
+        db_id: str | None = None
 
         if db_row:
             if db_row.get("dossier_id"):
                 raise ValueError("Impossible de supprimer une idée déjà promue en dossier.")
             legacy_id = db_row.get("legacy_id")
+            db_id = str(db_row["id"]) if db_row.get("id") else None
             self.db.update(
                 "rnd_ideas",
                 db_row["id"],
@@ -292,15 +322,9 @@ class RndRepository:
             if match.get("dossier_id"):
                 raise ValueError("Impossible de supprimer une idée déjà promue en dossier.")
             legacy_id = match.get("id")
-            match["lifecycle_status"] = "archived"
+            db_id = match.get("db_id")
 
-        if legacy_id:
-            json_ideas = self._load_json_ideas()
-            for j in json_ideas:
-                if j.get("id") == legacy_id:
-                    j["lifecycle_status"] = "archived"
-            self._save_json_ideas(json_ideas)
-
+        self._mark_json_idea_archived(idea_id, legacy_id=legacy_id, db_id=db_id)
         return True
 
     def get_idea_by_id(self, idea_id: str) -> RndIdeaOut | None:
@@ -348,6 +372,11 @@ class RndRepository:
     @staticmethod
     def section_keys_for_domain(domain: str | None) -> list[str]:
         domain_norm = (domain or "autre").lower()
+        branch = DOMAIN_TO_BRANCH.get(domain_norm, "other")
+        if branch == "hub":
+            return [
+                "problem", "solution", "mvp", "feasibility", "risks", "decision",
+            ]
         keys = [
             "problem", "solution", "market", "mvp", "feasibility",
             "business_case", "risks", "decision",
@@ -503,6 +532,7 @@ class RndRepository:
                         slug=row["slug"],
                         title=row["title"],
                         domain=row.get("domain", "autre"),
+                        branch=row.get("branch"),
                         status=row.get("status", "draft"),
                         ceo_status=row.get("ceo_status", "pending"),
                         idea_legacy_id=legacy,
@@ -986,7 +1016,6 @@ class RndRepository:
     @staticmethod
     def _seed_section_content(idea: dict[str, Any]) -> dict[str, str]:
         """Pre-fill sections from existing idea evaluation data."""
-        title = idea.get("title", "")
         desc = idea.get("description", "")
         why = idea.get("why_now", "")
         reasoning = idea.get("agent_reasoning", "")

@@ -1,0 +1,27 @@
+# Ruff config for ALNUA Hub.
+#
+# F403/F405 (star-import) are ignored on purpose: every router does
+# `from api.route_common import *` per the invariant rule in CLAUDE.md — that's
+# the intended architecture, not a bug.
+#
+# F401 (unused import) is ignored for now: ~240 pre-existing hits across the
+# codebase, too large a sweep to fix blind as part of wiring up CI lint.
+#
+# E402 (import not at top) is ignored: many agents deliberately do
+# `from agents.agent_base import AgentBase` before stdlib imports — an
+# established (if PEP8-unusual) pattern, not an accident.
+#
+# E741 (ambiguous name `l`/`I`/`O`), E401 (multi-import one line), E731
+# (lambda assignment) are ignored for now too: ~17 pre-existing hits, cosmetic,
+# tracked as backlog rather than fixed blind in this pass.
+#
+# Everything else in F (undefined names, redefinitions, unused variables) plus
+# E9 (syntax errors) stays enforced and blocks CI — these are real bugs, not
+# style debt (see agents/level_designer_agent.py: F821 caught a missing import
+# that broke 4 endpoints at runtime; scripts/record_performance_reference.py:
+# F821 caught an undefined `duration` that would crash the script).
+target-version = "py312"
+
+[lint]
+select = ["E4", "E7", "E9", "F"]
+ignore = ["F401", "F403", "F405", "E402", "E741", "E401", "E731"]

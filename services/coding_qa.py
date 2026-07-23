@@ -12,7 +12,24 @@ from services.coding_pipeline import DevStack, detect_stack, get_coding_config
 logger = logging.getLogger(__name__)
 
 _SOURCE_EXTENSIONS = {".ts", ".tsx", ".js", ".jsx", ".py"}
-_JUNK_NAME_RE = re.compile(r"[\(\)]|déterminer|todo fixme", re.I)
+# Issue-template placeholders only — Expo Router uses (tabs), (auth), etc.
+_PLACEHOLDER_NAMES = frozenset(
+    {"(aucun)", "(none)", "(n/a)", "aucun", "none", "n/a"}
+)
+_JUNK_TEXT_RE = re.compile(r"déterminer|todo fixme", re.I)
+
+
+def _is_junk_path(path: Path) -> bool:
+    """Reject template artifacts, not legitimate Expo route groups like (tabs)."""
+    if _JUNK_TEXT_RE.search(path.name):
+        return True
+    for part in path.parts:
+        lower = part.lower()
+        if lower in _PLACEHOLDER_NAMES:
+            return True
+        if lower.startswith("(déterminer") or lower.startswith("(determiner"):
+            return True
+    return False
 
 
 def _changed_files(worktree_path: Path, default_branch: str) -> list[Path]:
@@ -41,8 +58,7 @@ def _check_empty_or_junk_files(
     for path in _changed_files(worktree_path, default_branch):
         if not path.is_file():
             continue
-        name = path.name
-        if _JUNK_NAME_RE.search(name) or _JUNK_NAME_RE.search(str(path)):
+        if _is_junk_path(path):
             errors.append(f"Fichier suspect rejeté : {path.relative_to(worktree_path)}")
             continue
         if path.suffix.lower() not in _SOURCE_EXTENSIONS:
@@ -57,8 +73,17 @@ def _check_empty_or_junk_files(
 
 def _run_command(cmd: list[str], cwd: str, timeout: int = 180) -> tuple[int, str]:
     try:
+        from services.cli_paths import ensure_coding_cli_path, resolve_cli
+
+        ensure_coding_cli_path()
+        argv = list(cmd)
+        if argv:
+            try:
+                argv[0] = resolve_cli(argv[0])
+            except FileNotFoundError:
+                pass
         result = subprocess.run(
-            cmd,
+            argv,
             cwd=cwd,
             capture_output=True,
             text=True,
@@ -72,20 +97,45 @@ def _run_command(cmd: list[str], cwd: str, timeout: int = 180) -> tuple[int, str
         return 1, str(exc)
 
 
+def _check_expo_scaffold(worktree: Path) -> list[str]:
+    """Reject PRs that leave default Expo template screens."""
+    errors: list[str] = []
+    index = worktree / "app" / "(tabs)" / "index.tsx"
+    if index.is_file():
+        text = index.read_text(encoding="utf-8", errors="ignore")
+        if "EditScreenInfo" in text or "Tab One" in text:
+            errors.append(
+                "Scaffold Expo dans app/(tabs)/index.tsx — remplacer par écran Accueil réel"
+            )
+    layout = worktree / "app" / "(tabs)" / "_layout.tsx"
+    if layout.is_file():
+        text = layout.read_text(encoding="utf-8", errors="ignore")
+        if re.search(r"title:\s*['\"]Tab One['\"]", text):
+            errors.append("Onglet encore 'Tab One' — renommer Accueil")
+        if "expo-symbols" in text or "SymbolView" in text:
+            errors.append(
+                "expo-symbols interdit sur tab bar — utiliser TabBarIcon + MaterialIcons"
+            )
+    return errors
+
+
 def _qa_expo(worktree: str) -> list[str]:
     errors: list[str] = []
     root = Path(worktree)
+    errors.extend(_check_expo_scaffold(root))
     if not (root / "tsconfig.json").is_file():
         return errors
     code, out = _run_command(["npx", "tsc", "--noEmit"], cwd=worktree)
     if code != 0:
         errors.append(f"tsc --noEmit échoué:\n{out}")
-    pkg = root / "package.json"
-    if pkg.is_file():
-        text = pkg.read_text(encoding="utf-8", errors="ignore")
+    if (root / "package.json").is_file():
+        code, out = _run_command(["npm", "test"], cwd=worktree, timeout=120)
+        if code != 0:
+            errors.append(f"npm test échoué:\n{out}")
+        text = (root / "package.json").read_text(encoding="utf-8", errors="ignore")
         if re.search(r'"expo-[^"]+":\s*"~12\.', text):
             errors.append(
-                "expo-* en version ~12.x incompatible avec SDK 56 — utiliser npx expo install <pkg>"
+                "expo-* ~12.x incompatible SDK 56 — npx expo install <pkg>"
             )
     return errors
 

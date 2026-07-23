@@ -199,7 +199,6 @@ def generate_engineering_spec(
     """
     client = llm or LLMClient()
     context = build_dossier_context(dossier, ceo_package=ceo_package)
-    pkg = ceo_package or {}
 
     prompt = (
         f"{ENGINEERING_SPEC_OUTLINE}\n\n"

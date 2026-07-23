@@ -2,13 +2,24 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
+import logging
+import time
 from typing import Any
 
 import httpx
 
 from config.settings import get_settings
 from database.supabase_client import SupabaseClient, get_supabase
+
+logger = logging.getLogger(__name__)
+
+# Statuses worth retrying (transient/overload) — never retried: 4xx client/auth errors
+# other than 408/429, since retrying or failing over won't fix a bad request or a bad key.
+_RETRYABLE_STATUS = {408, 429, 500, 502, 503, 504}
+_MAX_ATTEMPTS_PER_MODEL = 3
+_RETRY_BACKOFF_SECONDS = 1.5
 
 
 def to_api_model_slug(model: str) -> str:
@@ -17,6 +28,26 @@ def to_api_model_slug(model: str) -> str:
     if m.startswith("openrouter/"):
         return m[len("openrouter/") :]
     return m
+
+
+# Deprecated on OpenRouter — auto-upgrade at call time
+_MODEL_ALIASES: dict[str, str] = {
+    "x-ai/grok-3": "x-ai/grok-4.3",
+}
+
+
+def normalize_openrouter_model(model: str) -> str:
+    """Resolve API slug + replace known-dead model IDs."""
+    slug = to_api_model_slug(model)
+    return _MODEL_ALIASES.get(slug, slug)
+
+
+def openrouter_chat_completions_url(base_url: str) -> str:
+    """Always return .../api/v1/chat/completions (never double-path)."""
+    base = (base_url or "https://openrouter.ai/api/v1").strip().rstrip("/")
+    if base.endswith("/chat/completions"):
+        return base
+    return f"{base}/chat/completions"
 
 
 def to_crewai_model_slug(model: str) -> str:
@@ -31,7 +62,7 @@ def resolve_openrouter_model(agent_id: str) -> str:
     """Resolved model slug for OpenRouter REST API calls."""
     from config.agent_models import get_model_for_agent
 
-    return to_api_model_slug(get_model_for_agent(agent_id))
+    return normalize_openrouter_model(get_model_for_agent(agent_id))
 
 
 def build_crewai_llm(agent_id: str, temperature: float = 0.3):
@@ -83,8 +114,196 @@ class LLMClient:
         method_name: str = "",
         temperature: float = 0.7,
         max_tokens: int = 4096,
+        *,
+        use_cache: bool = True,
     ) -> str:
-        # Résolution : explicit > llm_router > agent_id config > global .env
+        resolved_model, _enriched, payload_or_cache, headers, url = self._build_request(
+            system=system,
+            messages=messages,
+            model=model,
+            agent_id=agent_id,
+            method_name=method_name,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            use_cache=use_cache,
+        )
+        if isinstance(payload_or_cache, str):
+            return payload_or_cache
+
+        actual_model, data = self._send_with_retry(url, headers, payload_or_cache, resolved_model)
+        content = data["choices"][0]["message"]["content"]
+        self._record_usage(
+            data=data,
+            agent_id=agent_id,
+            model=actual_model,
+            method_name=method_name,
+        )
+        self._store_cache(system, messages, actual_model, content, temperature, use_cache)
+        return content
+
+    async def complete_async(
+        self,
+        system: str,
+        user: str,
+        model: str | None = None,
+        agent_id: str | None = None,
+        method_name: str = "",
+        temperature: float = 0.7,
+        max_tokens: int = 4096,
+        *,
+        use_cache: bool = True,
+    ) -> str:
+        """Native async LLM call — preferred in FastAPI async endpoints."""
+        return await self.chat_async(
+            system=system,
+            messages=[{"role": "user", "content": user}],
+            model=model,
+            agent_id=agent_id,
+            method_name=method_name,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            use_cache=use_cache,
+        )
+
+    async def chat_async(
+        self,
+        system: str,
+        messages: list[dict[str, str]],
+        model: str | None = None,
+        agent_id: str | None = None,
+        method_name: str = "",
+        temperature: float = 0.7,
+        max_tokens: int = 4096,
+        *,
+        use_cache: bool = True,
+    ) -> str:
+        """Native async OpenRouter call via httpx.AsyncClient."""
+        resolved_model, enriched_system, payload, headers, url = self._build_request(
+            system=system,
+            messages=messages,
+            model=model,
+            agent_id=agent_id,
+            method_name=method_name,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            use_cache=use_cache,
+        )
+        if isinstance(payload, str):
+            return payload  # cache hit returned as string
+
+        actual_model, data = await self._send_with_retry_async(url, headers, payload, resolved_model)
+        content = data["choices"][0]["message"]["content"]
+        self._record_usage(
+            data=data,
+            agent_id=agent_id,
+            model=actual_model,
+            method_name=method_name,
+        )
+        self._store_cache(system, messages, actual_model, content, temperature, use_cache)
+        return content
+
+    def _fallback_models(self, resolved_model: str) -> list[str]:
+        """Primary model, then one distinct fallback if the primary is overloaded/gone."""
+        models = [resolved_model]
+        fallback = normalize_openrouter_model(
+            to_api_model_slug(self._settings.default_llm_model)
+        )
+        if fallback and fallback != resolved_model:
+            models.append(fallback)
+        return models
+
+    def _send_with_retry(
+        self,
+        url: str,
+        headers: dict[str, str],
+        payload: dict[str, Any],
+        resolved_model: str,
+    ) -> tuple[str, dict[str, Any]]:
+        """POST with exponential backoff on transient errors, failing over to a
+        fallback model if the primary keeps erroring (rate-limited, overloaded,
+        deprecated). Client/auth errors (4xx other than 408/429) fail fast — no
+        retry, no fallback, since neither would fix a bad request or a bad key."""
+        last_exc: Exception | None = None
+        for model in self._fallback_models(resolved_model):
+            model_payload = {**payload, "model": model}
+            for attempt in range(_MAX_ATTEMPTS_PER_MODEL):
+                try:
+                    with httpx.Client(timeout=120.0) as client:
+                        response = client.post(url, headers=headers, json=model_payload)
+                except (httpx.TimeoutException, httpx.NetworkError) as exc:
+                    last_exc = exc
+                    if attempt < _MAX_ATTEMPTS_PER_MODEL - 1:
+                        time.sleep(_RETRY_BACKOFF_SECONDS * (2**attempt))
+                        continue
+                    break
+                if response.status_code >= 400:
+                    if (
+                        response.status_code in _RETRYABLE_STATUS
+                        and attempt < _MAX_ATTEMPTS_PER_MODEL - 1
+                    ):
+                        time.sleep(_RETRY_BACKOFF_SECONDS * (2**attempt))
+                        continue
+                    last_exc = RuntimeError(
+                        f"OpenRouter {response.status_code} model={model}: {response.text[:500]}"
+                    )
+                    if response.status_code not in _RETRYABLE_STATUS and response.status_code != 404:
+                        raise last_exc from None
+                    break  # exhausted retries or model-level failure — try next model
+                return model, response.json()
+            logger.warning("LLMClient: model %s failed, trying fallback if any", model)
+        raise last_exc or RuntimeError("OpenRouter request failed with no response")
+
+    async def _send_with_retry_async(
+        self,
+        url: str,
+        headers: dict[str, str],
+        payload: dict[str, Any],
+        resolved_model: str,
+    ) -> tuple[str, dict[str, Any]]:
+        """Async twin of _send_with_retry — same retry/fallback semantics."""
+        last_exc: Exception | None = None
+        for model in self._fallback_models(resolved_model):
+            model_payload = {**payload, "model": model}
+            for attempt in range(_MAX_ATTEMPTS_PER_MODEL):
+                try:
+                    async with httpx.AsyncClient(timeout=120.0) as client:
+                        response = await client.post(url, headers=headers, json=model_payload)
+                except (httpx.TimeoutException, httpx.NetworkError) as exc:
+                    last_exc = exc
+                    if attempt < _MAX_ATTEMPTS_PER_MODEL - 1:
+                        await asyncio.sleep(_RETRY_BACKOFF_SECONDS * (2**attempt))
+                        continue
+                    break
+                if response.status_code >= 400:
+                    if (
+                        response.status_code in _RETRYABLE_STATUS
+                        and attempt < _MAX_ATTEMPTS_PER_MODEL - 1
+                    ):
+                        await asyncio.sleep(_RETRY_BACKOFF_SECONDS * (2**attempt))
+                        continue
+                    last_exc = RuntimeError(
+                        f"OpenRouter {response.status_code} model={model}: {response.text[:500]}"
+                    )
+                    if response.status_code not in _RETRYABLE_STATUS and response.status_code != 404:
+                        raise last_exc from None
+                    break
+                return model, response.json()
+            logger.warning("LLMClient: model %s failed, trying fallback if any", model)
+        raise last_exc or RuntimeError("OpenRouter request failed with no response")
+
+    def _build_request(
+        self,
+        *,
+        system: str,
+        messages: list[dict[str, str]],
+        model: str | None,
+        agent_id: str | None,
+        method_name: str,
+        temperature: float,
+        max_tokens: int,
+        use_cache: bool,
+    ) -> tuple[str, str, dict[str, Any] | str, dict[str, str], str]:
+        """Shared request builder; returns cache hit as str in payload position."""
         resolved_model = to_api_model_slug(model) if model else None
         if not resolved_model and agent_id and method_name:
             try:
@@ -107,7 +326,23 @@ class LLMClient:
             fallback = self._settings.agent_model or self._settings.default_llm_model
             resolved_model = resolved_model or to_api_model_slug(fallback)
 
-        # Injection contexte compétitif
+        resolved_model = normalize_openrouter_model(resolved_model)
+
+        if use_cache:
+            try:
+                if self._settings.llm_cache_enabled:
+                    from services.llm_cache import llm_cache
+                    cached = llm_cache.get(
+                        system=system,
+                        messages=messages,
+                        model=resolved_model,
+                        temperature=temperature,
+                    )
+                    if cached is not None:
+                        return resolved_model, system, cached, {}, ""
+            except Exception:
+                pass
+
         enriched_system = system
         if agent_id:
             try:
@@ -120,9 +355,9 @@ class LLMClient:
                     if competitive_block:
                         enriched_system = f"{system}\n\n{competitive_block}"
             except Exception:
-                pass  # Dégradé silencieux — ne jamais bloquer un appel LLM
+                pass
 
-        payload = {
+        payload: dict[str, Any] = {
             "model": resolved_model,
             "messages": [{"role": "system", "content": enriched_system}, *messages],
             "temperature": temperature,
@@ -134,22 +369,32 @@ class LLMClient:
             "HTTP-Referer": "https://alnua-hub.local",
             "X-Title": "ALNUA Hub",
         }
-        with httpx.Client(timeout=120.0) as client:
-            response = client.post(
-                f"{self._settings.openrouter_base_url}/chat/completions",
-                headers=headers,
-                json=payload,
-            )
-            response.raise_for_status()
-            data = response.json()
-        content = data["choices"][0]["message"]["content"]
-        self._record_usage(
-            data=data,
-            agent_id=agent_id,
-            model=resolved_model,
-            method_name=method_name,
-        )
-        return content
+        url = openrouter_chat_completions_url(self._settings.openrouter_base_url)
+        return resolved_model, enriched_system, payload, headers, url
+
+    def _store_cache(
+        self,
+        system: str,
+        messages: list[dict[str, str]],
+        model: str,
+        content: str,
+        temperature: float,
+        use_cache: bool,
+    ) -> None:
+        if not use_cache:
+            return
+        try:
+            if self._settings.llm_cache_enabled:
+                from services.llm_cache import llm_cache
+                llm_cache.set(
+                    system=system,
+                    messages=messages,
+                    model=model,
+                    response=content,
+                    temperature=temperature,
+                )
+        except Exception:
+            pass
 
     def _record_usage(
         self,
@@ -277,6 +522,18 @@ def run_with_learning(
         except Exception:
             pass
         raise
+
+
+async def run_with_learning_async(
+    agent_id: str,
+    task: str,
+    fn,
+    *args,
+    **kwargs,
+) -> Any:
+    """Async variant — runs sync fn in thread pool, preserves learning hooks."""
+    import asyncio
+    return await asyncio.to_thread(run_with_learning, agent_id, task, fn, *args, **kwargs)
 
 
 def log_agent_action(

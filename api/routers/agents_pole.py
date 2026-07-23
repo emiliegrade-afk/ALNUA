@@ -3,71 +3,88 @@
 from __future__ import annotations
 
 from api.route_common import *  # noqa: F403
+from services.input_sanitizer import sanitize_user_input
 
 router = APIRouter()
+
+
+def _clean(text: str, *, max_length: int = 6000) -> str:
+    """Bound + strip prompt-injection patterns from free text headed for an LLM.
+
+    PII redaction stays off here: these endpoints routinely carry real business
+    data (client emails, phone numbers in contracts) that must reach the agent
+    intact — unlike the Telegram chat surface, which redacts by default.
+    """
+    return sanitize_user_input(text, max_length=max_length, redact_pii_enabled=False)
 
 
 @router.post("/agents/secretary/draft-email")
 def secretary_draft_email(body: SecretaryDraftEmailRequest) -> dict[str, Any]:
     return SecretaryAgent().draft_email(
-        body.subject, body.context, body.recipient, body.tone, body.language
+        body.subject, _clean(body.context), body.recipient, body.tone, body.language
     )
 
 
 @router.post("/agents/secretary/triage-emails")
 def secretary_triage_emails(body: SecretaryTriageRequest) -> dict[str, Any]:
-    return SecretaryAgent().triage_emails(body.emails)
+    emails = [
+        {**e, "body": _clean(e.get("body", "")), "subject": _clean(e.get("subject", ""), max_length=500)}
+        for e in body.emails
+    ]
+    return SecretaryAgent().triage_emails(emails)
 
 
 @router.post("/agents/secretary/draft-contract")
 def secretary_draft_contract(body: SecretaryDraftContractRequest) -> dict[str, Any]:
     return SecretaryAgent().draft_contract(
-        body.contract_type, body.party_name, body.scope,
-        body.duration, body.compensation, body.special_clauses,
+        body.contract_type, body.party_name, _clean(body.scope),
+        body.duration, body.compensation, _clean(body.special_clauses),
     )
 
 
 @router.post("/agents/secretary/plan-meeting")
 def secretary_plan_meeting(body: SecretaryPlanMeetingRequest) -> dict[str, Any]:
     return SecretaryAgent().plan_meeting(
-        body.participants, body.topic, body.duration_minutes, body.constraints
+        body.participants, _clean(body.topic, max_length=500), body.duration_minutes, _clean(body.constraints)
     )
 
 
 @router.post("/agents/secretary/meeting-notes")
 def secretary_meeting_notes(body: SecretaryMeetingNotesRequest) -> dict[str, Any]:
     return SecretaryAgent().write_meeting_notes(
-        body.meeting_title, body.raw_notes, body.participants
+        body.meeting_title, _clean(body.raw_notes), body.participants
     )
 
 
 @router.post("/agents/dev-backend/design-api")
 def dev_backend_design_api(body: DevBackendDesignAPIRequest) -> dict[str, Any]:
-    return DevBackendAgent().design_api(body.feature, body.project, body.constraints)
+    return DevBackendAgent().design_api(_clean(body.feature), body.project, _clean(body.constraints))
 
 
 @router.post("/agents/dev-backend/implement")
 def dev_backend_implement(body: DevBackendImplementRequest) -> dict[str, str]:
     result = DevBackendAgent().implement_feature(
-        body.feature, body.project, body.api_spec, body.tech_stack
+        _clean(body.feature), body.project, _clean(body.api_spec, max_length=12000), body.tech_stack
     )
     return {"result": result}
 
 
 @router.post("/agents/dev-backend/review")
 def dev_backend_review(body: DevBackendReviewRequest) -> dict[str, Any]:
-    return DevBackendAgent().review_code(body.code, body.context)
+    return DevBackendAgent().review_code(_clean(body.code, max_length=12000), _clean(body.context))
 
 
 @router.post("/agents/dev-backend/debug")
 def dev_backend_debug(body: DevBackendDebugRequest) -> dict[str, Any]:
-    return DevBackendAgent().debug(body.error, body.context, body.code_snippet)
+    return DevBackendAgent().debug(
+        _clean(body.error), _clean(body.context), _clean(body.code_snippet, max_length=12000)
+    )
 
 
 @router.post("/agents/level-designer/quest")
 def level_designer_quest(body: LevelDesignerQuestRequest) -> dict[str, Any]:
     return LevelDesignerAgent().design_quest(
-        body.quest_name, body.game, body.lore_context,
+        body.quest_name, body.game, _clean(body.lore_context),
         body.player_level_range, body.quest_type,
     )
 
@@ -76,27 +93,27 @@ def level_designer_quest(body: LevelDesignerQuestRequest) -> dict[str, Any]:
 def level_designer_level(body: LevelDesignerLevelRequest) -> dict[str, Any]:
     return LevelDesignerAgent().design_level(
         body.level_name, body.game, body.biome,
-        body.difficulty, body.special_mechanics,
+        body.difficulty, _clean(body.special_mechanics),
     )
 
 
 @router.post("/agents/level-designer/lore")
 def level_designer_lore(body: LevelDesignerLoreRequest) -> dict[str, Any]:
     return LevelDesignerAgent().write_lore_entry(
-        body.subject, body.game, body.lore_type, body.length
+        _clean(body.subject, max_length=500), body.game, body.lore_type, body.length
     )
 
 
 @router.post("/agents/level-designer/balance")
 def level_designer_balance(body: LevelDesignerBalanceRequest) -> dict[str, Any]:
     return LevelDesignerAgent().balance_review(
-        body.system, body.current_values, body.player_feedback
+        body.system, body.current_values, _clean(body.player_feedback)
     )
 
 
 @router.post("/agents/dev-app/instruction")
 def dev_app_instruction(body: AgentInstructionRequest) -> dict[str, str]:
-    result = DevAppAgent().handle_instruction(body.instruction)
+    result = DevAppAgent().handle_instruction(_clean(body.instruction))
     return {"result": result}
 
 
@@ -110,13 +127,13 @@ def dev_app_list_issues() -> dict[str, Any]:
 
 @router.post("/agents/dev-gaming/instruction")
 def dev_gaming_instruction(body: AgentInstructionRequest) -> dict[str, str]:
-    result = DevGamingAgent().handle_instruction(body.instruction)
+    result = DevGamingAgent().handle_instruction(_clean(body.instruction))
     return {"result": result}
 
 
 @router.post("/agents/marketing/instruction")
 def marketing_instruction(body: AgentInstructionRequest) -> dict[str, str]:
-    result = MarketingAgent().handle_instruction(body.instruction)
+    result = MarketingAgent().handle_instruction(_clean(body.instruction))
     return {"result": result}
 
 
@@ -130,7 +147,7 @@ def marketing_seo_audit(body: MarketingSeoRequest) -> dict[str, str]:
 @router.post("/agents/marketing/content")
 def marketing_create_content(body: MarketingContentRequest) -> dict[str, str]:
     instruction = (
-        f"Génère du contenu {body.type} pour {body.project} sur le sujet : {body.topic}. "
+        f"Génère du contenu {body.type} pour {body.project} sur le sujet : {_clean(body.topic, max_length=500)}. "
         f"Ton : {body.tone}. Longueur : {body.length}."
     )
     result = MarketingAgent().handle_instruction(instruction)
@@ -139,13 +156,13 @@ def marketing_create_content(body: MarketingContentRequest) -> dict[str, str]:
 
 @router.post("/agents/hardware/instruction")
 def hardware_instruction(body: AgentInstructionRequest) -> dict[str, str]:
-    result = HardwareAgent().handle_instruction(body.instruction)
+    result = HardwareAgent().handle_instruction(_clean(body.instruction))
     return {"result": result}
 
 
 @router.post("/agents/embedded/instruction")
 def embedded_instruction(body: AgentInstructionRequest) -> dict[str, str]:
-    result = EmbeddedDevAgent().handle_instruction(body.instruction)
+    result = EmbeddedDevAgent().handle_instruction(_clean(body.instruction))
     return {"result": result}
 
 
@@ -258,7 +275,7 @@ def controller_costs(body: ControllerCostsRequest) -> dict[str, Any]:
 @router.post("/agents/controller/forecast")
 def controller_forecast(body: ControllerForecastRequest) -> dict[str, Any]:
     return ControllerAgent().build_forecast(
-        body.project, body.horizon_months, body.assumptions, body.historical_data
+        body.project, body.horizon_months, _clean(body.assumptions), body.historical_data
     )
 
 
@@ -275,7 +292,7 @@ def controller_monthly_report(body: ControllerMonthlyReportRequest) -> dict[str,
 @router.post("/agents/accounting/advice")
 def accounting_advice(body: AccountingAdviceRequest) -> dict[str, Any]:
     return AccountantAgent().financial_advice(
-        body.month, body.financial_summary, body.question
+        body.month, body.financial_summary, _clean(body.question)
     )
 
 
@@ -286,26 +303,26 @@ def analyst_business_market(body: BusinessAnalystMarketRequest) -> dict[str, Any
 
 @router.post("/agents/analyst-business/kpis")
 def analyst_business_kpis(body: BusinessAnalystKPIsRequest) -> dict[str, Any]:
-    return BusinessAnalystAgent().define_kpis(body.project, body.stage, body.business_goal)
+    return BusinessAnalystAgent().define_kpis(body.project, body.stage, _clean(body.business_goal))
 
 
 @router.post("/agents/analyst-business/user-research")
 def analyst_business_user_research(body: BusinessAnalystUserResearchRequest) -> dict[str, Any]:
     return BusinessAnalystAgent().user_research(
-        body.product, body.research_question, body.user_segment
+        body.product, _clean(body.research_question), body.user_segment
     )
 
 
 @router.post("/agents/analyst-business/brief")
 def analyst_business_brief(body: BusinessAnalystBriefRequest) -> dict[str, Any]:
     return BusinessAnalystAgent().strategic_brief(
-        body.topic, body.context, body.decision_needed
+        _clean(body.topic, max_length=500), _clean(body.context), _clean(body.decision_needed)
     )
 
 
 @router.post("/agents/analyst-data/sql")
 def analyst_data_sql(body: DataAnalystSQLRequest) -> dict[str, Any]:
-    return DataAnalystAgent().sql_query(body.question, body.schema_context, body.db_type)
+    return DataAnalystAgent().sql_query(_clean(body.question), _clean(body.schema_context, max_length=8000), body.db_type)
 
 
 @router.post("/agents/analyst-data/funnel")

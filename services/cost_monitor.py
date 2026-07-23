@@ -324,7 +324,7 @@ def get_monthly_costs() -> dict[str, Any]:
 
 def get_weekly_costs() -> dict[str, Any]:
     """Coûts des 7 derniers jours — format Hub dashboard."""
-    from datetime import date as date_cls, timedelta
+    from datetime import date as date_cls
 
     _ensure_loaded()
     today = date_cls.today()

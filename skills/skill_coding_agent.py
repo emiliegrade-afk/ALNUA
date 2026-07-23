@@ -260,9 +260,19 @@ def run_command(
 
     try:
 
+        from services.cli_paths import ensure_coding_cli_path, resolve_cli
+
+        ensure_coding_cli_path()
+        argv = list(cmd)
+        if argv:
+            try:
+                argv[0] = resolve_cli(argv[0])
+            except FileNotFoundError:
+                pass
+
         result = subprocess.run(
 
-            cmd,
+            argv,
 
             cwd=cwd,
 
@@ -329,6 +339,9 @@ def _prepare_worktree(spec: dict, branch: str) -> tuple[Path, str, dict]:
 
 def _enforce_pre_pr_qa(worktree_path: Path, default_branch: str, spec: dict) -> dict:
     """Run QA gate; raises if checks fail."""
+    # Agents sometimes create placeholder filenames from issue templates.
+    for junk in worktree_path.glob("(aucun)"):
+        junk.unlink(missing_ok=True)
     from services.coding_qa import run_pre_pr_qa
 
     qa = run_pre_pr_qa(str(worktree_path), spec, default_branch)
@@ -421,6 +434,14 @@ def _execute_hub_task_core(spec: dict) -> dict:
 
     worktree_path, default_branch, result = _prepare_worktree(spec, branch)
     result["backend"] = "hub"
+    activity_id = spec.get("activity_id")
+    if activity_id:
+        try:
+            from services.coding_activity import set_worktree_path
+
+            set_worktree_path(str(activity_id), str(worktree_path))
+        except Exception:
+            pass
 
     try:
         from config.agent_models import get_coding_model_for_agent
@@ -430,6 +451,7 @@ def _execute_hub_task_core(spec: dict) -> dict:
             spec,
             max_turns=min(config.max_turns, 40),
             timeout_s=config.timeout_s,
+            activity_id=str(activity_id) if activity_id else None,
         )
         result["claude_output"] = loop_result.get("log", "")[-8000:]
         result["coding_model"] = loop_result.get("model")
@@ -542,8 +564,11 @@ def _execute_aider_task_core(spec: dict) -> dict:
                 env=env,
             )
         except subprocess.TimeoutExpired as exc:
-            stdout = exc.stdout.decode() if isinstance(exc.stdout, bytes) else (exc.stdout or "")
-            raise RuntimeError(f"Aider timeout après {config.timeout_s}s") from exc
+            partial_output = exc.stdout.decode() if isinstance(exc.stdout, bytes) else (exc.stdout or "")
+            raise RuntimeError(
+                f"Aider timeout après {config.timeout_s}s"
+                + (f" — sortie partielle : {partial_output[-2000:]}" if partial_output.strip() else "")
+            ) from exc
 
         aider_out = (proc.stdout or "") + (proc.stderr or "")
         result["claude_output"] = aider_out[-8000:]

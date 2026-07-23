@@ -27,10 +27,16 @@ from telegram.ext import (
 from agents.coo_agent import COOAgent
 from agents.dev_app_agent import DevAppAgent
 from bots.base import log_bot_action
+from bots.telegram_common import presence_callbacks
 from config.settings import get_settings
 from database.supabase_client import get_supabase
 from skills.skill_gh_issues import get_open_prs, list_ready_issues
 from services.facades.costs_facade import get_telegram_costs_report
+from services.telegram_presence import (
+    BACK_MESSAGE_ARIA,
+    COFFEE_MESSAGE_ARIA,
+    hub_status_line,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -39,22 +45,62 @@ TELEGRAM_CHUNK_SIZE = 4000
 _LOCK_FILE = Path(__file__).resolve().parent.parent / ".telegram_bot.lock"
 
 _START_MESSAGE = (
-    "Salut Emilie ! Je suis le COO ALNUA sur Telegram.\n"
-    "Envoie-moi une instruction en texte libre — je la traite et te réponds ici.\n\n"
-    "Raccourcis utiles :\n"
-    "/idee … — note une idée dans le Centre R&D\n"
-    "« demande au R&D d'investiguer … » — brief R&D async\n"
-    "« note cette idée … » — boîte à idées\n"
-    "/pipeline · /prs · /costs"
+    "Salut Emilie ! Je suis **Aria Voss**, COO ALNUA.\n\n"
+    "Parle-moi en langage naturel — comme un chat. Je réponds toujours, "
+    "même si je ne peux pas tout exécuter.\n\n"
+    "Raccourcis :\n"
+    "/idee … — idée Centre R&D\n"
+    "/pipeline · /prs · /costs · /agents · /status\n\n"
+    "_Mails, contrats, planning → **Nadia**._"
 )
 
 _MORNING_BRIEF_JOB = "morning_brief"
 _MORNING_BRIEF_TZ = ZoneInfo("Europe/Paris")
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 
+_UNAUTHORIZED_REPLY = (
+    "⛔ Ce bot est réservé à son propriétaire.\n"
+    "Si c'est toi : envoie /start, copie ton chat ID, "
+    "mets TELEGRAM_CHAT_ID=<id> dans .env, puis redémarre le bot."
+)
+
 
 def _hub_repo_path() -> str:
     return os.getenv("HUB_REPO_PATH", str(_REPO_ROOT))
+
+
+def _authorized_chat_id() -> int | None:
+    """Chat ID autorisé à piloter le bot — même source que le brief matinal."""
+    raw = get_settings().telegram_chat_id.strip()
+    if not raw:
+        return None
+    try:
+        return int(raw)
+    except ValueError:
+        logger.error("TELEGRAM_CHAT_ID invalid (expected integer): %r", raw)
+        return None
+
+
+def _is_authorized(update: Update) -> bool:
+    """
+    Toute commande sauf /start doit venir du chat configuré dans TELEGRAM_CHAT_ID.
+    Tant que la variable n'est pas configurée, aucune commande sensible n'est autorisée —
+    seul /start reste ouvert pour permettre de découvrir son chat ID et le configurer.
+    """
+    chat = update.effective_chat
+    if chat is None:
+        return False
+    owner = _authorized_chat_id()
+    return owner is not None and chat.id == owner
+
+
+async def _reject_unauthorized(update: Update) -> None:
+    if update.message:
+        await update.message.reply_text(_UNAUTHORIZED_REPLY)
+    logger.warning(
+        "Unauthorized Telegram command from chat %s",
+        update.effective_chat.id if update.effective_chat else "?",
+    )
 
 
 def _telegram_notify(context: ContextTypes.DEFAULT_TYPE, chat_id: int):
@@ -74,6 +120,9 @@ async def pipeline_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     /pipeline #42 — lance directement l'issue #42
     """
     if not update.message or not update.effective_chat:
+        return
+    if not _is_authorized(update):
+        await _reject_unauthorized(update)
         return
 
     args = context.args
@@ -142,6 +191,9 @@ async def idee_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     """
     if not update.message:
         return
+    if not _is_authorized(update):
+        await _reject_unauthorized(update)
+        return
 
     idea_text = " ".join(context.args or []).strip()
     if not idea_text and update.message.reply_to_message and update.message.reply_to_message.text:
@@ -174,6 +226,9 @@ async def idee_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 async def prs_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """/prs — liste les PRs ouvertes (tous repos) avec boutons actions."""
     if not update.message:
+        return
+    if not _is_authorized(update):
+        await _reject_unauthorized(update)
         return
 
     if not os.getenv("GITHUB_TOKEN"):
@@ -225,6 +280,9 @@ async def costs_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     """/costs — rapport coûts LLM avec boutons jour/mois."""
     if not update.message:
         return
+    if not _is_authorized(update):
+        await _reject_unauthorized(update)
+        return
 
     keyboard = [
         [
@@ -266,13 +324,17 @@ async def cmd_connect(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     """/connect <APP> — génère le lien OAuth Composio pour connecter une app."""
     if not update.message:
         return
+    if not _is_authorized(update):
+        await _reject_unauthorized(update)
+        return
     if not context.args:
         await update.message.reply_text("Usage: /connect <APP>\nEx: /connect gmail")
         return
     app = context.args[0].upper()
     from skills.skill_composio import get_oauth_link
+    from services.secretary_composio import composio_user_id
 
-    link = get_oauth_link(app=app, user_id="alnua_coo")
+    link = get_oauth_link(app=app, user_id=composio_user_id())
     if link.startswith("Erreur:"):
         await update.message.reply_text(f"❌ {link}")
         return
@@ -288,9 +350,13 @@ async def cmd_apps(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """/apps — liste les apps Composio connectées pour le COO."""
     if not update.message:
         return
+    if not _is_authorized(update):
+        await _reject_unauthorized(update)
+        return
     from skills.skill_composio import list_connected_apps
+    from services.secretary_composio import composio_user_id
 
-    apps = list_connected_apps(user_id="alnua_coo")
+    apps = list_connected_apps(user_id=composio_user_id())
     if not apps:
         await update.message.reply_text(
             "Aucune app connectée. Utilise /connect <APP>"
@@ -302,6 +368,20 @@ async def cmd_apps(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(text)
 
 
+async def cmd_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not update.message:
+        return
+    if not _is_authorized(update):
+        await _reject_unauthorized(update)
+        return
+    await update.message.reply_text(
+        f"**Aria** — COO ALNUA\n{hub_status_line()}\n\n"
+        "Mode chat actif : je réponds toujours. "
+        "Si le Hub est 🔴, pas de pipeline / relance agents tant qu'il n'est pas relancé.",
+        parse_mode="Markdown",
+    )
+
+
 async def agents_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """/agents — état de tous les agents ALNUA."""
     keyboard = [
@@ -311,6 +391,9 @@ async def agents_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         update.callback_query.message if update.callback_query else None
     )
     if not message:
+        return
+    if not _is_authorized(update):
+        await _reject_unauthorized(update)
         return
     await message.reply_text(
         _AGENTS_STATUS_TEXT,
@@ -326,6 +409,14 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         return
 
     await query.answer()
+
+    if not _is_authorized(update):
+        logger.warning(
+            "Unauthorized Telegram button callback from chat %s",
+            update.effective_chat.id if update.effective_chat else "?",
+        )
+        await query.edit_message_text(_UNAUTHORIZED_REPLY)
+        return
 
     try:
         data = json.loads(query.data or "{}")
@@ -469,6 +560,14 @@ async def _on_error(
         )
         return
     logger.error("Telegram handler error", exc_info=context.error)
+    if isinstance(update, Update) and update.message:
+        try:
+            await update.message.reply_text(
+                "❌ Souci technique côté Aria — réessaie dans un instant. "
+                "Si ça persiste : `Demarrer-Hub.bat` puis /status"
+            )
+        except Exception:
+            pass
 
 
 class TelegramBot:
@@ -532,6 +631,11 @@ class TelegramBot:
             await context.bot.send_message(chat_id=chat_id, text=chunk)
 
     async def _schedule_morning_brief(self, application: Application) -> None:
+        if self.settings.telegram_secretary_bot_token.strip():
+            logger.info(
+                "Brief 8h COO désactivé — bot Nadia dédié (TELEGRAM_SECRETARY_BOT_TOKEN)"
+            )
+            return
         if application.job_queue is None:
             logger.warning("Job queue unavailable — morning brief not scheduled")
             return
@@ -599,37 +703,62 @@ class TelegramBot:
         if not text:
             return
 
+        if not _is_authorized(update):
+            await _reject_unauthorized(update)
+            return
+
+        chat_id = update.effective_chat.id if update.effective_chat else 0
+        from services.rate_limiter import TELEGRAM_LIMIT, telegram_limiter
+
+        if not telegram_limiter.is_allowed(f"tg:{chat_id}", TELEGRAM_LIMIT):
+            await update.message.reply_text(
+                "⏳ Trop de messages — attends 1 minute avant de réessayer."
+            )
+            return
+        from services.input_sanitizer import sanitize_user_input
+
+        text = sanitize_user_input(text, max_length=4000)
+        if not text:
+            return
+
         chat_id = update.effective_chat.id if update.effective_chat else None
-        log_bot_action(self.db, BOT_NAME, "message_received", text[:200], "")
 
-        await update.message.chat.send_action("typing")
+        from bots.telegram_delivery import reply_with_ack
+        from services.telegram_ack import summarize_task_aria
 
-        try:
-            response = await asyncio.to_thread(self._run_coo, text, chat_id)
-            log_bot_action(
-                self.db, BOT_NAME, "coo_response", text[:200], response[:200]
-            )
-        except Exception:
-            logger.exception("Telegram COO handler error")
-            response = "Une erreur est survenue. Réessaie dans un instant."
-            log_bot_action(
-                self.db,
-                BOT_NAME,
-                "coo_response",
-                text[:200],
-                response,
-                status="error",
-            )
+        def _log(inp: str, out: str, status: str) -> None:
+            log_bot_action(self.db, BOT_NAME, "message_received", inp, "")
+            log_bot_action(self.db, BOT_NAME, "coo_response", inp, out, status=status)
 
-        for chunk in _split_message(response):
-            await update.message.reply_text(chunk)
+        await reply_with_ack(
+            update,
+            agent_name="Aria",
+            task_summary=summarize_task_aria(text),
+            run=lambda: self._run_coo(text, chat_id),
+            on_logged=_log,
+            chat_id=chat_id,
+            instruction=text,
+        )
 
     def build_application(self) -> Application:
         if self._application is None:
+            token = self._ensure_token()
+            presence_init, presence_stop = presence_callbacks(
+                token=token,
+                chat_id=self._morning_brief_chat_id(),
+                back_message=BACK_MESSAGE_ARIA,
+                coffee_message=COFFEE_MESSAGE_ARIA,
+            )
+
+            async def _post_init(app: Application) -> None:
+                await self._schedule_morning_brief(app)
+                await presence_init(app)
+
             app = (
                 Application.builder()
-                .token(self._ensure_token())
-                .post_init(self._schedule_morning_brief)
+                .token(token)
+                .post_init(_post_init)
+                .post_shutdown(presence_stop)
                 .build()
             )
             app.add_handler(CommandHandler("start", self._handle_start))
@@ -638,6 +767,7 @@ class TelegramBot:
             app.add_handler(CommandHandler("prs", prs_command))
             app.add_handler(CommandHandler("costs", costs_command))
             app.add_handler(CommandHandler("agents", agents_command))
+            app.add_handler(CommandHandler("status", cmd_status))
             app.add_handler(CommandHandler("connect", cmd_connect))
             app.add_handler(CommandHandler("apps", cmd_apps))
             app.add_handler(CallbackQueryHandler(button_callback))

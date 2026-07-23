@@ -138,7 +138,7 @@ def route_to_model(
     Returns:
         Model slug OpenRouter (ex: "anthropic/claude-3.5-haiku")
     """
-    from config.agent_models import get_model_for_agent, TIER_MODELS
+    from config.agent_models import TIER_MODELS
 
     # Tier de base configuré statiquement pour cet agent
     static_tier = AGENT_TIERS.get(agent_id, "standard")

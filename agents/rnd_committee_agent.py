@@ -553,7 +553,7 @@ class RndCommitteeAgent(AgentBase):
 
         member = COMMITTEE_MEMBERS.get(member_id, {})
         user = (
-            f"Historique récent du comité :\n\n"
+            "Historique récent du comité :\n\n"
             + "\n\n".join(transcript)
             + f"\n\nRéponds maintenant en tant que {member.get('name', member_id)} "
             f"({member.get('title', '')}). Une seule intervention."
