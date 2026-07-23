@@ -44,7 +44,7 @@ export function Widget({
       <div className="flex shrink-0 items-center justify-between gap-2 border-b border-bronze-faint bg-obsidian-deep/40 px-4 py-3 sm:px-5">
         <div className="flex items-center gap-2 min-w-0">
           {Icon && <Icon className="h-3.5 w-3.5 text-bronze shrink-0" />}
-          <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-titane/80 truncate">
+          <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-titane/80 truncate">
             {title}
           </h3>
         </div>
