@@ -87,8 +87,10 @@ export function ConsoleTopbar({ onMobileMenu }: ConsoleTopbarProps) {
           <Menu className="h-5 w-5" />
         </button>
 
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-titane/45">
+        {/* min-w floor: without it the fixed-width search + button row crushed
+            the page title to 2-3 characters ("B…", "P…") at 1280px. */}
+        <div className="min-w-[9rem] flex-[2]">
+          <div className="flex items-center gap-1.5 overflow-hidden text-[10px] uppercase tracking-[0.2em] text-titane/45">
             {crumb.split(" / ").map((c, i, arr) => (
               <span key={i} className="flex items-center gap-1.5">
                 {i > 0 ? <ChevronRight className="h-3 w-3" /> : null}
@@ -104,7 +106,7 @@ export function ConsoleTopbar({ onMobileMenu }: ConsoleTopbarProps) {
           </div>
         </div>
 
-        <div className="hidden h-9 w-56 items-center gap-2 rounded-lg border border-bronze-faint bg-obsidian/70 px-3 text-titane/60 transition-colors focus-within:border-bronze/50 md:flex lg:w-72">
+        <div className="hidden h-9 min-w-[7rem] max-w-72 flex-1 items-center gap-2 rounded-lg border border-bronze-faint bg-obsidian/70 px-3 text-titane/60 transition-colors focus-within:border-bronze/50 md:flex">
           <Search className="h-3.5 w-3.5 shrink-0" />
           <input
             type="text"
@@ -131,7 +133,7 @@ export function ConsoleTopbar({ onMobileMenu }: ConsoleTopbarProps) {
           )}
         >
           <Plug className="h-3.5 w-3.5" />
-          <span className="hidden lg:inline">Connexions</span>
+          <span className="hidden min-[1440px]:inline">Connexions</span>
           {stats.connectedApps > 0 ? (
             <span className="rounded bg-emerald-500/20 px-1.5 py-0.5 font-mono text-[10px]">
               {stats.connectedApps}
@@ -161,7 +163,7 @@ export function ConsoleTopbar({ onMobileMenu }: ConsoleTopbarProps) {
             />
           </span>
           <span className="text-xs font-medium">{hubLabel}</span>
-          <span className="font-mono text-[10px] tabular-nums opacity-70">
+          <span className="hidden font-mono text-[10px] tabular-nums opacity-70 min-[1440px]:inline">
             {lastSyncedAt
               ? lastSyncedAt.toLocaleTimeString("fr-FR", {
                   hour: "2-digit",
@@ -181,7 +183,7 @@ export function ConsoleTopbar({ onMobileMenu }: ConsoleTopbarProps) {
           aria-label="Ouvrir les assistants Aria et Nadia"
         >
           <MessageCircle className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">Assistants</span>
+          <span className="hidden min-[1440px]:inline">Assistants</span>
         </button>
 
         <button
