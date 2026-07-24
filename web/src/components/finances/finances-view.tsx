@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Loader2, Plus, Wallet } from "lucide-react";
+import { ApiCostsCard } from "@/components/finances/api-costs-card";
 import { FinancesAccountingPanel } from "@/components/finances/finances-accounting-panel";
 import { FinancesControllerPanel } from "@/components/finances/finances-controller-panel";
 import { FinancesKpiCards } from "@/components/finances/finances-kpi-cards";
@@ -173,6 +174,8 @@ export function FinancesView() {
             months={dashboard?.last_6_months ?? []}
             expenseByCategory={expenseByCategory}
           />
+
+          <ApiCostsCard />
 
           <section className="space-y-3">
             <div className="flex items-center justify-between">
