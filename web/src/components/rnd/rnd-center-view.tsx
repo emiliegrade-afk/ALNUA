@@ -254,7 +254,7 @@ export function RndCenterView({ onDossierCreated }: RndCenterViewProps) {
 
   if (loading) {
     return (
-      <div className="flex h-full items-center justify-center">
+      <div className="flex min-h-[200px] items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-copper/50" />
       </div>
     );
@@ -263,9 +263,9 @@ export function RndCenterView({ onDossierCreated }: RndCenterViewProps) {
   const isEmpty = ideas.length === 0;
 
   return (
-    <div className="flex h-full flex-col gap-4 overflow-hidden">
+    <div className="flex flex-col gap-4">
       {/* Header stats */}
-      <div className="grid shrink-0 grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
           { label: "GO", value: counts.GO, icon: <Rocket className="h-4 w-4 text-emerald-400" />, cls: "border-emerald-500/20 bg-emerald-500/5" },
           { label: "Maybe", value: counts.MAYBE, icon: <HelpCircle className="h-4 w-4 text-amber-400" />, cls: "border-amber-500/20 bg-amber-500/5" },
@@ -389,10 +389,11 @@ export function RndCenterView({ onDossierCreated }: RndCenterViewProps) {
         </Button>
       </div>
 
-      {/* Ideas list */}
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      {/* Ideas list — flows with the page; the whole page scrolls to reveal
+          more, instead of being boxed into a small internally-scrolled pane. */}
+      <div>
         {isEmpty ? (
-          <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
+          <div className="flex min-h-[240px] flex-col items-center justify-center gap-4 text-center">
             <Beaker className="h-12 w-12 text-copper/20" />
             <div>
               <p className="text-sm font-medium text-ivory/60">Aucune idée R&D pour l&apos;instant</p>

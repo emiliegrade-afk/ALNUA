@@ -41,7 +41,7 @@ const RndDossiersView = dynamic(
 
 function TabSkeleton() {
   return (
-    <div className="flex flex-1 items-center justify-center text-sm text-titanium/50">
+    <div className="flex min-h-[200px] items-center justify-center text-sm text-titanium/50">
       Chargement…
     </div>
   );
@@ -101,9 +101,8 @@ export function RdPageContent() {
       title="R&D"
       subtitle="Nova · Mira · Brainstorm · Dossiers · Comité"
       flush
-      fill
     >
-      <div className="shrink-0">
+      <div>
         <button
           type="button"
           onClick={toggleAgents}
@@ -117,7 +116,7 @@ export function RdPageContent() {
         ) : null}
       </div>
 
-      <div className="flex w-fit shrink-0 flex-wrap gap-1 rounded-2xl border border-bronze-faint bg-obsidian/70 p-1">
+      <div className="mb-4 flex w-fit flex-wrap gap-1 rounded-2xl border border-bronze-faint bg-obsidian/70 p-1">
         <button
           onClick={() => setTab("brainstorm")}
           className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition ${
@@ -167,7 +166,7 @@ export function RdPageContent() {
         </button>
       </div>
 
-      <div className="-mx-6 flex flex-1 min-h-[600px] flex-col overflow-hidden px-6">
+      <div>
         {tab === "brainstorm" ? (
           <BrainstormView />
         ) : tab === "rnd" ? (
