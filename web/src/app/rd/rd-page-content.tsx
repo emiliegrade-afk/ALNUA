@@ -167,7 +167,7 @@ export function RdPageContent() {
         </button>
       </div>
 
-      <div className="-mx-6 flex flex-1 min-h-0 flex-col overflow-hidden px-6">
+      <div className="-mx-6 flex flex-1 min-h-[600px] flex-col overflow-hidden px-6">
         {tab === "brainstorm" ? (
           <BrainstormView />
         ) : tab === "rnd" ? (

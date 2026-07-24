@@ -20,7 +20,16 @@ interface BureauPageProps {
    * (e.g. R&D) rather than a hardcoded `calc(100dvh - Nrem)` guess that
    * drifts out of sync with the actual header height above it. Callers
    * must mark their own non-last children `shrink-0` and give the last
-   * (tab content) child `flex-1 min-h-0`.
+   * (tab content) child `flex-1` plus its own `min-h-[…]` floor — never
+   * `min-h-0`, which lets flexbox crush it to nothing if the header ends
+   * up taller than expected on a given screen.
+   *
+   * The wrapper keeps a genuinely fixed height (not `min-h`): a flex child
+   * needs a bounded ancestor to compute "remaining space" at all, and an
+   * internal `overflow-y-auto` list needs a bounded parent to actually
+   * clip/scroll instead of growing to its full content height. If the
+   * header ends up taller than the floor allows, this wrapper scrolls
+   * itself (`overflow-y-auto`) rather than clipping content away.
    */
   fill?: boolean;
 }
@@ -41,7 +50,7 @@ export function BureauPage({
       className={cn(
         "bureau-page w-full",
         fill
-          ? "flex h-[calc(100dvh-8rem)] flex-col gap-5 overflow-hidden"
+          ? "flex h-[calc(100dvh-8rem)] flex-col gap-5 overflow-y-auto"
           : flush
             ? "space-y-5"
             : "mx-auto max-w-[1400px] space-y-6",
