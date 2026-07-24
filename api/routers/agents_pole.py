@@ -56,6 +56,45 @@ def secretary_meeting_notes(body: SecretaryMeetingNotesRequest) -> dict[str, Any
     )
 
 
+@router.get("/agents/secretary/milestones")
+def secretary_list_milestones(days_ahead: int = 120) -> dict[str, Any]:
+    from services.milestones import list_upcoming_milestones
+
+    return {"milestones": list_upcoming_milestones(days_ahead=days_ahead)}
+
+
+@router.post("/agents/secretary/milestones")
+def secretary_create_milestone(body: MilestoneCreateRequest) -> dict[str, Any]:
+    from services.milestones import create_milestone
+
+    return create_milestone(
+        _clean(body.title, max_length=200),
+        body.date_iso,
+        pole=body.pole,
+        description=_clean(body.description),
+    )
+
+
+@router.patch("/agents/secretary/milestones/{event_id}")
+def secretary_update_milestone(event_id: str, body: MilestoneUpdateRequest) -> dict[str, Any]:
+    from services.milestones import update_milestone
+
+    return update_milestone(
+        event_id,
+        title=_clean(body.title, max_length=200) if body.title is not None else None,
+        date_iso=body.date_iso,
+        pole=body.pole,
+        description=_clean(body.description) if body.description is not None else None,
+    )
+
+
+@router.post("/agents/secretary/milestones/{event_id}/validate")
+def secretary_validate_milestone(event_id: str, body: MilestoneValidateRequest) -> dict[str, Any]:
+    from services.milestones import set_milestone_validated
+
+    return set_milestone_validated(event_id, body.validated)
+
+
 @router.post("/agents/dev-backend/design-api")
 def dev_backend_design_api(body: DevBackendDesignAPIRequest) -> dict[str, Any]:
     return DevBackendAgent().design_api(_clean(body.feature), body.project, _clean(body.constraints))

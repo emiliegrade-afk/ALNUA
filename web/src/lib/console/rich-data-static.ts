@@ -112,23 +112,6 @@ export const decisionsToday: Decision[] = [
   { id: "dec6", agent: "PROMÉTHÉE", title: "Lancer l'expérience fusion vision-texte", status: "pending", time: "08:20", impact: "low" },
 ];
 
-// ─── Upcoming milestones ────────────────────────────────────────────────────
-export interface Milestone {
-  id: string;
-  title: string;
-  date: string;
-  pôle: string;
-  days: number;
-}
-export const milestones: Milestone[] = [
-  { id: "m1", title: "Lancement teaser NAÏA", date: "12 juil", pôle: "MARKETING", days: 3 },
-  { id: "m2", title: "Clôture trimestrielle Q2", date: "30 juil", pôle: "COMPTA", days: 21 },
-  { id: "m3", title: "POC NOMAD embarqué", date: "15 août", pôle: "R&D", days: 37 },
-  { id: "m4", title: "Calibration finale EVE-X", date: "22 août", pôle: "ROBOTIQUE", days: 44 },
-  { id: "m5", title: "App NAÏA — bêta publique", date: "5 sep", pôle: "APP", days: 58 },
-  { id: "m6", title: "Identité visuelle EVE", date: "18 sep", pôle: "ARTISTIQUE", days: 71 },
-];
-
 // ─── Agent communication graph ──────────────────────────────────────────────
 // Edges are the real pipeline pairings documented per agent (each persona's
 // system prompt names its counterpart) — not a live-measured interaction

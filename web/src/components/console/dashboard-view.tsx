@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useConsoleData } from "./console-provider";
-import { timezones, milestones, agentComm, activityHeatmapDays } from "@/lib/console/rich-data";
+import { timezones, agentComm, activityHeatmapDays } from "@/lib/console/rich-data";
+import { MilestonesWidget } from "./milestones-widget";
 import { CONSOLE_ACTIVITY } from "@/lib/console/nav";
 import { Widget, LiveDot } from "./widget";
 import { SyncBadge } from "./sync-badge";
@@ -18,7 +19,6 @@ import {
   ArrowUpRight,
   Banknote,
   Boxes,
-  Calendar,
   CheckCircle2,
   Gauge as GaugeIcon,
   GitBranch,
@@ -405,40 +405,7 @@ export function DashboardView() {
       </Widget>
 
       {/* ─── Milestones ─── */}
-      <Widget
-        title="Jalons à venir"
-        icon={Calendar}
-        span="lg:col-span-12"
-        delay={0.3}
-        bodyClassName="!p-0"
-      >
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 divide-y md:divide-y-0 md:divide-x divide-bronze-faint">
-          {milestones.map((m) => (
-            <button
-              key={m.id}
-              type="button"
-              onClick={() => {
-                const pole = departments.find((x) =>
-                  x.name.toLowerCase().includes(m.pôle.toLowerCase().slice(0, 4)),
-                );
-                if (pole) navigateToDept(pole.id);
-              }}
-              className="group text-left p-4 hover:bg-obsidian-deep/40 transition-colors"
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-bronze/10 text-bronze text-[10px] font-bold">
-                  J{m.days}
-                </span>
-                <span className="text-[9px] uppercase tracking-wide text-titane/50">{m.pôle}</span>
-              </div>
-              <p className="text-xs font-medium text-ivoire leading-snug mb-1 group-hover:text-bronze-bright transition-colors">
-                {m.title}
-              </p>
-              <p className="text-[10px] text-titane/50">{m.date}</p>
-            </button>
-          ))}
-        </div>
-      </Widget>
+      <MilestonesWidget />
     </div>
   );
 }

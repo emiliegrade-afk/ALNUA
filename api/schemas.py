@@ -50,6 +50,24 @@ class SecretaryMeetingNotesRequest(BaseModel):
     participants: list[str]
 
 
+class MilestoneCreateRequest(BaseModel):
+    title: str
+    date_iso: str
+    pole: str = ""
+    description: str = ""
+
+
+class MilestoneUpdateRequest(BaseModel):
+    title: str | None = None
+    date_iso: str
+    pole: str | None = None
+    description: str | None = None
+
+
+class MilestoneValidateRequest(BaseModel):
+    validated: bool = True
+
+
 class ScoreAddRequest(BaseModel):
     agent_id: str
     action: str = Field(

@@ -46,7 +46,6 @@ export {
   incidents,
   deployments,
   decisionsToday,
-  milestones,
   agentComm,
   deptRich,
 } from "./rich-data-static";

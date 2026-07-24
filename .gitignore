@@ -40,6 +40,7 @@ data/hub.supervisor.lock
 data/hub_active_port.txt
 data/library_distribution.json
 data/lounge_product.json
+data/milestones_state.json
 data/nadia_desktop.json
 data/rnd_trees/
 data/rnd_watch_topics.json
