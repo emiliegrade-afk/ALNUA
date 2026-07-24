@@ -120,6 +120,7 @@ export function DashboardView() {
               label={m.label}
               unit={m.unit}
               size={84}
+              color={m.tone === "titanium" ? "#A7ADB5" : "#B87333"}
             />
           ))}
         </div>

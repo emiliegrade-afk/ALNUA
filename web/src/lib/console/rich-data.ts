@@ -111,31 +111,35 @@ export function buildSystemMetrics(stats: LobbyStats) {
   const flat = (v: number) => Array.from({ length: 10 }, () => v);
 
   return {
-    cpu: { value: load, label: "Charge API", unit: "%", trend: flat(load) },
-    memory: { value: mem, label: "Sessions", unit: "idx", trend: flat(mem) },
+    cpu: { value: load, label: "Charge API", unit: "%", trend: flat(load), tone: "copper" as const },
+    memory: { value: mem, label: "Sessions", unit: "idx", trend: flat(mem), tone: "titanium" as const },
     network: {
       value: online ? 1 : 0,
       label: "Réseau",
       unit: online ? "up" : "down",
       trend: flat(online ? 1 : 0),
+      tone: "titanium" as const,
     },
     edge: {
       value: online ? 12 : 0,
       label: "Latence",
       unit: "ms",
       trend: flat(online ? 12 : 0),
+      tone: "titanium" as const,
     },
     gpu: {
       value: stats.costTodayUsd > 0 ? Math.min(60, Math.round(stats.costTodayUsd * 8)) : 0,
       label: "LLM load",
       unit: "%",
       trend: flat(stats.costTodayUsd > 0 ? Math.min(60, Math.round(stats.costTodayUsd * 8)) : 0),
+      tone: "copper" as const,
     },
     storage: {
       value: stats.brandKits + stats.rdSessions,
       label: "Assets",
       unit: "",
       trend: flat(stats.brandKits + stats.rdSessions),
+      tone: "titanium" as const,
     },
   };
 }

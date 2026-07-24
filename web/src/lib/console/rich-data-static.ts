@@ -13,6 +13,8 @@ export interface Metric {
   label: string;
   unit: string;
   trend: number[];
+  /** copper = LLM/cost-related, titanium = infra/system-related. */
+  tone?: "copper" | "titanium";
 }
 
 export const systemMetrics: Record<string, Metric> = {
