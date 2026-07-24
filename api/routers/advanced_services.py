@@ -510,6 +510,82 @@ def costs_record(
 
 
 # ---------------------------------------------------------------------------
+# Coûts non-LLM — ElevenLabs (auto) + hébergeur (saisie manuelle)
+# ---------------------------------------------------------------------------
+
+class ManualCostRequest(BaseModel):
+    source: str
+    amount_usd: float = Field(gt=0)
+    period: str | None = None
+    note: str = ""
+
+
+class ElevenLabsPlanCostRequest(BaseModel):
+    usd_per_month: float = Field(gt=0)
+
+
+@router.get("/costs/elevenlabs")
+def costs_elevenlabs() -> dict[str, Any]:
+    """Usage/quota ElevenLabs en temps réel (personnages utilisés, reset, coût estimé si le
+    plan mensuel a été renseigné)."""
+    from services.elevenlabs_monitor import get_elevenlabs_report
+    return get_elevenlabs_report()
+
+
+@router.post("/costs/elevenlabs/plan-cost")
+def costs_elevenlabs_set_plan(body: ElevenLabsPlanCostRequest) -> dict[str, Any]:
+    """Renseigne le prix mensuel du plan ElevenLabs — seul moyen d'obtenir une estimation
+    en USD, l'API ElevenLabs n'expose pas de prix."""
+    from services.elevenlabs_monitor import set_monthly_plan_cost
+    set_monthly_plan_cost(body.usd_per_month)
+    return {"success": True, "monthly_plan_cost_usd": body.usd_per_month}
+
+
+@router.get("/costs/manual")
+def costs_manual_report(months: int = 3) -> dict[str, Any]:
+    """Coûts saisis manuellement (hébergeur, domaine...) sur N mois."""
+    from services.manual_costs import get_manual_costs_report
+    return get_manual_costs_report(months=months)
+
+
+@router.post("/costs/manual")
+def costs_manual_record(body: ManualCostRequest) -> dict[str, Any]:
+    from services.manual_costs import record_manual_cost
+    return record_manual_cost(body.source, body.amount_usd, period=body.period, note=body.note)
+
+
+@router.delete("/costs/manual/{entry_id}")
+def costs_manual_delete(entry_id: str) -> dict[str, Any]:
+    from services.manual_costs import delete_manual_cost
+    return {"deleted": delete_manual_cost(entry_id)}
+
+
+@router.get("/costs/combined")
+def costs_combined(days: int = 30) -> dict[str, Any]:
+    """Vue Jules/Rémi : LLM (OpenRouter) + ElevenLabs + hébergeur/manuel réunis."""
+    from services.cost_monitor import get_cost_report
+    from services.elevenlabs_monitor import get_elevenlabs_report
+    from services.manual_costs import get_manual_costs_report
+
+    llm = get_cost_report(days=days)
+    eleven = get_elevenlabs_report()
+    manual = get_manual_costs_report(months=max(1, days // 30))
+
+    total = llm.get("total_cost_usd", 0.0)
+    if eleven.get("estimated_cost_this_period_usd"):
+        total += eleven["estimated_cost_this_period_usd"]
+    total += manual.get("total_usd", 0.0)
+
+    return {
+        "period_days": days,
+        "llm": llm,
+        "elevenlabs": eleven,
+        "manual": manual,
+        "total_usd_estimate": round(total, 2),
+    }
+
+
+# ---------------------------------------------------------------------------
 # A/B Tester (prompt-optimizer-inspired) — Tier 3
 # ---------------------------------------------------------------------------
 

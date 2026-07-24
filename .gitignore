@@ -34,7 +34,10 @@ data/apps_registry.json
 data/bureau_library.json
 data/coding_errors.json
 data/cost_log.json
+data/elevenlabs_config.json
+data/elevenlabs_usage_log.json
 data/event_log.json
+data/manual_costs.json
 data/hub.supervisor.json
 data/hub.supervisor.lock
 data/hub_active_port.txt
