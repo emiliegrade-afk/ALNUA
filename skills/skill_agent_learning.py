@@ -348,6 +348,7 @@ def learn_from_outcome(
     outcome: str,
     success: bool = True,
     blocking: bool = False,
+    tag: str = "",
 ) -> None:
     """
     Point d'entrée principal. À appeler après chaque tâche complétée.
@@ -358,6 +359,9 @@ def learn_from_outcome(
         outcome  : Résultat obtenu (métriques, output, feedback)
         success  : True si la tâche a réussi, False si échouée
         blocking : False = daemon thread (ne bloque jamais l'agent)
+        tag      : Marqueur optionnel (ex: "[learned:<entry_id>]") préfixé à la
+                   leçon stockée, pour pouvoir la retrouver/vérifier plus tard
+                   sans dépendre d'une recherche sémantique seule.
 
     L'apprentissage tourne en arrière-plan — l'agent n'attend pas.
     """
@@ -372,8 +376,9 @@ def learn_from_outcome(
             from skills.skill_mem0 import remember
             date = datetime.now().strftime("%Y-%m-%d")
             status_tag = "✅" if success else "⚠️"
+            prefix = f"{tag} " if tag else ""
             memory_entry = (
-                f"{status_tag} [{date}] Apprentissage {canonical_id} : {lesson}"
+                f"{prefix}{status_tag} [{date}] Apprentissage {canonical_id} : {lesson}"
             )
             remember(memory_entry, agent_id=canonical_id)
             logger.info("skill_agent_learning: leçon enregistrée pour %s", canonical_id)

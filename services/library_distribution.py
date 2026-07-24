@@ -357,6 +357,13 @@ def verify_entry_in_mem0(entry: dict[str, Any], agent_id: str) -> bool:
     entries. Querying with the entry's real title instead reuses the same
     text that was embedded at write time (see `_memory_line`), which is what
     actually gives the vector search something to match on.
+
+    Checks for either marker: `[library:<id>]` (the raw source pushed at
+    distribute time) or `[learned:<id>]` (the distilled lesson pushed at
+    learn time — added after this fix, so older entries learned before it
+    only carry the first marker). Either one found means real content for
+    this entry actually reached Mem0 for this agent, not just that the
+    write call didn't throw.
     """
     entry_id = str(entry.get("id") or "")
     query = str(entry.get("title") or "").strip() or f"library:{entry_id}"
@@ -364,7 +371,11 @@ def verify_entry_in_mem0(entry: dict[str, Any], agent_id: str) -> bool:
         from skills.skill_mem0 import recall
 
         snippet = recall(query, agent_id=agent_id)
-        found = bool(snippet) and f"library:{entry_id}".lower() in snippet.lower()
+        snippet_lower = snippet.lower() if snippet else ""
+        found = bool(snippet) and (
+            f"library:{entry_id}".lower() in snippet_lower
+            or f"learned:{entry_id}".lower() in snippet_lower
+        )
         record_verified(entry_id, agent_id, mem0_found=found)
         return found
     except Exception as exc:

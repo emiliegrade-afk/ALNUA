@@ -69,6 +69,7 @@ def distill_library_entry_for_agent(
                 outcome,
                 success=True,
                 blocking=True,
+                tag=f"[learned:{entry_id}]",
             )
             record_learned(entry_id, agent_id)
             return True
