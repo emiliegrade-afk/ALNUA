@@ -73,13 +73,12 @@
 | Discord / Telegram bots | ✅ Implémenté | Fallback gracieux si token/channel absent |
 | ElevenLabs (voix, coûts) | ✅ Implémenté | |
 | Godot 4 (`godot-mcp`) | ✅ Implémenté | Skill `.claude/skills/alnua-godot/` |
-| Nwiro/UE5 (`skill_nwiro.py`) | ⚠️ Code présent, **statut produit non tranché** | Contredit la règle "Pas d'UE5" de `CLAUDE.md` — voir `DECISIONS.md` DEC-009 |
+| Nwiro/UE5 (`skill_nwiro.py`) | ✅ Implémenté, assumé | Coexiste avec Godot par choix — voir `DECISIONS.md` DEC-009 (tranché 2026-07-25) |
 
 ## Gap connu (pas un audit exhaustif — juste ce qui saute aux yeux)
 
 - **Gouvernance** : jusqu'au 2026-07-25, aucun des 8 fichiers de gouvernance standard
   n'existait pour ce projet (contrairement à `NAÏA/`, `NUAWAY/`, `RESONANCE/`) — comblé
   par ce bootstrap.
-- **Nwiro/UE5** : voir ci-dessus, décision produit en attente.
 - Le reste des gaps potentiels (sécurité, qualité de code) est dans `BUGS.md`, alimenté
   par l'audit mené en parallèle de ce bootstrap.

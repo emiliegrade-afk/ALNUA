@@ -273,7 +273,7 @@ Milestones : 100=coffee_break | 200=tier_upgrade_7d | 500=tier_upgrade_30d
 }
 ```
 
-Variables d'env requises : `GITHUB_TOKEN`, `HUB_API_KEY` (optionnel en `ENVIRONMENT=development`), `GODOT_PROJECT_PATH` (optionnel).
+Variables d'env requises : `GITHUB_TOKEN`, `HUB_API_KEY` (obligatoire dans tous les environnements depuis SEC-002, voir `BUGS.md`/`DECISIONS.md` — plus de mode dev ouvert), `GODOT_PROJECT_PATH` (optionnel).
 Guide de setup complet : `MCP_CURSOR_SETUP.md`
 
 Cursor peut alors appeler directement `POST /agents/analyst-data/sql` etc. comme outils MCP sans passer par HTTP manuellement.
@@ -305,7 +305,7 @@ Cursor peut alors appeler directement `POST /agents/analyst-data/sql` etc. comme
 
 ## Règles invariantes — NE JAMAIS VIOLER
 
-- **Pas d'UE5** — aucune intégration Unreal Engine dans aucun agent
+- **UE5 via Nwiro assumé** — `skills/skill_nwiro.py` (client MCP pour le plugin Unreal Engine 5 "Nwiro") coexiste intentionnellement avec l'intégration Godot ; les deux moteurs sont utilisables selon le projet gaming visé (voir `DECISIONS.md` DEC-009). Ancienne règle "Pas d'UE5" retirée le 2026-07-25 — elle ne reflétait plus le code.
 - `parse_json_response()` sur **tout** output LLM — gère les markdown fences
 - `log_agent_action()` obligatoire sur chaque méthode principale
 - `@trace_agent("agent_name")` sur chaque méthode publique

@@ -83,7 +83,7 @@ Cursor (MCP client) ──────┘         │
 
 ## Security model
 
-- **Auth API** : header `X-Hub-Key` obligatoire en staging/prod (`HUB_API_KEY`) ; optionnel seulement si `ENVIRONMENT=development`.
+- **Auth API** : header `X-Hub-Key` obligatoire dans **tous** les environnements (`HUB_API_KEY`) — l'API refuse de démarrer sans clé configurée, plus de bypass dev (durci le 2026-07-25, voir DEC-.. dans `DECISIONS.md` et SEC-002 dans `BUGS.md`).
 - **Sanitization** : `services/input_sanitizer.py::sanitize_user_input` sur la quasi-totalité des entrées libres avant LLM/DB — **exception documentée et volontaire** : `api/routers/agents_pole.py` désactive la redaction PII car ces endpoints véhiculent volontairement des données business réelles (cf. CLAUDE.md).
 - **RLS Supabase** : restreinte à `SELECT` sur les tables sensibles (commit `2df9669`).
 - **Accès fichiers** : `/brand/assets` restreint au dossier `brand_kits/` (commit `d094203`), pas de traversée de chemin arbitraire.

@@ -17,7 +17,8 @@
 | DEC-006 | `X-Hub-Key` obligatoire hors développement | 2026-06-12 | Active |
 | DEC-007 | Sanitizing désactivé sur `agents_pole.py` (PII) | — | Active |
 | DEC-008 | OpenHands (pipeline autonome) + Aider (fix ciblés) en parallèle | 2026-06-11 | Active |
-| DEC-009 | Intégration Nwiro/UE5 vs règle "Pas d'UE5" | 2026-06-11 → ? | **À trancher** |
+| DEC-009 | Nwiro/UE5 coexiste avec Godot — assumé, `CLAUDE.md` corrigé | 2026-07-25 | Active |
+| DEC-010 | `HUB_API_KEY` obligatoire dans tous les environnements | 2026-07-25 | Active |
 
 ---
 
@@ -86,17 +87,39 @@ mais pas pour les corrections rapides et ciblées.
 pipeline complet.
 **Commit :** `0b2919d`.
 
-### DEC-009 — Intégration Nwiro/UE5 vs règle "Pas d'UE5" — **À trancher**
-**Constat :** `CLAUDE.md` liste "Pas d'UE5 — aucune intégration Unreal Engine dans
-aucun agent" comme règle invariante. Pourtant `skills/skill_nwiro.py` (client MCP pour
-le plugin Unreal Engine 5 "Nwiro", 209 outils : Blueprints, Materials, PIE Runtime...)
-existe et est référencé par `game_director_agent.py`, `dev_gaming_agent.py` et
-`coo_agent.py`. En parallèle, une intégration Godot 4 existe aussi (skill
-`.claude/skills/alnua-godot/`, `services/workflow_engine.py`,
+### DEC-009 — Nwiro/UE5 coexiste avec Godot — assumé, `CLAUDE.md` corrigé
+**Constat initial (2026-07-25) :** `CLAUDE.md` listait "Pas d'UE5 — aucune intégration
+Unreal Engine dans aucun agent" comme règle invariante. Pourtant `skills/skill_nwiro.py`
+(client MCP pour le plugin Unreal Engine 5 "Nwiro", 209 outils : Blueprints, Materials,
+PIE Runtime...) existe et est référencé par `game_director_agent.py`,
+`dev_gaming_agent.py` et `coo_agent.py`. En parallèle, une intégration Godot 4 existe
+aussi (skill `.claude/skills/alnua-godot/`, `services/workflow_engine.py`,
 `web/src/lib/console/departments.ts`).
-**Ce qui n'est pas tranché :** est-ce que Nwiro/UE5 est un vestige à retirer (la règle
-"Pas d'UE5" est la version à jour de l'intention), ou est-ce que la règle documentée
-dans `CLAUDE.md` est obsolète (Nwiro/UE5 a été adopté depuis et la doc n'a pas suivi) ?
-Les deux lectures sont plausibles depuis le code seul — decision produit, pas technique.
-**Action :** ne pas toucher au code tant que ce n'est pas tranché par Emilie. Entrée
-laissée ouverte volontairement plutôt que suppressée ou "Active" par défaut.
+**Décision (2026-07-25, tranchée par Emilie) :** Nwiro/UE5 est un choix assumé, adopté
+après l'écriture de la règle "Pas d'UE5" — la doc était en retard sur le code, pas
+l'inverse. Godot et UE5/Nwiro coexistent intentionnellement selon le projet gaming visé.
+**Action :** `CLAUDE.md` corrigé (ancienne ligne "Pas d'UE5" remplacée par "UE5 via
+Nwiro assumé"). Aucun changement de code — `skill_nwiro.py` et ses références restent
+en l'état, ils étaient déjà conformes à l'intention réelle.
+
+### DEC-010 — `HUB_API_KEY` obligatoire dans tous les environnements
+**Contexte :** `config/settings.py` laissait l'API démarrer sans `HUB_API_KEY` tant que
+`ENVIRONMENT` n'était pas `production`/`staging` (mode dev ouvert, ex-"Phase 6 DevEx" —
+voir historique `tests/test_devex_phase6.py`), avec seulement un `logger.warning`. Le
+Hub est déployé (Railway/Render), pas seulement exécuté en local — un déploiement qui
+oublie de positionner `ENVIRONMENT=production` **et** `HUB_API_KEY` basculait toute
+l'API (y compris `/mcp`, `/ide/run`, `/agents/embedded/pi-command`) en accès libre
+silencieux (voir audit sécurité, `BUGS.md` SEC-002/SEC-003).
+**Décision (2026-07-25, tranchée par Emilie) :** `HUB_API_KEY` devient obligatoire
+inconditionnellement — `config/settings.py::_validate_security` lève une erreur au
+démarrage si la clé est vide, quel que soit `ENVIRONMENT`. Plus de mode dev ouvert.
+**Alternative rejetée :** durcir seulement si l'app bind sur autre chose que
+`127.0.0.1` (option "nuancée" proposée mais non retenue — plus simple et plus sûr de
+ne jamais avoir de bypass, y compris en local).
+**Effets de bord traités :** `api/middleware.py` simplifié (suppression du bypass et du
+warning devenus morts) ; `.env.example`/`README.md`/`CLAUDE.md`/`ARCHITECTURE.md` mis à
+jour ; `tests/test_devex_phase6.py` réécrit pour tester le nouveau comportement (l'ancien
+testait explicitement le bypass qu'on vient de supprimer). Note pour la suite : n'importe
+quel script qui importe `config` (pas seulement le serveur API) exige désormais
+`HUB_API_KEY` dans son environnement — `config/__init__.py` construit `settings` de
+façon "eager" au premier import du package.

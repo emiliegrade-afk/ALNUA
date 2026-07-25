@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import logging
 import secrets
 
 from fastapi import Request
@@ -12,9 +11,6 @@ from config.settings import get_settings
 from models.tenant import TenantContext, resolve_tenant_id
 from services.rate_limiter import ASSISTANT_LIMIT, API_LIMIT, assistant_limiter, api_limiter
 from services.telemetry import RequestTimer, metrics
-
-logger = logging.getLogger(__name__)
-_warned_open_dev_api = False
 
 
 def _strip_v1_prefix(path: str) -> str:
@@ -66,18 +62,9 @@ def _is_hub_api_key_exempt(path: str, method: str) -> bool:
     return False
 
 
-def _hub_key_enforcement_enabled() -> bool:
-    """Prod/staging always enforce; dev skips when HUB_API_KEY is unset."""
-    settings = get_settings()
-    if settings.hub_api_key.strip():
-        return True
-    env = settings.environment.strip().lower()
-    return env in {"production", "prod", "staging"}
-
-
 def hub_api_key_valid(provided: str | None) -> bool:
-    if not _hub_key_enforcement_enabled():
-        return True
+    """HUB_API_KEY is required in every environment — settings validation
+    already refuses to start the app without one (config/settings.py)."""
     expected = get_settings().hub_api_key
     if not provided or not expected:
         return False
@@ -90,17 +77,8 @@ _hub_api_key_valid = hub_api_key_valid
 
 async def hub_api_key_middleware(request: Request, call_next):
     """Require X-Hub-Key on all routes except health checks and public portals."""
-    global _warned_open_dev_api
     path = request.url.path
     if _is_hub_api_key_exempt(path, request.method) or request.method == "OPTIONS":
-        return await call_next(request)
-
-    if not _hub_key_enforcement_enabled():
-        if not _warned_open_dev_api:
-            logger.warning(
-                "HUB_API_KEY unset — dev open mode: protected routes skip X-Hub-Key checks"
-            )
-            _warned_open_dev_api = True
         return await call_next(request)
 
     expected = get_settings().hub_api_key

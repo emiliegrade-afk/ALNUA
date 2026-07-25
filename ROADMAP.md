@@ -30,15 +30,12 @@ Aucun sprint actif identifié dans le code au moment du bootstrap — le dernier
 (`8b366a5`, 2026-07-24) clôt un correctif ponctuel (`fix(library)`), pas une phase. La
 prochaine phase reste **à définir avec Emilie** ; ne pas la deviner ici.
 
-## Points ouverts hérités de l'historique (à trancher, pas à assumer)
+## Points tranchés le 2026-07-25 (anciennement ouverts)
 
-- **Nwiro/UE5 vs Godot** : `skills/skill_nwiro.py` (client MCP Unreal Engine 5, référencé
-  par `game_director_agent`, `dev_gaming_agent`, `coo_agent`) coexiste avec l'intégration
-  Godot (`.claude/skills/alnua-godot/`, `services/workflow_engine.py`,
-  `web/src/lib/console/departments.ts`) — alors que `CLAUDE.md` liste "Pas d'UE5 —
-  aucune intégration Unreal Engine dans aucun agent" comme règle invariante. Soit la
-  règle est obsolète (Nwiro/UE5 a été adopté depuis), soit le code contredit la règle
-  documentée. Voir `DECISIONS.md` (entrée ouverte) et `BUGS.md`.
+- **Nwiro/UE5 vs Godot** — tranché : les deux coexistent intentionnellement. `CLAUDE.md`
+  corrigé, voir `DECISIONS.md` DEC-009.
+- **Mode dev ouvert par défaut** — tranché : `HUB_API_KEY` obligatoire dans tous les
+  environnements, plus de bypass. Voir `DECISIONS.md` DEC-010, `BUGS.md` SEC-002.
 
 ## Détail des phases
 

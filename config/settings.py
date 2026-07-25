@@ -318,13 +318,10 @@ class Settings(BaseSettings):
         is_prod = env in {"production", "prod", "staging"}
 
         if not self.hub_api_key.strip():
-            if is_prod:
-                raise ValueError(
-                    "HUB_API_KEY is required when ENVIRONMENT is production/staging"
-                )
-            logger.warning(
-                "HUB_API_KEY is unset — dev mode: API routes are open without X-Hub-Key. "
-                "Set HUB_API_KEY in .env before exposing the server on a network."
+            raise ValueError(
+                "HUB_API_KEY is required in every environment — set it in .env "
+                "(see .env.example). There is no open dev-mode bypass anymore "
+                "(see DECISIONS.md / BUGS.md SEC-002)."
             )
 
         if is_prod and not self.jwt_secret.strip():
