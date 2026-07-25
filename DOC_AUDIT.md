@@ -53,3 +53,26 @@ Historique des audits de gouvernance effectués.
 - **Next audit planned :** pas de date fixée — à relancer après la décision SEC-002 /
   DEC-009, ou au prochain sprint significatif, pour garder ce cycle vivant plutôt que
   de le laisser retomber en retard comme avant ce bootstrap.
+
+## Audit 001 — addendum : méthode de travail agents IA
+
+- **Date :** 2026-07-25
+- **Scope :** sur demande explicite, ajout des artefacts "méthode de travail" du guide
+  de gouvernance (Parties 9 "tâches async" et 10 "travailler avec des agents IA"),
+  absents des 4 fichiers de gouvernance créés plus tôt le même jour.
+- **Créés :** `AGENTS.md` (point d'entrée universel — absent des 4 projets de
+  `C:\Dev`), `.cursor/rules/agent-orchestration.mdc` (hiérarchie de fiabilité, règle
+  des 3 axes, Bootstrap→Fan-out→Merge), `.cursor/rules/ai-agent-survival.mdc` (stubs,
+  taille de fichier, ripple effect, données externes non fiables), `.cursor/rules/async-jobs.mdc`
+  (persistance par étape, revérification d'état, dégradation gracieuse — scopé par
+  `globs` aux fichiers workflow/dispatch/bots).
+- **Méthode :** chaque règle citée est ancrée dans du code réel de ce repo, vérifié par
+  grep/lecture directe (pas un copier-coller générique du guide) — `services/parallel_runner.py`,
+  `services/plan_executor.py`, `services/rnd_dispatch_executor.py`,
+  `services/workflow_engine.py`, `skills/skill_discord_wyrdheim.py`, et les findings
+  SEC-001/SEC-006/BUG-001/BUG-004 de l'audit du même jour. Une citation initiale
+  incorrecte (`bots/discord_bot.py` au lieu de `skills/skill_discord_wyrdheim.py` pour
+  le pattern de dégradation gracieuse Discord) a été corrigée après vérification du
+  code réel plutôt que laissée telle quelle.
+- **Findings deferred :** aucun — tâche de création pure, pas d'audit de code
+  supplémentaire mené dans cet addendum.

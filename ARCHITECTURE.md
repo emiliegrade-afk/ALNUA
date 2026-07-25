@@ -46,6 +46,7 @@ et travaillent au service de 3 branches produit :
 | Frontend dashboard | `web/` | Siège social virtuel (lobby + bureaux par département), Next.js 14 | Active |
 | Base de données | `database/schema.sql` + `database/supabase_client.py` | — | Active |
 | Tests | `tests/` | 63 fichiers de test Python + `web/e2e` Playwright | Active |
+| Gouvernance + méthode de travail | `AGENTS.md` (entrée universelle), `CLAUDE.md`, `.cursor/rules/*.mdc` (agent-orchestration, ai-agent-survival, async-jobs + règles scopées par feature) | 8 fichiers gouvernance + 3 règles générales + règles scopées | Active |
 
 ## Data flow
 

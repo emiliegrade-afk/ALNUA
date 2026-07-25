@@ -6,6 +6,26 @@
 > maintenant, ajouter une entrée par sprint/lot de changement au fur et à mesure,
 > pas en dump différé.
 
+## 2026-07-25 — Gouvernance, audit sécurité/qualité, méthode de travail (docs + fix)
+
+- **Type :** docs + fix
+- **Details :**
+  - Bootstrap gouvernance : création de `ARCHITECTURE.md`, `ROADMAP.md`,
+    `DECISIONS.md`, `BUGS.md`, `CHANGELOG.md` (ce fichier), `IMPLEMENTATION_STATUS.md`,
+    `TESTING.md`, `DOC_AUDIT.md` — ALNUA Hub était le seul des 4 projets du workspace
+    `C:\Dev` sans cette couche.
+  - Audit sécurité + qualité de code (2 agents en parallèle) : correctifs SEC-001
+    (injection shell critique sur `/ide/run`), SEC-004/005/006 (sanitization manquante
+    sur `/sav/ask`, `/agents/brainstorm*`, `trend_monitor`), BUG-001 (violations
+    `AgentBase.__init__`).
+  - Décisions tranchées par Emilie : SEC-002/DEC-010 (`HUB_API_KEY` obligatoire dans
+    tous les environnements, plus de mode dev ouvert) et DEC-009 (Nwiro/UE5 confirmé
+    comme choix assumé, règle "Pas d'UE5" retirée de `CLAUDE.md`).
+  - Méthode de travail agents IA : `AGENTS.md` (point d'entrée universel) +
+    `.cursor/rules/agent-orchestration.mdc`, `ai-agent-survival.mdc`, `async-jobs.mdc`.
+  - Suite complète (`pytest tests/ -q`) et `ruff` vérifiés verts après chaque étape.
+    Détail complet dans `DOC_AUDIT.md` (Audit 001 + addendum).
+
 ## 2026-07-24 — Coûts & jalons (feat + fix)
 
 - **Type :** feat + fix
@@ -68,14 +88,5 @@
   (siège social virtuel : lobby + bureaux par département), OpenRoom (war room
   visuelle), intégrations Mem0 (mémoire persistante), Langfuse (tracing LLM),
   Composio (OAuth gateway), Chroma (base de connaissances), OpenHands + Aider
-  (pipeline codage autonome), skill Nwiro (UE5, port 5353 — voir `DECISIONS.md`
-  DEC-009 pour le statut actuel, non tranché).
-
-## 2026-07-25 — Bootstrap gouvernance (docs)
-
-- **Type :** docs
-- **Details :** création de `ARCHITECTURE.md`, `ROADMAP.md`, `DECISIONS.md`,
-  `BUGS.md`, `CHANGELOG.md` (ce fichier), `IMPLEMENTATION_STATUS.md`, `TESTING.md`,
-  `DOC_AUDIT.md` — ALNUA Hub était le seul des 4 projets du workspace `C:\Dev` sans
-  cette couche de gouvernance. Voir `DOC_AUDIT.md` pour le détail de l'audit mené en
-  parallèle.
+  (pipeline codage autonome), skill Nwiro (UE5, port 5353 — choix confirmé assumé le
+  2026-07-25, voir `DECISIONS.md` DEC-009).
