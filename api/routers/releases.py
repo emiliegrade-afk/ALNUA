@@ -3,8 +3,13 @@
 from __future__ import annotations
 
 from api.route_common import *  # noqa: F403
+from services.input_sanitizer import sanitize_user_input
 
 router = APIRouter()
+
+
+def _clean(text: str, *, max_length: int = 6000) -> str:
+    return sanitize_user_input(text, max_length=max_length)
 
 
 def _enrich_releases_with_project_names(
@@ -220,7 +225,9 @@ def content_generate_legacy(project_id: str) -> dict[str, Any]:
 @router.post("/agents/brainstorm")
 def brainstorm(body: BrainstormRequest) -> dict[str, Any]:
     agent = BrainstormAgent()
-    return agent.brainstorm(body.project_id, body.topic, body.context_notes)
+    return agent.brainstorm(
+        body.project_id, _clean(body.topic, max_length=500), _clean(body.context_notes)
+    )
 
 
 @router.post("/agents/brainstorm/chat")
@@ -238,7 +245,7 @@ def brainstorm_chat(body: BrainstormChatRequest) -> dict[str, Any]:
         )
     try:
         agent = BrainstormAgent()
-        return agent.chat(body.message, body.project_id, body.session_id)
+        return agent.chat(_clean(body.message), body.project_id, body.session_id)
     except Exception as exc:
         msg = str(exc)
         if "row-level security" in msg.lower() or "42501" in msg:

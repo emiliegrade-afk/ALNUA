@@ -5,8 +5,7 @@ from agents.agent_base import AgentBase
 
 from typing import Any
 
-from agents.base import LLMClient, log_agent_action, parse_json_response
-from database.supabase_client import get_supabase
+from agents.base import log_agent_action, parse_json_response
 from skills.skill_agent_learning import inject_learning_context, record_task_learning
 from config.agent_operating_spec import get_system_prompt
 from skills.skill_langfuse import trace_agent
@@ -19,8 +18,7 @@ class RndAgent(AgentBase):
     SYSTEM_PROMPT = get_system_prompt("rnd_agent")
 
     def __init__(self, db=None, llm=None) -> None:
-        self.db = db or get_supabase()
-        self.llm = llm or LLMClient()
+        super().__init__(db, llm)
 
     @trace_agent("rnd_agent")
     def research_topic(self, query: str, context: str = "") -> dict[str, Any]:

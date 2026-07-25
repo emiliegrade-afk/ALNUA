@@ -252,10 +252,13 @@ def _llm_synthesize_trends(items: list[TrendItem], topics: list[str], agent_id: 
     """Utilise LLMClient pour générer un brief de tendances."""
     try:
         from agents.base import LLMClient
+        from services.input_sanitizer import sanitize_user_input
         llm = LLMClient()
 
         top_items_text = "\n".join([
-            f"- [{item.source.upper()}] {item.title} (score: {item.score})"
+            f"- [{item.source.upper()}] "
+            f"{sanitize_user_input(item.title, max_length=300)} "
+            f"(score: {item.score})"
             for item in items[:20]
         ])
 

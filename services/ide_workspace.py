@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -225,6 +226,9 @@ def write_file(workspace_id: str, rel_path: str, content: str) -> dict[str, str]
     return {"path": str(path.relative_to(root)).replace("\\", "/"), "status": "saved"}
 
 
+_SHELL_METACHARS = re.compile(r"[;&|`$<>\n\r]")
+
+
 def run_sandbox_command(command: str, *, cwd_rel: str = ".") -> dict[str, Any]:
     """Restricted shell — sandbox workspace only (CEO learning)."""
     root, _ = resolve_workspace("sandbox")
@@ -232,8 +236,13 @@ def run_sandbox_command(command: str, *, cwd_rel: str = ".") -> dict[str, Any]:
     if not cwd.is_dir():
         raise ValueError("cwd invalide")
     cmd = command.strip()
+    if _SHELL_METACHARS.search(cmd):
+        raise ValueError(
+            "Commande refusée : caractères de chaînage/redirection interdits (; & | ` $ < >)"
+        )
     allowed = ("python", "py", "node", "npm", "npx", "pytest", "echo", "dir", "ls")
-    if not any(cmd.lower().startswith(p) for p in allowed):
+    first_token = cmd.split(None, 1)[0].lower() if cmd else ""
+    if first_token not in allowed:
         raise ValueError(f"Commande non autorisée. Autorisé : {', '.join(allowed)}")
     try:
         proc = subprocess.run(

@@ -14,10 +14,9 @@ import re
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from agents.base import LLMClient, parse_json_response
+from agents.base import parse_json_response
 from agents.content_agent import PLATFORM_RULES, VALID_CONTENT_TYPES, VALID_PLATFORMS
 from agents.rnd_social_prompts import SOCIAL_POST_SYSTEM, SOCIAL_STRATEGY_SYSTEM
-from database.supabase_client import get_supabase
 from services.rnd_repository import get_rnd_repository
 from services.rnd_schemas import RndDossierOut, RndSocialCalendarItemOut
 from services.rnd_social import (
@@ -37,10 +36,9 @@ class RndSocialAgent(AgentBase):
     AGENT_NAME = "rnd_social_agent"
 
     def __init__(self) -> None:
+        super().__init__()
         self.repo = get_rnd_repository()
         self.social = get_rnd_social_repository()
-        self.db = get_supabase()
-        self.llm = LLMClient()
 
     def generate_calendar(
         self,

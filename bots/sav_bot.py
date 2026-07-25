@@ -8,6 +8,7 @@ from typing import Any
 from agents.base import LLMClient
 from bots.base import log_bot_action
 from database.supabase_client import SupabaseClient, get_supabase
+from services.input_sanitizer import sanitize_user_input
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +39,7 @@ class SAVBot:
         return self.db.select("faq", filters={"project_id": project_id, "active": True})
 
     def handle_question(self, project_id: str, question: str, author: str | None = None) -> dict[str, Any]:
+        question = sanitize_user_input(question, max_length=2000)
         faq_entries = self.get_faq(project_id)
         faq_text = "\n".join(
             f"- [{f['id']}] Q: {f['question']}\n  R: {f['answer']}" for f in faq_entries
