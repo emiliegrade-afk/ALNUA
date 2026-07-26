@@ -52,7 +52,7 @@ api/
 
 ---
 
-## 33 agents ALNUA (27 existants + 6 nouveaux 2026)
+## 34 agents ALNUA (27 existants + 7 nouveaux 2026)
 
 > Source de vérité pour room/team/tier : `config/agent_personas.py` (`AGENT_PERSONAS`, `ROOMS`, `TEAMS`) + `config/agent_models.py` (`AGENT_TIERS`). Cette table est une vue de lecture — en cas de divergence, ce sont ces deux fichiers qui font foi, pas ce document.
 
@@ -103,6 +103,7 @@ api/
 | `content_company` | `agents/content_company_agent.py` | Anouk Gerard — marque ALNUA | standard |
 | `rnd_social` | `agents/rnd_social_agent.py` | Léa Fontaine — stratégie sociale dossier | standard |
 | `rnd_visual` | `agents/rnd_visual_agent.py` | Max Delacroix — moodboard & brand dossier | standard |
+| `ads` | `agents/ads_agent.py` | Léo Morel — publicité payante (Meta, Google, TikTok) | standard |
 
 ### Accounting Office (`accounting_office`) — Équipe `finance`
 | Agent ID | Fichier | Persona | Tier |
@@ -313,6 +314,8 @@ Cursor peut alors appeler directement `POST /agents/analyst-data/sql` etc. comme
 | `/alnua-search` | Protocole recherche pour Idris + Alex — citations + confiance |
 | `/alnua-trae` | 11 patterns de code ALNUA — FastAPI, agents, Supabase, Next.js |
 | `/alnua-memory` | Guide Mem0 complet — lire/écrire/compresser mémoire agents |
+| `/alnua-content` | Skills content sectoriel + scheduler social + ads |
+| `/alnua-ads` | Publicité payante — Meta/Google/TikTok Ads via Léo |
 | `/alnua-devops` | Docker + CI/CD + deploy Railway/Render du Hub |
 
 ---

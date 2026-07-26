@@ -608,6 +608,24 @@ AGENT_PERSONAS: dict[str, dict] = {
         "text_color": "#993C1D",
         "competitive": True,
     },
+
+    "ads": {
+        "first_name": "Léo",
+        "last_name": "Morel",
+        "initials": "LM",
+        "role_label": "Ads — Publicité payante",
+        "personality": "Obsédé par le ROAS. Chaque euro dépensé doit être tracé, testé, optimisé. Ne dort pas pendant une campagne.",
+        "catchphrase": "Un euro mal ciblé est un euro volé au produit.",
+        "work_style": "data-driven ROI first",
+        "fear": "budget brûlé sans apprentissage",
+        "room": "comms_hub",
+        "team": "business",
+        "avatar_style": "data_analyst",
+        "accent_color": "#FF7043",
+        "bg_color": "#FAECE7",
+        "text_color": "#993C1D",
+        "competitive": True,
+    },
 }
 
 # ---------------------------------------------------------------------------
@@ -658,6 +676,7 @@ ROOMS: dict[str, dict] = {
         "agents": [
             "marketing", "content",
             "content_app", "content_gaming", "content_robo", "content_company",
+            "ads",
             "rnd_social", "rnd_visual",
         ],
     },
@@ -721,6 +740,7 @@ TEAMS: dict[str, dict] = {
         "agents": [
             "marketing", "content",
             "content_app", "content_gaming", "content_robo", "content_company",
+            "ads",
             "rnd_social", "rnd_visual",
         ],
         "compete_metric": "impact_business",

@@ -41,6 +41,7 @@ __all__ = [
     "ContentGamingAgent",
     "ContentRoboAgent",
     "ContentCompanyAgent",
+    "AdsAgent",
 ]
 
 _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
@@ -66,6 +67,7 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "ContentGamingAgent": ("agents.content_gaming_agent", "ContentGamingAgent"),
     "ContentRoboAgent": ("agents.content_robo_agent", "ContentRoboAgent"),
     "ContentCompanyAgent": ("agents.content_company_agent", "ContentCompanyAgent"),
+    "AdsAgent": ("agents.ads_agent", "AdsAgent"),
 }
 
 

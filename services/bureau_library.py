@@ -61,6 +61,7 @@ AGENT_TO_BUREAU: dict[str, str] = {
     "content_gaming": "gaming",
     "content_robo": "robo",
     "content_company": "hub",
+    "ads": "hub",
     "content": "hub",
     "dev_backend": "app",
     "game_director": "gaming",
