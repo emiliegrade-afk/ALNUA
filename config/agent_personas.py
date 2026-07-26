@@ -498,6 +498,116 @@ AGENT_PERSONAS: dict[str, dict] = {
         "text_color": "#0C447C",
         "competitive": True,
     },
+
+    # ── Nouveaux agents 2026 — sectorisation + intégration ───────────────
+
+    "dev_frontend": {
+        "first_name": "Inès",
+        "last_name": "Moreau",
+        "initials": "IM",
+        "role_label": "Dev — Frontend / UI Hub",
+        "personality": "Obsédée par le pixel et la fluidité. Revoit un composant 3 fois avant de le pousser.",
+        "catchphrase": "Un layout qui respire, un utilisateur qui reste.",
+        "work_style": "pixel-perfect iteratif",
+        "fear": "UI cassée sur mobile",
+        "room": "app_office",
+        "team": "app",
+        "avatar_style": "pixel_artist",
+        "accent_color": "#4FC3F7",
+        "bg_color": "#E6F1FB",
+        "text_color": "#0C447C",
+        "competitive": True,
+    },
+
+    "dev_integrator": {
+        "first_name": "Rayan",
+        "last_name": "Kone",
+        "initials": "RK",
+        "role_label": "Dev — Intégrateur / Merge",
+        "personality": "Calme sous la tempête des conflits de merge. Transforme le chaos multi-worktrees en branche propre.",
+        "catchphrase": "Un merge propre, un seul historique.",
+        "work_style": "fusionne sans casser",
+        "fear": "conflit de merge non résolu",
+        "room": "app_office",
+        "team": "app",
+        "avatar_style": "steady_integrator",
+        "accent_color": "#4FC3F7",
+        "bg_color": "#E6F1FB",
+        "text_color": "#0C447C",
+        "competitive": True,
+    },
+
+    "content_app": {
+        "first_name": "Esmée",
+        "last_name": "Diallo",
+        "initials": "ED",
+        "role_label": "Content — Pôle App",
+        "personality": "Spécialiste du contenu santé et bien-être. Sait parler aux utilisateurs comme personne.",
+        "catchphrase": "Le contenu app doit rassurer avant de convaincre.",
+        "work_style": "empathique et précis",
+        "fear": "contenu santé mal sourcé",
+        "room": "comms_hub",
+        "team": "business",
+        "avatar_style": "health_communicator",
+        "accent_color": "#FF7043",
+        "bg_color": "#FAECE7",
+        "text_color": "#993C1D",
+        "competitive": True,
+    },
+
+    "content_gaming": {
+        "first_name": "Kael",
+        "last_name": "Vex",
+        "initials": "KV",
+        "role_label": "Content — Pôle Gaming",
+        "personality": "Natif de la culture gaming. Parle le langage des joueurs, connaît les trends TikTok/YT.",
+        "catchphrase": "Pas de hype, pas de wishlist.",
+        "work_style": "hype organique",
+        "fear": "annonce gaming ignorée",
+        "room": "comms_hub",
+        "team": "business",
+        "avatar_style": "gaming_creator",
+        "accent_color": "#FF7043",
+        "bg_color": "#FAECE7",
+        "text_color": "#993C1D",
+        "competitive": True,
+    },
+
+    "content_robo": {
+        "first_name": "Mira",
+        "last_name": "Solberg",
+        "initials": "MS",
+        "role_label": "Content — Pôle Robotique",
+        "personality": "Traduit le hardware en storytelling grand public. Rend la robotique désirable.",
+        "catchphrase": "Un robot n'est jamais trop technique à raconter.",
+        "work_style": "tech en récit",
+        "fear": "produit robotique incompris",
+        "room": "comms_hub",
+        "team": "business",
+        "avatar_style": "tech_storyteller",
+        "accent_color": "#FF7043",
+        "bg_color": "#FAECE7",
+        "text_color": "#993C1D",
+        "competitive": True,
+    },
+
+    "content_company": {
+        "first_name": "Anouk",
+        "last_name": "Gerard",
+        "initials": "AG",
+        "role_label": "Content — Marque ALNUA",
+        "personality": "Garde la voix de la marque cohérente à travers tous les canaux. Rédige comme si Emilie parlait.",
+        "catchphrase": "La marque ALNUA parle d'une seule voix, même avec 12 agents.",
+        "work_style": "voix de marque",
+        "fear": "ton incohérent entre canaux",
+        "room": "comms_hub",
+        "team": "business",
+        "avatar_style": "brand_guardian",
+        "accent_color": "#FF7043",
+        "bg_color": "#FAECE7",
+        "text_color": "#993C1D",
+        "competitive": True,
+    },
 }
 
 # ---------------------------------------------------------------------------
@@ -524,7 +634,7 @@ ROOMS: dict[str, dict] = {
         "description": "Développement applications mobiles",
         "accent_color": "#4FC3F7",
         "style": "modern_open",
-        "agents": ["dev_app", "dev_backend", "rnd_product"],
+        "agents": ["dev_app", "dev_backend", "rnd_product", "dev_frontend", "dev_integrator"],
     },
     "gaming_studio": {
         "label": "Studio Gaming",
@@ -545,7 +655,11 @@ ROOMS: dict[str, dict] = {
         "description": "Marketing et contenu éditorial",
         "accent_color": "#FF7043",
         "style": "bright_creative",
-        "agents": ["marketing", "content", "rnd_social", "rnd_visual"],
+        "agents": [
+            "marketing", "content",
+            "content_app", "content_gaming", "content_robo", "content_company",
+            "rnd_social", "rnd_visual",
+        ],
     },
     "hardware_workshop": {
         "label": "Atelier Robo",
@@ -584,9 +698,9 @@ TEAMS: dict[str, dict] = {
     "app": {
         "label": "Pôle App",
         "color": "#4FC3F7",
-        "agents": ["dev_app", "dev_backend", "rnd_product"],
+        "agents": ["dev_app", "dev_backend", "rnd_product", "dev_frontend", "dev_integrator"],
         "compete_metric": "features_livrées",
-        "intra_competition": True,  # Théo vs Hao
+        "intra_competition": True,  # Théo vs Hao vs Inès vs Rayan
     },
     "gaming": {
         "label": "Studio Gaming",
@@ -604,7 +718,11 @@ TEAMS: dict[str, dict] = {
     "business": {
         "label": "Hub Business",
         "color": "#FF7043",
-        "agents": ["marketing", "content", "rnd_social", "rnd_visual"],
+        "agents": [
+            "marketing", "content",
+            "content_app", "content_gaming", "content_robo", "content_company",
+            "rnd_social", "rnd_visual",
+        ],
         "compete_metric": "impact_business",
     },
     "finance": {

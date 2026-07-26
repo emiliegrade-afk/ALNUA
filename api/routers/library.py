@@ -146,3 +146,75 @@ def library_retention_apply(
         purge=req.purge,
         dry_run=req.dry_run,
     )
+
+
+@router.get("/topics")
+def library_topics(
+    query: str = "",
+    bureau: str | None = None,
+    now_only: bool = False,
+    limit: int = Query(default=40, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
+) -> dict[str, Any]:
+    """Scannable topic catalog — agents learn what exists before deep-loading."""
+    from services.topic_catalog import list_topics
+
+    return list_topics(
+        query=query,
+        bureau=bureau,
+        timing_now_only=now_only,
+        limit=limit,
+        offset=offset,
+    )
+
+
+@router.get("/topics/{slug}")
+def library_topic_detail(slug: str) -> dict[str, Any]:
+    from services.topic_catalog import get_topic
+
+    topic = get_topic(slug)
+    if not topic:
+        raise HTTPException(status_code=404, detail="Sujet introuvable")
+    return topic
+
+
+@router.post("/topics/{slug}/learn")
+def library_topic_learn(
+    slug: str,
+    body: LibraryTopicLearnRequest,
+) -> dict[str, Any]:
+    from skills.skill_library_memory import learn_topic
+
+    result = learn_topic(
+        body.agent_id,
+        slug,
+        force_digest=body.force_digest,
+        promote=body.promote,
+    )
+    if not result.get("ok"):
+        raise HTTPException(status_code=404, detail=result.get("error") or "Learn failed")
+    return result
+
+
+@router.post("/topics/{slug}/digest")
+def library_topic_digest(
+    slug: str,
+    force: bool = False,
+) -> dict[str, Any]:
+    from skills.skill_library_memory import ensure_topic_digest
+
+    result = ensure_topic_digest(slug, force=force)
+    if not result.get("ok"):
+        raise HTTPException(status_code=404, detail=result.get("error") or "Digest failed")
+    return result
+
+
+@router.post("/vault/sync")
+def library_vault_sync(
+    body: LibraryVaultSyncRequest | None = None,
+) -> dict[str, Any]:
+    """Export library JSON → Obsidian vault markdown + rebuild topic catalog."""
+    from services.topic_catalog import sync_vault
+
+    req = body or LibraryVaultSyncRequest()
+    return sync_vault(index_chroma=req.index_chroma, limit=req.limit)

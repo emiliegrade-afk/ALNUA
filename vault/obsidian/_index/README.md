@@ -36,6 +36,7 @@ Voir [[nomenclature]] pour le détail.
 1. Rédiger dans Obsidian (templates `_templates/`)
 2. `python scripts/obsidian_sync.py` — sync lore/GDD → Supabase
 3. Agents `game_director`, `dev_gaming`, `level_designer` lisent via `skill_lore_database` + GDD chunks
+4. Bibliothèque agents : `python scripts/export_library_to_vault.py` — voir [[LIBRARY_MEMORY]]
 
 ## Bootstrap
 
@@ -43,4 +44,4 @@ Voir [[nomenclature]] pour le détail.
 python scripts/bootstrap_obsidian_vault.py
 ```
 
-Copie index + templates vers `OBSIDIAN_VAULT_PATH` (défaut `D:\ObsidianVault`).
+Copie index + templates vers `OBSIDIAN_VAULT_PATH` (défaut `D:\ObsidianVault`), puis crée `library/`, `memory/agents/`, etc.

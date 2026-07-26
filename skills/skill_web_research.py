@@ -191,7 +191,8 @@ def _distill_research(agent_id: str, topic: str, raw_results: list[dict]) -> str
     system = f"""Tu es l'agent {agent_id} d'ALNUA.
 Tu lis des résultats de recherche sur "{topic}" et tu retiens ce qui pourrait servir
 aujourd'hui ou plus tard — rien ne doit être ignoré.
-Réponds en 3 bullet points max, en français, très concis.
+Si le contenu le permet, développe un peu plus (faits, chiffres) —
+jusqu'à ~8 lignes utiles. Format puces.
 Format : "• [point clé et quand ça pourrait servir]"
 Si le contenu est faible, résume quand même en 1 bullet "à garder pour plus tard"."""
 
@@ -208,7 +209,7 @@ Qu'est-ce qui est vraiment utile à retenir pour ton travail ?"""
             {"role": "user", "content": user},
         ],
         "temperature": 0.2,
-        "max_tokens": 300,
+        "max_tokens": 900,
     }).encode()
 
     req = urllib.request.Request(
@@ -270,10 +271,13 @@ def research_domain(
             try:
                 from services.bureau_library import add_entry, bureau_for_agent
 
+                # summary = short UI card; digest = full distilled research (no truncation loss)
+                short = lesson if len(lesson) <= 400 else (lesson[:397] + "...")
                 add_entry(
                     bureau=bureau_for_agent(agent_id),
                     title=t[:200],
-                    summary=lesson,
+                    summary=short,
+                    digest=lesson,
                     timing="later",
                     source_url=str(results[0].get("url") or ""),
                     source_title=str(results[0].get("title") or t),

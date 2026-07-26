@@ -52,7 +52,7 @@ api/
 
 ---
 
-## 27 agents ALNUA
+## 33 agents ALNUA (27 existants + 6 nouveaux 2026)
 
 > Source de vérité pour room/team/tier : `config/agent_personas.py` (`AGENT_PERSONAS`, `ROOMS`, `TEAMS`) + `config/agent_models.py` (`AGENT_TIERS`). Cette table est une vue de lecture — en cas de divergence, ce sont ces deux fichiers qui font foi, pas ce document.
 
@@ -71,6 +71,8 @@ api/
 |----------|---------|---------|------|
 | `dev_app` | `agents/dev_app_agent.py` | Théo Laurent | standard |
 | `dev_backend` | `agents/dev_backend_agent.py` | Hao Chen | standard |
+| `dev_frontend` | `agents/dev_frontend_agent.py` | Inès Moreau — UI Hub | standard |
+| `dev_integrator` | `agents/dev_integrator_agent.py` | Rayan Kone — merge & integration | standard |
 | `coding_coach` | `agents/coding_coach_agent.py` | Luca Bernard — mentor CEO, non compétitif | fast |
 | `rnd_product` | `agents/rnd_product_agent.py` | Naïm Tessier — fiche produit R&D | standard |
 
@@ -95,6 +97,10 @@ api/
 |----------|---------|---------|------|
 | `marketing` | `agents/marketing_agent.py` | Camille Rousseau | standard |
 | `content` | `agents/content_agent.py` | Sofia Reyes | standard |
+| `content_app` | `agents/content_app_agent.py` | Esmée Diallo — contenu App | standard |
+| `content_gaming` | `agents/content_gaming_agent.py` | Kael Vex — contenu Gaming | standard |
+| `content_robo` | `agents/content_robo_agent.py` | Mira Solberg — contenu Robotique | standard |
+| `content_company` | `agents/content_company_agent.py` | Anouk Gerard — marque ALNUA | standard |
 | `rnd_social` | `agents/rnd_social_agent.py` | Léa Fontaine — stratégie sociale dossier | standard |
 | `rnd_visual` | `agents/rnd_visual_agent.py` | Max Delacroix — moodboard & brand dossier | standard |
 
@@ -209,6 +215,14 @@ Parse AST Python → graphe nœuds (file, class, function, endpoint, agent, tabl
 
 ### `skills/skill_agent_learning.py` — Apprentissage + compression (claude-mem-inspired)
 Ajout v2 : `compress_agent_memory(agent_id, raw_memories)` — distille N leçons → 3-5 règles durables via LLM, écrit `[DIGEST]` dans Mem0. `auto_compress_if_needed(agent_id, threshold=20)` — compression automatique si la mémoire est trop volumineuse.
+`get_library_context` injecte le **catalogue de sujets** (pas des résumés tronqués) et peut `learn_topic` automatiquement pour les hits `now`.
+
+### `skills/skill_library_memory.py` + vault Obsidian — Mémoire bibliothèque hybride
+- Export : `python scripts/export_library_to_vault.py` → notes `library/{bureau}/*.md` + `data/topic_catalog.json` + `library/_index/TOPICS.md`
+- `scan_library_topics` / `learn_topic` / `ensure_topic_digest` — apprentissage à la demande
+- API : `GET /library/topics`, `POST /library/topics/{slug}/learn`, `POST /library/vault/sync`
+- Chroma collection `alnua_library` ; knowledge skills dans `skills/knowledge/` si sujet récurrent
+- Doc vault : `_index/LIBRARY_MEMORY.md`
 
 ### `services/cost_monitor.py` — Suivi coûts LLM (llm-cost-tracker-inspired)
 Track tokens × prix par modèle/agent. `record_call(agent_id, model, prompt_tokens, completion_tokens)` → retourne le coût USD. `get_cost_report(agent_id, days)` — rapport agrégé par agent/modèle/jour. `check_budget_alert(daily_budget_usd)` → severity ok|warning|critical. `get_monthly_summary(month)` pour Jules (accounting). Persistance JSON dans `data/cost_log.json` (30 jours).

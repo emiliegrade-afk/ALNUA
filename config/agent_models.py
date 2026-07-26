@@ -258,6 +258,12 @@ AGENT_ID_ALIASES: dict[str, str] = {
     "hardware_agent": "hardware",
     "marketing_agent": "marketing",
     "dev_app_agent": "dev_app",
+    "dev_frontend_agent": "dev_frontend",
+    "dev_integrator_agent": "dev_integrator",
+    "content_app_agent": "content_app",
+    "content_gaming_agent": "content_gaming",
+    "content_robo_agent": "content_robo",
+    "content_company_agent": "content_company",
     "dev_gaming_agent": "dev_gaming",
     "embedded_dev_agent": "embedded_dev",
     "game_director_agent": "game_director",
@@ -288,6 +294,12 @@ AGENT_TIERS: dict[str, str] = {
     "rnd_agent":     "premium",
     "qa":            "standard",
     "dev_app":       "standard",
+    "dev_frontend":  "standard",
+    "dev_integrator": "standard",
+    "content_app":    "standard",
+    "content_gaming": "standard",
+    "content_robo":   "standard",
+    "content_company": "standard",
     "coding_coach":  "fast",
     "dev_gaming":    "standard",
     "marketing":     "standard",
@@ -312,7 +324,7 @@ AGENT_TIERS: dict[str, str] = {
 
 # Agents whose Paramètres model also drives the autonomous coding pipeline (Hub Agent / Aider).
 CODING_AGENT_IDS: frozenset[str] = frozenset(
-    {"dev_app", "dev_backend", "dev_gaming", "embedded_dev"}
+    {"dev_app", "dev_backend", "dev_gaming", "embedded_dev", "dev_frontend", "dev_integrator"}
 )
 
 # Modèle par défaut par tier

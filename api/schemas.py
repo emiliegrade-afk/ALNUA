@@ -873,6 +873,34 @@ class LibraryRetentionApplyRequest(BaseModel):
     dry_run: bool = False
 
 
+class LibraryTopicLearnRequest(BaseModel):
+    """Deep-learn a library topic into an agent's Mem0 + vault memory note."""
+
+    agent_id: str = Field(min_length=1, max_length=64)
+    force_digest: bool = Field(
+        default=False,
+        description="Rebuild topic digest even if cached in vault",
+    )
+    promote: bool = Field(
+        default=True,
+        description="Promote to knowledge skill when thresholds met",
+    )
+
+
+class LibraryVaultSyncRequest(BaseModel):
+    """Re-export bureau library → Obsidian vault + rebuild topic catalog."""
+
+    index_chroma: bool = Field(
+        default=False,
+        description="Also index library/*.md into Chroma collection alnua_library",
+    )
+    limit: int | None = Field(
+        default=None,
+        ge=1,
+        description="Optional cap on entries exported (tests / dry runs)",
+    )
+
+
 class NomenclatureNextRequest(BaseModel):
     kind: str = Field(description="APP | GDD | LORE | ASSET | BUG | COLLAB | RND")
     slug: str | None = None

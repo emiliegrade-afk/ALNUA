@@ -53,6 +53,15 @@ AGENT_TO_BUREAU: dict[str, str] = {
     "pm": "hub",
     "secretary": "secretary",
     "dev_app": "app",
+    "dev_frontend": "hub",
+    "dev_backend": "hub",
+    "dev_integrator": "hub",
+    "dev_gaming": "gaming",
+    "content_app": "app",
+    "content_gaming": "gaming",
+    "content_robo": "robo",
+    "content_company": "hub",
+    "content": "hub",
     "dev_backend": "app",
     "game_director": "gaming",
     "dev_gaming": "gaming",
@@ -124,6 +133,7 @@ def add_entry(
     agent_id: str = "",
     requested_by: str = "ceo",
     query: str = "",
+    digest: str = "",
 ) -> dict[str, Any]:
     bureau = bureau if bureau in VALID_BUREAUS else "hub"
     entry = {
@@ -131,6 +141,7 @@ def add_entry(
         "bureau": bureau,
         "title": title[:300],
         "summary": summary[:4000],
+        "digest": (digest or "")[:12000],
         "timing": timing if timing in ("now", "later") else "later",
         "source_url": source_url[:2000],
         "source_title": source_title[:300],
@@ -150,6 +161,13 @@ def add_entry(
         fanout_library_entry(entry, distill_lessons=entry["timing"] == "now")
     except Exception as exc:
         logger.debug("library fanout skipped: %s", exc)
+
+    try:
+        from services.library_vault_export import export_entry_to_vault
+
+        export_entry_to_vault(entry, update_catalog=True)
+    except Exception as exc:
+        logger.debug("library vault export skipped: %s", exc)
 
     return entry
 
@@ -225,6 +243,8 @@ RÈGLES ABSOLUES:
 - timing "now" = applicable tout de suite au Hub ou à un projet en cours.
 - timing "later" = pas prioritaire aujourd'hui mais à conserver pour plus tard.
 - Si tu hésites, mets "later" — jamais de suppression.
+- summary = 2-4 phrases courtes pour l'UI / scan rapide.
+- digest = synthèse riche (faits, chiffres, outils, dates, quand appliquer) — 150 à 400 mots si le contenu le permet.
 - Réponds en JSON valide uniquement."""
 
     user = f"""Recherche demandée par Emilie (CEO): {query}
@@ -241,6 +261,7 @@ Réponds avec ce JSON:
       "bureau": "app",
       "title": "titre court",
       "summary": "2-4 phrases — ce que c'est et quand ça pourrait servir",
+      "digest": "synthèse riche actionnable (150-400 mots) — faits clés, chiffres, outils, pièges",
       "timing": "now|later",
       "source_url": "url ou vide",
       "source_title": "titre source",
@@ -271,10 +292,13 @@ Minimum 1 entrée si les résultats contiennent du contenu. Maximum 8 entrées."
             continue
         title = str(item.get("title") or "").strip()
         summary = str(item.get("summary") or "").strip()
-        if not title and not summary:
+        digest = str(item.get("digest") or "").strip()
+        if not title and not summary and not digest:
             continue
         if not title:
-            title = summary[:80]
+            title = (summary or digest)[:80]
+        if not summary and digest:
+            summary = digest[:400]
         bureau = str(item.get("bureau") or "hub")
         agent_id = str(item.get("agent_id") or "")
         if not agent_id:
@@ -287,6 +311,7 @@ Minimum 1 entrée si les résultats contiennent du contenu. Maximum 8 entrées."
                 bureau=bureau,
                 title=title,
                 summary=summary or title,
+                digest=digest,
                 timing=timing,
                 source_url=str(item.get("source_url") or ""),
                 source_title=str(item.get("source_title") or ""),
@@ -321,9 +346,9 @@ def _default_agent_for_bureau(bureau: str) -> str:
     defaults = {
         "hub": "coo",
         "secretary": "secretary",
-        "app": "dev_app",
-        "gaming": "game_director",
-        "robo": "hardware",
+        "app": "content_app",
+        "gaming": "content_gaming",
+        "robo": "content_robo",
         "marketing": "marketing",
         "rd": "rnd_agent",
         "finances": "accounting",

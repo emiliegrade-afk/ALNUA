@@ -25,6 +25,33 @@ LORE_CATEGORIES = frozenset(
 )
 LORE_PROJECTS = frozenset({"wyrdheim", "naia_world", "shared"})
 
+# Memory / library layout — one central vault, namespaced folders
+VAULT_LAYOUT_DIRS: tuple[str, ...] = (
+    "wyrdheim/lore",
+    "wyrdheim/gdd",
+    "wyrdheim/biomes",
+    "wyrdheim/creatures",
+    "apps",
+    "rnd",
+    "collabs",
+    "daily",
+    "library",
+    "library/_index",
+    "library/_digests",
+    "library/hub",
+    "library/secretary",
+    "library/app",
+    "library/gaming",
+    "library/robo",
+    "library/marketing",
+    "library/rd",
+    "library/finances",
+    "library/analytics",
+    "library/academy",
+    "memory",
+    "memory/agents",
+)
+
 
 @dataclass
 class VaultNote:
@@ -117,6 +144,72 @@ def get_vault_path() -> Path:
 
 def get_canonical_vault_path() -> Path:
     return CANONICAL_VAULT
+
+
+def ensure_vault_layout(vault: Path | None = None) -> dict[str, Any]:
+    """
+    Create the standard ALNUA vault folder scaffold (library, memory, projects).
+
+    Safe to call repeatedly — only creates missing directories and placeholder
+    ``.gitkeep`` / index stubs when absent.
+    """
+    root = vault or get_vault_path()
+    root.mkdir(parents=True, exist_ok=True)
+
+    created: list[str] = []
+    existing: list[str] = []
+
+    for folder in VAULT_LAYOUT_DIRS:
+        path = root / folder
+        if path.is_dir():
+            existing.append(folder)
+        else:
+            path.mkdir(parents=True, exist_ok=True)
+            created.append(folder)
+
+    # Lightweight placeholders so empty dirs survive sync tools
+    for folder in (
+        "apps",
+        "rnd",
+        "collabs",
+        "daily",
+        "library/_digests",
+        "memory/agents",
+    ):
+        keep = root / folder / ".gitkeep"
+        if not keep.exists():
+            keep.write_text("", encoding="utf-8")
+            created.append(str(keep.relative_to(root)).replace("\\", "/"))
+
+    index_readme = root / "library" / "_index" / "README.md"
+    if not index_readme.exists():
+        index_readme.write_text(
+            "# Bibliothèque ALNUA\n\n"
+            "Notes exportées depuis le Hub (`bureau_library.json`).\n\n"
+            "- `TOPICS.md` — catalogue de sujets scannable par les agents\n"
+            "- `../{bureau}/` — fiches par bureau\n"
+            "- `../_digests/` — synthèses de sujets (learn on demand)\n",
+            encoding="utf-8",
+        )
+        created.append("library/_index/README.md")
+
+    memory_readme = root / "memory" / "README.md"
+    if not memory_readme.exists():
+        memory_readme.write_text(
+            "# Mémoire agents\n\n"
+            "Digests et leçons exportées par agent (`memory/agents/{agent_id}/`).\n"
+            "La vérité durable reste ici + le catalogue Hub ; Mem0 ne garde que des leçons distillées.\n",
+            encoding="utf-8",
+        )
+        created.append("memory/README.md")
+
+    return {
+        "vault": str(root),
+        "created": created,
+        "existing": existing,
+        "created_count": len(created),
+        "existing_count": len(existing),
+    }
 
 
 def iter_markdown_files(
@@ -275,18 +368,7 @@ def bootstrap_vault(target: Path | None = None, *, force: bool = False) -> dict[
         out.write_bytes(src.read_bytes())
         copied.append(str(rel).replace("\\", "/"))
 
-    # Ensure folder scaffold exists even if empty in canonical tree
-    for folder in (
-        "wyrdheim/lore",
-        "wyrdheim/gdd",
-        "wyrdheim/biomes",
-        "wyrdheim/creatures",
-        "apps",
-        "rnd",
-        "collabs",
-        "daily",
-    ):
-        (dest / folder).mkdir(parents=True, exist_ok=True)
+    layout = ensure_vault_layout(dest)
 
     return {
         "target": str(dest),
@@ -294,4 +376,5 @@ def bootstrap_vault(target: Path | None = None, *, force: bool = False) -> dict[
         "skipped": skipped,
         "copied_count": len(copied),
         "skipped_count": len(skipped),
+        "layout": layout,
     }

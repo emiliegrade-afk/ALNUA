@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from config.agent_models import CODING_AGENT_IDS, get_coding_model_for_agent
+from services.dev_ownership import resolve_coding_agent
 from services.hub_coding_agent import _execute_action, _safe_path
 
 
@@ -37,3 +38,23 @@ def test_reject_empty_file(tmp_path: Path) -> None:
         {"action": "write_file", "path": "empty.ts", "content": ""},
     )
     assert "vide" in out.lower()
+
+
+def test_resolve_coding_agent_routes_to_frontend_backend_and_app() -> None:
+    assert resolve_coding_agent(
+        paths=["web/src/app/page.tsx"],
+        title="Hub UI",
+        description="Refonte du tableau de bord",
+    ) == "dev_frontend"
+
+    assert resolve_coding_agent(
+        paths=["api/routers/releases.py"],
+        title="backend API",
+        description="Ajouter un endpoint",
+    ) == "dev_backend"
+
+    assert resolve_coding_agent(
+        paths=["apps/mobile/App.tsx"],
+        title="mobile",
+        description="Feature mobile",
+    ) == "dev_app"

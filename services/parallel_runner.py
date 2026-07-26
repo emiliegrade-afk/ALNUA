@@ -400,9 +400,7 @@ def run_content_sprint(
     product: str,
     target: str,
 ) -> dict[str, Any]:
-    """
-    Lance Camille (Marketing) et Sofia (Content) en parallèle sur le même sujet.
-    """
+    """Lance marketing et les rédacteurs secteur en parallèle sur un même brief."""
     tasks = [
         AgentTask(
             agent_id="marketing",
@@ -411,10 +409,28 @@ def run_content_sprint(
             task_label="Camille — stratégie marketing",
         ),
         AgentTask(
-            agent_id="content",
+            agent_id="content_app",
             method="handle_instruction",
-            kwargs={"instruction": f"Rédige du contenu blog pour {product} sur : {topic}. Ton : engageant, cible : {target}"},
-            task_label="Sofia — contenu blog",
+            kwargs={"instruction": f"Rédige du contenu app pour {product} sur : {topic}. Ton : engageant, cible : {target}"},
+            task_label="Content App — posts produit",
+        ),
+        AgentTask(
+            agent_id="content_gaming",
+            method="handle_instruction",
+            kwargs={"instruction": f"Rédige du contenu gaming pour {product} sur : {topic}. Ton : engageant, cible : {target}"},
+            task_label="Content Gaming — devlogs",
+        ),
+        AgentTask(
+            agent_id="content_robo",
+            method="handle_instruction",
+            kwargs={"instruction": f"Rédige du contenu robotique pour {product} sur : {topic}. Ton : engageant, cible : {target}"},
+            task_label="Content Robo — updates hardware",
+        ),
+        AgentTask(
+            agent_id="content_company",
+            method="handle_instruction",
+            kwargs={"instruction": f"Rédige du contenu corporate ALNUA pour {product} sur : {topic}. Ton : aligné marque, cible : {target}"},
+            task_label="Content Company — posts corporate",
         ),
     ]
     return run_agents_parallel_sync(tasks)

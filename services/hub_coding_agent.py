@@ -140,7 +140,18 @@ def run_hub_coding_loop(
     Returns: {success, turns, log, summary, model, error?}
     """
     root = Path(worktree_path)
-    agent_id = normalize_agent_id(spec.get("agent_id") or "dev_app")
+    from services.dev_ownership import resolve_coding_agent
+
+    paths = list(spec.get("files_to_create") or []) + list(spec.get("files_to_modify") or [])
+    agent_id = normalize_agent_id(
+        resolve_coding_agent(
+            paths=paths,
+            title=str(spec.get("title") or ""),
+            description=str(spec.get("description") or ""),
+            agent_id=spec.get("agent_id"),
+            branch=str(spec.get("branch") or spec.get("project_branch") or ""),
+        )
+    )
     model_slug = get_coding_model_for_agent(agent_id)
     model_api = resolve_openrouter_model(agent_id)
 
