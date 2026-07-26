@@ -196,9 +196,28 @@ def qa_analyze(project_id: str) -> dict[str, Any]:
     return agent.analyze_feedback_batch(project_id)
 
 
+_SECTOR_AGENT_CLASSES: dict[str, tuple[str, str]] = {
+    "app": ("agents.content_app_agent", "ContentAppAgent"),
+    "gaming": ("agents.content_gaming_agent", "ContentGamingAgent"),
+    "robo": ("agents.content_robo_agent", "ContentRoboAgent"),
+    "company": ("agents.content_company_agent", "ContentCompanyAgent"),
+}
+
+
+def _resolve_content_agent(sector: str | None) -> ContentAgent:
+    if not sector:
+        return ContentAgent()
+    import importlib
+
+    module_path, class_name = _SECTOR_AGENT_CLASSES[sector]
+    module = importlib.import_module(module_path)
+    agent_class = getattr(module, class_name)
+    return agent_class()
+
+
 @router.post("/agents/content/generate")
 def content_generate(body: ContentGenerateRequest) -> dict[str, Any]:
-    agent = ContentAgent()
+    agent = _resolve_content_agent(body.sector)
     try:
         posts = agent.generate_posts(
             body.project_id,

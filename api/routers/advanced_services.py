@@ -328,14 +328,14 @@ class PlanExecuteRequest(BaseModel):
     title: str
     steps: list[PlanStepBody]
     context: str = ""
-    max_concurrent: int = Field(default=3, ge=1, le=5)
+    max_concurrent: int = Field(default=4, ge=1, le=5)
     stop_on_failure: bool = False
 
 
 class CooRunRequest(BaseModel):
     objective: str
     context: str = ""
-    max_concurrent: int = Field(default=3, ge=1, le=5)
+    max_concurrent: int = Field(default=4, ge=1, le=5)
     stop_on_failure: bool = False
 
 

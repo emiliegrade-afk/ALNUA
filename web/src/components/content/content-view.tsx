@@ -1,10 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { ContentCalendar } from "@/components/content/content-calendar";
 import { ContentStats } from "@/components/content/content-stats";
 import { DevLogForm } from "@/components/content/dev-log-form";
+import { PostComposer } from "@/components/content/post-composer";
 import { PostsApprovalPanel } from "@/components/content/posts-approval-panel";
-import type { StatusTab } from "@/components/content/content.constants";
+import type { ContentSector, StatusTab } from "@/components/content/content.constants";
 import {
   computePostStats,
   fetchPosts,
@@ -12,15 +14,26 @@ import {
 } from "@/lib/content";
 import { fetchProjects } from "@/lib/api";
 import type { Project } from "@/lib/types";
+import { cn } from "@/lib/utils";
+
+type StudioTab = "queue" | "calendar" | "composer";
+
+const STUDIO_TABS: { id: StudioTab; label: string }[] = [
+  { id: "queue", label: "File d'approbation" },
+  { id: "calendar", label: "Calendrier" },
+  { id: "composer", label: "Composer" },
+];
 
 export function ContentView() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [allPosts, setAllPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [studioTab, setStudioTab] = useState<StudioTab>("queue");
   const [statusTab, setStatusTab] = useState<StatusTab>("pending_approval");
   const [projectFilter, setProjectFilter] = useState("all");
   const [platformFilter, setPlatformFilter] = useState<string | null>(null);
+  const [sectorFilter, setSectorFilter] = useState<ContentSector | null>(null);
 
   const loadPosts = useCallback(async () => {
     setLoading(true);
@@ -45,6 +58,10 @@ export function ContentView() {
     );
   }
 
+  function handlePostsCreated(created: Post[]) {
+    setAllPosts((prev) => [...created, ...prev]);
+  }
+
   const stats = computePostStats(allPosts);
 
   return (
@@ -55,7 +72,7 @@ export function ContentView() {
           Contenu
         </h1>
         <p className="mt-1 text-sm text-titanium">
-          Dev log → posts réseaux → approbation avant publication.
+          Dev log → posts réseaux → calendrier → approbation avant publication.
         </p>
       </header>
 
@@ -70,25 +87,57 @@ export function ContentView() {
             pending={stats.pending}
             approvedThisWeek={stats.approvedThisWeek}
             publishedThisMonth={stats.publishedThisMonth}
+            posts={allPosts}
           />
         </div>
 
         <div className="flex min-h-[520px] flex-col rounded-2xl border border-copper/10 bg-obsidian/50 p-4 ring-1 ring-white/[0.04] lg:col-span-3 lg:min-h-[640px]">
-          <h2 className="mb-2 text-sm font-medium uppercase tracking-widest text-titanium">
-            File d&apos;approbation
-          </h2>
-          <PostsApprovalPanel
-            posts={allPosts}
-            projects={projects}
-            statusTab={statusTab}
-            onStatusTabChange={setStatusTab}
-            projectFilter={projectFilter}
-            onProjectFilterChange={setProjectFilter}
-            platformFilter={platformFilter}
-            onPlatformFilterChange={setPlatformFilter}
-            onPostUpdated={handlePostUpdated}
-            loading={loading}
-          />
+          <div className="mb-4 flex flex-wrap gap-1.5 border-b border-white/[0.06] pb-3">
+            {STUDIO_TABS.map(({ id, label }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setStudioTab(id)}
+                className={cn(
+                  "rounded-lg border px-3 py-1.5 text-xs transition",
+                  studioTab === id
+                    ? "border-copper/45 bg-copper/10 text-copper-glow"
+                    : "border-transparent text-titanium hover:border-copper/20 hover:bg-white/[0.03]"
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {studioTab === "queue" && (
+            <PostsApprovalPanel
+              posts={allPosts}
+              projects={projects}
+              statusTab={statusTab}
+              onStatusTabChange={setStatusTab}
+              projectFilter={projectFilter}
+              onProjectFilterChange={setProjectFilter}
+              platformFilter={platformFilter}
+              onPlatformFilterChange={setPlatformFilter}
+              sectorFilter={sectorFilter}
+              onSectorFilterChange={setSectorFilter}
+              onPostUpdated={handlePostUpdated}
+              loading={loading}
+            />
+          )}
+
+          {studioTab === "calendar" && (
+            <ContentCalendar onPostUpdated={handlePostUpdated} />
+          )}
+
+          {studioTab === "composer" && (
+            <PostComposer
+              projects={projects}
+              onProjectsUpdated={setProjects}
+              onCreated={handlePostsCreated}
+            />
+          )}
         </div>
       </div>
     </div>

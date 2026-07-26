@@ -531,7 +531,7 @@ def run_dispatch_execution(
         )
 
     # --- Execute ---
-    result = execute_plan(plan, max_concurrent=3, stop_on_failure=False, max_retries=1)
+    result = execute_plan(plan, max_concurrent=4, stop_on_failure=False, max_retries=1)
 
     # --- Post-process : ecrire livrables + update manifest ---
     dispatched_agent_ids: list[str] = []

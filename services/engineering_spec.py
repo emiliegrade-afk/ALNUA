@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 from agents.base import LLMClient, parse_json_response
 from config.agent_personas import persona_prompt_intro
 from services.adversarial_spec import debate_spec
+from services.dev_ownership import resolve_coding_agent
 from services.rnd_schemas import RndDossierOut
 
 logger = logging.getLogger(__name__)
@@ -59,7 +60,7 @@ Réponds UNIQUEMENT en JSON valide :
       "priority": "P0|P1|P2",
       "sprint": 1,
       "depends_on": [],
-      "agent_id": "dev_app"
+      "agent_id": "dev_app|dev_frontend|dev_backend|dev_gaming|embedded_dev"
     }
   ]
 }
@@ -69,6 +70,10 @@ Règles :
 - Chaque tâche = 1 PR / 1 issue agent (2-4h dev agent).
 - Titres commençant par un verbe d'action.
 - depends_on = ids de tâches du même breakdown.
+- agent_id DOIT refléter les fichiers concernés, pas un choix par défaut : mobile/Expo → dev_app,
+  Hub web (web/, .tsx/.jsx) → dev_frontend, API/services/Python/SQL → dev_backend, jeux Godot → dev_gaming,
+  firmware/robotique → embedded_dev. Ne jamais assigner toutes les tâches au même agent_id : répartis
+  selon le stack réel de chaque tâche pour que l'équipe travaille en parallèle.
 - Ne pas inventer de features hors scope dossier."""
 
 _TASK_BREAKDOWN_PM_SYSTEM = _PM_INTRO + """.
@@ -98,7 +103,7 @@ class EngineeringTask(BaseModel):
     priority: str = "P1"
     sprint: int = 1
     depends_on: list[str] = Field(default_factory=list)
-    agent_id: str = "dev_app"
+    agent_id: str = ""
 
 
 class EngineeringSpecResult(BaseModel):
@@ -165,20 +170,29 @@ def _normalize_tasks(raw_tasks: list[Any]) -> list[EngineeringTask]:
         title = str(item.get("title") or "").strip()
         if not title:
             continue
+        description = str(item.get("description") or "")
+        files_create = [str(f) for f in (item.get("files_create") or [])]
+        files_modify = [str(f) for f in (item.get("files_modify") or [])]
+        agent_id = resolve_coding_agent(
+            paths=files_create + files_modify,
+            title=title,
+            description=description,
+            agent_id=str(item.get("agent_id") or "").strip() or None,
+        )
         try:
             tasks.append(
                 EngineeringTask(
                     id=task_id,
                     title=title,
-                    description=str(item.get("description") or ""),
+                    description=description,
                     stack=str(item.get("stack") or "react_native_expo"),
-                    files_create=[str(f) for f in (item.get("files_create") or [])],
-                    files_modify=[str(f) for f in (item.get("files_modify") or [])],
+                    files_create=files_create,
+                    files_modify=files_modify,
                     tests=[str(t) for t in (item.get("tests") or [])],
                     priority=str(item.get("priority") or "P1"),
                     sprint=int(item.get("sprint") or 1),
                     depends_on=[str(d) for d in (item.get("depends_on") or [])],
-                    agent_id=str(item.get("agent_id") or "dev_app"),
+                    agent_id=agent_id,
                 )
             )
         except (TypeError, ValueError):

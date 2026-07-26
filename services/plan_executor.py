@@ -112,6 +112,7 @@ class ExecutionPlan:
 
 from config.agent_personas import persona_prompt_intro
 from services.agent_pipeline_registry import format_plan_executor_catalog
+from services.dev_ownership import OWNERSHIP_RULES
 
 _COO_PLAN_SYSTEM = f"""{persona_prompt_intro("coo", role="COO")}. Tu décomposes des objectifs en plans d'action précis.
 Chaque étape du plan est assignée à UN agent ALNUA spécifique avec ses paramètres exacts.
@@ -120,6 +121,24 @@ NUAWAY = app voyage nomade (spots, cartes, communauté) — pas de tickets VPN/c
 Réponds en JSON valide uniquement."""
 
 _AVAILABLE_AGENTS = format_plan_executor_catalog()
+
+
+def _ownership_hint() -> str:
+    lines = ["Ownership dev (à respecter STRICTEMENT dès qu'une étape touche du code) :"]
+    for rule_cls in OWNERSHIP_RULES:
+        rule = rule_cls()
+        lines.append(f"- {rule.agent_id} ({rule.label}) : {rule.description}")
+    lines.append("- dev_integrator (Intégrateur) : merge les worktrees des autres devs vers la branche commune, ne code jamais de feature lui-même")
+    lines.append("- qa : review obligatoire avant tout merge d'intégration")
+    lines.append(
+        "Ne JAMAIS assigner toutes les étapes de code au même agent_id par défaut : répartis chaque étape "
+        "vers l'agent dont l'ownership correspond au fichier/stack réellement concerné, pour que l'équipe "
+        "travaille en parallèle plutôt qu'un seul agent qui fait tout."
+    )
+    return "\n".join(lines)
+
+
+_OWNERSHIP_HINT = _ownership_hint()
 
 
 def parse_coo_plan(objective: str, context: str = "") -> ExecutionPlan:
@@ -137,6 +156,8 @@ CONTEXTE : {context or 'Aucun contexte supplémentaire'}
 
 {_AVAILABLE_AGENTS}
 
+{_OWNERSHIP_HINT}
+
 Génère un plan d'exécution JSON avec :
 - title (string): titre court du plan
 - steps (list): liste des étapes, chaque étape = {{
@@ -153,6 +174,8 @@ Règles :
 - Minimiser les dépendances (exécution parallèle quand possible)
 - Les kwargs doivent être utilisables tels quels par l'agent
 - Grouper les étapes indépendantes (même niveau de depends_on = parallèles)
+- Une étape de code = un agent_id dev dont l'ownership correspond réellement au fichier/stack concerné
+  (voir ownership dev ci-dessus) — jamais un seul agent dev par défaut pour tout le plan
 - Ne pas créer de tickets PM sur NUAWAY pour des sujets R&D sans lien produit (ex: VPN russe)
 - Recherche R&D pure → agent rnd_agent / analyst_business, pas de tickets sur les apps existantes"""
 
@@ -246,7 +269,7 @@ def _execute_step(step: ExecutionStep, max_retries: int = 2) -> StepResult:
 
 def execute_plan(
     plan: ExecutionPlan,
-    max_concurrent: int = 3,
+    max_concurrent: int = 4,
     stop_on_failure: bool = False,
     max_retries: int = 2,
 ) -> dict[str, Any]:
@@ -337,7 +360,7 @@ def execute_plan(
 def run_coo_plan(
     objective: str,
     context: str = "",
-    max_concurrent: int = 3,
+    max_concurrent: int = 4,
     stop_on_failure: bool = False,
 ) -> dict[str, Any]:
     """

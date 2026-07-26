@@ -122,6 +122,13 @@ def resolve_coding_agent(
 
 def describe_coding_agent(agent_id: str) -> dict[str, Any]:
     normalized = normalize_agent_id(agent_id)
+    if normalized == "dev_integrator":
+        return {
+            "agent_id": "dev_integrator",
+            "available": True,
+            "label": "Intégrateur",
+            "description": "Merge les worktrees des autres devs vers la branche commune ; ne possède aucun fichier en propre",
+        }
     for rule_cls in OWNERSHIP_RULES:
         rule = rule_cls()
         if rule.agent_id == normalized:

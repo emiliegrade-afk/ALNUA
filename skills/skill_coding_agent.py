@@ -108,10 +108,40 @@ from services.coding_pipeline import (
     stack_rules_block,
 
 )
+from services.dev_ownership import resolve_coding_agent
 
 
 
 logger = logging.getLogger(__name__)
+
+
+def _resolve_spec_agent_id(spec: dict) -> str:
+    """Resolve the real owning agent for this spec — never a hardcoded dev_app default."""
+    paths = list(dict.fromkeys(
+        (spec.get("files_to_create") or []) + (spec.get("files_to_modify") or [])
+    ))
+    return resolve_coding_agent(
+        paths=paths,
+        title=str(spec.get("title") or ""),
+        description=str(spec.get("description") or ""),
+        agent_id=str(spec.get("agent_id") or "").strip() or None,
+    )
+
+
+def _enforce_worktree_limit(repo_path: str, max_worktrees: int) -> None:
+    """Prune stale worktrees, then refuse to create a new one past the configured cap."""
+    if max_worktrees <= 0:
+        return
+    run_command(["git", "worktree", "prune"], cwd=repo_path)
+    worktrees_dir = Path(repo_path) / "worktrees"
+    if not worktrees_dir.is_dir():
+        return
+    active = [p for p in worktrees_dir.iterdir() if p.is_dir()]
+    if len(active) >= max_worktrees:
+        raise RuntimeError(
+            f"Limite de worktrees atteinte ({len(active)}/{max_worktrees}) — "
+            "réessaie une fois qu'un run en cours se termine."
+        )
 
 
 def _resolve_cli(name: str) -> str:
@@ -303,7 +333,9 @@ def _prepare_worktree(spec: dict, branch: str) -> tuple[Path, str, dict]:
     """Create isolated worktree and return (path, default_branch, partial result)."""
     config = get_coding_config()
     repo_path = spec.get("repo_path")
-    worktree_path = Path(repo_path) / "worktrees" / branch.replace("/", "-")
+    agent_id = _resolve_spec_agent_id(spec)
+    _enforce_worktree_limit(repo_path, config.max_worktrees)
+    worktree_path = Path(repo_path) / "worktrees" / f"{agent_id}-{branch.replace('/', '-')}"
     default_branch = resolve_default_branch(repo_path)
 
     result: dict = {
@@ -429,7 +461,7 @@ def _execute_hub_task_core(spec: dict) -> dict:
         "branch_name",
         f"feat/auto-{spec['task_id'].lower()}-{datetime.now().strftime('%Y%m%d%H%M%S')}",
     )
-    agent_id = spec.get("agent_id", "dev_app")
+    agent_id = _resolve_spec_agent_id(spec)
 
     worktree_path, default_branch, result = _prepare_worktree(spec, branch)
     result["backend"] = "hub"
@@ -528,7 +560,7 @@ def _execute_aider_task_core(spec: dict) -> dict:
 
         from config.agent_models import get_coding_model_aider
 
-        agent_id = spec.get("agent_id", "dev_app")
+        agent_id = _resolve_spec_agent_id(spec)
         aider_model = get_coding_model_aider(agent_id)
         config_aider = get_coding_config().aider_model
         if config_aider.strip():
@@ -641,7 +673,9 @@ def _execute_coding_task_core(spec: dict) -> dict:
 
     )
 
-    worktree_path = Path(repo_path) / "worktrees" / branch.replace("/", "-")
+    agent_id = _resolve_spec_agent_id(spec)
+    _enforce_worktree_limit(repo_path, config.max_worktrees)
+    worktree_path = Path(repo_path) / "worktrees" / f"{agent_id}-{branch.replace('/', '-')}"
 
 
 
@@ -960,6 +994,8 @@ def execute_coding_task(
 
     """
 
+    spec = {**spec, "agent_id": _resolve_spec_agent_id(spec)}
+
     from skills.skill_retry_loop import retry_with_learning
 
 
@@ -979,7 +1015,7 @@ def execute_coding_task(
         except RuntimeError as exc:
             if "QA pre-PR" in str(exc) or "QA" in str(exc):
                 record_qa_failure(
-                    agent_name=spec.get("agent_id", "dev_app"),
+                    agent_name=spec.get("agent_id"),
                     task_id=spec.get("task_id"),
                     repo_slug=spec.get("repo_slug"),
                     error_message=str(exc),
@@ -991,7 +1027,7 @@ def execute_coding_task(
 
     retry_result = retry_with_learning(
 
-        agent_name=spec.get("agent_id", "dev_app"),
+        agent_name=spec.get("agent_id"),
 
         task_fn=_attempt,
 

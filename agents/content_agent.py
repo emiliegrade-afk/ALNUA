@@ -9,7 +9,7 @@ from typing import Any
 
 from crewai import Agent, LLM
 
-from agents.base import LLMClient, log_agent_action, parse_json_response
+from agents.base import LLMClient, log_agent_action, parse_json_response, run_with_learning
 from agents.tools.hub_tools import CONTENT_TOOLS
 from database.supabase_client import SupabaseClient
 from skills.skill_composio import get_composio_tools
@@ -51,6 +51,9 @@ class ContentAgent(AgentBase):
     AGENT_NAME = "content_agent"
 
     SYSTEM_PROMPT = get_system_prompt("content")
+
+    # Secteur éditorial (app|gaming|robo|company) — surchargé par les sous-classes sectorielles.
+    SECTOR: str = ""
 
     def __init__(
         self,
@@ -178,6 +181,8 @@ Chaque post doit respecter les contraintes de SA plateforme."""
                     "posts_queue",
                     {
                         "project_id": project_id,
+                        "sector": self.SECTOR or None,
+                        "author_agent_id": self.AGENT_NAME,
                         "platform": platform,
                         "content_type": content_type,
                         "text_content": post["text_content"],
@@ -249,11 +254,37 @@ Chaque post doit respecter les contraintes de SA plateforme."""
 
         return created
 
+    def handle_instruction(self, instruction: str) -> str:
+        """Point d'entrée générique : brief libre → contenu rédigé (utilisé par run_content_sprint)."""
+        from skills.skill_agent_learning import get_learning_context, record_task_learning
+
+        memory_block = get_learning_context(self.AGENT_NAME, instruction)
+        prompt = f"{instruction}{memory_block}"
+        result = run_with_learning(
+            self.AGENT_NAME, instruction[:120],
+            self.llm.complete,
+            self.SYSTEM_PROMPT, prompt,
+            agent_id=self.AGENT_NAME, temperature=0.8, max_tokens=4096,
+        )
+        try:
+            record_task_learning(agent_id=self.AGENT_NAME, task=instruction, outcome=result)
+        except Exception:
+            pass
+        log_agent_action(
+            self.db, self.AGENT_NAME, "handle_instruction",
+            input_summary=instruction[:200],
+            output_summary=f"{result[:150]}...",
+        )
+        return result
+
     def approve_post(self, post_id: str) -> dict[str, Any]:
         return self.db.update("posts_queue", post_id, {"status": "approved"})
 
     def update_post(self, post_id: str, values: dict[str, Any]) -> dict[str, Any]:
-        allowed = {"status", "text_content", "hashtags", "scheduled_at", "image_prompt", "video_script"}
+        allowed = {
+            "status", "text_content", "hashtags", "scheduled_at", "image_prompt", "video_script",
+            "layout", "media_urls", "channel", "sector", "author_agent_id",
+        }
         payload = {k: v for k, v in values.items() if k in allowed and v is not None}
         if "status" in payload:
             valid_status = {

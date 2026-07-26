@@ -1,4 +1,11 @@
-export type PostPlatform = "instagram" | "tiktok" | "x" | "youtube" | "linkedin";
+export type PostPlatform =
+  | "instagram"
+  | "tiktok"
+  | "x"
+  | "youtube"
+  | "linkedin"
+  | "website_blog"
+  | "discord";
 export type PostContentType =
   | "announcement"
   | "teaser"
@@ -32,7 +39,25 @@ export const PLATFORMS: { id: PostPlatform; label: string }[] = [
   { id: "x", label: "X" },
   { id: "youtube", label: "YouTube Shorts" },
   { id: "linkedin", label: "LinkedIn" },
+  { id: "website_blog", label: "Blog" },
+  { id: "discord", label: "Discord" },
 ];
+
+export type ContentSector = "app" | "gaming" | "robo" | "company";
+
+export const SECTORS: { id: ContentSector; label: string; agent: string }[] = [
+  { id: "app", label: "App", agent: "Esmée Diallo" },
+  { id: "gaming", label: "Gaming", agent: "Kael Vex" },
+  { id: "robo", label: "Robotique", agent: "Mira Solberg" },
+  { id: "company", label: "Corporate", agent: "Anouk Gerard" },
+];
+
+export const SECTOR_STYLES: Record<ContentSector, string> = {
+  app: "bg-naia-muted/50 text-naia-glow ring-naia/30",
+  gaming: "bg-wyrdheim-muted/50 text-wyrdheim-glow ring-wyrdheim/30",
+  robo: "bg-eve-muted/50 text-eve-glow ring-eve/30",
+  company: "bg-violet-500/15 text-violet-300 ring-violet-500/25",
+};
 
 export const STATUS_TABS: { id: StatusTab; label: string }[] = [
   { id: "pending_approval", label: "À approuver" },
@@ -64,6 +89,14 @@ export const PLATFORM_STYLES: Record<
   linkedin: {
     badge: "bg-blue-600/20 text-blue-300 ring-blue-600/30",
     label: "LinkedIn",
+  },
+  website_blog: {
+    badge: "bg-amber-500/20 text-amber-300 ring-amber-500/30",
+    label: "Blog",
+  },
+  discord: {
+    badge: "bg-indigo-500/20 text-indigo-300 ring-indigo-500/30",
+    label: "Discord",
   },
 };
 

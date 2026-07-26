@@ -478,6 +478,26 @@ class ContentGenerateRequest(BaseModel):
     content_types: list[str] = Field(min_length=1)
     platforms: list[str] = Field(min_length=1)
     alnua_global: bool = False
+    sector: str | None = Field(
+        default=None,
+        pattern="^(app|gaming|robo|company)$",
+        description="Route vers l'agent secteur (Esmée/Kael/Mira/Anouk) au lieu du content générique",
+    )
+
+
+class PostCreate(BaseModel):
+    project_id: str = Field(min_length=1)
+    platform: str = Field(min_length=1)
+    content_type: str = Field(min_length=1)
+    text_content: str = Field(min_length=1)
+    sector: str | None = Field(default=None, pattern="^(app|gaming|robo|company)$")
+    author_agent_id: str | None = None
+    hashtags: list[str] = Field(default_factory=list)
+    layout: dict[str, Any] | None = None
+    media_urls: list[str] = Field(default_factory=list)
+    channel: str | None = None
+    scheduled_at: str
+    status: str = Field(default="pending_approval", pattern="^(draft|pending_approval|approved)$")
 
 
 class PostUpdate(BaseModel):
@@ -487,6 +507,11 @@ class PostUpdate(BaseModel):
     scheduled_at: str | None = None
     image_prompt: str | None = None
     video_script: str | None = None
+    layout: dict[str, Any] | None = None
+    media_urls: list[str] | None = None
+    channel: str | None = None
+    sector: str | None = None
+    author_agent_id: str | None = None
 
 
 class ProjectCreate(BaseModel):
@@ -798,14 +823,14 @@ class PlanExecuteRequest(BaseModel):
     title: str
     steps: list[PlanStepRequest]
     context: str = ""
-    max_concurrent: int = Field(default=3, ge=1, le=5)
+    max_concurrent: int = Field(default=4, ge=1, le=5)
     stop_on_failure: bool = False
 
 
 class CooRunRequest(BaseModel):
     objective: str = Field(min_length=5, description="Objectif à atteindre")
     context: str = Field(default="", description="Contexte supplémentaire")
-    max_concurrent: int = Field(default=3, ge=1, le=5)
+    max_concurrent: int = Field(default=4, ge=1, le=5)
     stop_on_failure: bool = False
 
 

@@ -133,32 +133,40 @@ CREATE INDEX IF NOT EXISTS idx_feedback_sentiment ON public.feedback (sentiment)
 -- 6. posts_queue
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.posts_queue (
-  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  project_id    UUID NOT NULL REFERENCES public.projects (id) ON DELETE CASCADE,
-  platform      TEXT NOT NULL
-                CHECK (platform IN (
-                  'instagram', 'tiktok', 'x', 'youtube', 'linkedin', 'website_blog'
-                )),
-  content_type  TEXT NOT NULL
-                CHECK (content_type IN (
-                  'announcement', 'teaser', 'tutorial', 'behind_scenes', 'short_video'
-                )),
-  text_content  TEXT NOT NULL,
-  image_prompt  TEXT,
-  video_script  TEXT,
-  hashtags      TEXT[] NOT NULL DEFAULT '{}',
-  scheduled_at  TIMESTAMPTZ NOT NULL,
-  published_at  TIMESTAMPTZ,
-  status        TEXT NOT NULL DEFAULT 'draft'
-                CHECK (status IN (
-                  'draft', 'pending_approval', 'approved', 'published', 'failed', 'rejected'
-                )),
-  created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id        UUID NOT NULL REFERENCES public.projects (id) ON DELETE CASCADE,
+  sector            TEXT
+                    CHECK (sector IS NULL OR sector IN ('app', 'gaming', 'robo', 'company')),
+  author_agent_id   TEXT,
+  platform          TEXT NOT NULL
+                    CHECK (platform IN (
+                      'instagram', 'tiktok', 'x', 'youtube', 'linkedin', 'website_blog', 'discord'
+                    )),
+  content_type      TEXT NOT NULL
+                    CHECK (content_type IN (
+                      'announcement', 'teaser', 'tutorial', 'behind_scenes', 'short_video'
+                    )),
+  text_content      TEXT NOT NULL,
+  layout            JSONB,
+  image_prompt      TEXT,
+  media_urls        TEXT[] NOT NULL DEFAULT '{}',
+  video_script      TEXT,
+  hashtags          TEXT[] NOT NULL DEFAULT '{}',
+  channel           TEXT,
+  scheduled_at      TIMESTAMPTZ NOT NULL,
+  published_at      TIMESTAMPTZ,
+  status            TEXT NOT NULL DEFAULT 'draft'
+                    CHECK (status IN (
+                      'draft', 'pending_approval', 'approved', 'published', 'failed', 'rejected'
+                    )),
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE INDEX IF NOT EXISTS idx_posts_queue_project_id ON public.posts_queue (project_id);
 CREATE INDEX IF NOT EXISTS idx_posts_queue_status ON public.posts_queue (status);
 CREATE INDEX IF NOT EXISTS idx_posts_queue_scheduled_at ON public.posts_queue (scheduled_at);
+CREATE INDEX IF NOT EXISTS idx_posts_queue_sector_scheduled ON public.posts_queue (sector, scheduled_at);
+CREATE INDEX IF NOT EXISTS idx_posts_queue_author_agent ON public.posts_queue (author_agent_id);
 
 -- ---------------------------------------------------------------------------
 -- 7. analytics

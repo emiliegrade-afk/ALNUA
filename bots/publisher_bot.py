@@ -40,13 +40,17 @@ class PublisherBot:
         text = post.get("text_content") or ""
         logger.info("Publishing to %s: %s", platform, text[:80])
 
+        media_urls = post.get("media_urls") or []
+
         if platform == "discord":
             from skills.skill_discord_wyrdheim import discord_is_configured, post_to_discord
 
             if not discord_is_configured():
                 raise RuntimeError("Discord non configuré (DISCORD_BOT_TOKEN)")
             channel = post.get("channel") or "général"
-            result = post_to_discord(channel, text, embed=False)
+            result = post_to_discord(
+                channel, text, embed=True, image_url=media_urls[0] if media_urls else "",
+            )
             if not result.get("success"):
                 raise RuntimeError(result.get("error", "Échec post Discord"))
 
@@ -61,6 +65,12 @@ class PublisherBot:
                 }
                 action = action_map.get(platform)
                 if action:
+                    if media_urls:
+                        logger.info(
+                            "Post %s a des media_urls mais l'action Composio %s ne les consomme pas "
+                            "encore (media_urls=%s) — publication texte seul.",
+                            post.get("id"), action, media_urls,
+                        )
                     composio_execute(
                         action,
                         {"text": text},

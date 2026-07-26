@@ -1,34 +1,44 @@
-"""Ads Agent — Léo Morel, Paid Media ALNUA. Meta/Google/TikTok Ads with budget tracking."""
+"""Ads Agent — Léo Morel, Paid Media ALNUA (Meta/Google/TikTok Ads, budget & ROAS)."""
 
 from __future__ import annotations
 
 from typing import Any
 
 from agents.agent_base import AgentBase
+from agents.base import log_agent_action, run_with_learning
 from config.agent_operating_spec import get_system_prompt
+from skills.skill_ads import (
+    amplify_organic_post,
+    campaign_roi_report,
+    check_budget_alert,
+    draft_campaign,
+)
 
 
 class AdsAgent(AgentBase):
     AGENT_NAME = "ads"
-    SYSTEM_PROMPT = get_system_prompt("ads")
 
-    def handle_instruction(self, instruction: str) -> dict[str, Any]:
-        return {"status": "queued", "agent": self.AGENT_NAME, "instruction": instruction[:200]}
+    SYSTEM_PROMPT = get_system_prompt("ads")
 
     def create_campaign(
         self,
         brief: str,
         platform: str = "meta",
-        budget_usd: float = 0,
+        budget_usd: float = 50.0,
         objective: str = "awareness",
+        audience: str = "lookalike",
     ) -> dict[str, Any]:
-        return {
-            "status": "draft",
-            "platform": platform,
-            "budget_usd": budget_usd,
-            "objective": objective,
-            "brief_preview": brief[:200],
-        }
+        """Structure une campagne payante avant lancement (A/B creative variants)."""
+        result = draft_campaign(
+            brief, platform=platform, budget_usd=budget_usd, objective=objective, audience=audience,
+        )
+        log_agent_action(
+            self.db, self.AGENT_NAME, "create_campaign",
+            input_summary=f"{platform} | {objective} | ${budget_usd}",
+            output_summary=str(result.get("status") or result.get("error", ""))[:200],
+            status="success" if result.get("ok", True) else "error",
+        )
+        return result
 
     def amplify_post(
         self,
@@ -37,20 +47,43 @@ class AdsAgent(AgentBase):
         budget_usd: float = 10.0,
         audience: str = "lookalike",
     ) -> dict[str, Any]:
-        return {
-            "status": "amplifying",
-            "post_id": post_id,
-            "platform": platform,
-            "budget_usd": budget_usd,
-            "audience": audience,
-        }
+        """Booste un post organique existant (posts_queue) avec du budget payant."""
+        result = amplify_organic_post(post_id, platform=platform, budget_usd=budget_usd, audience=audience)
+        log_agent_action(
+            self.db, self.AGENT_NAME, "amplify_post",
+            input_summary=f"{post_id} | {platform} | ${budget_usd}",
+            output_summary=result.get("action", ""),
+            status="success",
+        )
+        return result
 
     def get_campaign_report(self, campaign_id: str) -> dict[str, Any]:
-        return {
-            "campaign_id": campaign_id,
-            "spend": 0,
-            "impressions": 0,
-            "clicks": 0,
-            "roas": 0,
-            "note": "stub — live Meta/Google API integration pending",
-        }
+        """ROI d'une campagne — stub tant qu'aucune clé API Meta/Google/TikTok n'est configurée."""
+        return campaign_roi_report(campaign_id)
+
+    def check_budget(self, monthly_budget: float, spent: float) -> dict[str, Any]:
+        """Alerte de dépassement budgétaire (ok/warning/critical)."""
+        return check_budget_alert(monthly_budget, spent)
+
+    def handle_instruction(self, instruction: str) -> str:
+        """Point d'entrée générique : stratégie pub, arbitrages budget, brief de campagne."""
+        from skills.skill_agent_learning import get_learning_context, record_task_learning
+
+        memory_block = get_learning_context(self.AGENT_NAME, instruction)
+        prompt = f"{instruction}{memory_block}"
+        result = run_with_learning(
+            self.AGENT_NAME, instruction[:120],
+            self.llm.complete,
+            self.SYSTEM_PROMPT, prompt,
+            agent_id=self.AGENT_NAME, temperature=0.4, max_tokens=4096,
+        )
+        try:
+            record_task_learning(agent_id=self.AGENT_NAME, task=instruction, outcome=result)
+        except Exception:
+            pass
+        log_agent_action(
+            self.db, self.AGENT_NAME, "handle_instruction",
+            input_summary=instruction[:200],
+            output_summary=f"{result[:150]}...",
+        )
+        return result

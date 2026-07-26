@@ -4,7 +4,10 @@ import { ArrowLeft } from "lucide-react";
 import {
   PLATFORMS,
   PLATFORM_STYLES,
+  SECTORS,
+  SECTOR_STYLES,
   STATUS_TABS,
+  type ContentSector,
   type StatusTab,
 } from "@/components/content/content.constants";
 import { PostCard } from "@/components/content/post-card";
@@ -30,6 +33,8 @@ interface PostsApprovalPanelProps {
   onProjectFilterChange: (id: string) => void;
   platformFilter: string | null;
   onPlatformFilterChange: (platform: string | null) => void;
+  sectorFilter: ContentSector | null;
+  onSectorFilterChange: (sector: ContentSector | null) => void;
   onPostUpdated: (post: Post) => void;
   loading?: boolean;
 }
@@ -43,6 +48,8 @@ export function PostsApprovalPanel({
   onProjectFilterChange,
   platformFilter,
   onPlatformFilterChange,
+  sectorFilter,
+  onSectorFilterChange,
   onPostUpdated,
   loading,
 }: PostsApprovalPanelProps) {
@@ -54,6 +61,7 @@ export function PostsApprovalPanel({
     if (statusTab !== "all" && p.status !== statusTab) return false;
     if (projectFilter !== "all" && p.project_id !== projectFilter) return false;
     if (platformFilter && p.platform !== platformFilter) return false;
+    if (sectorFilter && p.sector !== sectorFilter) return false;
     return true;
   });
 
@@ -120,6 +128,28 @@ export function PostsApprovalPanel({
                   )}
                 >
                   {style.label}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex flex-wrap gap-1">
+            {SECTORS.map(({ id, label }) => {
+              const active = sectorFilter === id;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  title={label}
+                  onClick={() => onSectorFilterChange(active ? null : id)}
+                  className={cn(
+                    "rounded-md px-2 py-1 text-[10px] ring-1 transition",
+                    active
+                      ? SECTOR_STYLES[id]
+                      : "bg-white/[0.03] text-titanium ring-white/[0.06] hover:ring-copper/20"
+                  )}
+                >
+                  {label}
                 </button>
               );
             })}

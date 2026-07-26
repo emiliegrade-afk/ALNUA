@@ -61,7 +61,7 @@ def get_channel_id(channel_name: str) -> str | None:
     return mapping.get(channel_name.lower(), os.getenv("DISCORD_CHANNEL_GENERAL"))
 
 
-def post_to_discord(channel: str, content: str, embed: bool = False) -> dict[str, Any]:
+def post_to_discord(channel: str, content: str, embed: bool = False, image_url: str = "") -> dict[str, Any]:
     """Poste un message dans un channel Discord."""
     if not discord_is_configured():
         return {"success": False, "error": DISCORD_NOT_CONFIGURED}
@@ -75,14 +75,13 @@ def post_to_discord(channel: str, content: str, embed: bool = False) -> dict[str
 
     payload: dict[str, Any] = {"content": content}
     if embed:
-        payload = {
-            "embeds": [
-                {
-                    "description": content,
-                    "color": 0x5E7E39,  # Vert Wyrdheim
-                }
-            ]
+        embed_body: dict[str, Any] = {
+            "description": content,
+            "color": 0x5E7E39,  # Vert Wyrdheim
         }
+        if image_url:
+            embed_body["image"] = {"url": image_url}
+        payload = {"embeds": [embed_body]}
 
     try:
         with httpx.Client() as client:
