@@ -5,7 +5,12 @@ import { usePathname } from "next/navigation";
 import { ConsoleProvider } from "./console-provider";
 import { ConsoleSidebar } from "./console-sidebar";
 import { ConsoleTopbar } from "./console-topbar";
-import { CONSOLE_ACTIVITY, CONSOLE_AGENTS, CONSOLE_HOME } from "@/lib/console/nav";
+import { QuickActionBar } from "./quick-action-bar";
+import {
+  CONSOLE_ACTIVITY,
+  CONSOLE_AGENTS,
+  CONSOLE_HOME,
+} from "@/lib/console/nav";
 
 interface ConsoleShellProps {
   children: ReactNode;
@@ -59,16 +64,18 @@ export function ConsoleShell({ children }: ConsoleShellProps) {
               </div>
 
               <footer className="relative mt-10 flex flex-col items-center justify-between gap-2 border-t border-bronze-faint pt-6 sm:flex-row">
-                <p className="text-[11px] text-titane/45">
-                  © {new Date().getFullYear()} ALNUA — Virtual AI Enterprise ·
-                  Console Hub
-                </p>
-                <p className="text-[11px] tracking-wide text-titane/40">
-                  Technology should serve humanity. Not the opposite.
-                </p>
+                  <p className="text-[11px] text-titane/45">
+                    © {new Date().getFullYear()} ALNUA — Virtual AI Enterprise ·
+                    Console Hub
+                  </p>
+                  <p className="text-[11px] tracking-wide text-titane/40">
+                    Technology should serve humanity. Not the opposite.
+                  </p>
               </footer>
             </div>
           </main>
+
+          <QuickActionBar />
         </div>
       </div>
     </ConsoleProvider>

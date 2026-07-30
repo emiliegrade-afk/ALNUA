@@ -41,7 +41,20 @@ export function HubShell({ children }: { children: React.ReactNode }) {
   const isPublic = isPublicPortalRoute(pathname);
   const isHqImmersive = pathname === CONSOLE_HQ;
   const isIdeImmersive = pathname === CONSOLE_IDE;
-  const isImmersive = isHqImmersive || isIdeImmersive;
+  // Département App : rend son propre chrome (en-tête, sidebar, barre de
+  // commande) pour être un calque fidèle de la maquette source — elle ne
+  // doit donc pas être enveloppée par ConsoleShell. /app-v2 reste un alias
+  // de la même page pendant la transition.
+  const isAppV2 = pathname === "/app-v2" || pathname === "/app";
+  // Détail projet : plein écran avec un simple bouton retour, pas de sidebar
+  // ni de chrome ConsoleShell (maquette dédiée "clic sur un projet").
+  const isProjectDetail = pathname?.startsWith("/projects/") ?? false;
+  // Département Gaming (nouvelle DA, validée le 2026-07-31) — /gaming est
+  // désormais la vraie route ; /gaming-v2 reste un alias.
+  const isGamingV2 = pathname === "/gaming-v2" || pathname === "/gaming";
+  // Département Robotique — même bascule, /robo est la vraie route.
+  const isRoboV2 = pathname === "/robo-v2" || pathname === "/robo";
+  const isImmersive = isHqImmersive || isIdeImmersive || isAppV2 || isProjectDetail || isGamingV2 || isRoboV2;
   const showAuthBanner = !isPublic && !isImmersive;
   const isRdRoute = pathname === "/rd";
 

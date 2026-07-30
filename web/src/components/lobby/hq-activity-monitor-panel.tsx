@@ -56,7 +56,7 @@ const STATUS_LABEL: Record<AgentStatusKind, string> = {
 
 const STATUS_DOT: Record<AgentStatusKind, string> = {
   working: "bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.6)]",
-  waiting: "bg-copper animate-pulse shadow-[0_0_6px_rgba(192,138,98,0.6)]",
+  waiting: "bg-copper animate-pulse shadow-[0_0_6px_rgba(192,138,114,0.6)]",
   error: "bg-red-500",
   idle: "bg-titanium/30",
 };
@@ -149,7 +149,7 @@ export function HqActivityMonitorPanel({
         className="pointer-events-none absolute inset-0 opacity-[0.03]"
         style={{
           backgroundImage:
-            "repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(212,168,130,0.6) 2px, rgba(212,168,130,0.6) 3px)",
+            "repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(217,168,143,0.6) 2px, rgba(217,168,143,0.6) 3px)",
         }}
       />
 

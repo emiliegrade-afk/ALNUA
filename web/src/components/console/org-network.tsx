@@ -41,7 +41,7 @@ export function OrgNetwork({ onSelect, activeId }: OrgNetworkProps) {
               y1="50"
               x2={x}
               y2={y}
-              stroke={isActive ? d.glow : "#B87333"}
+              stroke={isActive ? d.glow : "#C08A72"}
               strokeOpacity={isActive ? 0.6 : 0.18}
               strokeWidth={isActive ? 0.6 : 0.3}
               strokeDasharray="0.6 1.2"
@@ -50,9 +50,9 @@ export function OrgNetwork({ onSelect, activeId }: OrgNetworkProps) {
           );
         })}
         {/* concentric rings */}
-        <circle cx="50" cy="50" r="20" stroke="#B87333" strokeOpacity="0.12" strokeWidth="0.2" />
-        <circle cx="50" cy="50" r="32" stroke="#B87333" strokeOpacity="0.08" strokeWidth="0.2" strokeDasharray="0.5 1" />
-        <circle cx="50" cy="50" r="42" stroke="#B87333" strokeOpacity="0.06" strokeWidth="0.2" />
+        <circle cx="50" cy="50" r="20" stroke="#C08A72" strokeOpacity="0.12" strokeWidth="0.2" />
+        <circle cx="50" cy="50" r="32" stroke="#C08A72" strokeOpacity="0.08" strokeWidth="0.2" strokeDasharray="0.5 1" />
+        <circle cx="50" cy="50" r="42" stroke="#C08A72" strokeOpacity="0.06" strokeWidth="0.2" />
       </svg>
 
       {/* Center core */}

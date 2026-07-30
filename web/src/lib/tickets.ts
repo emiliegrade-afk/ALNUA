@@ -38,6 +38,9 @@ export interface CreateTicketPayload {
   project_id: string;
   description?: string;
   source?: "emilie";
+  assignee_agent_id?: string;
+  story_points?: number;
+  due_date?: string;
 }
 
 export async function createTicket(
@@ -59,6 +62,9 @@ export interface UpdateTicketPayload {
   description?: string;
   priority?: TicketPriority;
   cursor_prompt?: string;
+  assignee_agent_id?: string;
+  story_points?: number;
+  due_date?: string;
 }
 
 export async function updateTicket(

@@ -2,9 +2,9 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { BureauAgentsSection } from "@/components/shared/bureau-agents-section";
 import { BureauPage } from "@/components/shared/bureau-page";
 import { BureauPanel } from "@/components/shared/bureau-panel";
+import { DepartmentWorkspace } from "@/components/shared/department-workspace";
 import { Button } from "@/components/ui/button";
 
 const NadiaDesktopPanel = dynamic(
@@ -51,11 +51,12 @@ export default function SecretaryPage() {
   return (
     <BureauPage
       dept="secretary"
+      bureau="secretary"
       title="Secrétariat de Direction"
       subtitle="Nadia Faure · Emails · Agenda · Contrats · Réunions"
       breadcrumb="Secrétariat"
     >
-      <BureauAgentsSection bureau="secretary" className="grid gap-4 sm:grid-cols-1" />
+      <DepartmentWorkspace bureau="secretary" dept="secretary" projectBranch={null} />
 
       <NadiaDesktopPanel />
       <SavLitePanel />

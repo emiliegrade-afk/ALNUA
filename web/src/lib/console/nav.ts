@@ -6,18 +6,33 @@ export const CONSOLE_HQ = "/hq";
 export const CONSOLE_IDE = "/ide";
 export const CONSOLE_ACADEMY = "/academy";
 export const CONSOLE_LIBRARY = "/library";
+export const CONSOLE_DOCS = "/docs";
+export const CONSOLE_DECISIONS = "/ceo";
 
+/**
+ * Section « Tableau de bord » de la sidebar. `badge` désigne le compteur live
+ * à afficher (résolu dans la sidebar depuis `useConsoleData()`), pas une
+ * valeur figée — la maquette montre un « 2 » sur Décisions qui doit refléter
+ * les arbitrages réellement en attente.
+ */
 export const TOP_NAV = [
-  { id: "dashboard", label: "Vue d'ensemble", href: CONSOLE_HOME },
+  { id: "dashboard", label: "Command Center", href: CONSOLE_HOME },
+  { id: "activity", label: "Activité en direct", href: CONSOLE_ACTIVITY },
+  { id: "decisions", label: "Décisions", href: CONSOLE_DECISIONS, badge: "decisions" },
   { id: "agents", label: "Tous les agents", href: CONSOLE_AGENTS },
-  { id: "activity", label: "Activité", href: CONSOLE_ACTIVITY },
-  { id: "hq", label: "Vue HQ", href: CONSOLE_HQ },
 ] as const;
 
+/**
+ * Section « Outils ». Les libellés suivent la maquette là où une vue réelle
+ * existe derrière ; « Modèles »/« Automatisations » de la maquette n'ont pas
+ * de page dédiée dans le Hub (les réglages modèles vivent dans Paramètres,
+ * les automatisations dans n8n) — on ne crée pas d'entrées mortes pour eux.
+ */
 export const TOOL_NAV = [
+  { id: "docs", label: "Documents", href: CONSOLE_DOCS },
+  { id: "library", label: "Connaissances", href: CONSOLE_LIBRARY },
   { id: "ide", label: "IDE Hub", href: CONSOLE_IDE },
   { id: "academy", label: "Academy", href: CONSOLE_ACADEMY },
-  { id: "library", label: "Bibliothèque", href: CONSOLE_LIBRARY },
 ] as const;
 
 export function consolePathTitle(pathname: string): {

@@ -64,10 +64,10 @@ export function AffiliateChart({ linkId }: AffiliateChartProps) {
         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
         <XAxis
           dataKey="label"
-          tick={{ fill: "#a7adb5", fontSize: 10 }}
+          tick={{ fill: "#A7ADB5", fontSize: 10 }}
           interval="preserveStartEnd"
         />
-        <YAxis tick={{ fill: "#a7adb5", fontSize: 10 }} allowDecimals={false} />
+        <YAxis tick={{ fill: "#A7ADB5", fontSize: 10 }} allowDecimals={false} />
         <Tooltip
           contentStyle={{
             background: "#14171d",

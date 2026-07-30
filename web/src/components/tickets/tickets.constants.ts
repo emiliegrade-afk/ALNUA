@@ -1,12 +1,12 @@
 export type TicketType = "bug" | "feature" | "improvement" | "crash";
 export type TicketPriority = "critical" | "high" | "medium" | "low";
-export type TicketStatus = "open" | "in_progress" | "done" | "wont_fix";
+export type TicketStatus = "open" | "in_progress" | "in_review" | "done" | "wont_fix";
 export type TicketSource = "qa_agent" | "sav_bot" | "reviews_bot" | "emilie";
 export type StatusTab = "open" | "in_progress" | "done" | "all";
 
 export const STATUS_TABS: { id: StatusTab; label: string; statuses?: TicketStatus[] }[] = [
   { id: "open", label: "Ouverts", statuses: ["open"] },
-  { id: "in_progress", label: "En cours", statuses: ["in_progress"] },
+  { id: "in_progress", label: "En cours", statuses: ["in_progress", "in_review"] },
   { id: "done", label: "Résolus", statuses: ["done", "wont_fix"] },
   { id: "all", label: "Tous" },
 ];
@@ -28,6 +28,7 @@ export const TICKET_PRIORITIES: { id: TicketPriority; label: string }[] = [
 export const TICKET_STATUSES: { id: TicketStatus; label: string }[] = [
   { id: "open", label: "Ouvert" },
   { id: "in_progress", label: "En cours" },
+  { id: "in_review", label: "En revue" },
   { id: "done", label: "Résolu" },
   { id: "wont_fix", label: "Won't fix" },
 ];
@@ -90,6 +91,7 @@ export const TYPE_STYLES: Record<
 export const STATUS_STYLES: Record<TicketStatus, string> = {
   open: "bg-copper/15 text-copper-glow border-copper/30",
   in_progress: "bg-blue-500/15 text-blue-300 border-blue-500/25",
+  in_review: "bg-glow/15 text-glow border-glow/30",
   done: "bg-emerald-500/15 text-emerald-300 border-emerald-500/25",
   wont_fix: "bg-zinc-500/15 text-zinc-400 border-zinc-500/25",
 };

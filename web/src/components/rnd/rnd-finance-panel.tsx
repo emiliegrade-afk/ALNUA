@@ -286,13 +286,13 @@ export function RndFinancePanel({ finance, stale: staleProp }: RndFinancePanelPr
                 <Tooltip
                   contentStyle={{
                     background: "#1a1a1f",
-                    border: "1px solid rgba(184,115,51,0.3)",
+                    border: "1px solid rgba(192,138,114,0.3)",
                     borderRadius: 8,
                     fontSize: 12,
                   }}
                   formatter={(v) => [`${v ?? 0} EUR`, ""]}
                 />
-                <Bar dataKey="value" fill={stale ? "#f59e0b" : "#b87333"} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="value" fill={stale ? "#f59e0b" : "#C08A72"} radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

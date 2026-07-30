@@ -169,6 +169,7 @@ export default function HubPage() {
   return (
     <BureauPage
       dept="hub"
+      bureau="hub"
       title="Direction"
       subtitle="Aria · Sam · Léon · Alex · Pipeline"
     >

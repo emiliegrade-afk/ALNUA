@@ -98,7 +98,7 @@ export function DashboardView() {
               {k.unit && <span className="text-[10px] text-titane/50">{k.unit}</span>}
             </div>
             <div className="mt-2 -mb-1 opacity-70">
-              <Sparkline data={k.trend} width={140} height={24} stroke="#B87333" />
+              <Sparkline data={k.trend} width={140} height={24} stroke="#C08A72" />
             </div>
           </div>
         ))}
@@ -120,7 +120,7 @@ export function DashboardView() {
               label={m.label}
               unit={m.unit}
               size={84}
-              color={m.tone === "titanium" ? "#A7ADB5" : "#B87333"}
+              color={m.tone === "titanium" ? "#A7ADB5" : "#C08A72"}
             />
           ))}
         </div>
@@ -131,7 +131,7 @@ export function DashboardView() {
               {activityFeed.length} events · pic {activityPeak}
             </span>
           </div>
-          <Sparkline data={activity24h} width={640} height={48} stroke="#B87333" className="w-full h-12" />
+          <Sparkline data={activity24h} width={640} height={48} stroke="#C08A72" className="w-full h-12" />
         </div>
       </Widget>
 
@@ -225,7 +225,7 @@ export function DashboardView() {
           <span className="text-xs text-titane/55">événements / sem.</span>
           <span className="text-[10px] text-titane/45 ml-auto">depuis flux live</span>
         </div>
-        <Bars data={decisions7d} height={120} color="#b87333" />
+        <Bars data={decisions7d} height={120} color="#C08A72" />
       </Widget>
 
       {/* ─── Decisions pipeline today ─── */}
@@ -377,13 +377,13 @@ export function DashboardView() {
         span="lg:col-span-8"
         delay={0.26}
       >
-        <Heatmap data={activityHeatmap} days={activityHeatmapDays} color="#B87333" />
+        <Heatmap data={activityHeatmap} days={activityHeatmapDays} color="#C08A72" />
         <div className="mt-4 pt-3 border-t border-bronze-faint flex items-center justify-between">
           <span className="text-[10px] text-titane/55">Intensité</span>
           <div className="flex items-center gap-1">
             <span className="text-[9px] text-titane/45">faible</span>
             {[0.1, 0.3, 0.5, 0.7, 1].map((o) => (
-              <span key={o} className="h-3 w-3 rounded-sm" style={{ background: "#B87333", opacity: o }} />
+              <span key={o} className="h-3 w-3 rounded-sm" style={{ background: "#C08A72", opacity: o }} />
             ))}
             <span className="text-[9px] text-titane/45 ml-1">élevée</span>
           </div>

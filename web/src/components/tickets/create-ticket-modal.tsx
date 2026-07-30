@@ -29,7 +29,10 @@ import {
 } from "@/components/tickets/tickets.constants";
 import { ProjectSelector } from "@/components/shared/project-selector";
 import { createTicket, type TicketWithProject } from "@/lib/tickets";
+import type { BureauAgentDef } from "@/lib/agent-bureau";
 import type { Project } from "@/lib/types";
+
+const UNASSIGNED = "__unassigned__";
 
 interface CreateTicketModalProps {
   open: boolean;
@@ -38,6 +41,7 @@ interface CreateTicketModalProps {
   defaultProjectId?: string;
   onCreated: (ticket: TicketWithProject) => void;
   onProjectsUpdated?: (projects: Project[]) => void;
+  agents?: BureauAgentDef[];
 }
 
 export function CreateTicketModal({
@@ -47,6 +51,7 @@ export function CreateTicketModal({
   defaultProjectId,
   onCreated,
   onProjectsUpdated,
+  agents = [],
 }: CreateTicketModalProps) {
   const [title, setTitle] = useState("");
   const [type, setType] = useState<TicketType>("bug");
@@ -55,6 +60,9 @@ export function CreateTicketModal({
     defaultProjectId ?? projects[0]?.id ?? ""
   );
   const [description, setDescription] = useState("");
+  const [assigneeId, setAssigneeId] = useState(UNASSIGNED);
+  const [storyPoints, setStoryPoints] = useState("");
+  const [dueDate, setDueDate] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -64,6 +72,9 @@ export function CreateTicketModal({
       setType("bug");
       setPriority("medium");
       setProjectId(defaultProjectId ?? projects[0]?.id ?? "");
+      setAssigneeId(UNASSIGNED);
+      setStoryPoints("");
+      setDueDate("");
     }
   }, [open, defaultProjectId, projects]);
 
@@ -78,6 +89,7 @@ export function CreateTicketModal({
       return;
     }
 
+    const points = Number(storyPoints);
     setSubmitting(true);
     try {
       const ticket = await createTicket({
@@ -86,6 +98,9 @@ export function CreateTicketModal({
         priority,
         project_id: projectId,
         description: description.trim(),
+        ...(assigneeId !== UNASSIGNED ? { assignee_agent_id: assigneeId } : {}),
+        ...(storyPoints.trim() && Number.isFinite(points) ? { story_points: points } : {}),
+        ...(dueDate ? { due_date: dueDate } : {}),
       });
       toast.success("Ticket créé");
       onCreated(ticket);
@@ -165,6 +180,51 @@ export function CreateTicketModal({
               onChange={(value) => setProjectId(value)}
               onProjectsUpdated={onProjectsUpdated}
               mode="picker"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label>Assigné</Label>
+              <Select value={assigneeId} onValueChange={setAssigneeId} disabled={submitting || agents.length === 0}>
+                <SelectTrigger className="border-copper/20 bg-obsidian">
+                  <SelectValue placeholder="Non assigné" />
+                </SelectTrigger>
+                <SelectContent className="border-copper/20 bg-surface-raised">
+                  <SelectItem value={UNASSIGNED}>Non assigné</SelectItem>
+                  {agents.map((a) => (
+                    <SelectItem key={a.id} value={a.id}>
+                      {a.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="ticket-points">Points</Label>
+              <Input
+                id="ticket-points"
+                type="number"
+                min={1}
+                max={21}
+                value={storyPoints}
+                onChange={(e) => setStoryPoints(e.target.value)}
+                disabled={submitting}
+                placeholder="—"
+                className="border-copper/20 bg-obsidian text-ivory"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="ticket-due">Échéance</Label>
+            <Input
+              id="ticket-due"
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+              disabled={submitting}
+              className="border-copper/20 bg-obsidian text-ivory"
             />
           </div>
 

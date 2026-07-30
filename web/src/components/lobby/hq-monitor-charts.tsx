@@ -2,9 +2,9 @@
 
 /** Decorative copper-rose HUD chart primitives — inspired by sci-fi monitoring dashboards. */
 
-const COPPER = "#B87333";
-const COPPER_LIGHT = "#CF8D50";
-const COPPER_GLOW = "rgba(192, 138, 98, 0.35)";
+const COPPER = "#C08A72";
+const COPPER_LIGHT = "#D9A88F";
+const COPPER_GLOW = "rgba(192, 138, 114, 0.35)";
 
 export function HudPanel({
   title,
@@ -85,7 +85,7 @@ export function HudRingGauge({
           cy="24"
           r={r}
           fill="none"
-          stroke="rgba(192,138,98,0.15)"
+          stroke="rgba(192,138,114,0.15)"
           strokeWidth="3"
         />
         <circle
@@ -176,7 +176,7 @@ export function HudHexIcon({ children }: { children: React.ReactNode }) {
       style={{
         clipPath:
           "polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%)",
-        background: "rgba(192, 138, 98, 0.12)",
+        background: "rgba(192, 138, 114, 0.12)",
         boxShadow: `inset 0 0 8px ${COPPER_GLOW}`,
       }}
     >

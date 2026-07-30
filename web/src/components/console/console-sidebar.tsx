@@ -8,17 +8,19 @@ import {
   AppWindow,
   BookOpen,
   Calculator,
+  ChevronRight,
   Code2,
   Compass,
   Crown,
+  FileText,
   FlaskConical,
   Gamepad2,
   GraduationCap,
   LayoutDashboard,
-  Map,
   Megaphone,
   Network,
   Palette,
+  Scale,
   Settings,
   UserRound,
   Users,
@@ -26,8 +28,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { AlnuaLogo } from "./alnua-logo";
+import { AlnuaCoreWidget } from "./alnua-core-widget";
 import { useConsoleData } from "./console-provider";
-import { useHubHealthLive } from "@/hooks/use-hub-health-live";
 import { CONSOLE_POLES } from "@/lib/console/departments";
 import { ROUTES } from "@/lib/routes";
 import {
@@ -41,10 +43,11 @@ const TOP_ICONS: Record<string, LucideIcon> = {
   dashboard: LayoutDashboard,
   agents: Users,
   activity: Activity,
-  hq: Map,
+  decisions: Scale,
 };
 
 const TOOL_ICONS: Record<string, LucideIcon> = {
+  docs: FileText,
   ide: Code2,
   academy: GraduationCap,
   library: BookOpen,
@@ -64,6 +67,10 @@ const DEPT_ICONS: Record<string, LucideIcon> = {
   brand: Palette,
 };
 
+/** Cadre commun aux trois sections de nav (maquette de référence). */
+const SECTION_BOX =
+  "space-y-0.5 rounded-[10px] border border-copper/15 bg-obsidian-2/50 p-2";
+
 interface ConsoleSidebarProps {
   mobileOpen: boolean;
   onMobileClose: () => void;
@@ -76,11 +83,12 @@ function isActivePath(pathname: string, href: string): boolean {
 
 export function ConsoleSidebar({ mobileOpen, onMobileClose }: ConsoleSidebarProps) {
   const pathname = usePathname();
-  const { activeAgents, totalAgents, stats } = useConsoleData();
-  // Same live probe as the topbar badge — the aggregated lobby stats lag by
-  // up to their cache TTL, which made this row say "Hors ligne" while the
-  // topbar said "Hub connecté".
-  const { phase: hubPhase } = useHubHealthLive();
+  const { stats } = useConsoleData();
+
+  // Compteurs live des entrées à badge (maquette : « Décisions · 2 »).
+  const NAV_BADGES: Record<string, number> = {
+    decisions: stats.ceoNotifications,
+  };
 
   return (
     <>
@@ -94,7 +102,7 @@ export function ConsoleSidebar({ mobileOpen, onMobileClose }: ConsoleSidebarProp
 
       <aside
         className={cn(
-          "fixed top-0 z-50 flex h-[100dvh] w-[270px] shrink-0 flex-col border-r border-bronze-faint bg-obsidian-deep lg:sticky lg:z-30",
+          "fixed top-0 z-50 flex h-[100dvh] w-[244px] shrink-0 flex-col border-r border-bronze-faint bg-obsidian-deep lg:sticky lg:z-30",
           "transition-transform duration-300 lg:translate-x-0",
           mobileOpen ? "translate-x-0" : "-translate-x-full",
         )}
@@ -125,14 +133,17 @@ export function ConsoleSidebar({ mobileOpen, onMobileClose }: ConsoleSidebarProp
           </button>
         </div>
 
-        <nav className="alnua-scroll flex-1 space-y-6 overflow-y-auto px-3 py-4">
-          <div className="space-y-1">
-            <p className="mb-2 px-3 text-[9px] uppercase tracking-[0.25em] text-titane/40">
-              Navigation
+        {/* Maquette : chaque section est un bloc encadré posé sur un fond
+            légèrement plus clair que la sidebar, pas une liste à plat. */}
+        <nav className="alnua-scroll flex-1 space-y-3 overflow-y-auto px-3 py-4">
+          <div className={SECTION_BOX}>
+            <p className="mb-2 ml-2 mt-0.5 text-[8.5px] uppercase tracking-[0.2em] text-titane/55">
+              Tableau de bord
             </p>
             {TOP_NAV.map((item) => {
               const Icon = TOP_ICONS[item.id] ?? LayoutDashboard;
               const active = isActivePath(pathname, item.href);
+              const badge = "badge" in item ? NAV_BADGES[item.badge] ?? 0 : 0;
               return (
                 <Link
                   key={item.id}
@@ -153,15 +164,20 @@ export function ConsoleSidebar({ mobileOpen, onMobileClose }: ConsoleSidebarProp
                     />
                   ) : null}
                   <Icon className="h-4 w-4 shrink-0" />
-                  <span className="font-medium">{item.label}</span>
+                  <span className="flex-1 font-medium">{item.label}</span>
+                  {badge > 0 ? (
+                    <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-bronze/20 px-1.5 text-[10px] font-semibold text-bronze-bright">
+                      {badge > 99 ? "99+" : badge}
+                    </span>
+                  ) : null}
                 </Link>
               );
             })}
           </div>
 
-          <div className="space-y-1">
-            <p className="mb-2 px-3 text-[9px] uppercase tracking-[0.25em] text-titane/40">
-              Pôles · {CONSOLE_POLES.length}
+          <div className={SECTION_BOX}>
+            <p className="mb-2 ml-2 mt-0.5 text-[8.5px] uppercase tracking-[0.2em] text-titane/55">
+              Départements · {CONSOLE_POLES.length}
             </p>
             {CONSOLE_POLES.map((pole) => {
               const Icon = DEPT_ICONS[pole.id] ?? Compass;
@@ -185,19 +201,33 @@ export function ConsoleSidebar({ mobileOpen, onMobileClose }: ConsoleSidebarProp
                       transition={{ type: "spring", stiffness: 400, damping: 32 }}
                     />
                   ) : null}
+                  <span
+                    className={cn(
+                      "shrink-0 font-mono text-[10px] tabular-nums",
+                      active ? "text-bronze-bright/80" : "text-titane/35",
+                    )}
+                  >
+                    {pole.code}
+                  </span>
                   <Icon className="h-3.5 w-3.5 shrink-0" />
                   <span className="flex-1 truncate text-left font-medium">
                     {pole.name.replace("Bureau ", "").replace("Pôle ", "")}
                   </span>
-                  <span className="font-mono text-[9px] text-titane/35">{pole.code}</span>
-                  <span className="h-1.5 w-1.5 rounded-full bg-bronze-bright/80" />
+                  <ChevronRight
+                    className={cn(
+                      "h-3.5 w-3.5 shrink-0 transition-transform",
+                      active
+                        ? "text-bronze-bright"
+                        : "text-titane/25 group-hover:translate-x-0.5 group-hover:text-titane/50",
+                    )}
+                  />
                 </Link>
               );
             })}
           </div>
 
-          <div className="space-y-1">
-            <p className="mb-2 px-3 text-[9px] uppercase tracking-[0.25em] text-titane/40">
+          <div className={SECTION_BOX}>
+            <p className="mb-2 ml-2 mt-0.5 text-[8.5px] uppercase tracking-[0.2em] text-titane/55">
               Outils
             </p>
             {TOOL_NAV.map((item) => {
@@ -230,40 +260,12 @@ export function ConsoleSidebar({ mobileOpen, onMobileClose }: ConsoleSidebarProp
           </div>
         </nav>
 
-        <div className="shrink-0 space-y-2.5 border-t border-bronze-faint p-4">
-          <div className="flex items-center justify-between text-[11px]">
-            <span className="text-titane/60">Agents en ligne</span>
-            <span className="inline-flex items-center gap-1.5 text-ivoire">
-              <span className="h-1.5 w-1.5 animate-alnua-pulse rounded-full bg-bronze-bright" />
-              {activeAgents} / {totalAgents}
-            </span>
-          </div>
-          <div className="flex items-center justify-between text-[11px]">
-            <span className="text-titane/60">API Hub</span>
-            <span
-              className={
-                hubPhase === "ok" || hubPhase === "key"
-                  ? "text-bronze-bright"
-                  : hubPhase === "checking"
-                    ? "text-titane/60"
-                    : "text-red-400"
-              }
-            >
-              {hubPhase === "ok" || hubPhase === "key"
-                ? "En ligne"
-                : hubPhase === "checking"
-                  ? "Sync…"
-                  : "Hors ligne"}
-            </span>
-          </div>
-          <div className="flex items-center justify-between text-[11px]">
-            <span className="text-titane/60">Coût / jour</span>
-            <span className="text-ivoire">${stats.costTodayUsd.toFixed(2)}</span>
-          </div>
+        <div className="shrink-0 space-y-2 border-t border-bronze-faint p-4">
+          <AlnuaCoreWidget />
           <Link
             href={ROUTES.settings}
             onClick={onMobileClose}
-            className="mt-2 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[11px] text-titane/60 transition-colors hover:bg-obsidian hover:text-ivoire"
+            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[11px] text-titane/60 transition-colors hover:bg-obsidian hover:text-ivoire"
           >
             <Settings className="h-3.5 w-3.5" />
             Paramètres système

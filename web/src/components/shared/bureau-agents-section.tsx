@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { AgentCard } from "@/components/shared/agent-card";
-import { AgentFocusPanel } from "@/components/openroom/agent-focus-panel";
+import { MemberDetailPanel } from "@/components/shared/member-detail-panel";
 import { BureauLibraryPopup } from "@/components/library/bureau-library-popup";
 import {
   getAgentById,
@@ -67,14 +67,15 @@ export function BureauAgentsSection({
       {showLibrary ? <BureauLibraryPopup bureau={bureau} /> : null}
 
       {focused ? (
-        <AgentFocusPanel
+        <MemberDetailPanel
           agent={{
             id: focused.id,
             name: focused.name,
-            emoji: focused.icon,
+            icon: focused.icon,
             role: focused.role,
-            branch: focused.branch,
+            skills: focused.skills,
           }}
+          bureau={bureau}
           status={agentStatuses[focused.id] ?? { status: "idle" }}
           onClose={() => setFocusedAgentId(null)}
         />

@@ -67,7 +67,7 @@ export function FormatGrid({ assets }: FormatGridProps) {
                           "linear-gradient(45deg, #2a2a2a 25%, transparent 25%), linear-gradient(-45deg, #2a2a2a 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #2a2a2a 75%), linear-gradient(-45deg, transparent 75%, #2a2a2a 75%)",
                         backgroundSize: "16px 16px",
                         backgroundPosition: "0 0, 0 8px, 8px -8px, -8px 0",
-                        backgroundColor: "#1a1a1a",
+                        backgroundColor: "#14171C",
                       }}
                     >
                       <BrandAssetImage

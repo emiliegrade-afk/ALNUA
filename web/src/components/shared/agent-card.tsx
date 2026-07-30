@@ -16,6 +16,10 @@ export interface AgentCardProps {
   badge?: string;
   status?: "idle" | "working" | "waiting" | "error";
   currentTask?: string;
+  /** 0-100. Optional — only the Département workspace's Équipe tab passes it today. */
+  utilization?: number;
+  /** LLM model slug. Optional — same source as `utilization`. */
+  model?: string;
   onClick?: () => void;
   onDelegate?: () => void;
 }
@@ -37,6 +41,8 @@ export function AgentCard({
   badge,
   status = "idle",
   currentTask,
+  utilization,
+  model,
   onClick,
   onDelegate,
 }: AgentCardProps) {
@@ -99,9 +105,9 @@ export function AgentCard({
 
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-2">
-              <div>
-                <h3 className="font-title text-base font-semibold text-ivoire">{name}</h3>
-                <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-bronze-bright/90">
+              <div className="min-w-0">
+                <h3 className="truncate font-title text-base font-semibold text-ivoire">{name}</h3>
+                <p className="truncate text-[11px] font-medium uppercase tracking-[0.12em] text-bronze-bright/90">
                   {role}
                 </p>
               </div>
@@ -135,6 +141,23 @@ export function AgentCard({
             <p className="mt-0.5 truncate text-xs text-bronze-bright">{currentTask}</p>
           ) : null}
         </div>
+
+        {utilization !== undefined || model ? (
+          <div className="relative mt-3 flex items-center justify-between gap-2 text-[10px] text-titane/60">
+            {model ? <span className="truncate">{model}</span> : <span />}
+            {utilization !== undefined ? (
+              <div className="flex min-w-[72px] items-center gap-2">
+                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-obsidian-deep">
+                  <div
+                    className="h-full rounded-full bg-bronze"
+                    style={{ width: `${Math.max(0, Math.min(100, utilization))}%` }}
+                  />
+                </div>
+                <span className="w-8 shrink-0 text-right tabular-nums">{utilization}%</span>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
 
         <Button
           variant="outline"

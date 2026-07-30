@@ -59,7 +59,7 @@ const POLES: PoleDef[] = [
     icon: UserRound,
     dept: "secretary",
     bureau: "secretary",
-    glow: "#B87333",
+    glow: "#C08A72",
   },
   {
     id: "ceo",
@@ -82,7 +82,7 @@ const POLES: PoleDef[] = [
     icon: FlaskConical,
     dept: "rd",
     bureau: "rd",
-    glow: "#B87333",
+    glow: "#C08A72",
   },
   {
     id: "app",
@@ -94,7 +94,7 @@ const POLES: PoleDef[] = [
     icon: AppWindow,
     dept: "app",
     bureau: "app",
-    glow: "#b87333",
+    glow: "#C08A72",
   },
   {
     id: "gaming",
@@ -118,7 +118,7 @@ const POLES: PoleDef[] = [
     icon: Network,
     dept: "robo",
     bureau: "robo",
-    glow: "#a7adb5",
+    glow: "#A7ADB5",
   },
   {
     id: "marketing",
@@ -130,7 +130,7 @@ const POLES: PoleDef[] = [
     icon: Megaphone,
     dept: "marketing",
     bureau: "marketing",
-    glow: "#B87333",
+    glow: "#C08A72",
   },
   {
     id: "finances",
@@ -142,7 +142,7 @@ const POLES: PoleDef[] = [
     icon: Calculator,
     dept: "finances",
     bureau: "finances",
-    glow: "#b87333",
+    glow: "#C08A72",
   },
   {
     id: "analytics",
@@ -154,7 +154,7 @@ const POLES: PoleDef[] = [
     icon: Compass,
     dept: "analytics",
     bureau: "analytics",
-    glow: "#B87333",
+    glow: "#C08A72",
   },
   {
     id: "brand",

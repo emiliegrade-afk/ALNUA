@@ -1,20 +1,20 @@
 /** Unified ALNUA copper palette — single accent across all departments. */
 const COPPER = {
-  main: "#B87333",
-  bg: "rgba(192, 138, 98, 0.10)",
-  border: "rgba(192, 138, 98, 0.20)",
+  main: "#C08A72",
+  bg: "rgba(192, 138, 114, 0.10)",
+  border: "rgba(192, 138, 114, 0.20)",
 } as const;
 
 const COPPER_LIGHT = {
-  main: "#CF8D50",
-  bg: "rgba(212, 168, 130, 0.10)",
-  border: "rgba(212, 168, 130, 0.20)",
+  main: "#D9A88F",
+  bg: "rgba(217, 168, 143, 0.10)",
+  border: "rgba(217, 168, 143, 0.20)",
 } as const;
 
 const COPPER_DIM = {
-  main: "#6E451F",
-  bg: "rgba(122, 85, 64, 0.10)",
-  border: "rgba(122, 85, 64, 0.20)",
+  main: "#8A6050",
+  bg: "rgba(138, 96, 80, 0.10)",
+  border: "rgba(138, 96, 80, 0.20)",
 } as const;
 
 export const DEPT_COLORS = {

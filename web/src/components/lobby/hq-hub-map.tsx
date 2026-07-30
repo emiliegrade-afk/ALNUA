@@ -150,7 +150,7 @@ export function HqHubMap({
                   debugHotspots
                     ? "border-copper/70 bg-copper/20"
                     : isHot
-                      ? "border-copper/60 bg-copper/12 shadow-[0_0_20px_rgba(192,138,98,0.25)]"
+                      ? "border-copper/60 bg-copper/12 shadow-[0_0_20px_rgba(192,138,114,0.25)]"
                       : "border-transparent bg-transparent hover:border-copper/30 hover:bg-copper/6",
                 )}
                 style={{

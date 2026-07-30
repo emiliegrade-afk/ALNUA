@@ -3,9 +3,9 @@
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { BureauAgentsSection } from "@/components/shared/bureau-agents-section";
 import { BureauPage } from "@/components/shared/bureau-page";
 import { BureauPanel } from "@/components/shared/bureau-panel";
+import { DepartmentWorkspace } from "@/components/shared/department-workspace";
 import { Button } from "@/components/ui/button";
 import { fetchPosts } from "@/lib/content";
 
@@ -35,10 +35,11 @@ export default function MarketingPage() {
   return (
     <BureauPage
       dept="marketing"
+      bureau="marketing"
       title="Marketing"
       subtitle="Lena · Eliot · Contenu · SEO · Réseaux"
     >
-      <BureauAgentsSection bureau="marketing" />
+      <DepartmentWorkspace bureau="marketing" dept="marketing" projectBranch={null} />
 
       <BureauPanel title="Posts en attente">
         <p className="label-caps mb-4">

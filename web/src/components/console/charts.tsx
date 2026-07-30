@@ -7,7 +7,7 @@ export function Sparkline({
   data,
   width = 120,
   height = 36,
-  stroke = "#B87333",
+  stroke = "#C08A72",
   fill = true,
   strokeWidth = 1.5,
   className,
@@ -84,7 +84,7 @@ export function Donut({
   return (
     <div className={cn("relative inline-flex items-center justify-center", className)} style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#1a1a1a" strokeWidth={thickness} />
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#14171C" strokeWidth={thickness} />
         {segs.map((s, i) => (
           <circle
             key={i}
@@ -114,7 +114,7 @@ export function Donut({
 export function Bars({
   data,
   height = 80,
-  color = "#B87333",
+  color = "#C08A72",
   className,
 }: {
   data: { label: string; value: number }[];
@@ -158,7 +158,7 @@ export function Gauge({
   thickness = 7,
   label,
   unit,
-  color = "#B87333",
+  color = "#C08A72",
 }: {
   value: number;
   max?: number;
@@ -185,7 +185,7 @@ export function Gauge({
             cy={size / 2}
             r={radius}
             fill="none"
-            stroke="#1a1a1a"
+            stroke="#14171C"
             strokeWidth={thickness}
             strokeDasharray={`${dash} ${circ - dash}`}
             strokeLinecap="round"
@@ -215,7 +215,7 @@ export function Gauge({
 export function Heatmap({
   data,
   days,
-  color = "#B87333",
+  color = "#C08A72",
   className,
 }: {
   data: number[][];
@@ -306,7 +306,7 @@ export function CommGraph({
             y1={a.y}
             x2={b.x}
             y2={b.y}
-            stroke="#B87333"
+            stroke="#C08A72"
             strokeOpacity={0.12 + w * 0.35}
             strokeWidth={0.4 + w * 1.4}
           />
@@ -315,8 +315,8 @@ export function CommGraph({
       {/* nodes */}
       {nodes.map((nd) => (
         <g key={nd.name}>
-          <circle cx={nd.x} cy={nd.y} r="5" fill="#111111" stroke="#B87333" strokeWidth="1.2" />
-          <circle cx={nd.x} cy={nd.y} r="2" fill="#B87333" />
+          <circle cx={nd.x} cy={nd.y} r="5" fill="#0E1014" stroke="#C08A72" strokeWidth="1.2" />
+          <circle cx={nd.x} cy={nd.y} r="2" fill="#C08A72" />
           <text
             x={nd.x}
             y={nd.y - 9}
@@ -333,7 +333,7 @@ export function CommGraph({
 }
 
 // ─── Horizontal capability bar ──────────────────────────────────────────────
-export function LevelBar({ value, max = 100, color = "#B87333" }: { value: number; max?: number; color?: string }) {
+export function LevelBar({ value, max = 100, color = "#C08A72" }: { value: number; max?: number; color?: string }) {
   const pct = (value / max) * 100;
   return (
     <div className="h-1.5 rounded-full bg-obsidian-deep overflow-hidden">
