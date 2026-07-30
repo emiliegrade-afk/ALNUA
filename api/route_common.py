@@ -35,6 +35,7 @@ from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Stre
 from pydantic import BaseModel, Field
 
 from agents.accountant_agent import AccountantAgent
+from agents.ai_programmer_agent import AiProgrammerAgent
 from agents.analyst_business_agent import BusinessAnalystAgent
 from agents.analyst_data_agent import DataAnalystAgent
 from agents.brainstorm_agent import BrainstormAgent, BRAINSTORM_NOTES_ROOT, WELCOME_MESSAGE
@@ -44,14 +45,28 @@ from agents.coo_agent import COOAgent
 from agents.dev_backend_agent import DevBackendAgent
 from agents.dev_app_agent import DevAppAgent
 from agents.dev_gaming_agent import DevGamingAgent
+from agents.electronics_agent import ElectronicsAgent
 from agents.embedded_dev_agent import EmbeddedDevAgent
+from agents.environment_artist_agent import EnvironmentArtistAgent
+from agents.firmware_agent import FirmwareAgent
 from agents.hardware_agent import HardwareAgent
+from agents.industrial_design_agent import IndustrialDesignAgent
 from agents.level_designer_agent import LevelDesignerAgent
 from agents.marketing_agent import MarketingAgent
+from agents.mechanical_agent import MechanicalAgent
+from agents.narrative_designer_agent import NarrativeDesignerAgent
 from agents.pm_agent import PMAgent
 from agents.qa_agent import QAAgent
+from agents.qa_gaming_agent import QaGamingAgent
+from agents.qa_robot_agent import QaRobotAgent
+from agents.safety_agent import SafetyAgent
 from agents.secretary_agent import SecretaryAgent
+from agents.simulation_agent import SimulationAgent
+from agents.sound_designer_agent import SoundDesignerAgent
 from agents.spec_agent import SpecAgent
+from agents.technical_artist_agent import TechnicalArtistAgent
+from agents.vfx_artist_agent import VfxArtistAgent
+from agents.vision_ai_agent import VisionAiAgent
 from api.analytics_helpers import (
     filter_by_date_range,
     latest_values_by_project,

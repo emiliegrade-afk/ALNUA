@@ -277,13 +277,29 @@ AGENT_ID_ALIASES: dict[str, str] = {
     "dev_backend_agent": "dev_backend",
     "backend_agent": "dev_backend",
     "level_designer_agent": "level_designer",
-    "narrative_designer": "level_designer",
     "controller_agent": "controller",
     "financial_controller": "controller",
     "analyst_business_agent": "analyst_business",
     "business_analyst": "analyst_business",
     "analyst_data_agent": "analyst_data",
     "data_analyst": "analyst_data",
+    # Studio Gaming — 7 rôles spécialisés (Phase 13, ROADMAP.md)
+    "ai_programmer_agent": "ai_programmer",
+    "environment_artist_agent": "environment_artist",
+    "technical_artist_agent": "technical_artist",
+    "narrative_designer_agent": "narrative_designer",
+    "vfx_artist_agent": "vfx_artist",
+    "sound_designer_agent": "sound_designer",
+    "qa_gaming_agent": "qa_gaming",
+    # Atelier Robo — 8 rôles spécialisés (Phase 13, ROADMAP.md)
+    "vision_ai_agent": "vision_ai",
+    "electronics_agent": "electronics",
+    "firmware_agent": "firmware",
+    "mechanical_agent": "mechanical",
+    "industrial_design_agent": "industrial_design",
+    "qa_robot_agent": "qa_robot",
+    "safety_agent": "safety",
+    "simulation_agent": "simulation",
 }
 
 # Tier par défaut pour chaque agent (mode AUTO)
@@ -322,6 +338,23 @@ AGENT_TIERS: dict[str, str] = {
     "rnd_social":       "standard",
     "rnd_visual":       "standard",
     "rnd_product":      "standard",
+    # Studio Gaming — 7 rôles spécialisés (Phase 13, ROADMAP.md)
+    "ai_programmer":      "standard",
+    "environment_artist": "standard",
+    "technical_artist":   "standard",
+    "narrative_designer": "standard",
+    "vfx_artist":         "standard",
+    "sound_designer":     "standard",
+    "qa_gaming":          "standard",
+    # Atelier Robo — 8 rôles spécialisés (Phase 13, ROADMAP.md)
+    "vision_ai":          "standard",
+    "electronics":        "standard",
+    "firmware":           "standard",
+    "mechanical":         "standard",
+    "industrial_design":  "standard",
+    "qa_robot":           "standard",
+    "safety":             "standard",
+    "simulation":         "standard",
 }
 
 # Agents whose Paramètres model also drives the autonomous coding pipeline (Hub Agent / Aider).

@@ -52,7 +52,7 @@ api/
 
 ---
 
-## 34 agents ALNUA (27 existants + 7 nouveaux 2026)
+## 49 agents ALNUA (34 existants + 15 rôles spécialisés Gaming/Robotique — Phase 13, ROADMAP.md)
 
 > Source de vérité pour room/team/tier : `config/agent_personas.py` (`AGENT_PERSONAS`, `ROOMS`, `TEAMS`) + `config/agent_models.py` (`AGENT_TIERS`). Cette table est une vue de lecture — en cas de divergence, ce sont ces deux fichiers qui font foi, pas ce document.
 
@@ -82,6 +82,13 @@ api/
 | `game_director` | `agents/game_director_agent.py` | Mira Chen | premium |
 | `dev_gaming` | `agents/dev_gaming_agent.py` | Nova Fischer | standard |
 | `level_designer` | `agents/level_designer_agent.py` | Finn Larsen | fast |
+| `ai_programmer` | `agents/ai_programmer_agent.py` | Kenji Sato — IA comportementale | standard |
+| `environment_artist` | `agents/environment_artist_agent.py` | Priya Nandan | standard |
+| `technical_artist` | `agents/technical_artist_agent.py` | Otto Reindl | standard |
+| `narrative_designer` | `agents/narrative_designer_agent.py` | Sable Winters | standard |
+| `vfx_artist` | `agents/vfx_artist_agent.py` | Diego Salas | standard |
+| `sound_designer` | `agents/sound_designer_agent.py` | Ingrid Halvorsen | standard |
+| `qa_gaming` | `agents/qa_gaming_agent.py` | Tomás Freitas — QA gameplay | standard |
 
 ### R&D Lab (`rnd_lab`) — Équipe `innovation`
 | Agent ID | Fichier | Persona | Tier |
@@ -116,6 +123,14 @@ api/
 |----------|---------|---------|------|
 | `hardware` | `agents/hardware_agent.py` | Yuki Tanaka | fast |
 | `embedded_dev` | `agents/embedded_dev_agent.py` | Zara Singh | fast |
+| `vision_ai` | `agents/vision_ai_agent.py` | Sana Okoye — perception embarquée | standard |
+| `electronics` | `agents/electronics_agent.py` | Marco Ferreira | standard |
+| `firmware` | `agents/firmware_agent.py` | Petra Vogel | standard |
+| `mechanical` | `agents/mechanical_agent.py` | Ravi Chandrasekaran | standard |
+| `industrial_design` | `agents/industrial_design_agent.py` | Elin Bergström | standard |
+| `qa_robot` | `agents/qa_robot_agent.py` | Bilal Nasser | standard |
+| `safety` | `agents/safety_agent.py` | Clara Dubois | standard |
+| `simulation` | `agents/simulation_agent.py` | Haruto Ishikawa | standard |
 
 ### Analytics Room (`analytics_room`) — Équipe `analytics`
 | Agent ID | Fichier | Persona | Tier |
@@ -258,14 +273,15 @@ Milestones : 100=coffee_break | 200=tier_upgrade_7d | 500=tier_upgrade_30d
 
 ---
 
-## Ajouter un nouvel agent — checklist 6 étapes
+## Ajouter un nouvel agent — checklist 7 étapes
 
 1. `agents/my_agent.py` — hérite de `agents/agent_base.py::AgentBase`, `SYSTEM_PROMPT` via `get_system_prompt(agent_id)` (`config/agent_operating_spec.py`) ou 5 sections inline
-2. `config/agent_models.py` — ajouter tier dans `AGENT_TIERS`
-3. `config/agent_personas.py` — ajouter dans `AGENT_PERSONAS`, `ROOMS`, `TEAMS` si compétitif — **sans cette étape, `get_competitive_context()` ne s'applique jamais à l'agent** (arrivé aux 6 agents R&D dossier hub, resté non détecté plusieurs semaines)
-4. `api/schemas.py` — ajouter les Pydantic models ; toute entrée texte libre destinée à un LLM passe par `services/input_sanitizer.py::sanitize_user_input` côté router
-5. `api/routers/agents_pole.py` (ou routeur dédié) — ajouter les endpoints
-6. `web/src/components/settings/model-settings-view.tsx` — ajouter dans `AGENT_LABELS`
+2. `config/agent_specs_registry.py` — si `SYSTEM_PROMPT` utilise `get_system_prompt(agent_id)`, ajouter l'`AgentOperatingSpec` correspondant — **sans cette étape, `get_system_prompt()` lève `KeyError` au premier appel** (le fallback "5 sections inline" de l'étape 1 n'a pas ce problème)
+3. `config/agent_models.py` — ajouter tier dans `AGENT_TIERS` + alias `mon_agent_agent` → `mon_agent` dans `AGENT_ID_ALIASES`
+4. `config/agent_personas.py` — ajouter dans `AGENT_PERSONAS`, `ROOMS`, `TEAMS` si compétitif — **sans cette étape, `get_competitive_context()` ne s'applique jamais à l'agent** (arrivé aux 6 agents R&D dossier hub, resté non détecté plusieurs semaines)
+5. `api/route_common.py` (import de la classe) + `api/schemas.py` (Pydantic models) + `api/routers/agents_pole.py` (ou routeur dédié, endpoints) — toute entrée texte libre destinée à un LLM passe par `services/input_sanitizer.py::sanitize_user_input` côté router
+6. Rien à faire côté `web/src/components/settings/model-settings-view.tsx` — il lit déjà `display_name`/`role_label` depuis `GET` du backend (`config/agent_models.py::get_all_agent_models()` → `_agent_display()` → `AGENT_PERSONAS`), donc l'étape 3 suffit à le peupler (vérifié Phase 13, ROADMAP.md — l'ancienne référence à un `AGENT_LABELS` frontend codé en dur ne correspond plus au code)
+7. `web/src/lib/agent-bureau.ts::BUREAU_AGENTS` — ajouter l'agent si un roster de département (`/app`, `/gaming`, `/robo`...) doit l'afficher comme carte réelle plutôt que "poste vacant"
 
 ---
 

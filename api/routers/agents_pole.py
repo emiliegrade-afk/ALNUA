@@ -150,6 +150,111 @@ def level_designer_balance(body: LevelDesignerBalanceRequest) -> dict[str, Any]:
     )
 
 
+@router.post("/agents/ai-programmer/behavior")
+def ai_programmer_behavior(body: AiProgrammerBehaviorRequest) -> dict[str, Any]:
+    return AiProgrammerAgent().design_behavior(
+        body.entity_name, body.game, body.behavior_type, body.difficulty
+    )
+
+
+@router.post("/agents/environment-artist/environment")
+def environment_artist_environment(body: EnvironmentArtistRequest) -> dict[str, Any]:
+    return EnvironmentArtistAgent().design_environment(
+        body.zone_name, body.game, body.biome, _clean(body.mood, max_length=500)
+    )
+
+
+@router.post("/agents/technical-artist/render-budget")
+def technical_artist_render_budget(body: TechnicalArtistRenderRequest) -> dict[str, Any]:
+    return TechnicalArtistAgent().optimize_render_budget(
+        body.scene_name, body.game, body.target_fps, _clean(body.current_issues)
+    )
+
+
+@router.post("/agents/narrative-designer/dialogue")
+def narrative_designer_dialogue(body: NarrativeDesignerDialogueRequest) -> dict[str, Any]:
+    return NarrativeDesignerAgent().write_dialogue(
+        body.npc_name, body.game, _clean(body.context), body.tone
+    )
+
+
+@router.post("/agents/vfx-artist/vfx")
+def vfx_artist_vfx(body: VfxArtistRequest) -> dict[str, Any]:
+    return VfxArtistAgent().design_vfx(
+        body.effect_name, body.game, body.trigger, body.style
+    )
+
+
+@router.post("/agents/sound-designer/soundscape")
+def sound_designer_soundscape(body: SoundDesignerRequest) -> dict[str, Any]:
+    return SoundDesignerAgent().design_soundscape(
+        body.scene_name, body.game, body.mood, _clean(body.key_sfx, max_length=500)
+    )
+
+
+@router.post("/agents/qa-gaming/test-plan")
+def qa_gaming_test_plan(body: QaGamingTestPlanRequest) -> dict[str, Any]:
+    return QaGamingAgent().build_test_plan(
+        body.feature_name, body.game, body.build_version, _clean(body.risk_areas)
+    )
+
+
+@router.post("/agents/vision-ai/detection-pipeline")
+def vision_ai_detection_pipeline(body: VisionAiDetectionRequest) -> dict[str, Any]:
+    return VisionAiAgent().design_detection_pipeline(
+        body.task_name, body.target_objects, _clean(body.constraints)
+    )
+
+
+@router.post("/agents/electronics/circuit")
+def electronics_circuit(body: ElectronicsCircuitRequest) -> dict[str, Any]:
+    return ElectronicsAgent().design_circuit(
+        body.circuit_name, body.function, _clean(body.constraints)
+    )
+
+
+@router.post("/agents/firmware/driver")
+def firmware_driver(body: FirmwareDriverRequest) -> dict[str, Any]:
+    return FirmwareAgent().design_driver(
+        body.component_name, body.timing_requirement, _clean(body.constraints)
+    )
+
+
+@router.post("/agents/mechanical/part")
+def mechanical_part(body: MechanicalPartRequest) -> dict[str, Any]:
+    return MechanicalAgent().design_part(
+        body.part_name, body.function, _clean(body.load_requirements)
+    )
+
+
+@router.post("/agents/industrial-design/form-factor")
+def industrial_design_form_factor(body: IndustrialDesignRequest) -> dict[str, Any]:
+    return IndustrialDesignAgent().design_form_factor(
+        body.product_name, _clean(body.constraints), _clean(body.brand_notes)
+    )
+
+
+@router.post("/agents/qa-robot/protocol")
+def qa_robot_protocol(body: QaRobotProtocolRequest) -> dict[str, Any]:
+    return QaRobotAgent().build_test_protocol(
+        body.subsystem_name, body.risk_level, _clean(body.prior_issues)
+    )
+
+
+@router.post("/agents/safety/risk-assessment")
+def safety_risk_assessment(body: SafetyRiskRequest) -> dict[str, Any]:
+    return SafetyAgent().assess_risk(
+        body.subsystem_name, body.hazard_type, _clean(body.context)
+    )
+
+
+@router.post("/agents/simulation/plan")
+def simulation_plan(body: SimulationPlanRequest) -> dict[str, Any]:
+    return SimulationAgent().run_simulation_plan(
+        body.subsystem_name, body.scenario, _clean(body.constraints)
+    )
+
+
 @router.post("/agents/dev-app/instruction")
 def dev_app_instruction(body: AgentInstructionRequest) -> dict[str, str]:
     result = DevAppAgent().handle_instruction(_clean(body.instruction))
