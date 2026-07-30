@@ -6,6 +6,39 @@
 > maintenant, ajouter une entrée par sprint/lot de changement au fur et à mesure,
 > pas en dump différé.
 
+## 2026-07-31 — Roster Gaming/Robo, redesign UI départements, real-data Phases 15-20, fix Academy (feat + fix + chore)
+
+- **Type :** feat + fix + chore
+- **Commits :** `b071f5c` (roster 15 agents spécialisés Gaming/Robo, Phase 13),
+  `7ff87a7` (redesign UI département — missions, backlog, docs, équipe, modules),
+  `0b78386` (infra real-data builds/assets/télémétrie/communauté Gaming+Robo,
+  Phases 15-20 + BUG-006/007/008), `b5fe7c3` (refresh export vault bibliothèque)
+- **Details :**
+  - **Phase 13 (agents) :** complète le roster App/Gaming/Robo avec les 15 rôles
+    spécialisés déjà documentés dans `CLAUDE.md` (level designers, artistes,
+    QA, safety, simulation) — endpoints MCP + specs opérationnelles inclus.
+  - **Redesign UI départements :** nouveau shell (équipe/mission/chat), missions
+    kanban + analytics, backlog, documentation, modules projet, déployé sur
+    App/Gaming/Robo (`app-v2`/`gaming-v2`/`robo-v2`) + page détail projet. Détail
+    complet dans `PLAN_DEPARTMENTS_UI_REDESIGN.md`/`TEST_PLAN_DEPARTMENTS_UI_REDESIGN.md`,
+    suivis différés dans `TODOS.md`.
+  - **Phases 15-20 (ROADMAP.md) :** remplace les données mock de builds/assets/
+    labo/télémétrie/communauté Gaming+Robo par de vraies tables Supabase +
+    endpoints + scripts rapporteurs + rendu réel, avec réceptacle honnête
+    (pas de fake data) là où l'infra externe manque réellement (pipeline UE5,
+    Steam Wishlist API, accès physique au robot Eve).
+  - **BUG-006 :** connexions Supabase HTTP/2 périmées jamais retentées.
+  - **BUG-007 :** dérive schéma `roadmap` (CHECK priority/status, colonnes
+    `updated_at`/`linked_ticket_id` absentes) qui cassait silencieusement
+    `POST /roadmap` et `/roadmap/from-ticket/{id}`.
+  - **BUG-008 :** `agent_wake.py::get_pipeline_status()` annonçait le pipeline
+    Academy "en cours" sur la seule base des labels GitHub, sans vérifier que
+    le clone local existe — corrigé, puis le repo `alnua-academy` a été cloné
+    dans `C:\Dev\alnua-academy` et les 5 issues bloquées relancées.
+  - **Fix UI (non commité séparément) :** carte "Mission en cours" (Théo,
+    `app-v2/team.tsx`) plafonnée + scrollable — un message d'erreur long
+    (ex. `OpenRouter 402`) faisait exploser toute la rangée équipe.
+
 ## 2026-07-25 — Gouvernance, audit sécurité/qualité, méthode de travail (docs + fix)
 
 - **Type :** docs + fix

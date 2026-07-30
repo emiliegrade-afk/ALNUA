@@ -32,14 +32,14 @@ et travaillent au service de 3 branches produit :
 
 ## Modules — vue d'ensemble
 
-> Table non exhaustive au niveau fichier — le détail agent-par-agent (27 personas,
+> Table non exhaustive au niveau fichier — le détail agent-par-agent (49 personas,
 > room/team/tier/persona) est tenu à jour dans `CLAUDE.md`, source de vérité, pas ici.
 > Cette table donne l'altitude "où chercher", pas le contenu.
 
 | Module | Emplacement | Taille approx. | Status |
 |--------|-------------|-----------------|--------|
 | Routers API | `api/routers/` | 35 routers montés (34 + `gdd.py` conditionnel) | Active |
-| Agents personas | `agents/*_agent.py` | 27 agents compétitifs + 5 orchestrateurs infra | Active |
+| Agents personas | `agents/*_agent.py` | 49 agents personas (34 existants + 15 rôles Gaming/Robo, Phase 13) + 5 orchestrateurs infra | Active |
 | Services métier | `services/` | ~112 modules (compétition, coûts, R&D dossier, academy, telegram, brand, coding pipeline...) | Active |
 | Config | `config/` | Personas, tiers, specs opérationnelles 9-couches, settings pydantic | Active |
 | Bots | `bots/` | 11 bots (Discord/Telegram/Publisher/Reviews/Analytics/SAV/Watchdog) | Active |

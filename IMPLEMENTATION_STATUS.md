@@ -9,7 +9,7 @@
 | Domaine | Status | Notes |
 |---------|--------|-------|
 | API FastAPI (35 routers) | ✅ Implémenté | `api/routers/__init__.py::ALL_ROUTERS` |
-| 27 agents personas (9 poles) | ✅ Implémenté | Voir tableau complet dans `CLAUDE.md` |
+| 49 agents personas (9 poles, dont 15 rôles Gaming/Robo Phase 13) | ✅ Implémenté | Voir tableau complet dans `CLAUDE.md` |
 | Orchestration CrewAI | ✅ Implémenté | Tâches multi-agents complexes |
 | Système compétition (points/leaderboard) | ✅ Implémenté | `services/competition.py` |
 | Routeur LLM dynamique (tier fast/standard/premium) | ✅ Implémenté | `services/llm_router.py` |
@@ -54,6 +54,8 @@
 | Page Admin A/B Test | 🔄 Implémenté, **désactivé par défaut** | `ADMIN_AB_TEST_PAGE_ENABLED=false` |
 | Onglet exécutif COO sur `/briefing` | 🔄 Implémenté, **désactivé par défaut** | `BRIEFING_COO_SECTION_ENABLED=false` |
 | GDD Manager (router + endpoints) | 🔄 Implémenté, **désactivé par défaut** | `GDD_MANAGER_ENABLED=false` — c'est pourquoi `gdd.py` est monté conditionnellement |
+| Redesign UI départements (équipe/mission/chat, missions kanban, backlog, docs, modules) | ✅ Implémenté | `web/src/app/{app,gaming,robo}-v2/` — `/app`, `/gaming`, `/robo` sont de simples ré-exports vers `-v2` (2026-07-31) |
+| Real-data Gaming/Robo (builds, assets, labo, télémétrie, communauté) | ✅ Implémenté (réceptacle) | Phases 15-20, `ROADMAP.md` — vraies tables/endpoints/scripts rapporteurs ; pas de pipeline UE5/Steam Wishlist/accès robot réel derrière (voir gaps) |
 
 > Ces 5 fonctionnalités sont codées et testées (flags forcés à `1` dans le job e2e de
 > la CI) mais restent **éteintes par défaut** en prod tant que non activées
@@ -82,3 +84,15 @@
   par ce bootstrap.
 - Le reste des gaps potentiels (sécurité, qualité de code) est dans `BUGS.md`, alimenté
   par l'audit mené en parallèle de ce bootstrap.
+- **Real-data Gaming/Robo (Phases 15-20)** : infra "réceptacle" honnête, mais sans
+  source réelle branchée derrière pour Gaming (pas de pipeline UE5 local — projet
+  Wyrdheim sur un disque dur externe non accessible ; pas de clé Steam/Discord
+  configurée) ni pour Robo (pas d'accès physique au robot Eve pour rapporter
+  builds/tests labo/télémétrie réels). Liste complète des actions externes à faire
+  par Emilie documentée en fin de session du 2026-07-30/31 (voir `CHANGELOG.md`).
+- **Academy (dev_app training pipeline)** : `agent_wake.py` corrigé (BUG-008) et le
+  repo `alnua-academy` cloné dans `C:\Dev\alnua-academy` le 2026-07-31 — mais
+  `dev_app` (Théo) est actuellement bloqué en erreur `OpenRouter 402 : crédits
+  insuffisants` sur `minimax/minimax-m3`. Ajouter des crédits sur
+  https://openrouter.ai/settings/credits pour que le pipeline recommence à coder
+  réellement.
