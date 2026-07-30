@@ -68,6 +68,37 @@ export async function fetchLibraryEntries(params?: {
   return hubFetch(`/library/entries${suffix}`);
 }
 
+export interface LibraryTopic {
+  slug: string;
+  label: string;
+  titles?: string[];
+  bureaus?: string[];
+  has_now?: boolean;
+  learn_count?: number;
+  entry_ids?: string[];
+}
+
+export interface LibraryTopicsResponse {
+  topics: LibraryTopic[];
+  total: number;
+  offset: number;
+  limit: number;
+  updated_at?: string;
+}
+
+/** Topic catalog (not the raw entries list above) — used by MemberDetailPanel's
+ * "Mémoire" tab to show what an agent's bureau has actually learned. */
+export async function fetchLibraryTopics(params?: {
+  bureau?: BureauKey | string;
+  limit?: number;
+}): Promise<LibraryTopicsResponse> {
+  const q = new URLSearchParams();
+  if (params?.bureau) q.set("bureau", params.bureau);
+  if (params?.limit) q.set("limit", String(params.limit));
+  const suffix = q.toString() ? `?${q}` : "";
+  return hubFetch(`/library/topics${suffix}`);
+}
+
 export async function runLibraryResearch(
   query: string,
   options?: { bureaus?: string[]; wait?: boolean }
