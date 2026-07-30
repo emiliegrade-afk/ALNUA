@@ -130,6 +130,103 @@ class LevelDesignerBalanceRequest(BaseModel):
     player_feedback: str = ""
 
 
+class AiProgrammerBehaviorRequest(BaseModel):
+    entity_name: str
+    game: str
+    behavior_type: str = "hostile"
+    difficulty: str = "medium"
+
+
+class EnvironmentArtistRequest(BaseModel):
+    zone_name: str
+    game: str
+    biome: str = ""
+    mood: str = ""
+
+
+class TechnicalArtistRenderRequest(BaseModel):
+    scene_name: str
+    game: str
+    target_fps: int = 60
+    current_issues: str = ""
+
+
+class NarrativeDesignerDialogueRequest(BaseModel):
+    npc_name: str
+    game: str
+    context: str = ""
+    tone: str = "neutre"
+
+
+class VfxArtistRequest(BaseModel):
+    effect_name: str
+    game: str
+    trigger: str = ""
+    style: str = ""
+
+
+class SoundDesignerRequest(BaseModel):
+    scene_name: str
+    game: str
+    mood: str = ""
+    key_sfx: str = ""
+
+
+class QaGamingTestPlanRequest(BaseModel):
+    feature_name: str
+    game: str
+    build_version: str = ""
+    risk_areas: str = ""
+
+
+class VisionAiDetectionRequest(BaseModel):
+    task_name: str
+    target_objects: str = ""
+    constraints: str = ""
+
+
+class ElectronicsCircuitRequest(BaseModel):
+    circuit_name: str
+    function: str = ""
+    constraints: str = ""
+
+
+class FirmwareDriverRequest(BaseModel):
+    component_name: str
+    timing_requirement: str = ""
+    constraints: str = ""
+
+
+class MechanicalPartRequest(BaseModel):
+    part_name: str
+    function: str = ""
+    load_requirements: str = ""
+
+
+class IndustrialDesignRequest(BaseModel):
+    product_name: str
+    constraints: str = ""
+    brand_notes: str = ""
+
+
+class QaRobotProtocolRequest(BaseModel):
+    subsystem_name: str
+    risk_level: str = "medium"
+    prior_issues: str = ""
+
+
+class SafetyRiskRequest(BaseModel):
+    subsystem_name: str
+    hazard_type: str = ""
+    context: str = ""
+
+
+class SimulationPlanRequest(BaseModel):
+    subsystem_name: str
+    scenario: str = ""
+    constraints: str = ""
+
+
 class AgentInstructionRequest(BaseModel):
     instruction: str
 
@@ -272,12 +369,15 @@ class TicketCreate(BaseModel):
         default="emilie",
         pattern="^(qa_agent|sav_bot|reviews_bot|emilie|quick_capture|beta_tester|partnerships_bot)$",
     )
+    assignee_agent_id: str | None = None
+    story_points: int | None = Field(default=None, ge=1, le=21)
+    due_date: date | None = None
 
 
 class TicketUpdate(BaseModel):
     status: str | None = Field(
         default=None,
-        pattern="^(open|in_progress|done|wont_fix)$",
+        pattern="^(open|in_progress|in_review|done|wont_fix)$",
     )
     title: str | None = None
     description: str | None = None
@@ -286,6 +386,89 @@ class TicketUpdate(BaseModel):
         pattern="^(critical|high|medium|low)$",
     )
     cursor_prompt: str | None = None
+    assignee_agent_id: str | None = None
+    story_points: int | None = Field(default=None, ge=1, le=21)
+    due_date: date | None = None
+
+
+class GamingBuildCreate(BaseModel):
+    project_id: str
+    branch: str = Field(min_length=1)
+    build_number: str = Field(min_length=1)
+    game_version: str | None = None
+    engine_version: str = "5.8"
+    status: str = Field(default="success", pattern="^(success|failed|running)$")
+    fps_avg: float | None = None
+    crashes: int | None = Field(default=None, ge=0)
+    draw_calls: int | None = Field(default=None, ge=0)
+    commit_sha: str | None = None
+    notes: str = ""
+
+
+class GamingAssetEntry(BaseModel):
+    category: str = Field(min_length=1)
+    name: str = Field(min_length=1)
+    asset_type: str = Field(min_length=1)
+    file_path: str = Field(min_length=1)
+    size_bytes: int = Field(default=0, ge=0)
+    modified_at: datetime | None = None
+
+
+class GamingAssetsSync(BaseModel):
+    project_id: str
+    assets: list[GamingAssetEntry]
+
+
+class RoboBuildCreate(BaseModel):
+    project_id: str
+    branch: str = Field(min_length=1)
+    stage: str = Field(default="Prototype", pattern="^(Prototype|V2|V3|Certification|Production)$")
+    version: str | None = None
+    pcb_revision: str | None = None
+    firmware_version: str | None = None
+    tests_passed_pct: int | None = Field(default=None, ge=0, le=100)
+    open_issues: int | None = Field(default=None, ge=0)
+    notes: str = ""
+
+
+class RoboLabTestCreate(BaseModel):
+    project_id: str
+    category: str = Field(min_length=1)
+    name: str = Field(min_length=1)
+    status: str = Field(default="in_progress", pattern="^(pass|fail|in_progress)$")
+    measured_value: str | None = None
+    notes: str = ""
+
+
+class RoboTelemetryCreate(BaseModel):
+    project_id: str
+    power_w: float | None = None
+    temperature_c: float | None = None
+    cpu_pct: int | None = Field(default=None, ge=0, le=100)
+    battery_pct: int | None = Field(default=None, ge=0, le=100)
+    charge_cycles: int | None = Field(default=None, ge=0)
+    autonomy_hours: float | None = None
+
+
+class ModuleCreate(BaseModel):
+    project_id: str
+    name: str = Field(min_length=1)
+    status: str = Field(default="a_faire", pattern="^(a_faire|en_developpement|en_test|termine)$")
+    progress: int = Field(default=0, ge=0, le=100)
+    features_done: int = Field(default=0, ge=0)
+    features_total: int = Field(default=0, ge=0)
+    tests_passed_pct: int = Field(default=0, ge=0, le=100)
+    open_bugs: int = Field(default=0, ge=0)
+
+
+class ModuleUpdate(BaseModel):
+    name: str | None = None
+    status: str | None = Field(default=None, pattern="^(a_faire|en_developpement|en_test|termine)$")
+    progress: int | None = Field(default=None, ge=0, le=100)
+    features_done: int | None = Field(default=None, ge=0)
+    features_total: int | None = Field(default=None, ge=0)
+    tests_passed_pct: int | None = Field(default=None, ge=0, le=100)
+    open_bugs: int | None = Field(default=None, ge=0)
 
 
 class FeedbackCreate(BaseModel):

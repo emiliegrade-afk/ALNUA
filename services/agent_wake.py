@@ -184,9 +184,22 @@ def get_pipeline_status() -> dict[str, Any]:
     counts = academy_label_counts()
     slots, max_parallel = _pipeline_slots_free()
     progress = load_progress()
+    repo_path_exists = target.local_path.is_dir()
 
-    if counts["in-pipeline"] > 0:
-        verdict: Verdict = "working"
+    if (counts["in-pipeline"] > 0 or counts["agent-ready"] > 0) and not repo_path_exists:
+        # skill_gh_issues.py::process_issue échoue avant même de poser le label
+        # "in-pipeline" quand target.local_path n'existe pas — l'issue reste
+        # bloquée sur "agent-ready" indéfiniment, et sans ce cas explicite le
+        # verdict "working" ("prise en charge sous ~60s") ne se réalise jamais :
+        # aucun code n'est jamais écrit, la progression reste à 0% en silence.
+        verdict: Verdict = "stuck"
+        message = (
+            f"Chemin local introuvable : {target.local_path} — "
+            f"clone le repo ou configure REPO_PATH_{target.slug.upper()} "
+            f"({counts['agent-ready'] + counts['in-pipeline']} issue(s) bloquée(s))."
+        )
+    elif counts["in-pipeline"] > 0:
+        verdict = "working"
         message = f"{counts['in-pipeline']} issue(s) en cours de codage."
     elif counts["agent-ready"] > 0:
         verdict = "working"
@@ -213,6 +226,7 @@ def get_pipeline_status() -> dict[str, Any]:
             "agent_failed": counts["agent-failed"],
             "slots_free": slots,
             "max_parallel": max_parallel,
+            "repo_path_exists": repo_path_exists,
         },
     }
 

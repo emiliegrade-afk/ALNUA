@@ -67,6 +67,10 @@ CREATE TABLE IF NOT EXISTS public.tickets (
   status        TEXT NOT NULL DEFAULT 'open'
                 CHECK (status IN ('open', 'in_progress', 'done', 'wont_fix')),
   cursor_prompt TEXT,
+  -- Phase 12 (2026-07-30) — fondations données transverses
+  assignee_agent_id TEXT,
+  story_points  INT CHECK (story_points IS NULL OR story_points BETWEEN 1 AND 21),
+  due_date      DATE,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -74,6 +78,8 @@ CREATE TABLE IF NOT EXISTS public.tickets (
 CREATE INDEX IF NOT EXISTS idx_tickets_project_id ON public.tickets (project_id);
 CREATE INDEX IF NOT EXISTS idx_tickets_status ON public.tickets (status);
 CREATE INDEX IF NOT EXISTS idx_tickets_priority ON public.tickets (priority);
+CREATE INDEX IF NOT EXISTS idx_tickets_assignee ON public.tickets (assignee_agent_id);
+CREATE INDEX IF NOT EXISTS idx_tickets_due_date ON public.tickets (due_date);
 
 DROP TRIGGER IF EXISTS trg_tickets_updated_at ON public.tickets;
 CREATE TRIGGER trg_tickets_updated_at
@@ -104,6 +110,144 @@ CREATE INDEX IF NOT EXISTS idx_roadmap_status ON public.roadmap (status);
 CREATE INDEX IF NOT EXISTS idx_roadmap_due_date
   ON public.roadmap (due_date)
   WHERE due_date IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_roadmap_linked_ticket_id
+  ON public.roadmap (linked_ticket_id)
+  WHERE linked_ticket_id IS NOT NULL;
+
+DROP TRIGGER IF EXISTS trg_roadmap_updated_at ON public.roadmap;
+CREATE TRIGGER trg_roadmap_updated_at
+  BEFORE UPDATE ON public.roadmap
+  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+-- NB : cette définition documente le schéma *voulu* depuis le bootstrap ;
+-- la table réelle en production en avait dérivé (BUG-007, BUGS.md) — voir
+-- supabase/migrations/20260730140000_roadmap_status_priority_fix.sql et
+-- 20260730150000_roadmap_missing_columns.sql pour le rattrapage réellement
+-- appliqué (2026-07-30).
+
+-- ---------------------------------------------------------------------------
+-- 4b. project_modules — Phase 14 (ROADMAP.md, 2026-07-30). Ajoutée après le
+-- bootstrap initial ; voir supabase/migrations/20260730130000_project_modules.sql
+-- pour le DDL réellement appliqué (RLS incluse).
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.project_modules (
+  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id       UUID NOT NULL REFERENCES public.projects (id) ON DELETE CASCADE,
+  name             TEXT NOT NULL,
+  status           TEXT NOT NULL DEFAULT 'a_faire'
+                   CHECK (status IN ('a_faire', 'en_developpement', 'en_test', 'termine')),
+  progress         INT NOT NULL DEFAULT 0 CHECK (progress BETWEEN 0 AND 100),
+  features_done    INT NOT NULL DEFAULT 0 CHECK (features_done >= 0),
+  features_total   INT NOT NULL DEFAULT 0 CHECK (features_total >= 0),
+  tests_passed_pct INT NOT NULL DEFAULT 0 CHECK (tests_passed_pct BETWEEN 0 AND 100),
+  open_bugs        INT NOT NULL DEFAULT 0 CHECK (open_bugs >= 0),
+  position         INT NOT NULL DEFAULT 0,
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_project_modules_project_id ON public.project_modules (project_id);
+
+-- ---------------------------------------------------------------------------
+-- 4c. gaming_builds — Phase 16 (ROADMAP.md, 2026-07-30). Réceptacle de
+-- télémétrie de build UE5 ; voir supabase/migrations/20260730160000_gaming_builds.sql
+-- et scripts/report_ue5_build.py. Aucun pipeline de build UE5 réel n'existe
+-- encore — table prête à recevoir de vraies données le jour où il existera.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.gaming_builds (
+  id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id     UUID NOT NULL REFERENCES public.projects (id) ON DELETE CASCADE,
+  branch         TEXT NOT NULL,
+  build_number   TEXT NOT NULL,
+  game_version   TEXT,
+  engine_version TEXT NOT NULL DEFAULT '5.8',
+  status         TEXT NOT NULL DEFAULT 'success'
+                 CHECK (status IN ('success', 'failed', 'running')),
+  fps_avg        NUMERIC,
+  crashes        INT CHECK (crashes IS NULL OR crashes >= 0),
+  draw_calls     INT CHECK (draw_calls IS NULL OR draw_calls >= 0),
+  commit_sha     TEXT,
+  notes          TEXT NOT NULL DEFAULT '',
+  created_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_gaming_builds_project_id ON public.gaming_builds (project_id);
+CREATE INDEX IF NOT EXISTS idx_gaming_builds_created_at ON public.gaming_builds (created_at DESC);
+
+-- ---------------------------------------------------------------------------
+-- 4d. gaming_assets — Phase 17 (ROADMAP.md, 2026-07-30). Inventaire réel
+-- d'assets, synchronisé via scripts/sync_ue5_assets.py depuis un dossier réel
+-- (le projet Wyrdheim est sur un disque séparé, non accessible ici) ; voir
+-- supabase/migrations/20260730170000_gaming_assets.sql.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.gaming_assets (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id   UUID NOT NULL REFERENCES public.projects (id) ON DELETE CASCADE,
+  category     TEXT NOT NULL,
+  name         TEXT NOT NULL,
+  asset_type   TEXT NOT NULL,
+  file_path    TEXT NOT NULL,
+  size_bytes   BIGINT NOT NULL DEFAULT 0 CHECK (size_bytes >= 0),
+  modified_at  TIMESTAMPTZ,
+  synced_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_gaming_assets_project_id ON public.gaming_assets (project_id);
+CREATE INDEX IF NOT EXISTS idx_gaming_assets_category ON public.gaming_assets (project_id, category);
+
+-- ---------------------------------------------------------------------------
+-- 4e. robo_builds / robo_lab_tests / robo_telemetry — Phases 19-20
+-- (ROADMAP.md, 2026-07-30). Réceptacles réels pour le suivi hardware d'Eve ;
+-- voir supabase/migrations/20260730180000_robo_builds_lab_telemetry.sql et
+-- scripts/report_robo_build.py, report_lab_test.py, report_robo_telemetry.py.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.robo_builds (
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id        UUID NOT NULL REFERENCES public.projects (id) ON DELETE CASCADE,
+  branch            TEXT NOT NULL,
+  stage             TEXT NOT NULL DEFAULT 'Prototype'
+                    CHECK (stage IN ('Prototype', 'V2', 'V3', 'Certification', 'Production')),
+  version           TEXT,
+  pcb_revision      TEXT,
+  firmware_version  TEXT,
+  tests_passed_pct  INT CHECK (tests_passed_pct IS NULL OR tests_passed_pct BETWEEN 0 AND 100),
+  open_issues       INT CHECK (open_issues IS NULL OR open_issues >= 0),
+  notes             TEXT NOT NULL DEFAULT '',
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_robo_builds_project_id ON public.robo_builds (project_id);
+CREATE INDEX IF NOT EXISTS idx_robo_builds_created_at ON public.robo_builds (created_at DESC);
+
+CREATE TABLE IF NOT EXISTS public.robo_lab_tests (
+  id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id     UUID NOT NULL REFERENCES public.projects (id) ON DELETE CASCADE,
+  category       TEXT NOT NULL,
+  name           TEXT NOT NULL,
+  status         TEXT NOT NULL DEFAULT 'in_progress'
+                 CHECK (status IN ('pass', 'fail', 'in_progress')),
+  measured_value TEXT,
+  notes          TEXT NOT NULL DEFAULT '',
+  created_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_robo_lab_tests_project_id ON public.robo_lab_tests (project_id);
+CREATE INDEX IF NOT EXISTS idx_robo_lab_tests_created_at ON public.robo_lab_tests (created_at DESC);
+
+CREATE TABLE IF NOT EXISTS public.robo_telemetry (
+  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id       UUID NOT NULL REFERENCES public.projects (id) ON DELETE CASCADE,
+  power_w          NUMERIC,
+  temperature_c    NUMERIC,
+  cpu_pct          INT CHECK (cpu_pct IS NULL OR cpu_pct BETWEEN 0 AND 100),
+  battery_pct      INT CHECK (battery_pct IS NULL OR battery_pct BETWEEN 0 AND 100),
+  charge_cycles    INT CHECK (charge_cycles IS NULL OR charge_cycles >= 0),
+  autonomy_hours   NUMERIC,
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_robo_telemetry_project_id ON public.robo_telemetry (project_id);
+CREATE INDEX IF NOT EXISTS idx_robo_telemetry_created_at ON public.robo_telemetry (created_at DESC);
 
 -- ---------------------------------------------------------------------------
 -- 5. feedback

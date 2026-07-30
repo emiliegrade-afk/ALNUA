@@ -98,6 +98,27 @@ def post_to_discord(channel: str, content: str, embed: bool = False, image_url: 
         return {"success": False, "error": str(exc)}
 
 
+def get_member_count() -> int | None:
+    """Nombre de membres approximatif du serveur (nécessite DISCORD_GUILD_ID)."""
+    if not discord_is_configured():
+        return None
+    guild_id = os.getenv("DISCORD_GUILD_ID", "").strip()
+    if not guild_id:
+        return None
+    try:
+        with httpx.Client(timeout=10) as client:
+            resp = client.get(
+                f"{DISCORD_API}/guilds/{guild_id}",
+                headers=get_headers(),
+                params={"with_counts": "true"},
+            )
+            resp.raise_for_status()
+            return resp.json().get("approximate_member_count")
+    except Exception as exc:
+        logger.warning("[Discord] member count failed: %s", exc)
+        return None
+
+
 def get_recent_messages(channel: str, limit: int = 20) -> list[dict[str, str]]:
     """Lit les derniers messages d'un channel."""
     if not discord_is_configured():

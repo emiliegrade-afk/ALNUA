@@ -77,6 +77,21 @@ class Settings(BaseSettings):
     )
     discord_token: str = Field(default="", alias="DISCORD_TOKEN")
     discord_bot_token: str = Field(default="", alias="DISCORD_BOT_TOKEN")
+    discord_guild_id: str = Field(
+        default="",
+        alias="DISCORD_GUILD_ID",
+        description="ID du serveur Discord Wyrdheim — nécessaire pour le nombre de membres (Phase 18, ROADMAP.md)",
+    )
+    steam_api_key: str = Field(
+        default="",
+        alias="STEAM_API_KEY",
+        description="Clé Steam Web API (steamcommunity.com/dev/apikey) — Phase 18, ROADMAP.md",
+    )
+    steam_app_id: str = Field(
+        default="",
+        alias="STEAM_APP_ID",
+        description="App ID Steam de Wyrdheim (une fois publié sur Steamworks) — Phase 18, ROADMAP.md",
+    )
     telegram_bot_token: str = Field(default="", alias="TELEGRAM_BOT_TOKEN")
     telegram_chat_id: str = Field(default="", alias="TELEGRAM_CHAT_ID")
     telegram_secretary_bot_token: str = Field(
