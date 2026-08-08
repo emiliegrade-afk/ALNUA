@@ -42,6 +42,7 @@ _stop_event: asyncio.Event | None = None
 # Repos locaux par agent (pour OpenHands)
 AGENT_REPO_PATHS: dict[str, str] = {
     "dev_app": os.getenv("REPO_PATH_ACADEMY", "C:/Dev/alnua-academy"),
+    "dev_resonance": os.getenv("REPO_PATH_RESONANCE", "C:/Dev/RESONANCE"),
     "dev_gaming": os.getenv("HUB_REPO_PATH", "C:/Dev/ALUNA_HUB"),
     "embedded": os.getenv("HUB_REPO_PATH", "C:/Dev/ALUNA_HUB"),
     "coo": os.getenv("HUB_REPO_PATH", "C:/Dev/ALUNA_HUB"),

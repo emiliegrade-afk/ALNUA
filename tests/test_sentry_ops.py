@@ -73,6 +73,27 @@ def test_resolve_repo_slug_hub(monkeypatch):
     get_repo_targets.cache_clear()
 
 
+def test_resolve_repo_slug_resonance(monkeypatch):
+    monkeypatch.setenv("GITHUB_REPO", "org/hub")
+    monkeypatch.setenv("GITHUB_REPO_RESONANCE", "emiliegrade-afk/RESONANCE")
+    monkeypatch.setenv("REPO_PATH_RESONANCE", "C:/Dev/RESONANCE")
+    from config.github_repos import get_repo_targets
+    from services.sentry_ops import resolve_agent_from_sentry
+
+    get_repo_targets.cache_clear()
+    event = SentryIngestEvent(
+        fingerprint="res1",
+        title="Chat boom",
+        message="err",
+        project_slug="resonance-mobile",
+        platform="react-native",
+        tags={"repo_slug": "resonance"},
+    )
+    assert resolve_repo_slug_from_sentry(event) == "resonance"
+    assert resolve_agent_from_sentry(event, "resonance") == "dev_resonance"
+    get_repo_targets.cache_clear()
+
+
 def test_format_hotfix_issue_body():
     event = SentryIngestEvent(
         fingerprint="fp1",

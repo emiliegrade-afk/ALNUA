@@ -57,6 +57,22 @@ def get_repo_targets() -> tuple[GitHubRepoTarget, ...]:
             )
         )
 
+    resonance_repo = os.getenv("GITHUB_REPO_RESONANCE", "").strip()
+    if resonance_repo:
+        targets.append(
+            GitHubRepoTarget(
+                slug="resonance",
+                name="Résonance",
+                github_repo=resonance_repo,
+                local_path=Path(
+                    os.getenv(
+                        "REPO_PATH_RESONANCE",
+                        str(_dev_parent() / "RESONANCE"),
+                    ).strip()
+                ).resolve(),
+            )
+        )
+
     return tuple(targets)
 
 

@@ -210,16 +210,25 @@ def resolve_repo_slug_from_sentry(event: SentryIngestEvent) -> str:
     if any(k in haystack for k in ("hub", "alnua")):
         if get_target_by_slug("hub"):
             return "hub"
+    if "resonance" in haystack and get_target_by_slug("resonance"):
+        return "resonance"
     if "academy" in haystack and get_target_by_slug("academy"):
         return "academy"
     if get_target_by_slug("hub"):
         return "hub"
+    if get_target_by_slug("resonance"):
+        return "resonance"
     if get_target_by_slug("academy"):
         return "academy"
     return "hub"
 
 
 def resolve_agent_from_sentry(event: SentryIngestEvent, repo_slug: str) -> str:
+    if repo_slug == "resonance":
+        platform = (event.platform or "").lower()
+        if platform in ("node", "python", "fastapi"):
+            return "dev_backend"
+        return "dev_resonance"
     if repo_slug in ("academy",):
         return "dev_app"
     platform = (event.platform or "").lower()

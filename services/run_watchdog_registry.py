@@ -35,8 +35,10 @@ def resolve_repo_path_for_slug(slug: str | None, agent_name: str = "") -> tuple[
     # Agent → repo fallback when repo_slug unknown (hub + academy only)
     hub_path = os.getenv("HUB_REPO_PATH", "C:/Dev/ALUNA_HUB")
     academy_path = os.getenv("REPO_PATH_ACADEMY", "C:/Dev/alnua-academy")
+    resonance_path = os.getenv("REPO_PATH_RESONANCE", "C:/Dev/RESONANCE")
     agent_paths: dict[str, str] = {
         "dev_app": academy_path,
+        "dev_resonance": resonance_path,
         "dev_gaming": hub_path,
         "embedded": hub_path,
         "coo": hub_path,
@@ -44,6 +46,16 @@ def resolve_repo_path_for_slug(slug: str | None, agent_name: str = "") -> tuple[
         "qa_agent": hub_path,
         "spec_agent": hub_path,
     }
+    if slug == "resonance":
+        github_repo = None
+        try:
+            for target in get_repo_targets():
+                if target.slug == "resonance":
+                    return str(target.local_path), target.github_repo
+        except Exception:
+            pass
+        return resonance_path, None
+
     repo_path = agent_paths.get(agent_name, hub_path)
 
     github_repo = None
