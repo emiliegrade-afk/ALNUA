@@ -162,6 +162,14 @@ def orchestration_sentry_ingest(body: dict[str, Any]) -> dict[str, Any]:
     return run_sentry_ingest_orchestration(body)
 
 
+@router.post("/security-ingest")
+def orchestration_security_ingest(body: dict[str, Any]) -> dict[str, Any]:
+    """RESONANCE / apps security barrier events → Telegram + email + journal."""
+    from services.orchestration import run_security_ingest_orchestration
+
+    return run_security_ingest_orchestration(body)
+
+
 @router.post("/academy-gate")
 def orchestration_academy_gate() -> dict[str, Any]:
     """Évalue gate Academy → Lounge + notification CEO (n8n workflow 10)."""

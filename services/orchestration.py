@@ -592,6 +592,21 @@ def run_sentry_ingest_orchestration(payload: dict[str, Any]) -> dict[str, Any]:
         return {"workflow": "sentry_ingest", "success": False, "error": str(exc)}
 
 
+def run_security_ingest_orchestration(payload: dict[str, Any]) -> dict[str, Any]:
+    """Security barrier events (RESONANCE fortress) → notify + journal."""
+    from services.security_ops import run_security_ingest
+
+    try:
+        result = run_security_ingest(payload)
+        _log_run("security_ingest", f"type={result.get('type')} sev={result.get('severity')}")
+        return result
+    except Exception as exc:
+        logger.exception("security_ingest failed")
+        _log_run("security_ingest", str(exc), success=False)
+        _notify(f"❌ Security ingest échoué : {exc}")
+        return {"workflow": "security_ingest", "success": False, "error": str(exc)}
+
+
 def run_academy_gate_orchestration(*, notify: bool = True) -> dict[str, Any]:
     """Évalue la gate Academy → Lounge et notifie si bloquante (n8n workflow 10)."""
     from services.academy_gate import evaluate_academy_gate
@@ -692,6 +707,14 @@ WORKFLOW_CATALOG: list[dict[str, Any]] = [
         "endpoint": "POST /orchestration/sentry-ingest",
         "trigger": "n8n workflow 09 — alertes production",
         "agents": ["dev_app", "dev_backend", "qa"],
+        "level": 4,
+    },
+    {
+        "id": "security_ingest",
+        "name": "Security barrier → Telegram/email + journal",
+        "endpoint": "POST /orchestration/security-ingest",
+        "trigger": "RESONANCE fortress / apps — auth burst, data anomaly",
+        "agents": ["dev_resonance", "qa_agent", "coo"],
         "level": 4,
     },
     {
