@@ -7,6 +7,16 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-10 — Full debt paydown : zéro fichier >1000 lignes (refactor)
+
+- **Type :** refactor
+- **Details :**
+  - `skill_coding_agent` → cli/prompt/worktree/hub_aider/backends + façade.
+  - `rnd_repository` → helpers + mixins ideas/dossiers/sections/assets/promote.
+  - `core.py` vidé → `projects/tickets/robo_ops/gaming_ops/roadmap/posts/analytics/faq`
+    (+ folds feedback/sav).
+  - **0** fichiers Python >1000 lignes. Residual : ~24 >500 / ~70 >300.
+
 ## 2026-08-10 — Debt paydown + bible docs (refactor + docs)
 
 - **Type :** refactor + docs

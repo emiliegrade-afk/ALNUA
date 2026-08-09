@@ -1,4 +1,4 @@
-"""Regression test for api/routers/core.py::update_ticket_status.
+"""Regression test for api/routers/tickets.py::update_ticket_status.
 
 Before the fix, PATCHing the status of a nonexistent ticket silently
 succeeded (or 500'd) instead of returning 404 — the same guard
@@ -11,20 +11,14 @@ from fastapi.testclient import TestClient
 
 from tests.conftest import HUB_HEADERS, FakeDB
 
-# `api.routers.core` binds `get_supabase` as a bare name at import time
-# (star-import via `api.route_common`) — patching `database.supabase_client
-# .get_supabase` (what the `hub_client` fixture does) only takes effect on
-# the *first* import of `api.app` in the whole pytest session. Once another
-# test file has already imported it with a different fake, every test here
-# would silently see that other fake instead of FakeDB. Patch the name where
-# core.py actually looks it up so these tests don't depend on collection
-# order across the suite.
+# Tickets router binds `get_supabase` via star-import — patch the name where
+# the handler looks it up (not only database.supabase_client.get_supabase).
 
 
 def test_update_ticket_status_404_when_ticket_missing(
     hub_client: TestClient, monkeypatch
 ) -> None:
-    monkeypatch.setattr("api.routers.core.get_supabase", lambda: FakeDB())
+    monkeypatch.setattr("api.routers.tickets.get_supabase", lambda: FakeDB())
     res = hub_client.patch(
         "/tickets/does-not-exist/status",
         params={"status": "in_progress"},
@@ -36,7 +30,7 @@ def test_update_ticket_status_404_when_ticket_missing(
 def test_update_ticket_status_rejects_unknown_status(
     hub_client: TestClient, monkeypatch
 ) -> None:
-    monkeypatch.setattr("api.routers.core.get_supabase", lambda: FakeDB())
+    monkeypatch.setattr("api.routers.tickets.get_supabase", lambda: FakeDB())
     res = hub_client.patch(
         "/tickets/does-not-exist/status",
         params={"status": "bogus"},
@@ -57,7 +51,7 @@ def test_update_ticket_accepts_in_review_via_general_endpoint(
         def select(self, *args, **kwargs):
             return [{"id": "t1", "status": "open"}]
 
-    monkeypatch.setattr("api.routers.core.get_supabase", lambda: FoundDB())
+    monkeypatch.setattr("api.routers.tickets.get_supabase", lambda: FoundDB())
     res = hub_client.patch(
         "/tickets/t1",
         json={"status": "in_review"},
@@ -71,7 +65,7 @@ def test_update_ticket_status_accepts_in_review(hub_client: TestClient, monkeypa
         def select(self, *args, **kwargs):
             return [{"id": "t1", "status": "open"}]
 
-    monkeypatch.setattr("api.routers.core.get_supabase", lambda: FoundDB())
+    monkeypatch.setattr("api.routers.tickets.get_supabase", lambda: FoundDB())
     res = hub_client.patch(
         "/tickets/t1/status",
         params={"status": "in_review"},

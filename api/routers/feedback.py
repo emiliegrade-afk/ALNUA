@@ -136,3 +136,47 @@ def feedback_stats(agent_id: str | None = None) -> dict[str, Any]:
         "satisfaction_pct": round(100 * positive / total, 1) if total else 0,
         "tenant_id": get_current_tenant_id(),
     }
+
+@router.post("/feedback")
+def create_feedback(body: FeedbackCreate) -> dict[str, Any]:
+    db = get_supabase()
+    return db.insert(
+        "feedback",
+        {
+            "project_id": body.project_id,
+            "source": body.source,
+            "content": body.content,
+            "author": body.author,
+            "rating": body.rating,
+            "sentiment": body.sentiment,
+            "status": "new",
+        },
+    )
+
+
+@router.get("/feedback")
+def list_feedback(
+    project_id: str | None = None,
+    status: str | None = None,
+    limit: int = Query(default=50, le=200),
+) -> list[dict[str, Any]]:
+    db = get_supabase()
+    filters: dict[str, Any] = {}
+    if project_id:
+        filters["project_id"] = project_id
+    if status:
+        filters["status"] = status
+    rows = db.select(
+        "feedback",
+        filters=filters or None,
+        order_by="created_at",
+        ascending=False,
+        limit=limit,
+    )
+    if rows and project_id is None:
+        projects = {p["id"]: p["name"] for p in db.select("projects")}
+        for row in rows:
+            row["project_name"] = projects.get(row.get("project_id"), "Projet")
+    return rows
+
+

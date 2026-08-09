@@ -77,3 +77,10 @@ def sav_run_workflow() -> dict[str, Any]:
     from services.workflow_engine import run_workflow
 
     return run_workflow("sav_lite", {})
+
+@router.post("/ask")
+def sav_ask(body: SAVQuestion) -> dict[str, Any]:
+    bot = SAVBot()
+    return bot.handle_question(body.project_id, body.question, body.author)
+
+

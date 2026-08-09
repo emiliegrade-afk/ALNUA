@@ -8,6 +8,14 @@ from api.routers.health import router as health_router
 from api.routers.pipeline import router as pipeline_router
 from api.routers.dashboard import router as dashboard_router
 from api.routers.core import router as core_router
+from api.routers.projects import router as projects_router
+from api.routers.tickets import router as tickets_router
+from api.routers.robo_ops import router as robo_ops_router
+from api.routers.gaming_ops import router as gaming_ops_router
+from api.routers.roadmap import router as roadmap_router
+from api.routers.posts import router as posts_router
+from api.routers.analytics import router as analytics_router
+from api.routers.faq import router as faq_router
 from api.routers.briefing import router as briefing_router
 from api.routers.releases import router as releases_router
 from api.routers.competition import router as competition_router
@@ -62,6 +70,14 @@ ALL_ROUTERS = [
     pipeline_router,
     dashboard_router,
     core_router,
+    projects_router,
+    tickets_router,
+    robo_ops_router,
+    gaming_ops_router,
+    roadmap_router,
+    posts_router,
+    analytics_router,
+    faq_router,
     briefing_router,
     releases_router,
     competition_router,
