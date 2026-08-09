@@ -9,6 +9,7 @@
 | Couche | Tech |
 |--------|------|
 | API REST | FastAPI — entry: `api/main.py` → `api/app.py` → `api/routers/` |
+| Frontend | Next.js **15** (`web/`) — `npm run build:safe` si `next dev` écrit déjà `.next` |
 | Agents LLM | OpenRouter REST via `agents/base.py::LLMClient` |
 | Orchestration | CrewAI (tâches complexes multi-agents) |
 | Base de données | Supabase (PostgreSQL) — `database/supabase_client.py` |

@@ -7,6 +7,14 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-09 — Vague 0 garde-fous code sain (docs + chore)
+
+- **Type :** docs + chore
+- **Details :** checklist fin de lot opérationnelle dans `AGENTS.md` (anti-drift
+  + CI mentale Python/FE) ; `ALNUA_OVERVIEW.md` tracké + entrée ordre de lecture ;
+  Next 15 + `build:safe` dans stack `CLAUDE.md` ; suppression branches mortes
+  `feat/rnd-dossier-hub` + `origin/fix/auto…` (2026-06).
+
 ## 2026-08-09 — Sprint REM-002 close-out analysis (docs)
 
 - **Type :** docs
