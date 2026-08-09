@@ -274,6 +274,121 @@ export function fetchRevolutStatus(days = 30): Promise<RevolutStatus> {
   return hubFetch(`/finances/revolut/status?days=${days}`);
 }
 
+export type FiscalStatus = "upcoming" | "due" | "paid_externally" | "cancelled";
+
+export interface FinanceBudget {
+  id: string;
+  department: string;
+  period: string;
+  amount: number;
+  currency: string;
+  label: string;
+  notes?: string;
+  spent?: number;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface BudgetSummary {
+  count: number;
+  total_allocated: number;
+  total_spent: number;
+  remaining: number;
+  by_department: Record<string, number>;
+  transfer_policy: string;
+}
+
+export interface FiscalObligation {
+  id: string;
+  title: string;
+  kind: string;
+  amount: number;
+  currency: string;
+  due_date: string;
+  status: FiscalStatus;
+  notes?: string;
+  paid_at?: string | null;
+  created_at: string;
+}
+
+export interface FiscalSummary {
+  count: number;
+  open_count: number;
+  open_total: number;
+  next_due: string | null;
+  payment_policy: string;
+}
+
+export function fetchFinanceBudgets(filters?: {
+  department?: string;
+  period?: string;
+}): Promise<{ budgets: FinanceBudget[]; summary: BudgetSummary }> {
+  return hubFetch(
+    `/finances/budgets${qs({
+      department: filters?.department,
+      period: filters?.period,
+    })}`
+  );
+}
+
+export function createFinanceBudget(body: {
+  department: string;
+  period: string;
+  amount: number;
+  currency?: string;
+  label?: string;
+  notes?: string;
+}): Promise<FinanceBudget> {
+  return hubFetch("/finances/budgets", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export function fetchFiscalObligations(filters?: {
+  status?: FiscalStatus;
+  kind?: string;
+}): Promise<{ obligations: FiscalObligation[]; summary: FiscalSummary }> {
+  return hubFetch(
+    `/finances/fiscal-obligations${qs({
+      status: filters?.status,
+      kind: filters?.kind,
+    })}`
+  );
+}
+
+export function createFiscalObligation(body: {
+  title: string;
+  amount: number;
+  due_date?: string;
+  kind?: string;
+  currency?: string;
+  notes?: string;
+  status?: FiscalStatus;
+}): Promise<FiscalObligation> {
+  return hubFetch("/finances/fiscal-obligations", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export function updateFiscalObligation(
+  id: string,
+  body: Partial<{
+    title: string;
+    amount: number;
+    due_date: string;
+    kind: string;
+    status: FiscalStatus;
+    notes: string;
+  }>
+): Promise<FiscalObligation> {
+  return hubFetch(`/finances/fiscal-obligations/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+}
+
 export function formatCurrency(amount: number, currency = "EUR"): string {
   return new Intl.NumberFormat("fr-FR", {
     style: "currency",

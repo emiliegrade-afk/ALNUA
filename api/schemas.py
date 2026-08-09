@@ -613,6 +613,56 @@ class FinanceInvoiceUpdate(BaseModel):
     notes: str | None = None
 
 
+class FinanceBudgetCreate(BaseModel):
+    department: str = Field(min_length=1, max_length=40)
+    period: str = Field(min_length=4, max_length=20)
+    amount: float = Field(ge=0)
+    currency: str = "EUR"
+    label: str = ""
+    notes: str = ""
+
+
+class FinanceBudgetUpdate(BaseModel):
+    department: str | None = None
+    period: str | None = None
+    amount: float | None = Field(default=None, ge=0)
+    spent: float | None = Field(default=None, ge=0)
+    currency: str | None = None
+    label: str | None = None
+    notes: str | None = None
+
+
+class FinanceFiscalCreate(BaseModel):
+    title: str = Field(min_length=1, max_length=200)
+    amount: float = Field(ge=0)
+    due_date: date | None = None
+    kind: str = "autre"
+    currency: str = "EUR"
+    notes: str = ""
+    status: str = Field(default="upcoming", pattern="^(upcoming|due|paid_externally|cancelled)$")
+
+
+class FinanceFiscalUpdate(BaseModel):
+    title: str | None = None
+    amount: float | None = Field(default=None, ge=0)
+    due_date: date | None = None
+    kind: str | None = None
+    currency: str | None = None
+    notes: str | None = None
+    status: str | None = Field(
+        default=None, pattern="^(upcoming|due|paid_externally|cancelled)$"
+    )
+
+
+class ElectronicsBomContextRequest(BaseModel):
+    category: str | None = None
+    limit: int = Field(default=20, ge=1, le=100)
+
+
+class FirmwarePiProbeRequest(BaseModel):
+    command: str = Field(default="uname -a", max_length=200)
+
+
 class FinanceTransactionCreate(BaseModel):
     tx_date: date = Field(alias="date")
     type: str = Field(pattern="^(income|expense)$")

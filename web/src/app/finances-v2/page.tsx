@@ -29,6 +29,7 @@ import type { Project } from "@/lib/types";
 import { VueGlobaleTab } from "./vue-globale-tab";
 import { TransactionsTab } from "./transactions-tab";
 import { CoutsTab } from "./couts-tab";
+import { BudgetsFiscalTab } from "./budgets-fiscal-tab";
 
 /* ────────────────────────────────────────────────────────────────────────────
    Département Finances v2 — Phase 29 + DEC-016. Socle autonome (en-tête,
@@ -38,7 +39,7 @@ import { CoutsTab } from "./couts-tab";
    (2026-08-09), `/finances` ré-exporte cette page (plus de MockupShell).
    ──────────────────────────────────────────────────────────────────────────── */
 
-const TABS = ["Équipe", "Vue globale", "Transactions", "Coûts & Factures"] as const;
+const TABS = ["Équipe", "Vue globale", "Transactions", "Coûts & Factures", "Budgets & Fiscal"] as const;
 type Tab = (typeof TABS)[number];
 
 const TAB_ICON: Record<Tab, string> = {
@@ -46,6 +47,7 @@ const TAB_ICON: Record<Tab, string> = {
   "Vue globale": "◉",
   Transactions: "💳",
   "Coûts & Factures": "📡",
+  "Budgets & Fiscal": "▦",
 };
 
 const QUICK_ACTIONS = [
@@ -233,8 +235,10 @@ function FinancesDepartmentView() {
               <VueGlobaleTab month={month} dashboard={dashboard} dashboardLoading={dashboardLoading} onMonthChange={setMonth} projects={projects} />
             ) : tab === "Transactions" ? (
               <TransactionsTab month={month} refreshKey={refreshKey} onAdd={openNewTransaction} onEdit={openEditTransaction} />
-            ) : (
+            ) : tab === "Coûts & Factures" ? (
               <CoutsTab />
+            ) : (
+              <BudgetsFiscalTab />
             )}
           </div>
 

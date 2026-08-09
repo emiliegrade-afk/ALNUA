@@ -157,6 +157,12 @@ def ai_programmer_behavior(body: AiProgrammerBehaviorRequest) -> dict[str, Any]:
     )
 
 
+@router.post("/agents/ai-programmer/nwiro-probe")
+def ai_programmer_nwiro_probe() -> dict[str, Any]:
+    """Phase 21 — Kenji probes Nwiro BT tools (explicit offline if UE5 down)."""
+    return AiProgrammerAgent().probe_nwiro_tools()
+
+
 @router.post("/agents/environment-artist/environment")
 def environment_artist_environment(body: EnvironmentArtistRequest) -> dict[str, Any]:
     return EnvironmentArtistAgent().design_environment(
@@ -213,11 +219,26 @@ def electronics_circuit(body: ElectronicsCircuitRequest) -> dict[str, Any]:
     )
 
 
+@router.post("/agents/electronics/bom-context")
+def electronics_bom_context(body: ElectronicsBomContextRequest) -> dict[str, Any]:
+    """Phase 21 — Marco reads Eve BOM via skill_bom (no fabricated lines)."""
+    return ElectronicsAgent().bom_context(category=body.category, limit=body.limit)
+
+
 @router.post("/agents/firmware/driver")
 def firmware_driver(body: FirmwareDriverRequest) -> dict[str, Any]:
     return FirmwareAgent().design_driver(
         body.component_name, body.timing_requirement, _clean(body.constraints)
     )
+
+
+@router.post("/agents/firmware/pi-probe")
+def firmware_pi_probe(body: FirmwarePiProbeRequest) -> dict[str, Any]:
+    """Phase 21 — Petra probes Eve Pi via SSH (denylist + PI_NOT_CONFIGURED)."""
+    from services.input_sanitizer import sanitize_user_input
+
+    cmd = sanitize_user_input(body.command or "uname -a", max_length=200)
+    return FirmwareAgent().probe_pi(cmd)
 
 
 @router.post("/agents/mechanical/part")

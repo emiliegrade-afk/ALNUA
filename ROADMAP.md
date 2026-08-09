@@ -58,12 +58,14 @@ Phases 29-36 définies le 2026-07-31 (brief Emilie). **Phase 29 + 33** complét�
 2026-07-31 ; **Phases 30/31/32/36 en MVP** le 2026-08-09 (Phase E remédiation
 Audit 002). Audits 002–004 + Sprint REM-002 + **Vague 0 code sain = 100 %** le
 même jour (checklist AGENTS, OVERVIEW, prune branches, BUG-019 fermé, arbre
-propre). Next 15.5.23. Suites hors MVP : débat LLM Review Board, jauge UI trust,
-`budget_transfer`, daily_briefing cross-dept.
-**Vague 0 + Vague 1 code sain = 100 %** (Next 16.3.0, npm audit 0, `/trust` live).
-**En cours :** Phase 34 (Finance — budgets/fiscalité).
-**Prochaines options :** Vague 2 (MissionsTab / BUG-004), profondeur Phase 34,
-Phase 21 (skills Gaming/Robo).
+propre). Next **16.3.0**.
+**Vagues code sain 0–3 = 100 %** (2026-08-09) : garde-fous → Next 16/trust →
+MissionsTab+COO split → Finance budgets/fiscal + 3 skills Phase 21 + briefing
+cross-dept + Review Board LLM optionnel (`REVIEW_BOARD_LLM`).
+**`budget_transfer` :** explicitement **reporté** (pas dans le moteur ; enveloppes
+budgets manuelles seulement — DEC-016 inchangé, pas de paiement/transfert auto).
+**En cours / suite :** reste Phase 21 (12/15 agents encore LLM-only) ; BUG-004
+(specs_registry / personas / rnd_center) ; profondeur Finance Supabase si besoin.
 
 ## Points tranchés le 2026-07-25 (anciennement ouverts)
 
@@ -422,7 +424,11 @@ texte → JSON chacun (aucun outil `tool()`, aucune connexion réelle) — contr
 **Dépendances :** s'appuie sur l'infra des phases 16 (build/télémétrie UE5) et 19
 (BOM étendu + Laboratoire connecté) — pas de sens de brancher un outil avant que
 l'infra sous-jacente existe.
-**Statut :** ⏸️ Not started — décidé le 2026-07-30 ("on le fera plus tard").
+**Vague 3 (2026-08-09) — premier sprint « 3 skills utiles » :**
+- `ai_programmer` → `POST /agents/ai-programmer/nwiro-probe` (Nwiro BT tools / `UE5_NOT_CONNECTED`)
+- `firmware` → `POST /agents/firmware/pi-probe` (`skill_pi_ssh` + denylist)
+- `electronics` → `POST /agents/electronics/bom-context` (`skills/skill_bom.py`)
+**Statut :** 🔄 In progress (3/15 branchés ; 12 encore LLM-only).
 
 ### Phase 22 — Redesign R&D v2 : socle & coquille (`/rnd-v2`)
 **Objectif :** premier étage d'une refonte en 7 phases (22-28) du département
@@ -1212,9 +1218,9 @@ passage par le workflow engine (Phase 30).
 workflow engine) et Phase 31 (un score sous le seuil doit pouvoir peser sur
 le trust de l'agent producteur).
 **Statut :** 🔄 MVP Complete (2026-08-09) — `config/quality_gates.py` +
-`services/review_board.py` (score structurel, pas encore débat LLM multi-
-personas) + `POST /review-board/evaluate`. Délibération type `rnd_council`
-reste Phase 32+.
+`services/review_board.py` + `POST /review-board/evaluate`.
+**Vague 3 :** débat LLM optionnel via `REVIEW_BOARD_LLM=1`
+(`services/review_board_llm.py`) — défaut off = structural only.
 
 ### Phase 33 — Marketing Command Center — profondeur (Campagnes + Content Studio)
 **Objectif :** livrer deux fonctionnalités précises du brief Emilie —
@@ -1329,11 +1335,13 @@ le workflow engine de la Phase 30 (ex. Marketing→App validé par Aria).
 **Avancée 2026-08-09 (DEC-016) :** ledger factures JSON + API
 (`/finances/invoices`) sans paiement auto ; agrégateur SaaS spend live
 (`/finances/saas-spend`) ; connecteur Revolut lecture seule
-(`/finances/revolut/status`). Tables Supabase `budgets` / `fiscal_obligations`
-et UI cockpit restent à faire.
-**Dépendances :** Phase 29 (cockpit) et Phase 30 (validation des transferts
-de budget).
-**Statut :** 🔄 In progress.
+(`/finances/revolut/status`).
+**Vague 3 (2026-08-09) :** ledgers JSON `budgets` + `fiscal_obligations` + API
+(`/finances/budgets`, `/finances/fiscal-obligations`) + onglet cockpit
+« Budgets & Fiscal ». `budget_transfer` workflow **reporté** (pas stubbé).
+Migration Supabase tables optionnelle plus tard — le JSON est le chemin quotidien.
+**Dépendances :** Phase 29 (cockpit) et Phase 30 (transferts — reportés).
+**Statut :** 🔄 In progress (profondeur utilisable ; transfert workflow hors scope).
 
 ### Phase 35 — Brand Design transversal
 **Objectif :** étendre `agents/brand_agent.py` (aujourd'hui pipeline
@@ -1359,7 +1367,8 @@ métier réelle à déclencher, pas juste un cockpit d'affichage).
 **Statut :** 🔄 MVP Complete (2026-08-09) — handlers `project_validated` /
 `content_validated` / `campaign_validated` → file `data/cross_dept_queue.json`
 (actions Marketing / Finance / Analytics en queue, sans LLM auto) ;
-`GET /cross-dept/queue`. Synthèse daily_briefing cross-dept encore à faire.
+`GET /cross-dept/queue`. **Vague 3 :** `daily_briefing._collect_cross_dept`
+injecte la file dans `raw_data` + prompt COO (`cross_dept_note`).
 
 ### Phase 37 — Marketing Command Center : mesure de performance réelle (Reach/Engagement/ROI/Funnel)
 **Contexte :** Phase 33/29 avaient explicitement exclu Performances par

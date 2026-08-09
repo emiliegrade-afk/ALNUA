@@ -233,6 +233,19 @@ Historique des audits de gouvernance effectués.
 
 ---
 
+## Vague 3 — Produit derrière l'UI (clôture 100 % du DoD Vague 3)
+
+- **Date :** 2026-08-09 (soir)
+- **Scope :** Finance budgets/fiscal ; 3 skills Gaming/Robo ; MVP honesty 31/32/36.
+- **Done :**
+  - [x] Budgets + obligations fiscales (JSON API + onglet cockpit)
+  - [x] `budget_transfer` reporté explicitement (ROADMAP)
+  - [x] 3 agents non creux : ai_programmer / firmware / electronics
+  - [x] daily_briefing ← cross_dept queue
+  - [x] Review Board LLM optionnel (`REVIEW_BOARD_LLM`)
+  - [x] ROADMAP / IMPLEMENTATION_STATUS / CHANGELOG resync
+- **Suite :** Phase 21 reste (12 agents) ; BUG-004 géants ; Supabase budgets optionnel
+
 ## Vague 2 — Dette structurelle BUG-004 (clôture 100 % du DoD Vague 2)
 
 - **Date :** 2026-08-09 (soir)

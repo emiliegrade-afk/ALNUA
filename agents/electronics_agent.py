@@ -43,3 +43,10 @@ Réponds en JSON :
             temperature=0.3,
             max_tokens=2048,
         )
+
+    @trace_agent("electronics")
+    def bom_context(self, category: str | None = None, limit: int = 20) -> dict[str, Any]:
+        """Attach live Eve BOM lines (or explicit unavailable) for circuit work."""
+        from skills.skill_bom import get_bom_context
+
+        return get_bom_context(category=category, limit=limit)

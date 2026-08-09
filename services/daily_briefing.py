@@ -130,6 +130,34 @@ def _collect_memory_health() -> dict[str, Any]:
         return {"error": str(e)}
 
 
+def _collect_cross_dept() -> dict[str, Any]:
+    """Phase 36 — inject queued cross-dept actions into the morning brief."""
+    try:
+        from services.cross_dept_handlers import list_cross_dept_queue
+
+        items = list_cross_dept_queue(limit=15)
+        queued = [i for i in items if i.get("status") == "queued"]
+        by_dept: dict[str, int] = {}
+        for item in queued:
+            d = str(item.get("department") or "other")
+            by_dept[d] = by_dept.get(d, 0) + 1
+        return {
+            "queued_count": len(queued),
+            "by_department": by_dept,
+            "sample": [
+                {
+                    "department": i.get("department"),
+                    "action": i.get("action"),
+                    "title": i.get("title"),
+                    "event_type": i.get("event_type"),
+                }
+                for i in queued[:5]
+            ],
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+
 # ---------------------------------------------------------------------------
 # Synthèse COO
 # ---------------------------------------------------------------------------
@@ -153,10 +181,11 @@ Génère le brief exécutif quotidien avec :
 - priority_1 (string): action #1 pour Emilie aujourd'hui
 - priority_2 (string): action #2
 - priority_3 (string): action #3
-- alerts (list[string]): alertes critiques (budget, agents en échec, etc.)
+- alerts (list[string]): alertes critiques (budget, agents en échec, file cross-dept, etc.)
 - opportunities (list[string]): opportunités à saisir (trends, momentum, etc.)
 - team_performance (string): résumé de la performance équipe en 1 phrase
-- recommended_focus (string): sur quoi Emilie devrait concentrer 80% de son énergie aujourd'hui"""
+- recommended_focus (string): sur quoi Emilie devrait concentrer 80% de son énergie aujourd'hui
+- cross_dept_note (string): 1 phrase sur la file inter-départements si non vide, sinon vide"""
 
         raw = llm.complete(_COO_BRIEF_SYSTEM, prompt, agent_id="coo", temperature=0.3)
         return parse_json_response(raw)
@@ -190,13 +219,14 @@ def run_daily_briefing(
     logger.info("Daily briefing started")
 
     # Collecte parallèle
-    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=6) as executor:
         futures = {
             "leaderboard": executor.submit(_collect_leaderboard),
             "costs": executor.submit(_collect_costs) if include_costs else None,
             "events": executor.submit(_collect_events) if include_events else None,
             "memory_health": executor.submit(_collect_memory_health),
             "academy_gate": executor.submit(_collect_academy_gate),
+            "cross_dept": executor.submit(_collect_cross_dept),
         }
         if include_trends:
             futures["trends"] = executor.submit(_collect_trends)
@@ -231,6 +261,7 @@ def run_daily_briefing(
             "trends_collected": bool(data.get("trends")),
             "memory_health": data.get("memory_health", {}),
             "academy_gate": data.get("academy_gate", {}),
+            "cross_dept": data.get("cross_dept", {}),
         },
     }
 

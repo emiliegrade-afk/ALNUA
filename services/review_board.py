@@ -42,7 +42,7 @@ def evaluate_submission(
     else:
         trust_after = trust_before
 
-    return {
+    result: dict[str, Any] = {
         "department": department,
         "gate_open": gate["gate_open"],
         "score": gate["score"],
@@ -56,3 +56,24 @@ def evaluate_submission(
         "deliberated": False,
         "mode": "structural_mvp",
     }
+
+    # Vague 3 — optional LLM debate behind REVIEW_BOARD_LLM (default off).
+    try:
+        from services.review_board_llm import run_optional_debate
+
+        debate = run_optional_debate(
+            department=department,
+            artifact=artifact,
+            gate=gate,
+            reviewers=reviewers,
+        )
+        if debate:
+            result.update(debate)
+            verdict = (debate.get("debate") or {}).get("verdict")
+            if verdict in ("approve", "revise"):
+                result["recommendation"] = verdict
+                result["gate_open"] = verdict == "approve"
+    except Exception:
+        pass
+
+    return result

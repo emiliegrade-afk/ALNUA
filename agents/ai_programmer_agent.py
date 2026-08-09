@@ -47,3 +47,33 @@ Réponds en JSON :
             temperature=0.5,
             max_tokens=3072,
         )
+
+    @trace_agent("ai_programmer")
+    def probe_nwiro_tools(self) -> dict[str, Any]:
+        """Probe UE5/Nwiro Behaviour Tree tools — never pretends connectivity."""
+        from skills.skill_nwiro import UE5_NOT_CONNECTED, nwiro_is_available, nwiro_list_tools
+
+        if not nwiro_is_available():
+            return {
+                "ok": False,
+                "connected": False,
+                "error": UE5_NOT_CONNECTED,
+                "bt_tools": [],
+            }
+        tools = nwiro_list_tools()
+        bt = [
+            t
+            for t in tools
+            if "behaviour" in str(t.get("name", "")).lower()
+            or "behavior" in str(t.get("name", "")).lower()
+            or "bt_" in str(t.get("name", "")).lower()
+        ]
+        return {
+            "ok": True,
+            "connected": True,
+            "tools_total": len(tools),
+            "bt_tools": [
+                {"name": t.get("name"), "description": (t.get("description") or "")[:200]}
+                for t in bt[:30]
+            ],
+        }

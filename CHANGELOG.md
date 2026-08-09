@@ -7,6 +7,18 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-09 — Vague 3 produit derrière l'UI : Finance + Phase 21 + MVP honesty (feat)
+
+- **Type :** feat + docs
+- **Details :**
+  - **3A Finance :** ledgers JSON budgets + fiscal_obligations ; API CRUD ;
+    onglet « Budgets & Fiscal » ; `budget_transfer` **reporté** (pas stubbé).
+  - **3B Phase 21 :** 3 skills — `ai_programmer`/Nwiro probe, `firmware`/Pi probe,
+    `electronics`/`skill_bom` ; endpoints + tests.
+  - **3C :** briefing COO lit `cross_dept` queue ; Review Board LLM derrière
+    `REVIEW_BOARD_LLM` (off par défaut) ; ROADMAP sans MVP ambigu.
+  - Vérifié : pytest ciblés + suite ; Vitest / tsc.
+
 ## 2026-08-09 — Vague 2 dette structurelle BUG-004 : MissionsTab + split COO (refactor)
 
 - **Type :** refactor + docs

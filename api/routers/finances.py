@@ -172,3 +172,105 @@ def finance_dashboard(
         db, data["recurring_expenses"]
     )
     return data
+
+
+@router.get("/finances/budgets")
+def list_finance_budgets(
+    department: str | None = Query(default=None),
+    period: str | None = Query(default=None),
+) -> dict[str, Any]:
+    from services.finance_budgets import budget_summary, list_budgets
+
+    return {
+        "budgets": list_budgets(department=department, period=period),
+        "summary": budget_summary(),
+    }
+
+
+@router.post("/finances/budgets")
+def create_finance_budget(body: FinanceBudgetCreate) -> dict[str, Any]:
+    from services.finance_budgets import create_budget
+    from services.input_sanitizer import sanitize_user_input
+
+    try:
+        return create_budget(
+            department=sanitize_user_input(body.department, max_length=40),
+            period=sanitize_user_input(body.period, max_length=20),
+            amount=body.amount,
+            currency=body.currency,
+            label=sanitize_user_input(body.label or "", max_length=120),
+            notes=sanitize_user_input(body.notes or "", max_length=500),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.patch("/finances/budgets/{budget_id}")
+def update_finance_budget(budget_id: str, body: FinanceBudgetUpdate) -> dict[str, Any]:
+    from services.finance_budgets import update_budget
+    from services.input_sanitizer import sanitize_user_input
+
+    updates = body.model_dump(exclude_unset=True)
+    for key in ("department", "period", "label", "notes"):
+        if key in updates and updates[key] is not None:
+            updates[key] = sanitize_user_input(str(updates[key]), max_length=200)
+    try:
+        return update_budget(budget_id, **updates)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Budget introuvable") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.get("/finances/fiscal-obligations")
+def list_fiscal_obligations(
+    status: str | None = Query(default=None),
+    kind: str | None = Query(default=None),
+) -> dict[str, Any]:
+    from services.finance_fiscal import fiscal_summary, list_obligations
+
+    return {
+        "obligations": list_obligations(status=status, kind=kind),
+        "summary": fiscal_summary(),
+    }
+
+
+@router.post("/finances/fiscal-obligations")
+def create_fiscal_obligation(body: FinanceFiscalCreate) -> dict[str, Any]:
+    from services.finance_fiscal import create_obligation
+    from services.input_sanitizer import sanitize_user_input
+
+    try:
+        return create_obligation(
+            title=sanitize_user_input(body.title, max_length=200),
+            amount=body.amount,
+            due_date=body.due_date.isoformat() if body.due_date else None,
+            kind=sanitize_user_input(body.kind, max_length=40),
+            currency=body.currency,
+            notes=sanitize_user_input(body.notes or "", max_length=500),
+            status=body.status,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.patch("/finances/fiscal-obligations/{obligation_id}")
+def update_fiscal_obligation(
+    obligation_id: str,
+    body: FinanceFiscalUpdate,
+) -> dict[str, Any]:
+    from services.finance_fiscal import update_obligation
+    from services.input_sanitizer import sanitize_user_input
+
+    updates = body.model_dump(exclude_unset=True)
+    if "due_date" in updates and updates["due_date"] is not None:
+        updates["due_date"] = updates["due_date"].isoformat()
+    for key in ("title", "kind", "notes"):
+        if key in updates and updates[key] is not None:
+            updates[key] = sanitize_user_input(str(updates[key]), max_length=200)
+    try:
+        return update_obligation(obligation_id, **updates)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Obligation introuvable") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc

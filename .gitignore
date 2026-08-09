@@ -54,6 +54,8 @@ data/sentry_ingest.json
 data/supervisor_debug.txt
 data/workflow_runs/
 data/invoices.json
+data/budgets.json
+data/fiscal_obligations.json
 brand_kits/
 logs/
 
