@@ -35,15 +35,25 @@ def main() -> None:
             print(f"  FAIL {agent}: {exc}")
 
     print("\n=== External services ===")
+    ue58_url = (os.getenv("UE5_SERVER_URL") or "").strip()
+    if ue58_url:
+        try:
+            resp = httpx.get(f"{ue58_url.rstrip('/')}/health", timeout=2)
+            print(f"  OK   UE5.8 {ue58_url} — HTTP {resp.status_code}")
+        except Exception as exc:
+            print(f"  WARN UE5.8 {ue58_url} — {exc}")
+    else:
+        print("  WARN UE5.8 — UE5_SERVER_URL not set (DEC-017)")
+
     host = os.getenv("NWIRO_HOST", "localhost")
     port = int(os.getenv("NWIRO_PORT", "5353"))
     sock = socket.socket()
     sock.settimeout(2)
     try:
         sock.connect((host, port))
-        print(f"  OK   Nwiro {host}:{port}")
+        print(f"  OK   Nwiro (legacy) {host}:{port}")
     except OSError as exc:
-        print(f"  WARN Nwiro {host}:{port} — {exc}")
+        print(f"  WARN Nwiro (legacy) {host}:{port} — {exc}")
     finally:
         sock.close()
 

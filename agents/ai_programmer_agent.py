@@ -49,8 +49,15 @@ Réponds en JSON :
         )
 
     @trace_agent("ai_programmer")
+    def probe_ue58(self) -> dict[str, Any]:
+        """Phase 21 / DEC-017 — probe UE5.8 server (primary bridge)."""
+        from skills.skill_ue58 import probe_for_agent
+
+        return probe_for_agent(self.AGENT_NAME)
+
+    @trace_agent("ai_programmer")
     def probe_nwiro_tools(self) -> dict[str, Any]:
-        """Probe UE5/Nwiro Behaviour Tree tools — never pretends connectivity."""
+        """LEGACY Nwiro BT probe (DEC-017) — prefer probe_ue58."""
         from skills.skill_nwiro import UE5_NOT_CONNECTED, nwiro_is_available, nwiro_list_tools
 
         if not nwiro_is_available():
@@ -59,6 +66,7 @@ Réponds en JSON :
                 "connected": False,
                 "error": UE5_NOT_CONNECTED,
                 "bt_tools": [],
+                "legacy": True,
             }
         tools = nwiro_list_tools()
         bt = [
@@ -71,6 +79,7 @@ Réponds en JSON :
         return {
             "ok": True,
             "connected": True,
+            "legacy": True,
             "tools_total": len(tools),
             "bt_tools": [
                 {"name": t.get("name"), "description": (t.get("description") or "")[:200]}

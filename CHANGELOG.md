@@ -7,6 +7,15 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-09 — Vague A : pont Hub ↔ UE5.8 (feat)
+
+- **Type :** feat
+- **Details :**
+  - `SPEC_UE58_BRIDGE.md` + `skills/skill_ue58.py` (health, caps filtrées, chat, GDD).
+  - Router `ue58_bridge` : status, probes Kenji/Otto/Diego, chat, gdd/sync.
+  - Console Gaming : badge Nwiro → statut UE5.8 via Hub.
+  - Tests `test_ue58_bridge.py` ; Nwiro resté legacy.
+
 ## 2026-08-09 — P0 décisions : UE5.8, Pi, UI *-v2 (docs)
 
 - **Type :** docs

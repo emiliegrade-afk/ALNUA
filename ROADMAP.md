@@ -64,10 +64,9 @@ MissionsTab+COO split → Finance/skills/MVP honesty → **durabilité** (purge 
 dumps, orphan `coding_facade`, checklist `AGENTS.md`, tests HTTP budgets).
 **`budget_transfer` :** explicitement **reporté** (pas dans le moteur ; enveloppes
 budgets manuelles seulement — DEC-016 inchangé, pas de paiement/transfert auto).
-**Prochain audit santé :** ≤ **2026-08-30**. **BUG-004 fermé**. **P0 décisions
-2026-08-09 :** DEC-017 (UE5.8, Nwiro abandonné), DEC-018 (Pi différé), DEC-019
-(stash BUG-019 jeté), `budget_transfer` toujours reporté. Suite : Vague A Phase 21
-(skill UE5.8), Vague B robotique, Phase 34/35/28 selon besoin.
+**Prochain audit santé :** ≤ **2026-08-30**. **BUG-004 fermé**. **P0 + Vague A
+2026-08-09 :** DEC-017–019 + pont Hub UE5.8 (`skill_ue58`, probes, chat/GDD).
+Suite : serveur UE5.8 studio réel ; Vague B robotique ; Phase 34/35/28.
 
 ## Points tranchés le 2026-07-25 (anciennement ouverts)
 
@@ -444,9 +443,16 @@ pont Nwiro **abandonné** (DEC-017) — ne plus étendre `skill_nwiro`.
 - `POST /agents/hardware/infra-blueprint` — robot physique vs app compagnon
   (`dev_app`, comme Naïa) ; `GET /robo/pi-bridge` (SSH Hub, Pi différable)
 - UI `/robo` console : panneau BOM + boutons IA
-**P0 (2026-08-09) :** DEC-017/018 — prochaine sous-vague = skill + probes UE5.8
-(remplace Nwiro) ; Pi reste différé.
-**Statut :** 🔄 In progress (BOM/montage OK ; pont Gaming → UE5.8 à construire).
+**P0 (2026-08-09) :** DEC-017/018 — Pi reste différé.
+**Vague A (2026-08-09) — pont UE5.8 (DEC-017) :**
+- Spec : `SPEC_UE58_BRIDGE.md` (health / capabilities / chat / GDD)
+- Skill : `skills/skill_ue58.py` + router `api/routers/ue58_bridge.py`
+- Probes : `POST /agents/{ai-programmer|technical-artist|vfx-artist}/ue58-probe`
+- Status / chat / GDD : `GET /gaming/ue58/status`, `POST /gaming/ue58/chat`,
+  `POST /gaming/ue58/gdd/sync` ; UI console Gaming affiche le statut UE5.8
+- Nwiro probes = legacy (conservés, non étendus)
+**Statut :** 🔄 In progress (pont Hub prêt ; serveur UE5.8 studio à brancher ;
+skills robotique BOM OK ; Pi optionnel).
 
 ### Phase 22 — Redesign R&D v2 : socle & coquille (`/rnd-v2`)
 **Objectif :** premier étage d'une refonte en 7 phases (22-28) du département

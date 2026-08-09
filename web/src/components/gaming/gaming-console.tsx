@@ -9,15 +9,32 @@ import {
   levelDesignerLore,
   levelDesignerQuest,
 } from "@/lib/pole-api";
-import { checkNwiroHost } from "@/lib/lobby-api";
+import { fetchUe58Status, type Ue58Status } from "@/lib/gaming-ue58";
 import { useEffect, useState } from "react";
 
 export function GamingConsole() {
-  const [nwiroConnected, setNwiroConnected] = useState(false);
+  const [ue58, setUe58] = useState<Ue58Status | null>(null);
 
   useEffect(() => {
-    checkNwiroHost().then(setNwiroConnected);
+    fetchUe58Status()
+      .then(setUe58)
+      .catch(() =>
+        setUe58({
+          ok: false,
+          configured: false,
+          connected: false,
+          error: "Statut UE5.8 indisponible",
+        }),
+      );
   }, []);
+
+  const statusLabel = !ue58
+    ? "…"
+    : ue58.connected
+      ? "Connecté"
+      : !ue58.configured
+        ? "Hors ligne — définir UE5_SERVER_URL (ou UE58_HOST)"
+        : ue58.error || "Serveur UE5.8 injoignable";
 
   return (
     <section className="space-y-6">
@@ -25,17 +42,19 @@ export function GamingConsole() {
 
       <Card className="border-copper/20 bg-obsidian-2/90">
         <CardHeader className="pb-2">
-          <CardTitle className="font-title text-base text-ivory">Nwiro UE5</CardTitle>
+          <CardTitle className="font-title text-base text-ivory">
+            Pont UE5.8 (DEC-017)
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <span
             className={
-              nwiroConnected
+              ue58?.connected
                 ? "badge-copper px-2 py-0.5 text-xs"
                 : "badge-titanium px-2 py-0.5 text-xs"
             }
           >
-            {nwiroConnected ? "Connecté" : "Hors ligne — configurer NEXT_PUBLIC_NWIRO_HOST"}
+            {statusLabel}
           </span>
         </CardContent>
       </Card>
@@ -43,7 +62,7 @@ export function GamingConsole() {
       <div className="grid gap-4 lg:grid-cols-2">
         <AgentActionConsole
           title="Suki — Dev Gaming"
-          description="UE5, Nwiro, blueprints, intégrations"
+          description="UE5.8, blueprints, intégrations studio"
           fields={[
             {
               name: "instruction",

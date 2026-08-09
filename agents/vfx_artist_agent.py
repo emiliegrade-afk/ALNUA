@@ -44,3 +44,10 @@ Réponds en JSON :
             temperature=0.7,
             max_tokens=2048,
         )
+
+    @trace_agent("vfx_artist")
+    def probe_ue58(self) -> dict[str, Any]:
+        """Phase 21 / DEC-017 — probe UE5.8 Niagara / VFX capabilities."""
+        from skills.skill_ue58 import probe_for_agent
+
+        return probe_for_agent(self.AGENT_NAME)
