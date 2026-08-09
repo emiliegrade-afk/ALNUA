@@ -7,6 +7,19 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-09 — Vague 2 dette structurelle BUG-004 : MissionsTab + split COO (refactor)
+
+- **Type :** refactor + docs
+- **Details :**
+  - **FE :** `DeptMissionsTab` partagé (`web/src/components/shared/dept-missions-tab.tsx`) ;
+    wrappers fins app / gaming / robo (`*-v2/missions-tab.tsx`).
+  - **COO :** `coo_agent.py` façade **~576** lignes (était ~1476) — modules
+    `coo_constants` / `coo_intents` / `coo_routing` / `coo_composio_tools` /
+    `coo_project` / `coo_briefing` / `coo_delegates` / `coo_plan` / `coo_handlers` ;
+    re-exports compat (tests, telegram_ack, secretary).
+  - **BUG-004** mis à jour (mitigé, pas fermé — specs_registry / personas / rnd_center).
+  - Vérifié : ruff OK ; pytest **386** passed / 6 skipped ; Vitest **35**/35 ; `tsc` OK.
+
 ## 2026-08-09 — Vague 1 hygiène bloquante : Next 16 + Trust UI (feat + fix + docs)
 
 - **Type :** feat + fix + docs

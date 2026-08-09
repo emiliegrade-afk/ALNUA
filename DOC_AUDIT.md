@@ -233,6 +233,19 @@ Historique des audits de gouvernance effectués.
 
 ---
 
+## Vague 2 — Dette structurelle BUG-004 (clôture 100 % du DoD Vague 2)
+
+- **Date :** 2026-08-09 (soir)
+- **Scope :** MissionsTab unifié + monolithe COO sous ~700 lignes.
+- **Done :**
+  - [x] `DeptMissionsTab` partagé + wrappers app/gaming/robo
+  - [x] `coo_agent.py` façade **~576** lignes (mixins + intents/routing/tools/handlers)
+  - [x] Re-exports façade inchangés pour consumers
+  - [x] ruff + pytest full + Vitest 35 verts
+  - [x] BUG-004 / CHANGELOG mis à jour (mitigé, pas fermé)
+- **Ouvert restant :** BUG-004 (autres géants : specs_registry, personas, rnd_center)
+- **Suite :** Vague 3 (Finance / skills Gaming-Robo) ou split suivant BUG-004
+
 ## Vague 1 — Hygiène bloquante (clôture 100 %)
 
 - **Date :** 2026-08-09 (soir)

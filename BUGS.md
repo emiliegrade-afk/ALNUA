@@ -63,14 +63,14 @@ y compris `tests/test_devex_phase6.py` réécrit pour le nouveau comportement.
 
 | ID | Gravité | Description | Constat |
 |----|---------|-------------|-----------|
-| BUG-004 | Info | Fichiers Python >300 lignes — mitigé encore | Audit 004 / Sprint REM-002 : `workflow_engine` ~387 + handlers ≤300 ; encore **4** fichiers >1000 (`agent_specs_registry` 1411, `coo_agent` 1289, `agent_personas` 1110, `rnd_center` 1042) + MissionsTab ×3 (~600) |
+| BUG-004 | Info | Fichiers Python >300 lignes — mitigé Vague 2 | Vague 2 : `coo_agent` **~1476 → ~576** (façade + mixins/intents/routing/tools/handlers) ; MissionsTab ×3 → `DeptMissionsTab` partagé (~672) + wrappers fins. Restent >1000 : `agent_specs_registry` ~1411, `agent_personas` ~1110, `rnd_center` ~1042. Pas fermé — dette structurelle continue. |
 
-## Statistiques (mises à jour Vague 1 — 2026-08-09 soir)
+## Statistiques (mises à jour Vague 2 — 2026-08-09 soir)
 
 | Bucket | Count |
 |--------|------:|
-| Ouverts | 1 (`BUG-004`) — mitigé, pas fermé |
-| Fermés remédiation + Vague 0/1 | 14 (`BUG-002`/`003`/`005`/`011`–`019`) |
+| Ouverts | 1 (`BUG-004`) — mitigé Vague 2, pas fermé |
+| Fermés remédiation + Vague 0/1/2 | 14 (`BUG-002`/`003`/`005`/`011`–`019`) |
 | Residual mockup routes (working tree) | **0** |
 | npm audit (web) | **0** vulns (post Next 16) |
 | Corrigés (SEC) | 6 (`SEC-001`–`006`) |
