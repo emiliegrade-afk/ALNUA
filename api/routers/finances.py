@@ -274,3 +274,45 @@ def update_fiscal_obligation(
         raise HTTPException(status_code=404, detail="Obligation introuvable") from exc
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.get("/finances/cockpit-forecast")
+def finances_cockpit_forecast(
+    period: str | None = Query(default=None, pattern=r"^\d{4}-\d{2}$"),
+    horizon_months: int = Query(default=6, ge=1, le=24),
+) -> dict[str, Any]:
+    """Vague C — deterministic forecast from budgets + fiscal + SaaS (no auto-pay)."""
+    from services.finance_cockpit_forecast import build_cockpit_forecast
+
+    return build_cockpit_forecast(period=period, horizon_months=horizon_months)
+
+
+@router.post("/finances/forecast/llm")
+def finances_forecast_llm(body: dict[str, Any]) -> dict[str, Any]:
+    """Vague C — Rémi LLM forecast, prefilled from cockpit ledgers when possible."""
+    from agents.controller_agent import ControllerAgent
+    from services.finance_cockpit_forecast import build_cockpit_forecast
+    from services.input_sanitizer import sanitize_user_input
+
+    period = sanitize_user_input(str(body.get("period") or ""), max_length=10) or None
+    horizon = int(body.get("horizon_months") or 6)
+    cockpit = build_cockpit_forecast(period=period, horizon_months=horizon)
+    project = sanitize_user_input(str(body.get("project") or "ALNUA global"), max_length=120)
+    assumptions = sanitize_user_input(
+        str(body.get("assumptions") or cockpit.get("assumptions_for_llm") or ""),
+        max_length=4000,
+    )
+    historical = body.get("historical_data")
+    if not isinstance(historical, dict):
+        historical = {
+            "cockpit": cockpit,
+            "period_remaining": cockpit["budgets"]["period_remaining"],
+            "monthly_burn_estimate": cockpit["projection"]["monthly_burn_estimate"],
+        }
+    result = ControllerAgent().build_forecast(
+        project=project,
+        horizon_months=horizon,
+        assumptions=assumptions,
+        historical_data=historical,
+    )
+    return {"ok": True, "cockpit": cockpit, "llm_forecast": result}

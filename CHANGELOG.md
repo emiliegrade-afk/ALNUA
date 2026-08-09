@@ -7,6 +7,15 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-10 — Vague C : Finance cockpit forecast (feat)
+
+- **Type :** feat
+- **Details :**
+  - `finance_cockpit_forecast` + `GET /finances/cockpit-forecast` /
+    `POST /finances/forecast/llm` (Rémi + ledgers réels).
+  - Onglet Budgets & Fiscal : stats, kind/échéance, spent, panneau forecast.
+  - Tests `test_finance_cockpit_forecast.py`. `budget_transfer` toujours reporté.
+
 ## 2026-08-10 — Vague B : probes robotique Phase 21 (feat)
 
 - **Type :** feat

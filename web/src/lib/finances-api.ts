@@ -345,6 +345,89 @@ export function createFinanceBudget(body: {
   });
 }
 
+export function updateFinanceBudget(
+  id: string,
+  body: Partial<{
+    department: string;
+    period: string;
+    amount: number;
+    spent: number;
+    label: string;
+    notes: string;
+  }>,
+): Promise<FinanceBudget> {
+  return hubFetch(`/finances/budgets/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+}
+
+export interface CockpitForecast {
+  ok: boolean;
+  period: string;
+  horizon_months: number;
+  budgets: {
+    period_allocated: number;
+    period_spent: number;
+    period_remaining: number;
+    by_department: Array<{
+      department: string;
+      amount: number;
+      spent: number;
+      remaining: number;
+      utilization_pct: number;
+    }>;
+    summary: BudgetSummary;
+  };
+  fiscal: {
+    summary: FiscalSummary;
+    open_items: Array<{
+      id: string;
+      title: string;
+      amount: number;
+      due_date: string;
+      kind: string;
+      status: string;
+    }>;
+  };
+  saas: { monthly_estimate: number; note: string };
+  projection: {
+    monthly_burn_estimate: number;
+    runway_months_on_envelopes: number | null;
+    monthly_forecast: Array<{
+      month: string;
+      projected_costs: number;
+      envelope_remaining_end: number;
+    }>;
+  };
+  assumptions_for_llm: string;
+}
+
+export function fetchCockpitForecast(
+  period?: string,
+  horizonMonths = 6,
+): Promise<CockpitForecast> {
+  return hubFetch(
+    `/finances/cockpit-forecast${qs({
+      period,
+      horizon_months: String(horizonMonths),
+    })}`,
+  );
+}
+
+export function runFinanceForecastLlm(body: {
+  period?: string;
+  horizon_months?: number;
+  project?: string;
+  assumptions?: string;
+}): Promise<{ ok: boolean; cockpit: CockpitForecast; llm_forecast: Record<string, unknown> }> {
+  return hubFetch("/finances/forecast/llm", {
+    method: "POST",
+    body: JSON.stringify(body),
+    timeoutMs: 120_000,
+  });
+}
+
 export function fetchFiscalObligations(filters?: {
   status?: FiscalStatus;
   kind?: string;

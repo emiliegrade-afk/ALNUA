@@ -64,9 +64,9 @@ MissionsTab+COO split → Finance/skills/MVP honesty → **durabilité** (purge 
 dumps, orphan `coding_facade`, checklist `AGENTS.md`, tests HTTP budgets).
 **`budget_transfer` :** explicitement **reporté** (pas dans le moteur ; enveloppes
 budgets manuelles seulement — DEC-016 inchangé, pas de paiement/transfert auto).
-**Prochain audit santé :** ≤ **2026-08-30**. **P0 + Vague A/B + DEC-020 :**
-pont UE5.8, agency Claude Code, probes robotique lab/BOM/Pi. Suite : config
-`UE_PROJECT_PATH` + Pi ; Phase 34/35/28 selon besoin.
+**Prochain audit santé :** ≤ **2026-08-30**. **P0 + Vagues A/B/C + DEC-020 :**
+UE5.8, agency Claude Code, probes robo, **forecast Finance cockpit**. Suite :
+config `UE_PROJECT_PATH` / Pi ; Phase 35 Brand ou 28 Explorer.
 
 ## Points tranchés le 2026-07-25 (anciennement ouverts)
 
@@ -1371,9 +1371,13 @@ le workflow engine de la Phase 30 (ex. Marketing→App validé par Aria).
 **Vague 3 (2026-08-09) :** ledgers JSON `budgets` + `fiscal_obligations` + API
 (`/finances/budgets`, `/finances/fiscal-obligations`) + onglet cockpit
 « Budgets & Fiscal ». `budget_transfer` workflow **reporté** (pas stubbé).
-Migration Supabase tables optionnelle plus tard — le JSON est le chemin quotidien.
+**Vague C (2026-08-10) :**
+- `GET /finances/cockpit-forecast` — projection déterministe (budgets + fiscal + SaaS)
+- `POST /finances/forecast/llm` — Rémi prérempli depuis le cockpit
+- UI : résumé, kind/due_date fiscal, dépensé éditable, panneau forecast
+Migration Supabase tables optionnelle plus tard — le JSON reste le chemin quotidien.
 **Dépendances :** Phase 29 (cockpit) et Phase 30 (transferts — reportés).
-**Statut :** 🔄 In progress (profondeur utilisable ; transfert workflow hors scope).
+**Statut :** 🔄 In progress (profondeur cockpit OK ; `budget_transfer` toujours hors scope).
 
 ### Phase 35 — Brand Design transversal
 **Objectif :** étendre `agents/brand_agent.py` (aujourd'hui pipeline
