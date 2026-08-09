@@ -57,7 +57,7 @@ y compris `tests/test_devex_phase6.py` réécrit pour le nouveau comportement.
 | BUG-013 | Moyenne | Routes mockup restantes | Suite clean : `/hub` `/analytics` live (DeptV2 shells) — **plus de MockupDepartmentPage** sur routes primaires |
 | BUG-018 | Faible | Micro-drift docs post-Audit 003 (même jour) : README/ARCHITECTURE/TESTING/IMPLEMENTATION_STATUS encore « Next.js 14 » et « ~381 tests » alors que `web/package.json` = Next **15.5.23** et `pytest --collect-only` = **392** ; ROADMAP « Current phase » proposait encore Audit 003 ; DOC_AUDIT 003 listait des mockups déjà reconnectés | Audit 004 : resync Next 15 + comptes tests + ROADMAP blurb + stats ; règle anti-drift rappelée |
 | BUG-017 | Info | Next / sharp vulns (npm audit highs) | Vague 1 : upgrade Next **15.5.23 → 16.3.0** + eslint 9 + `eslint.config.mjs` ; override `dompurify` 3.4.13 ; `npm audit` = **0** vulns ; `build:safe` + tsc + vitest 35 verts |
-| BUG-019 | Moyenne | WIP local dirty sur /finances + /marketing (mockup puis draft pole-dashboard) risquait une régression vs ré-exports *-v2 live | Vague 0 100 % : arbre restauré sur HEAD live ; WIP en git stash (WIP BUG-019 pole-dashboard…). Reprise = git stash pop + DEC si remplacement des *-v2 |
+| BUG-019 | Moyenne | WIP local dirty sur /finances + /marketing (mockup puis draft pole-dashboard) risquait une régression vs ré-exports *-v2 live | Vague 0 : arbre live `*-v2` ; WIP stashé. **P0 DEC-019 (2026-08-09) :** stash jeté — pas de reprise pole-dashboard sans nouvelle DEC |
 
 ## Corrigés (2026-08-09 — BUG-004 hotspots)
 
