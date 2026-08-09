@@ -64,9 +64,9 @@ MissionsTab+COO split → Finance/skills/MVP honesty → **durabilité** (purge 
 dumps, orphan `coding_facade`, checklist `AGENTS.md`, tests HTTP budgets).
 **`budget_transfer` :** explicitement **reporté** (pas dans le moteur ; enveloppes
 budgets manuelles seulement — DEC-016 inchangé, pas de paiement/transfert auto).
-**Prochain audit santé :** ≤ **2026-08-30**. **P0 + Vagues A/B/C + DEC-020 :**
-UE5.8, agency Claude Code, probes robo, **forecast Finance cockpit**. Suite :
-config `UE_PROJECT_PATH` / Pi ; Phase 35 Brand ou 28 Explorer.
+**Prochain audit santé :** ≤ **2026-08-30**. **P0 + Vagues A–D + DEC-020 :**
+UE5.8, agency Claude Code, probes robo, forecast Finance, **Brand design system**.
+Suite : config `UE_PROJECT_PATH` / Pi ; Phase 28 Explorer.
 
 ## Points tranchés le 2026-07-25 (anciennement ouverts)
 
@@ -1389,7 +1389,13 @@ contenu de tous les départements (`config/agent_personas.py` à étendre pour
 un agent multi-room).
 **Dépendances :** Phase 32 (Brand devient un des reviewers du Review Board
 générique).
-**Statut :** ⏸️ Not started.
+**Livré Vague D (2026-08-10) :**
+- `services/brand_design_system.py` — tokens Hub/kit + `BRAND_VOICE_GUIDE`
+- `config/review_board_recipes.py` — siège `brand` / `content_company`
+- `GET /brand/design-system`, `POST /brand/review` (`brand_system` router)
+- Marketing Brand Center réel (plus ComingSoon)
+- Hors scope Vague D : persona multi-room Brand, débat LLM, split `brand-view`
+**Statut :** 🔄 MVP Slice (Vague D) — design system + reviewer structurel.
 
 ### Phase 36 — Orchestration inter-départements
 **Objectif :** le scénario "validation d'un projet APP → Marketing crée le

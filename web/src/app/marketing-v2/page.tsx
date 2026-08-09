@@ -24,6 +24,7 @@ import { SocialMediaTab } from "./social-media-tab";
 import { AnalyticsTab } from "./analytics-tab";
 import { AutomatisationTab } from "./automatisation-tab";
 import { ComingSoonTab } from "./coming-soon-tab";
+import { BrandCenterTab } from "./brand-center-tab";
 
 /* ────────────────────────────────────────────────────────────────────────────
    Département Marketing v2 — Phase 29, ROADMAP.md ("Marketing Command
@@ -212,10 +213,7 @@ function MarketingDepartmentView() {
                 reason="Aucun outil de suivi mots-clés/positionnement n'est branché au Hub aujourd'hui (pas d'intégration Google Search Console, Ahrefs ou équivalent)."
               />
             ) : (
-              <ComingSoonTab
-                title="Brand Center"
-                reason="Le Brand Design transversal (validation de cohérence de marque) n'est pas encore construit — Phase 35, ROADMAP.md, non démarrée."
-              />
+              <BrandCenterTab />
             )}
           </div>
 

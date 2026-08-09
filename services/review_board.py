@@ -23,18 +23,49 @@ def evaluate_submission(
     """
     Returns gate decision for a department artifact.
 
-    reviewers is accepted for API compatibility with future LLM boards;
-    MVP does not call LLMs (honest structural score only).
+    reviewers: optional; if omitted, resolved from config.review_board_recipes.
+    Brand / content_company reviewers run structural brand coherence (Phase 35).
     """
+    from config.review_board_recipes import resolve_reviewers
+
+    resolved = resolve_reviewers(department, reviewers)
     gate = evaluate_gate(department, artifact)
+    checks = list(gate.get("checks") or [])
+    score = float(gate.get("score") or 0)
+    gate_open = bool(gate.get("gate_open"))
+
+    brand_review: dict[str, Any] | None = None
+    if any(r in ("brand", "content_company") for r in resolved):
+        try:
+            from services.brand_design_system import artifact_text, review_brand_coherence
+
+            brand_review = review_brand_coherence(
+                artifact_text(artifact),
+                department=department,
+            )
+            checks.append(
+                {
+                    "id": "brand_coherence",
+                    "ok": brand_review.get("ok"),
+                    "flags": brand_review.get("flags"),
+                    "reviewer": "brand",
+                }
+            )
+            if not brand_review.get("ok"):
+                gate_open = False
+                # Quality gates are 0–100; brand fail soft-penalizes without zeroing.
+                score = min(score, max(0.0, score - 15.0))
+        except Exception as exc:
+            checks.append({"id": "brand_coherence", "ok": False, "error": str(exc)[:200]})
+
     producer = (producer_agent_id or artifact.get("producer_agent_id") or "").strip() or None
     trust_before = get_trust(producer) if producer else None
 
-    recommendation = "approve" if gate["gate_open"] else "revise"
+    recommendation = "approve" if gate_open else "revise"
     if record_trust and producer:
         trust_after = record_validation(
             producer,
-            success=bool(gate["gate_open"]),
+            success=bool(gate_open),
             weight=1.0,
             note=f"review_board:{department}:{recommendation}",
             source="review_board",
@@ -44,17 +75,18 @@ def evaluate_submission(
 
     result: dict[str, Any] = {
         "department": department,
-        "gate_open": gate["gate_open"],
-        "score": gate["score"],
+        "gate_open": gate_open,
+        "score": round(score, 4),
         "threshold": gate["threshold"],
         "recommendation": recommendation,
-        "checks": gate["checks"],
-        "reviewers": reviewers or ["quality_gates"],
+        "checks": checks,
+        "reviewers": resolved,
         "producer_agent_id": producer,
         "trust_before": trust_before,
         "trust_after": trust_after,
         "deliberated": False,
         "mode": "structural_mvp",
+        "brand_review": brand_review,
     }
 
     # Vague 3 — optional LLM debate behind REVIEW_BOARD_LLM (default off).

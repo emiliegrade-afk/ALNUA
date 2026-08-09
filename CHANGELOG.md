@@ -7,6 +7,15 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-10 — Vague D : Brand design system (feat)
+
+- **Type :** feat
+- **Details :**
+  - `brand_design_system` + voice `content_company` ; recipes Review Board.
+  - Router `brand_system` : `GET /brand/design-system`, `POST /brand/review`.
+  - Marketing Brand Center branché ; tests `test_brand_design_system.py`.
+  - Hors scope : persona multi-room Brand, débat LLM.
+
 ## 2026-08-10 — Vague C : Finance cockpit forecast (feat)
 
 - **Type :** feat

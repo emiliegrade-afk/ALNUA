@@ -13,6 +13,7 @@ from api.routers.releases import router as releases_router
 from api.routers.competition import router as competition_router
 from api.routers.agents_pole import router as agents_pole_router
 from api.routers.brand import router as brand_router
+from api.routers.brand_system import router as brand_system_router
 from api.routers.beta import router as beta_router
 from api.routers.waitlist import router as waitlist_router
 from api.routers.partnerships import router as partnerships_router
@@ -59,6 +60,7 @@ ALL_ROUTERS = [
     competition_router,
     agents_pole_router,
     brand_router,
+    brand_system_router,
     beta_router,
     waitlist_router,
     partnerships_router,

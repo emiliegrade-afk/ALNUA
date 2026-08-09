@@ -156,3 +156,21 @@ class BrandAgent:
         except Exception as exc:
             logger.warning("brand_kits persist skipped: %s", exc)
             return {"id": str(uuid.uuid4()), **payload}
+
+    def get_design_system(self) -> dict[str, Any]:
+        """Phase 35 — merged tokens + voice (thin wrapper)."""
+        from services.brand_design_system import get_design_system
+
+        return get_design_system()
+
+    def review_coherence(
+        self,
+        text: str,
+        *,
+        sector: str = "",
+        department: str = "",
+    ) -> dict[str, Any]:
+        """Phase 35 — structural brand coherence review."""
+        from services.brand_design_system import review_brand_coherence
+
+        return review_brand_coherence(text, sector=sector, department=department)
