@@ -7,6 +7,17 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-09 — BUG-004 : split specs / personas / rnd_center (refactor)
+
+- **Type :** refactor
+- **Details :**
+  - `config/agent_specs_registry.py` et `config/agent_personas.py` → façades +
+    modules par pôle (`agent_specs_*.py`, `personas_*.py`) — tous ≤300 lignes.
+  - `agents/rnd_center.py` → façade + `rnd_center_{llm,store,observe,pipeline,library}.py`.
+  - Tests `test_rnd_library_develop` patchent les modules d’implémentation.
+  - BUG-004 fermé (hotspots) ; dette >300 ailleurs notée en backlog hygiène.
+  - `ruff` + `pytest` 401 passed / 6 skipped.
+
 ## 2026-08-09 — Eve robotics : BOM IA (alternatives, montage, rôles) (feat)
 
 - **Type :** feat

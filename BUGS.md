@@ -59,22 +59,28 @@ y compris `tests/test_devex_phase6.py` réécrit pour le nouveau comportement.
 | BUG-017 | Info | Next / sharp vulns (npm audit highs) | Vague 1 : upgrade Next **15.5.23 → 16.3.0** + eslint 9 + `eslint.config.mjs` ; override `dompurify` 3.4.13 ; `npm audit` = **0** vulns ; `build:safe` + tsc + vitest 35 verts |
 | BUG-019 | Moyenne | WIP local dirty sur /finances + /marketing (mockup puis draft pole-dashboard) risquait une régression vs ré-exports *-v2 live | Vague 0 100 % : arbre restauré sur HEAD live ; WIP en git stash (WIP BUG-019 pole-dashboard…). Reprise = git stash pop + DEC si remplacement des *-v2 |
 
+## Corrigés (2026-08-09 — BUG-004 hotspots)
+
+| ID | Gravité | Description | Correctif |
+|----|---------|-------------|-----------|
+| BUG-004 | Info | Fichiers Python >300 lignes (hotspots trackés) | Façades + modules par pôle : `agent_specs_registry` → `agent_specs_*.py` (~23 lignes façade, 45 specs) ; `agent_personas` → `personas_*.py` (~112 lignes façade, 49 personas) ; `rnd_center` → `rnd_center_{llm,store,observe,pipeline,library}.py` (~153 lignes façade). Modules split ≤300. Tests library patchés sur modules d’implémentation. `ruff` + `pytest` 401 passed / 6 skipped. **Dette résiduelle** : ~60 autres fichiers >300 (`api/schemas.py`, `api/routers/rnd.py`, etc.) — hors ticket ; ne pas grossir davantage. |
+
 ## Ouverts — nécessitent une décision produit, non corrigés
 
 | ID | Gravité | Description | Constat |
 |----|---------|-------------|-----------|
-| BUG-004 | Info | Fichiers Python >300 lignes — mitigé Vague 2 | Vague 2 : `coo_agent` **~1476 → ~576** (façade + mixins/intents/routing/tools/handlers) ; MissionsTab ×3 → `DeptMissionsTab` partagé (~672) + wrappers fins. Restent >1000 : `agent_specs_registry` ~1411, `agent_personas` ~1110, `rnd_center` ~1042. Pas fermé — dette structurelle continue. |
+| — | — | Aucun bug ouvert tracké | Dette structurelle fichiers >300 hors hotspots BUG-004 : acceptée / backlog hygiène |
 
-## Statistiques (mises à jour Vague 2 — 2026-08-09 soir)
+## Statistiques (mises à jour BUG-004 — 2026-08-09)
 
 | Bucket | Count |
 |--------|------:|
-| Ouverts | 1 (`BUG-004`) — mitigé Vague 2, pas fermé |
-| Fermés remédiation + Vague 0/1/2 | 14 (`BUG-002`/`003`/`005`/`011`–`019`) |
+| Ouverts | **0** |
+| Fermés remédiation + Vague 0–4 + BUG-004 | 15 (+ `BUG-004`) |
 | Residual mockup routes (working tree) | **0** |
 | npm audit (web) | **0** vulns (post Next 16) |
 | Corrigés (SEC) | 6 (`SEC-001`–`006`) |
-| Corrigés (BUG) | 18 (`BUG-001`–`003`, `BUG-005`–`019`) |
+| Corrigés (BUG) | 19 (`BUG-001`–`019`) |
 | Décision fermée | 1 (`DEC-009`) |
 
 ## Vérifié sans anomalie (audit sécurité, pour mémoire)

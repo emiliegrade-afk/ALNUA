@@ -308,6 +308,22 @@ Historique des audits de gouvernance effectués.
 
 ---
 
+## BUG-004 close-out — split hotspots >300 lignes
+
+- **Date :** 2026-08-09 (nuit)
+- **Scope :** les 3 hotspots restants de BUG-004 après Vague 2 (`coo_agent` déjà
+  réduit) : `config/agent_specs_registry.py`, `config/agent_personas.py`,
+  `agents/rnd_center.py`.
+- **Livré :** façades + modules par pôle / responsabilité ; imports publics
+  inchangés (`from config.agent_personas import …`, `from agents.rnd_center
+  import …`). Tests library R&D patchent `rnd_center_library` / `rnd_center_store`.
+- **Vérifs :** `ruff` scope CLAUDE.md ✅ ; `pytest tests/ -q` ✅ **401** passed /
+  **6** skipped.
+- **Hors scope :** autres fichiers >300 (`api/schemas.py`, routers R&D, etc.) —
+  dette acceptée, pas de ticket ouvert tant qu’on n’y empile pas.
+
+---
+
 ## Sprint REM-002 — Close-out analysis (remédiation A–E + clean Next 15)
 
 - **Date :** 2026-08-09 (soir)

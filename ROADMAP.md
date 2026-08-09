@@ -64,8 +64,10 @@ MissionsTab+COO split → Finance/skills/MVP honesty → **durabilité** (purge 
 dumps, orphan `coding_facade`, checklist `AGENTS.md`, tests HTTP budgets).
 **`budget_transfer` :** explicitement **reporté** (pas dans le moteur ; enveloppes
 budgets manuelles seulement — DEC-016 inchangé, pas de paiement/transfert auto).
-**Prochain audit santé :** ≤ **2026-08-30**. Suite produit : Phase 21 (12/15) ;
-BUG-004 (specs_registry / personas / rnd_center).
+**Prochain audit santé :** ≤ **2026-08-30**. **BUG-004 fermé** (specs / personas /
+rnd_center split). Suite produit priorisée : Phase 21 (skills Gaming UE5.8 +
+reste robotique), Phase 34 (finance profondeur sans `budget_transfer`),
+Phase 35 Brand, Phase 28 Explorer R&D — voir plan de travail session.
 
 ## Points tranchés le 2026-07-25 (anciennement ouverts)
 
