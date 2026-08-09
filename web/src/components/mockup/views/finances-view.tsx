@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { ConsoleDepartment } from "@/lib/console/types";
+import { PoleFilledPanel, PoleListCard, PoleStatStrip } from "../pole-proto-tabs";
 import { FinancesDashboard } from "./finances-dashboard";
 import { FINANCES_TABS, type FinancesTab } from "./finances-data";
+import { FINANCES_SECONDARY } from "./finances-secondary";
 
 export type { FinancesTab };
 
@@ -15,6 +17,7 @@ interface FinancesViewProps {
 export function MockupFinancesView({ department }: FinancesViewProps) {
   void department;
   const [tab, setTab] = useState<FinancesTab>("Dashboard");
+  const panel = FINANCES_SECONDARY[tab];
 
   return (
     <div className="pb-8">
@@ -43,22 +46,19 @@ export function MockupFinancesView({ department }: FinancesViewProps) {
         >
           {tab === "Dashboard" ? (
             <FinancesDashboard onNavigateTab={setTab} />
-          ) : (
-            <div className="panel" style={{ padding: 40, textAlign: "center" }}>
-              <p style={{ fontSize: 14, color: "#e8e2da" }}>{tab}</p>
-              <p style={{ marginTop: 8, fontSize: 11, color: "#747b83" }}>
-                Maquette visuelle — branchement prévu (Phase 38 ROADMAP).
-              </p>
-              <button
-                type="button"
-                onClick={() => setTab("Dashboard")}
-                className="text-btn"
-                style={{ marginTop: 16, border: 0 }}
-              >
-                ← Retour Dashboard
-              </button>
-            </div>
-          )}
+          ) : panel ? (
+            <PoleFilledPanel
+              title={panel.title}
+              subtitle={panel.subtitle}
+              onBack={() => setTab("Dashboard")}
+            >
+              <PoleStatStrip items={panel.stats} />
+              <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                <PoleListCard title={panel.left.title} rows={panel.left.rows} />
+                <PoleListCard title={panel.right.title} rows={panel.right.rows} />
+              </div>
+            </PoleFilledPanel>
+          ) : null}
         </motion.div>
       </AnimatePresence>
     </div>

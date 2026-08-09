@@ -3,9 +3,9 @@
 ## Vision
 
 Hub d'orchestration multi-agents IA — le "siège social virtuel" d'ALNUA, société solo
-d'Emilie. 27 personas LLM (COO, PM, QA, dev, marketing, R&D, comptabilité, hardware,
-analytics...) réparties en 9 "poles"/rooms simulent les départements d'une entreprise
-et travaillent au service de 3 branches produit :
+d'Emilie. **49** personas LLM (COO, PM, QA, dev, marketing, R&D, comptabilité, hardware,
+analytics, rôles Gaming/Robo…) réparties en 9 "poles"/rooms simulent les départements
+d'une entreprise et travaillent au service de 3 branches produit :
 
 | Branche | Projet | Description |
 |---------|--------|--------------|
@@ -38,14 +38,14 @@ et travaillent au service de 3 branches produit :
 
 | Module | Emplacement | Taille approx. | Status |
 |--------|-------------|-----------------|--------|
-| Routers API | `api/routers/` | 35 routers montés (34 + `gdd.py` conditionnel) | Active |
-| Agents personas | `agents/*_agent.py` | 49 agents personas (34 existants + 15 rôles Gaming/Robo, Phase 13) + 5 orchestrateurs infra | Active |
+| Routers API | `api/routers/` | **40** routers montés (+ `gdd.py` conditionnel) | Active |
+| Agents personas | `agents/*_agent.py` | **49** agents personas (34 + 15 rôles Gaming/Robo, Phase 13) + orchestrateurs infra | Active |
 | Services métier | `services/` | ~112 modules (compétition, coûts, R&D dossier, academy, telegram, brand, coding pipeline...) | Active |
 | Config | `config/` | Personas, tiers, specs opérationnelles 9-couches, settings pydantic | Active |
 | Bots | `bots/` | 11 bots (Discord/Telegram/Publisher/Reviews/Analytics/SAV/Watchdog) | Active |
-| Frontend dashboard | `web/` | Siège social virtuel (lobby + bureaux par département), Next.js 14 | Active |
+| Frontend dashboard | `web/` | Siège social virtuel (lobby + bureaux + `*-v2` Marketing/Finance/R&D), Next.js 14 | Active |
 | Base de données | `database/schema.sql` + `database/supabase_client.py` | — | Active |
-| Tests | `tests/` | 63 fichiers de test Python + `web/e2e` Playwright | Active |
+| Tests | `tests/` | **~67** fichiers `test_*.py` (~381 tests collectés, Audit 002) + `web/e2e` Playwright + Vitest | Active |
 | Gouvernance + méthode de travail | `AGENTS.md` (entrée universelle), `CLAUDE.md`, `.cursor/rules/*.mdc` (agent-orchestration, ai-agent-survival, async-jobs + règles scopées par feature) | 8 fichiers gouvernance + 3 règles générales + règles scopées | Active |
 
 ## Data flow

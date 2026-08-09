@@ -19,7 +19,7 @@ import { pct } from "./mock-data";
 
 function Tile({ label, value, unit, warn }: { label: string; value: number | string; unit?: string; warn?: boolean }) {
   return (
-    <div className="rounded-xl border p-3 text-center" style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}>
+    <div className="rounded-xl border p-3 text-center" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
       <p className="text-[19px] font-semibold" style={{ color: warn ? "#f87171" : C.ivory }}>
         {value}
         {unit ? <span className="text-[11px]" style={{ color: C.faint }}>{unit}</span> : null}

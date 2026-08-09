@@ -317,7 +317,7 @@ export function ChatPanel({ agent }: { agent: BureauAgentDef }) {
                     </div>
                     <p
                       className="whitespace-pre-line text-[11px] leading-[1.55]"
-                      style={{ color: m.pending ? C.faint : "#D8CFC4" }}
+                      style={{ color: m.pending ? C.faint : "#A7ADB5" }}
                     >
                       {m.pending ? `${agent.name.split(" ")[0]} écrit…` : m.text}
                     </p>
@@ -402,7 +402,7 @@ export function RecentTasksPanel({
     >
       <p
         className="border-b pb-[9px] text-[8.5px] tracking-[1.5px]"
-        style={{ borderColor: C.lineSoft, color: "#D8CFC4" }}
+        style={{ borderColor: C.lineSoft, color: "#A7ADB5" }}
       >
         TÂCHES RÉCENTES
       </p>
@@ -477,7 +477,7 @@ function MissionsWeekTile({ tickets }: { tickets: TicketWithProject[] }) {
       <p className="text-[8.5px]" style={{ color: C.dim }}>
         Missions cette semaine
       </p>
-      <p className="font-title text-[34px] leading-none" style={{ color: "#F2E9DE" }}>
+      <p className="font-title text-[34px] leading-none" style={{ color: "#F5F2EA" }}>
         {current}
       </p>
       {delta !== 0 ? (
@@ -514,7 +514,7 @@ export function ApercuPanel({
   return (
     <div
       className="flex w-[clamp(258px,21vw,326px)] shrink-0 flex-col gap-[11px] rounded-xl border px-3 py-[11px]"
-      style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}
+      style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}
     >
       <div className="flex gap-3.5 border-b" style={{ borderColor: C.lineSoft }}>
         {APERCU_TABS.map((t) => (
@@ -560,7 +560,7 @@ export function ApercuPanel({
             className="rounded-[10px] border p-[11px]"
             style={{ borderColor: C.line, background: "rgba(22,17,13,.4)" }}
           >
-            <p className="mb-2.5 text-[10.5px]" style={{ color: "#D8CFC4" }}>
+            <p className="mb-2.5 text-[10.5px]" style={{ color: "#A7ADB5" }}>
               Compétences principales
             </p>
             <div className="flex flex-col gap-2">
@@ -585,7 +585,7 @@ export function ApercuPanel({
             className="alnua-scroll min-h-0 flex-1 overflow-y-auto rounded-[10px] border p-[11px]"
             style={{ borderColor: C.line, background: "rgba(22,17,13,.4)" }}
           >
-            <p className="mb-2.5 text-[10.5px]" style={{ color: "#D8CFC4" }}>
+            <p className="mb-2.5 text-[10.5px]" style={{ color: "#A7ADB5" }}>
               Projets assignés
             </p>
             {projects.length === 0 ? (
@@ -634,7 +634,7 @@ export function ApercuPanel({
           className="alnua-scroll min-h-0 flex-1 overflow-y-auto rounded-[10px] border p-[11px]"
           style={{ borderColor: C.line, background: "rgba(22,17,13,.4)" }}
         >
-          <p className="mb-2.5 text-[10.5px]" style={{ color: "#D8CFC4" }}>
+          <p className="mb-2.5 text-[10.5px]" style={{ color: "#A7ADB5" }}>
             Toutes les compétences
           </p>
           {agent.skills.length === 0 ? (

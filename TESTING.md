@@ -1,7 +1,8 @@
 # Testing — ALNUA Hub
 
 > Reconstitué le 2026-07-25 depuis `.github/workflows/ci.yml`, `pytest.ini` et
-> l'inventaire de `tests/` lors du bootstrap de gouvernance.
+> l'inventaire de `tests/`. Chiffres resynchronisés le **2026-08-09** (Phase A /
+> Audit 002).
 
 ## Pipeline CI (3 jobs, tous bloquants sur `main`/PR)
 
@@ -17,9 +18,9 @@ complète.
 
 ## Suite Python (`tests/`)
 
-- **63 fichiers** de test, organisés par module/feature (`test_<module>.py`), pas par
-  couche architecturale stricte (pas de séparation explicite unit/integration/e2e par
-  dossier).
+- **~67 fichiers** `test_*.py` (~**381** tests collectés au 2026-08-09), organisés par
+  module/feature, pas par couche architecturale stricte (pas de séparation explicite
+  unit/integration/e2e par dossier).
 - **Markers pytest** (`pytest.ini`) :
   - `integration` — tape un vrai service externe (Supabase, OpenRouter, Composio...),
     nécessite des credentials live, **pas exécuté par défaut en CI**.
@@ -29,10 +30,15 @@ complète.
   plan concret (le remonter mécaniquement casserait la CI sans ajouter de valeur).
 - **Env de test** : credentials factices (`SUPABASE_URL=https://example.supabase.co`,
   clés `test-*`), `ENVIRONMENT=development`, `RATE_LIMIT_ENABLED=0`.
+- **Auth Hub-Key** : `HUB_API_KEY` est obligatoire dans tous les environnements
+  (DEC-010 / SEC-002). La suite couvre le comportement via notamment
+  `tests/test_devex_phase6.py` (réécrit lors du correctif SEC-002) — l'ancienne note
+  « aucun test dédié » de l'Audit 001 est **obsolète**.
 
 ## Suite frontend (`web/`)
 
-- **Unitaire** : Vitest (`npm run test`).
+- **Unitaire** : Vitest (`npm run test`) — encore mince face à la surface UI (constat
+  Audit 002 : quelques fichiers `*.test.ts(x)` seulement).
 - **E2E** : Playwright (`web/e2e/`), Chromium seul en CI, flags admin forcés à `1` pour
   couvrir les pages derrière feature flag.
 - **Typecheck** : `tsc --noEmit` bloquant, séparé du lint.
@@ -45,6 +51,5 @@ complète.
 - Pas de séparation dossier par couche (`unit/`, `service/`, `repository/`) — les tests
   sont nommés par feature. Cohérent avec un projet solo à itération rapide ; à
   reconsidérer seulement si la confusion devient un problème réel.
-- Aucun test dédié trouvé pour la vérification `X-Hub-Key` en environnement
-  non-`development` mal configuré (voir `BUGS.md`) au moment du bootstrap — à confirmer
-  lors du prochain audit de sécurité plutôt qu'assumé ici.
+- Couverture UI Finance profondeur (invoices / SaaS / Revolut) et reconnexion routes
+  mockup → `*-v2` : à renforcer en Phase B du plan de remédiation Audit 002.

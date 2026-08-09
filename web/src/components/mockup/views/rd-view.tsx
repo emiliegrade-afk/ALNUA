@@ -7,7 +7,7 @@ interface RdViewProps {
   department: ConsoleDepartment;
 }
 
-/** Contenu R&D — shell ChatGPT fourni par ProtoFullShell. */
+/** Contenu R&D — copie pixel-près maquette ChatGPT / prototype Vite. */
 export function MockupRdView({ department }: RdViewProps) {
   void department;
   return <ProtoRdBrainstorm />;

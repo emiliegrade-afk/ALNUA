@@ -428,7 +428,7 @@ export function ArbresTab() {
         {/* Panneau détail */}
         <div
           className="flex w-[260px] shrink-0 flex-col gap-2.5 overflow-y-auto rounded-xl border p-3"
-          style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}
+          style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}
         >
           {!selectedNode ? (
             <p className="text-[10.5px]" style={{ color: C.faint }}>

@@ -118,16 +118,18 @@ POST /agents/content/optimize        optimize_seo(content, keywords)
 
 #### Jules — Comptabilité
 ```
-POST /agents/accounting/invoice      invoice(client, items, currency)
-POST /agents/accounting/report       financial_report(period, accounts)
+POST /agents/accounting/advice       financial_advice(month, summary, question)
+GET  /agents/accounting/invoices     list_open_invoices(status)
+GET/POST/PATCH /finances/invoices    ledger factures (paiement externe)
+GET  /finances/saas-spend            catalogue + OpenRouter + Revolut status
 ```
 
 #### Rémi — Contrôleur
 ```
-POST /agents/controller/costs        costs_analysis(period, breakdown)
-POST /agents/controller/forecast     forecast(metric, horizon, method)
-POST /agents/controller/llm-alert    llm_cost_alert(threshold, period)
-POST /agents/controller/monthly-report monthly_report(month)
+POST /agents/controller/costs        analyze_costs(period, costs_data, budget)
+POST /agents/controller/forecast     build_forecast(project, horizon, assumptions)
+POST /agents/controller/llm-alert    llm_cost_alert(daily_spend, monthly_budget)
+POST /agents/controller/monthly-report monthly_report(month, all_data)
 ```
 
 ---

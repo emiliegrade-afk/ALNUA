@@ -94,6 +94,11 @@ mais pas pour les corrections rapides et ciblées.
 **Décision :** ajout d'Aider en complément, pour des fixes rapides sans passer par le
 pipeline complet.
 **Commit :** `0b2919d`.
+**Addendum Phase D (2026-08-09) :** les modules standalone `skills/skill_openhands.py`
+et `skills/skill_aider.py` (jamais branchés runtime) ont été **retirés**. Aider reste
+disponible comme backend de `skills/skill_coding_agent.py` (`CODING_BACKEND=aider`).
+Le chemin watchdog utilise `skills/skill_code_agent.py`. Entrypoint documenté :
+`skills/coding_facade.py`.
 
 ### DEC-009 — Nwiro/UE5 coexiste avec Godot — assumé, `CLAUDE.md` corrigé
 **Constat initial (2026-07-25) :** `CLAUDE.md` listait "Pas d'UE5 — aucune intégration

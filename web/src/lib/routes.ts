@@ -19,13 +19,10 @@ export const ROUTES = {
   finances: "/finances",
   marketing: "/marketing",
   rd: "/rd",
-  // Nouvelle DA R&D (Phase 22, ROADMAP.md) — coexiste avec /rd le temps de
-  // la refonte multi-phases ; pas encore la route canonique (contrairement
-  // à /app, /gaming, /robo qui sont déjà des alias vers leur -v2).
+  // Alias historiques — les pages /finances, /marketing, /rd, /app, /gaming,
+  // /robo ré-exportent désormais les shells *-v2 (Phase B, 2026-08-09). Les
+  // constantes *-V2 restent pour les liens absolus / bookmarks.
   rndV2: "/rnd-v2",
-  // Marketing/Finances Command Center (Phase 29, ROADMAP.md) — même pattern
-  // de coexistence que rndV2 : pas encore des alias de /marketing et
-  // /finances pendant la refonte.
   marketingV2: "/marketing-v2",
   financesV2: "/finances-v2",
   brand: "/brand",

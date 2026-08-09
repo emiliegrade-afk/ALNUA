@@ -31,7 +31,18 @@ const QuickCaptureButton = dynamicWithChunkRetry(() =>
   })),
 );
 
+/** Canonical dept routes re-export *-v2 (AGENTIC OS maquettes) + alias *-v2. */
+const LIVE_V2_CANONICAL = [
+  "/app",
+  "/gaming",
+  "/robo",
+  "/marketing",
+  "/finances",
+  "/rd",
+] as const;
+
 const SELF_CONTAINED_V2_ROUTES = [
+  ...LIVE_V2_CANONICAL,
   "/app-v2",
   "/gaming-v2",
   "/robo-v2",
@@ -40,8 +51,10 @@ const SELF_CONTAINED_V2_ROUTES = [
   "/finances-v2",
 ];
 
-/** Pôles = shell maquette ChatGPT (pas ConsoleShell). */
-const DEPT_SHELL_ROUTES = PROTO_SHELL_PATHS;
+/** Mockup ProtoFullShell — hub, ceo, secretary, analytics, brand only. */
+const DEPT_SHELL_ROUTES = PROTO_SHELL_PATHS.filter(
+  (route) => !(LIVE_V2_CANONICAL as readonly string[]).includes(route),
+);
 
 function isSelfContainedV2(pathname: string): boolean {
   return SELF_CONTAINED_V2_ROUTES.some(

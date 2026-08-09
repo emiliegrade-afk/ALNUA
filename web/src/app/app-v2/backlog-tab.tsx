@@ -259,7 +259,7 @@ export function BacklogTab({
               { label: "À prioriser", value: buckets["À prioriser"].length },
               { label: "Déjà planifiés", value: buckets["Planifiées"].length },
             ].map((s) => (
-              <div key={s.label} className="rounded-xl border p-3 text-center" style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}>
+              <div key={s.label} className="rounded-xl border p-3 text-center" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
                 <p className="text-[20px] font-semibold" style={{ color: C.ivory }}>
                   {s.value}
                 </p>
@@ -269,7 +269,7 @@ export function BacklogTab({
               </div>
             ))}
           </div>
-          <div className="flex shrink-0 items-center gap-3 rounded-xl border px-4 py-2" style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}>
+          <div className="flex shrink-0 items-center gap-3 rounded-xl border px-4 py-2" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
             <DonutChart segments={donutSegments} />
             <div className="flex flex-col gap-1 text-[9px]" style={{ color: C.warm }}>
               <p className="mb-0.5" style={{ color: C.faint }}>
@@ -293,7 +293,7 @@ export function BacklogTab({
 
         <div className="grid grid-cols-2 gap-3 xl:grid-cols-3">
           {([...STAGES, "Rejetées"] as Stage[]).map((stage) => (
-            <div key={stage} className="flex min-h-[200px] flex-col rounded-xl border" style={{ borderColor: C.line, background: "rgba(16,13,11,.5)" }}>
+            <div key={stage} className="flex min-h-[200px] flex-col rounded-xl border" style={{ borderColor: C.line, background: "rgba(19,22,27,.5)" }}>
               <div className="flex items-center justify-between border-b px-3 py-2.5" style={{ borderColor: C.lineSoft }}>
                 <span className="text-[9px] tracking-[1.2px]" style={{ color: C.copperLight }}>
                   {stage.toUpperCase()}
@@ -325,7 +325,7 @@ export function BacklogTab({
       </div>
 
       <div className="hidden w-[clamp(220px,17vw,270px)] shrink-0 flex-col gap-3 min-[1200px]:flex">
-        <div className="rounded-xl border p-3.5" style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}>
+        <div className="rounded-xl border p-3.5" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
           <p className="mb-2.5 text-[9.5px] tracking-[1.5px]" style={{ color: C.faint }}>
             ACTIVITÉ RÉCENTE
           </p>

@@ -1,7 +1,3 @@
 "use client";
 
-import { MockupDepartmentPage } from "@/components/mockup/mockup-department-page";
-
-export default function FinancesPage() {
-  return <MockupDepartmentPage deptId="finances" />;
-}
+export { default } from "../finances-v2/page";

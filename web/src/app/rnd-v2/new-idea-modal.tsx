@@ -35,7 +35,7 @@ function ResearchReportView({ report }: { report: DeepResearchReport }) {
         <p className="text-[9px] uppercase tracking-wider" style={{ color: C.faint }}>
           Synthèse — {report.rounds_completed} round{report.rounds_completed > 1 ? "s" : ""} ({report.depth})
         </p>
-        <p className="mt-1.5 text-[11.5px] leading-[1.5]" style={{ color: "#D8CFC4" }}>
+        <p className="mt-1.5 text-[11.5px] leading-[1.5]" style={{ color: "#A7ADB5" }}>
           {report.executive_summary}
         </p>
       </div>
@@ -47,7 +47,7 @@ function ResearchReportView({ report }: { report: DeepResearchReport }) {
           </p>
           <ul className="flex flex-col gap-1.5">
             {report.key_findings.map((f, i) => (
-              <li key={i} className="rounded-lg border p-2 text-[10.5px]" style={{ borderColor: C.lineSoft, color: "#D8CFC4" }}>
+              <li key={i} className="rounded-lg border p-2 text-[10.5px]" style={{ borderColor: C.lineSoft, color: "#A7ADB5" }}>
                 {f.finding}
                 <span className="ml-1.5 text-[9px]" style={{ color: C.faint }}>
                   ({f.confidence}{f.source ? ` · ${f.source}` : ""})
@@ -63,7 +63,7 @@ function ResearchReportView({ report }: { report: DeepResearchReport }) {
           <p className="mb-1.5 text-[9px] uppercase tracking-wider" style={{ color: C.faint }}>
             Actions recommandées
           </p>
-          <ul className="flex flex-col gap-1 text-[10.5px]" style={{ color: "#D8CFC4" }}>
+          <ul className="flex flex-col gap-1 text-[10.5px]" style={{ color: "#A7ADB5" }}>
             {report.recommended_actions.map((a, i) => (
               <li key={i}>→ {a}</li>
             ))}

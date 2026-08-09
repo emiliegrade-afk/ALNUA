@@ -183,7 +183,7 @@ export function VueGlobaleTab({ onOpenCampagnes }: { onOpenCampagnes?: () => voi
                     {p.label}
                   </span>
                   <span className="h-1.5 flex-1 overflow-hidden rounded-full" style={{ background: "rgba(192,138,114,.14)" }}>
-                    <span className="block h-full rounded-full" style={{ width: `${p.pct}%`, background: `linear-gradient(90deg,#8A5230,${C.copperLight})` }} />
+                    <span className="block h-full rounded-full" style={{ width: `${p.pct}%`, background: `linear-gradient(90deg,#8A6050,${C.copperLight})` }} />
                   </span>
                   <span className="w-8 shrink-0 text-right text-[11px]" style={{ color: C.ivory }}>
                     {p.count}
@@ -207,7 +207,7 @@ export function VueGlobaleTab({ onOpenCampagnes }: { onOpenCampagnes?: () => voi
                     {s.label}
                   </span>
                   <span className="h-1.5 flex-1 overflow-hidden rounded-full" style={{ background: "rgba(192,138,114,.14)" }}>
-                    <span className="block h-full rounded-full" style={{ width: `${s.pct}%`, background: `linear-gradient(90deg,#8A5230,${C.copperLight})` }} />
+                    <span className="block h-full rounded-full" style={{ width: `${s.pct}%`, background: `linear-gradient(90deg,#8A6050,${C.copperLight})` }} />
                   </span>
                   <span className="w-8 shrink-0 text-right text-[11px]" style={{ color: C.ivory }}>
                     {s.count}

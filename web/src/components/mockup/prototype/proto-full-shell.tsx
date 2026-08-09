@@ -6,24 +6,28 @@ import {
   Activity,
   BarChart3,
   Bell,
+  BookOpen,
   Bot,
   BriefcaseBusiness,
   ClipboardList,
   Code2,
+  FileText,
   FlaskConical,
   Gauge,
   Grid2X2,
+  Lightbulb,
   Map,
   MessageCircle,
   Plus,
   Search,
+  Settings2,
   Sparkles,
   Target,
   Users,
+  Workflow,
   Zap,
 } from "lucide-react";
 import { AlnuaStar } from "@/components/brand/alnua-star";
-import { ProtoAvatar } from "./proto-shared";
 import {
   PROTO_DEPT_HREF,
   PROTO_PATH_TO_DEPT,
@@ -49,6 +53,8 @@ const SUBTITLES: Partial<Record<ProtoDeptName, string>> = {
   APP: "Développement de nos produits digitaux",
   Comptabilité: "Finance · Budget · Reporting · Conformité",
   Marketing: "Stratégie · Communication · Croissance",
+  Gaming: "Studios · Builds · Lore · Assets",
+  Robotique: "Hardware · Firmware · Simulation · Safety",
 };
 
 function useLiveClock(): string {
@@ -78,23 +84,35 @@ function ChatGptSidebar({ department }: { department: ProtoDeptName }) {
         </div>
       </div>
 
-      <div className="side-label">VUE GLOBALE</div>
+      <div className="side-label">TABLEAU DE BORD</div>
       <nav className="main-nav">
-        <button type="button" className="nav-item" onClick={() => router.push("/agents")}>
-          <Users size={16} />
-          Tous les agents
+        <button type="button" className="nav-item" onClick={() => router.push("/")}>
+          <Target size={16} />
+          Command Center
         </button>
         <button type="button" className="nav-item" onClick={() => router.push("/activity")}>
           <Activity size={16} />
-          Activité
+          Activité en direct
         </button>
-        <button type="button" className="nav-item" onClick={() => router.push("/")}>
-          <Map size={16} />
-          Vue HQ
+        <button type="button" className="nav-item" onClick={() => router.push("/ceo")}>
+          <ClipboardList size={16} />
+          Décisions
+          <b
+            style={{
+              marginLeft: "auto",
+              background: "rgba(201,134,88,.2)",
+              color: "var(--copper2)",
+              borderRadius: 4,
+              padding: "1px 5px",
+              fontSize: 8,
+            }}
+          >
+            2
+          </b>
         </button>
       </nav>
 
-      <div className="side-label">PÔLES · 11</div>
+      <div className="side-label">DÉPARTEMENTS</div>
       <div className="dept-list">
         {DEPARTMENTS.map(([n, name, Icon]) => (
           <button
@@ -111,13 +129,41 @@ function ChatGptSidebar({ department }: { department: ProtoDeptName }) {
         ))}
       </div>
 
+      <div className="side-label">OUTILS</div>
+      <nav className="main-nav" style={{ marginBottom: 8 }}>
+        <button type="button" className="nav-item" onClick={() => router.push("/docs")}>
+          <FileText size={16} />
+          Documents
+        </button>
+        <button type="button" className="nav-item" onClick={() => router.push("/library")}>
+          <BookOpen size={16} />
+          Connaissances
+        </button>
+        <button type="button" className="nav-item" onClick={() => router.push("/settings")}>
+          <Settings2 size={16} />
+          Modèles
+        </button>
+        <button type="button" className="nav-item" onClick={() => router.push("/settings")}>
+          <Workflow size={16} />
+          Automatisations
+        </button>
+      </nav>
+
       <div className="sidebar-bottom">
-        <div className="user" style={{ margin: "0 4px 10px", padding: "8px 6px" }}>
-          <ProtoAvatar size="sm" />
+        <div className="system-card">
+          <div className="orbit">
+            <AlnuaStar size={18} glow />
+          </div>
+          <div>
+            <b>ALNUA CORE</b>
+            <span>Système opérationnel</span>
+          </div>
+        </div>
+        <div className="system-row">
           <span>
-            <b>Émilie Grade</b>
-            <small>Fondatrice &amp; CEO</small>
+            <i className="dot green" /> Tous les systèmes
           </span>
+          <b>opérationnels</b>
         </div>
       </div>
     </aside>
@@ -126,21 +172,31 @@ function ChatGptSidebar({ department }: { department: ProtoDeptName }) {
 
 function ChatGptTopbar({ department }: { department: ProtoDeptName }) {
   const time = useLiveClock();
+  const router = useRouter();
   const subtitle =
     SUBTITLES[department] ?? "Opérations · Projets · Équipes · Performance";
+  const isRd = department === "R&D";
+  const isApp = department === "APP";
+  const title = isApp ? "APP DEPARTMENT" : `PÔLE ${department.toUpperCase()}`;
 
   return (
     <header className="topbar">
       <div className="top-title">
-        <strong style={{ color: "var(--copper2)", letterSpacing: "0.06em" }}>
-          PÔLE {department.toUpperCase()}
+        <strong style={{ color: "#e8e2da", letterSpacing: "0.08em", fontSize: 18 }}>
+          {title}
         </strong>
         <span className="subtitle">{subtitle}</span>
       </div>
       <div className="top-actions">
         <div className="search">
           <Search size={15} />
-          <input placeholder="Rechercher... (⌘K)" readOnly />
+          <input
+            placeholder={
+              isRd ? "Rechercher une idée, un dossier..." : "Rechercher... (⌘K)"
+            }
+            readOnly
+          />
+          <kbd>⌘ K</kbd>
         </div>
         <button type="button" className="status-pill">
           <Zap size={14} /> Connexions <b>3</b>
@@ -148,24 +204,39 @@ function ChatGptTopbar({ department }: { department: ProtoDeptName }) {
         <button type="button" className="status-pill online">
           <span className="dot green" /> Hub connecté <small>{time}</small>
         </button>
-        <button type="button" className="primary-btn">
-          <Plus size={15} /> Créer
-        </button>
-        <button type="button" className="outline-btn">
-          <MessageCircle size={15} /> Assistants
-        </button>
+        {isRd ? (
+          <>
+            <button type="button" className="primary-btn">
+              <Plus size={15} /> Nouvelle idée
+            </button>
+            <button type="button" className="outline-btn">
+              <Lightbulb size={15} /> Conseil IA
+            </button>
+          </>
+        ) : (
+          <button type="button" className="primary-btn">
+            <Plus size={15} /> Créer
+          </button>
+        )}
         <button type="button" className="icon-btn">
           <Bell size={16} />
         </button>
-        <button type="button" className="outline-btn">
-          Carte HQ
+        <div className="user">
+          <div className="avatar sm avatar-rose">EG</div>
+          <span>
+            <b>Émilie Grade</b>
+            <small>Fondatrice &amp; CEO</small>
+          </span>
+        </div>
+        <button type="button" className="outline-btn" onClick={() => router.push("/")}>
+          <Map size={14} /> Carte HQ
         </button>
       </div>
     </header>
   );
 }
 
-/** Shell 100% calqué sur les maquettes ChatGPT (logo ALNUA réel uniquement). */
+/** Shell calqué sur les maquettes ChatGPT (logo ALNUA réel). */
 export function ProtoFullShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const department = PROTO_PATH_TO_DEPT[pathname] ?? "APP";
@@ -178,6 +249,13 @@ export function ProtoFullShell({ children }: { children: React.ReactNode }) {
           <ChatGptTopbar department={department} />
           <div className="page">{children}</div>
         </main>
+      </div>
+      <div className="floating-assistant">
+        <MessageCircle size={17} />
+        <span>Que souhaitez-vous faire aujourd&apos;hui ?</span>
+        <button type="button" aria-label="Assistant">
+          <Sparkles size={17} />
+        </button>
       </div>
     </div>
   );

@@ -1,7 +1,3 @@
 "use client";
 
-import { MockupDepartmentPage } from "@/components/mockup/mockup-department-page";
-
-export default function MarketingPage() {
-  return <MockupDepartmentPage deptId="marketing" />;
-}
+export { default } from "../marketing-v2/page";

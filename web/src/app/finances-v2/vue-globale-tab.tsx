@@ -10,6 +10,7 @@ import { FinancesBranchBreakdownPanel } from "@/components/finances/finances-bra
 import { formatMonthLabel } from "@/components/finances/finances.constants";
 import { fetchAnalyticsSummary } from "@/lib/analytics";
 import {
+  fetchFinanceInvoices,
   fetchFinanceSummary,
   formatCurrency,
   type FinanceDashboard,
@@ -17,6 +18,8 @@ import {
 } from "@/lib/finances-api";
 import type { Project } from "@/lib/types";
 import { C, KpiTile } from "../app-v2/shared";
+import Link from "next/link";
+import { ROUTES } from "@/lib/routes";
 
 /* Onglet "Vue globale" — Finance Cockpit. Redesign (suite Phase 29,
    ROADMAP.md) pour se rapprocher de la maquette d'Emilie : 6 tuiles KPI avec
@@ -50,6 +53,7 @@ export function VueGlobaleTab({
   const [summary, setSummary] = useState<FinancialSummary | null>(null);
   const [summaryLoading, setSummaryLoading] = useState(true);
   const [mrr, setMrr] = useState<{ value: number | null; change_pct: number | null } | null>(null);
+  const [toPay, setToPay] = useState<{ count: number; total: number } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -77,6 +81,18 @@ export function VueGlobaleTab({
       })
       .catch(() => {
         if (!cancelled) setMrr(null);
+      });
+    fetchFinanceInvoices()
+      .then((inv) => {
+        if (!cancelled) {
+          setToPay({
+            count: inv.summary.to_pay_count,
+            total: inv.summary.to_pay_total,
+          });
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setToPay(null);
       });
     return () => {
       cancelled = true;
@@ -147,8 +163,25 @@ export function VueGlobaleTab({
             sublabel={mrr?.value != null && mrr.change_pct != null ? `${mrr.change_pct >= 0 ? "+" : ""}${mrr.change_pct.toFixed(1)}% vs mois dernier` : undefined}
             trend={mrr?.value != null ? flatTrend(mrr.value) : undefined}
           />
+          <KpiTile
+            label="Factures à payer"
+            value={toPay ? formatCurrency(toPay.total) : "—"}
+            sublabel={toPay ? `${toPay.count} · hors Hub (DEC-016)` : "Ledger factures"}
+            tone={toPay && toPay.count > 0 ? "negative" : "default"}
+          />
         </div>
       )}
+
+      {toPay && toPay.count > 0 ? (
+        <p className="text-[11px]" style={{ color: C.faint }}>
+          Paiement externe uniquement — détail dans l&apos;onglet{" "}
+          <span style={{ color: C.dim }}>Coûts &amp; Factures</span>
+          {" · "}
+          <Link href={ROUTES.finances} className="underline underline-offset-2" style={{ color: C.dim }}>
+            ouvrir Comptabilité
+          </Link>
+        </p>
+      ) : null}
 
       <FinancesSummaryCard month={month} summary={summary} loading={summaryLoading} onUpdated={setSummary} />
 

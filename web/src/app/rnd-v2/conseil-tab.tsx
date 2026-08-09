@@ -48,7 +48,7 @@ function GaugeBar({ label, value }: { label: string; value: number }) {
       <span className="block h-1.5 overflow-hidden rounded-full" style={{ background: "rgba(192,138,114,.15)" }}>
         <span
           className="block h-full rounded-full transition-[width] duration-700"
-          style={{ width: `${value}%`, background: `linear-gradient(90deg,#8A5230,${C.copperLight})` }}
+          style={{ width: `${value}%`, background: `linear-gradient(90deg,#8A6050,${C.copperLight})` }}
         />
       </span>
     </div>
@@ -72,7 +72,7 @@ function EvaluateForm({
   const inputStyle = { background: "rgba(8,7,6,.7)", borderColor: "rgba(192,138,114,.2)", color: C.ivory };
 
   return (
-    <div className="flex flex-col gap-2.5 rounded-xl border p-4" style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}>
+    <div className="flex flex-col gap-2.5 rounded-xl border p-4" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
       <p className="text-[10px] uppercase tracking-wider" style={{ color: C.faint }}>
         Évaluer un projet
       </p>
@@ -246,7 +246,7 @@ export function ConseilTab() {
       ) : (
         <div className="grid min-h-[420px] flex-1 grid-cols-1 gap-3 min-[1100px]:grid-cols-[190px_1fr_220px]">
           {/* Participants */}
-          <div className="flex flex-col gap-2 rounded-xl border p-2.5" style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}>
+          <div className="flex flex-col gap-2 rounded-xl border p-2.5" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
             <p className="px-1 text-[9px] uppercase tracking-wider" style={{ color: C.faint }}>
               Participants
             </p>
@@ -296,7 +296,7 @@ export function ConseilTab() {
                         <p className="mb-1 text-[10px] font-semibold" style={{ color: isUser ? C.copperLight : C.warm }}>
                           {isUser ? "Emilie" : roster?.name ?? m.speaker}
                         </p>
-                        <p className="text-[11px] leading-[1.5]" style={{ color: "#D8CFC4" }}>
+                        <p className="text-[11px] leading-[1.5]" style={{ color: "#A7ADB5" }}>
                           {m.content}
                         </p>
                       </div>
@@ -340,7 +340,7 @@ export function ConseilTab() {
           </div>
 
           {/* Jauges */}
-          <div className="flex flex-col gap-3 rounded-xl border p-3" style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}>
+          <div className="flex flex-col gap-3 rounded-xl border p-3" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
             <p className="text-[9px] uppercase tracking-wider" style={{ color: C.faint }}>
               Jauges du débat
             </p>

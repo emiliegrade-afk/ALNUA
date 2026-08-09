@@ -43,7 +43,7 @@ function IdeaKanbanCard({ idea, promoting }: { idea: RndIdea; promoting: boolean
       className="flex flex-col gap-1.5 rounded-lg border p-2.5"
       style={{
         borderColor: C.line,
-        background: "rgba(16,13,11,.6)",
+        background: "rgba(19,22,27,.6)",
         opacity: promoting ? 0.55 : 1,
       }}
     >
@@ -158,7 +158,7 @@ export function IncubateurTab() {
                 className="flex min-h-[420px] flex-col rounded-xl border"
                 style={{
                   borderColor: col.id === "departement" ? "rgba(192,138,114,.35)" : C.line,
-                  background: "rgba(16,13,11,.4)",
+                  background: "rgba(19,22,27,.4)",
                 }}
               >
                 <div className="flex items-center justify-between border-b px-2.5 py-2" style={{ borderColor: C.lineSoft }}>

@@ -23,7 +23,7 @@ function ProjectCard({ project, agents, latestBuild }: { project: Project; agent
   const prog = PROJECT_PROGRESS[project.status];
 
   return (
-    <div className="flex flex-col gap-2.5 rounded-xl border p-3.5" style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}>
+    <div className="flex flex-col gap-2.5 rounded-xl border p-3.5" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
       <div className="flex items-center justify-between gap-2">
         <span className="truncate text-[13.5px] font-semibold" style={{ color: C.ivory }}>
           {project.name}
@@ -38,7 +38,7 @@ function ProjectCard({ project, agents, latestBuild }: { project: Project; agent
 
       <div className="flex items-center gap-2">
         <span className="h-1.5 flex-1 overflow-hidden rounded-full" style={{ background: "rgba(192,138,114,.15)" }}>
-          <span className="block h-full rounded-full" style={{ width: `${prog}%`, background: `linear-gradient(90deg,#8A5230,${C.copperLight})` }} />
+          <span className="block h-full rounded-full" style={{ width: `${prog}%`, background: `linear-gradient(90deg,#8A6050,${C.copperLight})` }} />
         </span>
         <span className="text-[11px] font-semibold" style={{ color: C.ivory }}>
           {prog}%

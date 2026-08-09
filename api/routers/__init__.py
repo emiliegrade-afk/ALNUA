@@ -20,6 +20,7 @@ from api.routers.finances import router as finances_router
 from api.routers.campaigns import router as campaigns_router
 from api.routers.marketing_funnel import router as marketing_funnel_router
 from api.routers.rnd import router as rnd_router
+from api.routers.rnd_trees import router as rnd_trees_router
 from api.routers.rnd_council import router as rnd_council_router
 from api.routers.composio import router as composio_router
 from api.routers.scanner import router as scanner_router
@@ -43,6 +44,7 @@ from api.routers.feedback import router as feedback_router
 from api.routers.metrics import router as metrics_router
 from api.routers.plugins import router as plugins_router
 from api.routers.personality import router as personality_router
+from api.routers.trust import router as trust_router
 
 
 ALL_ROUTERS = [
@@ -62,6 +64,7 @@ ALL_ROUTERS = [
     campaigns_router,
     marketing_funnel_router,
     rnd_router,
+    rnd_trees_router,
     rnd_council_router,
     composio_router,
     scanner_router,
@@ -84,6 +87,7 @@ ALL_ROUTERS = [
     metrics_router,
     plugins_router,
     personality_router,
+    trust_router,
 ]
 
 

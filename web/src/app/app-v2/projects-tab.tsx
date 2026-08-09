@@ -149,7 +149,7 @@ function ProjectCard({
   return (
     <div
       className="flex flex-col overflow-hidden rounded-xl border"
-      style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}
+      style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}
     >
       <div
         className="relative flex h-[92px] shrink-0 flex-col justify-end p-3"
@@ -394,7 +394,7 @@ export function ProjetsTab({
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border text-[13px]"
               style={{
                 borderColor: "rgba(192,138,114,.4)",
-                background: "radial-gradient(circle at 30% 20%, rgba(192,138,114,.25), rgba(15,12,10,.9))",
+                background: "radial-gradient(circle at 30% 20%, rgba(192,138,114,.25), rgba(19,22,27,.9))",
                 color: C.copperLight,
               }}
             >
@@ -464,7 +464,7 @@ export function ProjetsTab({
                 type="button"
                 onClick={() => setFilter(f.key)}
                 className="flex shrink-0 items-center gap-1.5 whitespace-nowrap border-b-2 pb-2 pt-1 text-[11px]"
-                style={{ borderColor: active ? C.copper : "transparent", color: active ? "#F2E9DE" : C.faint }}
+                style={{ borderColor: active ? C.copper : "transparent", color: active ? "#F5F2EA" : C.faint }}
               >
                 {f.label}
                 <span
@@ -481,7 +481,7 @@ export function ProjetsTab({
         {filtered.length === 0 ? (
           <div
             className="flex min-h-[220px] flex-1 items-center justify-center rounded-xl px-6 text-center text-[11px]"
-            style={{ border: `1px solid ${C.line}`, background: "rgba(16,13,11,.55)", color: C.faint }}
+            style={{ border: `1px solid ${C.line}`, background: "rgba(19,22,27,.55)", color: C.faint }}
           >
             Aucun projet dans cette catégorie.
           </div>
@@ -528,7 +528,7 @@ export function ProjetsTab({
       <div className="hidden w-[clamp(240px,19vw,300px)] shrink-0 flex-col gap-3 min-[1200px]:flex">
         <div
           className="flex flex-col items-center gap-3 rounded-xl border p-3.5"
-          style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}
+          style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}
         >
           <p className="w-full text-[9.5px] tracking-[1.5px]" style={{ color: C.faint }}>
             RÉSUMÉ DES PROJETS
@@ -546,7 +546,7 @@ export function ProjetsTab({
 
         <div
           className="flex max-h-[300px] flex-col rounded-xl border p-3.5"
-          style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}
+          style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}
         >
           <div className="mb-2 flex items-center justify-between">
             <p className="text-[9.5px] tracking-[1.5px]" style={{ color: C.faint }}>
@@ -587,7 +587,7 @@ export function ProjetsTab({
 
         <div
           className="grid grid-cols-2 gap-2 rounded-xl border p-3.5"
-          style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}
+          style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}
         >
           <p className="col-span-2 text-[9.5px] tracking-[1.5px]" style={{ color: C.faint }}>
             MÉTRIQUES GLOBALES

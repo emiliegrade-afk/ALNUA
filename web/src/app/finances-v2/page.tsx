@@ -33,25 +33,21 @@ import { TransactionsTab } from "./transactions-tab";
 import { CoutsTab } from "./couts-tab";
 
 /* ────────────────────────────────────────────────────────────────────────────
-   Département Finances v2 — Phase 29, ROADMAP.md ("Finance Cockpit"). Même
-   socle que /app-v2, /gaming-v2, /rnd-v2 : coquille bespoke autonome
-   (en-tête, sidebar, barre de commandes), pas de ConsoleShell. Les données
-   (transactions, résumé IA, coûts LLM/ElevenLabs/manuel) sont 100% réelles,
-   déjà exposées par lib/finances-api.ts et lib/costs-api.ts — cette phase
-   n'ajoute qu'une nouvelle présentation visuelle, aucun nouveau backend.
-   /finances reste la route legacy (DepartmentWorkspace générique), inchangée
-   en parallèle ; cette route n'est pas encore liée à la nav principale
-   (CONSOLE_POLES pointe toujours vers /finances), accessible en URL directe.
+   Département Finances v2 — Phase 29 + DEC-016. Socle autonome (en-tête,
+   sidebar, barre de commandes). Données réelles via finances-api /
+   costs-api. Onglet « Coûts & Factures » = API costs + SaaS + ledger
+   factures + statut Revolut (`SaasInvoicesPanel`). Depuis Phase B
+   (2026-08-09), `/finances` ré-exporte cette page (plus de MockupShell).
    ──────────────────────────────────────────────────────────────────────────── */
 
-const TABS = ["Équipe", "Vue globale", "Transactions", "Coûts API"] as const;
+const TABS = ["Équipe", "Vue globale", "Transactions", "Coûts & Factures"] as const;
 type Tab = (typeof TABS)[number];
 
 const TAB_ICON: Record<Tab, string> = {
   Équipe: "👥",
   "Vue globale": "◉",
   Transactions: "💳",
-  "Coûts API": "📡",
+  "Coûts & Factures": "📡",
 };
 
 const DASHBOARD_NAV = [
@@ -97,7 +93,7 @@ const TOP_TABS: { icon: string; label: string; href: string; active?: boolean }[
 
 function SectionBox({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-[10px] border p-2" style={{ borderColor: "rgba(192,138,114,.14)", background: "rgba(16,13,11,.5)" }}>
+    <div className="rounded-[10px] border p-2" style={{ borderColor: "rgba(192,138,114,.14)", background: "rgba(19,22,27,.5)" }}>
       <p className="mb-2 ml-2 mt-0.5 text-[8.5px] tracking-[0.2em]" style={{ color: C.faint }}>
         {title}
       </p>
@@ -212,8 +208,7 @@ function FinancesDepartmentView() {
     <div
       className="alnua-scroll flex h-full w-full flex-col overflow-x-auto overflow-y-auto"
       style={{
-        background:
-          "radial-gradient(900px 500px at 12% -5%, rgba(192,138,114,.10), transparent 60%), radial-gradient(1000px 600px at 88% 105%, rgba(192,138,114,.09), transparent 62%), #08090B",
+        background: "#0E1014",
         color: C.ivory,
       }}
     >
@@ -224,7 +219,7 @@ function FinancesDepartmentView() {
             className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full border"
             style={{ borderColor: "rgba(192,138,114,.45)", background: "radial-gradient(circle,rgba(192,138,114,.28),transparent 70%)", boxShadow: "0 0 18px rgba(192,138,114,.25)" }}
           >
-            <AlnuaStar size={24} animated={false} sparkMid="#E8A87C" sparkOuter="#C87F4E" glowColorRgb="200,127,78" />
+            <AlnuaStar size={24} animated={false} sparkMid="#D9A88F" sparkOuter="#C08A72" glowColorRgb="192,138,114" />
           </span>
           <span>
             <span className="block font-title text-[21px] leading-none tracking-[4px]" style={{ color: C.copperLight }}>
@@ -330,7 +325,7 @@ function FinancesDepartmentView() {
                     </span>
                     <span className="truncate text-[12px]">{pole.name.replace("Bureau ", "").replace("Pôle ", "")}</span>
                   </span>
-                  <span className="text-[10px]" style={{ color: "#6E655E" }}>
+                  <span className="text-[10px]" style={{ color: "#5C626A" }}>
                     ›
                   </span>
                 </Link>
@@ -347,7 +342,7 @@ function FinancesDepartmentView() {
                   </span>
                   {t.label}
                 </span>
-                <span className="text-[10px]" style={{ color: "#6E655E" }}>
+                <span className="text-[10px]" style={{ color: "#5C626A" }}>
                   ›
                 </span>
               </Link>
@@ -356,7 +351,7 @@ function FinancesDepartmentView() {
 
           <div
             className="relative mt-auto overflow-hidden rounded-xl border p-3 pb-3.5"
-            style={{ borderColor: "rgba(192,138,114,.2)", background: "radial-gradient(120% 90% at 50% 45%, rgba(192,138,114,.13), rgba(8,7,9,.92) 70%)" }}
+            style={{ borderColor: "rgba(192,138,114,.2)", background: "radial-gradient(120% 90% at 50% 45%, rgba(192,138,114,.13), rgba(14,16,20,.92) 70%)" }}
           >
             <div className="flex items-center justify-center gap-2">
               <span className="h-px w-4" style={{ background: "linear-gradient(90deg,transparent,rgba(192,138,114,.6))" }} />
@@ -369,11 +364,11 @@ function FinancesDepartmentView() {
               Comptabilité opérationnelle
             </p>
             <div className="relative mt-1.5 flex h-[100px] items-center justify-center">
-              <AlnuaStar size={48} glow className="relative" sparkMid="#E8A87C" sparkOuter="#C87F4E" glowColorRgb="200,127,78" />
+              <AlnuaStar size={48} glow className="relative" sparkMid="#D9A88F" sparkOuter="#C08A72" glowColorRgb="192,138,114" />
             </div>
             <div className="mt-0.5 flex items-center justify-center gap-2">
               <span className="h-[7px] w-[7px] shrink-0 rounded-full" style={{ background: C.online, boxShadow: `0 0 7px ${C.online}` }} />
-              <p className="text-left text-[9.5px] leading-tight" style={{ color: "#9A9089" }}>
+              <p className="text-left text-[9.5px] leading-tight" style={{ color: "#7A8089" }}>
                 Tous les systèmes
                 <br />
                 opérationnels
@@ -388,14 +383,14 @@ function FinancesDepartmentView() {
             <div className="flex min-w-0 items-center gap-3">
               <span
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border text-[15px]"
-                style={{ borderColor: "rgba(192,138,114,.4)", background: "radial-gradient(circle at 30% 20%, rgba(192,138,114,.25), rgba(10,9,10,.9))", color: C.copperLight }}
+                style={{ borderColor: "rgba(192,138,114,.4)", background: "radial-gradient(circle at 30% 20%, rgba(192,138,114,.25), rgba(14,16,20,.9))", color: C.copperLight }}
               >
                 💠
               </span>
               <div className="min-w-0">
                 <h1 className="truncate text-[23px] leading-[1.1] tracking-[1px]">
                   <span className="font-bold">FINANCE</span>{" "}
-                  <span className="font-light tracking-[4px]" style={{ color: "#D8CFC4" }}>
+                  <span className="font-light tracking-[4px]" style={{ color: "#A7ADB5" }}>
                     COCKPIT
                   </span>
                 </h1>
@@ -407,7 +402,7 @@ function FinancesDepartmentView() {
             <div className="flex shrink-0 items-center gap-[9px]">
               <span
                 className="hidden items-center gap-[7px] rounded-[18px] border px-[13px] py-1.5 text-[11.5px] sm:flex"
-                style={{ borderColor: "rgba(192,138,114,.22)", background: "rgba(16,13,11,.6)", color: C.warm }}
+                style={{ borderColor: "rgba(192,138,114,.22)", background: "rgba(19,22,27,.6)", color: C.warm }}
               >
                 <span className="h-1.5 w-1.5 rounded-full" style={{ background: C.online, boxShadow: `0 0 6px ${C.online}` }} />
                 {activeCount} agent{activeCount !== 1 ? "s" : ""} actif{activeCount !== 1 ? "s" : ""}
@@ -430,7 +425,7 @@ function FinancesDepartmentView() {
                 type="button"
                 onClick={() => setTab(t)}
                 className="flex shrink-0 items-center gap-[7px] whitespace-nowrap border-b-2 pb-2 pt-1 text-[10.5px] tracking-[1.2px]"
-                style={{ borderColor: tab === t ? C.copper : "transparent", color: tab === t ? "#F2E9DE" : C.faint }}
+                style={{ borderColor: tab === t ? C.copper : "transparent", color: tab === t ? "#F5F2EA" : C.faint }}
               >
                 <span className="text-[11px]">{TAB_ICON[t]}</span>
                 {t.toUpperCase()}
@@ -508,7 +503,7 @@ function FinancesDepartmentView() {
               style={{ background: "radial-gradient(circle, rgba(192,138,114,.30) 0%, rgba(192,138,114,.10) 45%, transparent 70%)" }}
             >
               <span className="absolute h-[76px] w-[76px] rounded-full border" style={{ borderColor: "rgba(192,138,114,.35)" }} />
-              <AlnuaStar size={60} glow sparkMid="#E8A87C" sparkOuter="#C87F4E" glowColorRgb="200,127,78" />
+              <AlnuaStar size={60} glow sparkMid="#D9A88F" sparkOuter="#C08A72" glowColorRgb="192,138,114" />
             </span>
           </div>
 
@@ -577,10 +572,10 @@ function EquipeTab({
     <div className="flex min-h-[clamp(340px,44vh,420px)] flex-1 gap-3">
       <div
         className="flex w-[clamp(176px,13.4vw,206px)] shrink-0 flex-col self-start rounded-xl border px-2.5 py-[11px]"
-        style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}
+        style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}
       >
         <div className="flex items-center justify-between border-b pb-[9px]" style={{ borderColor: C.lineSoft }}>
-          <span className="text-[9.5px] tracking-[1.5px]" style={{ color: "#D8CFC4" }}>
+          <span className="text-[9.5px] tracking-[1.5px]" style={{ color: "#A7ADB5" }}>
             ÉQUIPE FINANCE
           </span>
           <span className="flex items-center gap-1 rounded-[10px] border px-[6px] py-px text-[9px]" style={{ borderColor: "rgba(140,200,150,.3)", color: C.onlineSoft }}>
@@ -628,7 +623,7 @@ function EquipeTab({
         className="flex min-w-0 flex-1 flex-col gap-[11px] rounded-xl border px-[13px] py-3"
         style={{
           borderColor: C.lineStrong,
-          background: "radial-gradient(120% 120% at 0% 0%, rgba(192,138,114,.08), rgba(16,13,11,.6) 55%)",
+          background: "radial-gradient(120% 120% at 0% 0%, rgba(192,138,114,.08), rgba(19,22,27,.6) 55%)",
           boxShadow: "0 0 24px rgba(192,138,114,.07)",
         }}
       >

@@ -61,6 +61,12 @@ EVENT_TYPES = {
     # Pipeline contenu
     "brief_created":     "Brief créé → Pipeline contenu déclenché",
     "content_published": "Contenu publié → Métriques à suivre",
+    "content_validated": "Contenu validé (quality gate) → distribution / analytics",
+    "campaign_validated": "Campagne validée → budget / KPIs",
+    "project_validated": "Projet validé → fan-out Marketing / Finance / Analytics",
+
+    # Workflow engine
+    "workflow_step_completed": "Étape de recette workflow terminée",
 
     # Finance
     "budget_alert":      "Budget dépassé → Controller + Accounting alertés",
@@ -278,3 +284,14 @@ def _on_task_failed(event: Event) -> None:
     agent = event.payload.get("agent_id", "unknown")
     error = event.payload.get("error", "")
     logger.error(f"task_failed event: agent={agent} error={error[:100]}")
+
+
+def _load_extension_handlers() -> None:
+    """Phase 36 cross-dept handlers — separate module to keep this file lean."""
+    try:
+        import services.cross_dept_handlers  # noqa: F401
+    except Exception as exc:
+        logger.debug("cross_dept_handlers not loaded: %s", exc)
+
+
+_load_extension_handlers()

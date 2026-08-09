@@ -43,7 +43,7 @@ function IdeaCard({ idea, onOpen }: { idea: RndIdea; onOpen: () => void }) {
       type="button"
       onClick={onOpen}
       className="animate-rnd-card-breathe flex flex-col gap-2.5 rounded-xl border p-3.5 text-left transition-transform hover:-translate-y-0.5"
-      style={{ borderColor: verdict?.border ?? C.line, background: "rgba(16,13,11,.55)" }}
+      style={{ borderColor: verdict?.border ?? C.line, background: "rgba(19,22,27,.55)" }}
     >
       <div className="flex items-start justify-between gap-2">
         <span className="min-w-0 flex-1 truncate text-[13.5px] font-semibold" style={{ color: C.ivory }}>

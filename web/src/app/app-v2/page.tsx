@@ -4,15 +4,14 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { toast } from "sonner";
-import { AlnuaStar } from "@/components/brand/alnua-star";
 import { AgentAvatar } from "@/components/shared/agent-avatar";
+import { DeptV2PageShell } from "@/components/dept-v2";
 import { AppConsole } from "@/components/app/app-console";
 import { useConsoleData } from "@/components/console/console-provider";
 import { ConsoleProvider } from "@/components/console/console-provider";
 import { useAgentStatuses } from "@/hooks/use-agent-statuses";
 import { getAgentsForBureau, type BureauAgentDef } from "@/lib/agent-bureau";
-import { CONSOLE_POLES } from "@/lib/console/departments";
-import { HUB_CHIEF, HUB_OWNER } from "@/lib/console/owner";
+import { HUB_OWNER } from "@/lib/console/owner";
 import { deleteProject, fetchProjects } from "@/lib/api";
 import { ROUTES } from "@/lib/routes";
 import type { Project } from "@/lib/types";
@@ -44,46 +43,6 @@ import { useCooStore } from "@/store/coo-store";
    que de couper le contenu.
    ──────────────────────────────────────────────────────────────────────────── */
 
-// Icônes et libellés repris à l'identique du fichier source de la maquette
-// (grep direct sur app-dept.html — plus de reconstruction approximative).
-const DASHBOARD_NAV: { icon: string; label: string; href: string; badge?: boolean }[] = [
-  { icon: "◉", label: "Command Center", href: ROUTES.home },
-  { icon: "〰", label: "Activité en direct", href: ROUTES.activity },
-  { icon: "▤", label: "Décisions", href: ROUTES.ceo, badge: true },
-];
-
-/** "Modèles"/"Automatisations" n'ont pas de page dédiée dans le Hub (réglages
- * modèles → Paramètres, automatisations → n8n externe, pas de route Hub) —
- * les deux pointent donc vers /settings plutôt qu'un lien mort inventé. */
-const TOOLS_NAV = [
-  { icon: "📄", label: "Documents", href: "/docs" },
-  { icon: "📖", label: "Connaissances", href: ROUTES.library },
-  { icon: "🗒", label: "Modèles", href: ROUTES.settings },
-  { icon: "⚙", label: "Automatisations", href: ROUTES.settings },
-] as const;
-
-const TOP_TABS: { icon: string; label: string; href: string; active?: boolean }[] = [
-  { icon: "☰", label: "Vue générale", href: ROUTES.home },
-  { icon: "▦", label: "Départements", href: ROUTES.app, active: true },
-  { icon: "◈", label: "Missions", href: ROUTES.tickets },
-  { icon: "📈", label: "Analytics", href: ROUTES.analytics },
-  { icon: "🗂", label: "Ressources", href: ROUTES.library },
-];
-
-/** Icônes par pôle — reprises à l'identique de la maquette (grep app-dept.html). */
-const DEPT_ICON: Record<string, string> = {
-  hub: "◎",
-  secretary: "🗂",
-  rd: "◇",
-  app: "▦",
-  marketing: "📣",
-  gaming: "🎮",
-  robo: "🤖",
-  finances: "💠",
-  analytics: "📈",
-  brand: "🎨",
-};
-
 const SUB_TABS: { label: string; icon: string }[] = [
   { label: "Équipe", icon: "👥" },
   { label: "Projets", icon: "▤" },
@@ -99,29 +58,12 @@ const QUICK_ACTIONS = [
   { icon: "⚙", label: "Automatisation" },
 ] as const;
 
-function SectionBox({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div
-      className="rounded-[10px] border p-2"
-      style={{ borderColor: "rgba(192,138,114,.14)", background: "rgba(16,13,11,.5)" }}
-    >
-      <p
-        className="mb-2 ml-2 mt-0.5 text-[8.5px] tracking-[0.2em]"
-        style={{ color: C.faint }}
-      >
-        {title}
-      </p>
-      {children}
-    </div>
-  );
-}
-
 function AppDepartmentView() {
   const agents = getAgentsForBureau("app");
   const statuses = useAgentStatuses();
   const { activityFeed, stats } = useConsoleData();
   const [selectedId, setSelectedId] = useState(agents[0]?.id ?? "");
-  const [subTab, setSubTab] = useState<(typeof SUB_TABS)[number]["label"]>("Équipe");
+  const [subTab, setSubTab] = useState<(typeof SUB_TABS)[number]["label"]>("Projets");
   const [projects, setProjects] = useState<Project[]>([]);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const { tickets, loading: ticketsLoading, setTickets } = useBureauTickets(projects);
@@ -203,8 +145,7 @@ function AppDepartmentView() {
       // portable 15" en offre souvent moins.
       className="alnua-scroll flex h-full w-full flex-col overflow-x-auto overflow-y-auto"
       style={{
-        background:
-          "radial-gradient(900px 500px at 12% -5%, rgba(192,138,114,.10), transparent 60%), radial-gradient(1000px 600px at 88% 105%, rgba(192,138,114,.09), transparent 62%), #08090B",
+        background: "#0E1014",
         color: C.ivory,
       }}
     >
@@ -226,7 +167,7 @@ function AppDepartmentView() {
               boxShadow: "0 0 18px rgba(192,138,114,.25)",
             }}
           >
-            <AlnuaStar size={24} animated={false} sparkMid="#E8A87C" sparkOuter="#C87F4E" glowColorRgb="200,127,78" />
+            <AlnuaStar size={24} animated={false} sparkMid="#D9A88F" sparkOuter="#C08A72" glowColorRgb="192,138,114" />
           </span>
           <span>
             <span
@@ -397,7 +338,7 @@ function AppDepartmentView() {
                       {pole.name.replace("Bureau ", "").replace("Pôle ", "")}
                     </span>
                   </span>
-                  <span className="text-[10px]" style={{ color: "#6E655E" }}>
+                  <span className="text-[10px]" style={{ color: "#5C626A" }}>
                     ›
                   </span>
                 </Link>
@@ -419,7 +360,7 @@ function AppDepartmentView() {
                   </span>
                   {t.label}
                 </span>
-                <span className="text-[10px]" style={{ color: "#6E655E" }}>
+                <span className="text-[10px]" style={{ color: "#5C626A" }}>
                   ›
                 </span>
               </Link>
@@ -432,7 +373,7 @@ function AppDepartmentView() {
             style={{
               borderColor: "rgba(192,138,114,.2)",
               background:
-                "radial-gradient(120% 90% at 50% 45%, rgba(192,138,114,.13), rgba(12,10,9,.9) 70%)",
+                "radial-gradient(120% 90% at 50% 45%, rgba(192,138,114,.13), rgba(14,16,20,.9) 70%)",
             }}
           >
             <div className="flex items-center justify-center gap-2">
@@ -464,14 +405,14 @@ function AppDepartmentView() {
                 <circle cx="84" cy="10" r="1.8" fill={C.copper} />
                 <circle cx="40" cy="56" r="1.6" fill={C.copper} />
               </svg>
-              <AlnuaStar size={48} glow className="relative" sparkMid="#E8A87C" sparkOuter="#C87F4E" glowColorRgb="200,127,78" />
+              <AlnuaStar size={48} glow className="relative" sparkMid="#D9A88F" sparkOuter="#C08A72" glowColorRgb="192,138,114" />
             </div>
             <div className="mt-0.5 flex items-center justify-center gap-2">
               <span
                 className="h-[7px] w-[7px] shrink-0 rounded-full"
                 style={{ background: C.online, boxShadow: `0 0 7px ${C.online}` }}
               />
-              <p className="text-left text-[9.5px] leading-tight" style={{ color: "#9A9089" }}>
+              <p className="text-left text-[9.5px] leading-tight" style={{ color: "#7A8089" }}>
                 Tous les systèmes
                 <br />
                 opérationnels
@@ -493,7 +434,7 @@ function AppDepartmentView() {
                     style={{
                       borderColor: "rgba(192,138,114,.4)",
                       background:
-                        "radial-gradient(circle at 30% 20%, rgba(192,138,114,.25), rgba(15,12,10,.9))",
+                        "radial-gradient(circle at 30% 20%, rgba(192,138,114,.25), rgba(19,22,27,.9))",
                       color: C.copperLight,
                     }}
                   >
@@ -502,7 +443,7 @@ function AppDepartmentView() {
                   <div className="min-w-0">
                     <h1 className="truncate text-[23px] leading-[1.1] tracking-[1px]">
                       <span className="font-bold">APP</span>{" "}
-                      <span className="font-light tracking-[4px]" style={{ color: "#D8CFC4" }}>
+                      <span className="font-light tracking-[4px]" style={{ color: "#A7ADB5" }}>
                         DEPARTMENT
                       </span>
                     </h1>
@@ -516,7 +457,7 @@ function AppDepartmentView() {
                     className="hidden items-center gap-[7px] rounded-[18px] border px-[13px] py-1.5 text-[11.5px] sm:flex"
                     style={{
                       borderColor: "rgba(192,138,114,.22)",
-                      background: "rgba(16,13,11,.6)",
+                      background: "rgba(19,22,27,.6)",
                       color: C.warm,
                     }}
                   >
@@ -563,7 +504,7 @@ function AppDepartmentView() {
                       className="flex shrink-0 items-center gap-[7px] whitespace-nowrap border-b-2 pb-2 pt-1 text-[10.5px] tracking-[1.2px]"
                       style={{
                         borderColor: active ? C.copper : "transparent",
-                        color: active ? "#F2E9DE" : C.faint,
+                        color: active ? "#F5F2EA" : C.faint,
                       }}
                     >
                       <span className="text-[11px]">{t.icon}</span>
@@ -591,8 +532,8 @@ function AppDepartmentView() {
                       style={{
                         borderColor: active ? C.copper : C.line,
                         background: active
-                          ? "radial-gradient(120% 120% at 0% 0%, rgba(192,138,114,.12), rgba(16,13,11,.6) 60%)"
-                          : "rgba(16,13,11,.45)",
+                          ? "radial-gradient(120% 120% at 0% 0%, rgba(192,138,114,.12), rgba(19,22,27,.6) 60%)"
+                          : "rgba(19,22,27,.45)",
                         boxShadow: active ? "0 0 22px rgba(192,138,114,.12)" : undefined,
                       }}
                     >
@@ -639,7 +580,7 @@ function AppDepartmentView() {
                           Charge
                         </span>
                         <Bar value={load} />
-                        <span className="shrink-0 text-[9.5px]" style={{ color: "#D8CFC4" }}>
+                        <span className="shrink-0 text-[9.5px]" style={{ color: "#A7ADB5" }}>
                           {load}%
                         </span>
                       </span>
@@ -674,7 +615,7 @@ function AppDepartmentView() {
                   type="button"
                   onClick={requestNewAgent}
                   className="flex w-[92px] shrink-0 flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed transition-colors hover:opacity-80"
-                  style={{ borderColor: "rgba(192,138,114,.3)", background: "rgba(16,13,11,.3)" }}
+                  style={{ borderColor: "rgba(192,138,114,.3)", background: "rgba(19,22,27,.3)" }}
                 >
                   <span
                     className="flex h-[26px] w-[26px] items-center justify-center rounded-full border text-[14px]"
@@ -696,13 +637,13 @@ function AppDepartmentView() {
             {subTab === "Équipe" ? (
             <div
               className="flex h-[268px] w-[clamp(226px,18vw,276px)] shrink-0 flex-col rounded-xl border px-3 py-[11px]"
-              style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}
+              style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}
             >
               <div
                 className="flex items-center justify-between border-b pb-[9px]"
                 style={{ borderColor: C.lineSoft }}
               >
-                <span className="text-[9.5px] tracking-[1.6px]" style={{ color: "#D8CFC4" }}>
+                <span className="text-[9.5px] tracking-[1.6px]" style={{ color: "#A7ADB5" }}>
                   ACTIVITÉ EN TEMPS RÉEL
                 </span>
                 <Link href={ROUTES.activity} className="text-[9.5px]" style={{ color: C.copper }}>
@@ -800,13 +741,13 @@ function AppDepartmentView() {
                 que de repousser les cartes voisines. */}
             <div
               className="flex w-[clamp(176px,13.4vw,206px)] shrink-0 flex-col self-start rounded-xl border px-2.5 py-[11px]"
-              style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}
+              style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}
             >
               <div
                 className="flex items-center justify-between border-b pb-[9px]"
                 style={{ borderColor: C.lineSoft }}
               >
-                <span className="text-[9.5px] tracking-[1.5px]" style={{ color: "#D8CFC4" }}>
+                <span className="text-[9.5px] tracking-[1.5px]" style={{ color: "#A7ADB5" }}>
                   ÉQUIPE APP
                 </span>
                 <span
@@ -873,7 +814,7 @@ function AppDepartmentView() {
               style={{
                 borderColor: C.lineStrong,
                 background:
-                  "radial-gradient(120% 120% at 0% 0%, rgba(192,138,114,.08), rgba(16,13,11,.6) 55%)",
+                  "radial-gradient(120% 120% at 0% 0%, rgba(192,138,114,.08), rgba(19,22,27,.6) 55%)",
                 boxShadow: "0 0 24px rgba(192,138,114,.07)",
               }}
             >
@@ -980,7 +921,7 @@ function AppDepartmentView() {
                 className="absolute h-[76px] w-[76px] rounded-full border"
                 style={{ borderColor: "rgba(192,138,114,.35)" }}
               />
-              <AlnuaStar size={60} glow sparkMid="#E8A87C" sparkOuter="#C87F4E" glowColorRgb="200,127,78" />
+              <AlnuaStar size={60} glow sparkMid="#D9A88F" sparkOuter="#C08A72" glowColorRgb="192,138,114" />
             </span>
           </div>
 

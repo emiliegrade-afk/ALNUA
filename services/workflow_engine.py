@@ -918,6 +918,19 @@ _STEP_HANDLERS: dict[str, Callable[..., dict[str, Any]]] = {
 }
 
 
+def _register_extension_recipes() -> None:
+    """Load Phase 30 validation recipes without inlining them here (BUG-004)."""
+    try:
+        from services.workflow_validation_recipes import register_validation_recipes
+
+        register_validation_recipes()
+    except Exception as exc:
+        logger.warning("validation recipes not loaded: %s", exc)
+
+
+_register_extension_recipes()
+
+
 # ---------------------------------------------------------------------------
 # Runner
 # ---------------------------------------------------------------------------
@@ -943,6 +956,7 @@ def run_workflow(recipe_id: str, context: dict[str, Any] | None = None) -> dict[
         return {"success": False, "error": f"Recipe inconnue : {recipe_id}"}
 
     ctx = dict(context or {})
+    ctx["_recipe_id"] = recipe_id
     if recipe_id == "ship_hub":
         ctx.setdefault("slug", "hub")
         ctx.setdefault("target_status", ctx.get("target_status", "prod"))
@@ -994,6 +1008,23 @@ def run_workflow(recipe_id: str, context: dict[str, Any] | None = None) -> dict[
         step_run.result = outcome.get("result")
         step_run.finished_at = _now_iso()
         prior.append(step_run)
+
+        try:
+            from services.event_bus import emit
+
+            emit(
+                "workflow_step_completed",
+                payload={
+                    "run_id": run.run_id,
+                    "recipe_id": recipe_id,
+                    "step_id": step_def.id,
+                    "status": step_run.status,
+                    "detail": (step_run.detail or "")[:200],
+                },
+                source_agent=step_def.head_agent or recipe.head_agent,
+            )
+        except Exception:
+            pass
 
         if step_run.status == "ECART":
             run.status = "blocked"

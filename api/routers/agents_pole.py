@@ -453,6 +453,14 @@ def accounting_advice(body: AccountingAdviceRequest) -> dict[str, Any]:
     )
 
 
+@router.get("/agents/accounting/invoices")
+def accounting_list_invoices(
+    status: str | None = Query(default="to_pay"),
+) -> dict[str, Any]:
+    """Factures suivies par Jules — lecture seule (paiement hors Hub)."""
+    return AccountantAgent().list_open_invoices(status=status or "to_pay")
+
+
 @router.post("/agents/analyst-business/market")
 def analyst_business_market(body: BusinessAnalystMarketRequest) -> dict[str, Any]:
     return BusinessAnalystAgent().market_analysis(body.product, body.market, body.competitors)

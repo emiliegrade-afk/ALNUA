@@ -4,7 +4,102 @@
 > depuis 2026-06-11) lors du bootstrap de gouvernance. Regroupé par date/thème plutôt
 > qu'un commit par ligne — le détail exact reste dans `git log`. À partir de
 > maintenant, ajouter une entrée par sprint/lot de changement au fur et à mesure,
-> pas en dump différé.
+> pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
+> >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
+
+## 2026-08-09 — Audit 003 : vérification A–E + nettoyage docs/hygiène (docs + chore)
+
+- Verdict : code Phases B–E conforme MVP ; docs ROADMAP/README/IMPLEMENTATION_STATUS
+  resync (40 routers, Phases 30/31/32/36 MVP) ; tmp screenshots supprimés ;
+  `tmp-mockup-refs/` gitignoré ; suppressions `skill_aider`/`skill_openhands` stagées.
+- Tests rejoués : 29 pytest + 12 vitest + ruff OK.
+
+## 2026-08-09 — Phase E remédiation : MVP Phases 30/31/32/36 (feat + test + docs)
+
+- **Phase 30 :** recettes `content_validation` / `campaign_validation` + autonomie
+  0–3 (`services/workflow_validation_recipes.py`) ; emit `workflow_step_completed`
+  à chaque étape du moteur (DEC-012).
+- **Phase 31 :** `services/agent_trust.py` + `GET /agents/trust` (DEC-011).
+- **Phase 32 :** `config/quality_gates.py` + `services/review_board.py` +
+  `POST /review-board/evaluate` (score structurel MVP, DEC-013).
+- **Phase 36 :** handlers cross-dept → `data/cross_dept_queue.json` +
+  `GET /cross-dept/queue`.
+- Tests : `tests/test_phase_e_mvp.py` ; router `api/routers/trust.py` (40e).
+
+## 2026-08-09 — Phase D remédiation : orphans, façades, split rnd_trees, aliases (refactor + docs)
+
+- **Type :** refactor + docs + chore
+- **Details :**
+  - **BUG-014 :** suppression `skills/skill_aider.py` + `skills/skill_openhands.py`
+    (jamais importés runtime). `brand_agent` **conservé** (Phase 35 / SPEC / tests).
+  - **BUG-015 :** `skills/coding_facade.py` (entry Hub vs watchdog) ;
+    `services/facades/briefing_facade.py` documente les 3 chemins briefing.
+  - **BUG-004 (1er cut) :** routes arbres + benchmark extraites vers
+    `api/routers/rnd_trees.py` (~158 lignes) ; `rnd.py` allégé ; **39** routers.
+  - **BUG-005 :** aliases `rnd_*_agent` → ids courts ajoutés (`coo_agent` était
+    déjà aliasé). MissionsTab partagé **reporté** (trop large pour ce lot).
+  - DEC-008 addendum (Aider reste backend de `skill_coding_agent`).
+
+## 2026-08-09 — Phase C remédiation : deps npm, vault policy, hygiène git (fix + chore + docs)
+
+- **Type :** fix + chore + docs
+- **Details :**
+  - **BUG-012 :** `npm audit fix` + `vitest@4.1.10` (critical fermée) + `postcss@8.5.26`
+    (+ overrides). Reste **8** vulns (0 critical, 5 high) — surtout Next 14.2.35,
+    acceptées jusqu’à migration Next 15/16 (pas de `--force`).
+  - **BUG-016 :** policy `vault/obsidian/library/_index/RETENTION.md` + gitignore des
+    corps `library/**` (sauf `_index/`).
+  - **BUG-002 :** `git rm --cached data/agent_models.json` (fichier local conservé).
+  - **BUG-003 :** `fastapi-mcp==0.4.0` ajouté à `requirements.lock.txt` (venv).
+  - Branches locales juin 2026 supprimées (`feat/issue-*`, `fix/auto…`).
+    `feat/rnd-dossier-hub` conservée (active / remote).
+
+## 2026-08-09 — Phase B remédiation : routes live + Finance factures (fix + feat)
+
+- **Type :** fix + feat
+- **Details :**
+  - **BUG-013 :** `/finances`, `/marketing`, `/app`, `/gaming`, `/robo` ré-exportent
+    leurs shells `*-v2` (plus de `MockupDepartmentPage` sur la nav primaire).
+  - **`/rd` :** shell `rnd-v2` par défaut ; deep-links `?dossier=` / `?tab=` /
+    `?tree=` / `?view=` restaurent `RdPageContent` (éditeur legacy).
+  - **Finance DEC-016 UI :** onglet renommé « Coûts & Factures » (panel SaaS /
+    factures / Revolut déjà branché) + KPI « Factures à payer » sur Vue globale.
+  - Tests Vitest : `department-routes-live`, `finances-api` helpers.
+
+## 2026-08-09 — Audit santé + catch-up gouvernance Phases 22-38 / Finance / Ops (docs + feat + ops)
+
+- **Type :** docs + feat + ops + fix (catch-up rétroactif — le CHANGELOG avait
+  décroché au 2026-07-31, voir BUG-011)
+- **Commits clés :** `f1f6f7a` / `590f5f6` (ops Sentry + security-ingest Résonance),
+  `f1a1224` (department v2 UI, finance SaaS, marketing funnel, R&D council —
+  ~352 fichiers / +25k lignes), `6dc1b29` (nettoyage panels mockup marketing),
+  `c84ec7d` (Audit 002 health check)
+- **Details :**
+  - **Phases 22-27 (R&D v2) :** coquille `/rnd-v2`, Innovation Pipeline, Incubateur
+    Kanban, Moteur Conseil (réceptacle), Arbres mindmap, table Dossiers — marquées
+    Complete dans `ROADMAP.md`.
+  - **Phase 28 (Explorer veille) :** toujours ⏸️ Not started.
+  - **Phases 29 / 33 / 37 (Marketing) :** Command Center visuel, Campagnes + Content
+    Studio, mesure Reach/Engagement/ROI/Funnel — Complete ; funnel marketing API
+    (`marketing_funnel`) dans le lot `f1a1224`.
+  - **Phase 34 (Finance) :** 🔄 In progress — DEC-016 : ledger factures JSON, catalogue
+    SaaS spend, Revolut lecture seule (API) ; UI `/finances-v2` et tables
+    budgets/fiscalité encore en retard (Phase B du plan de remédiation).
+  - **Phase 38 (harmonisation visuelle MockupShell) :** Complete côté rendu, avec
+    caveat : routes primaires `/finances` `/marketing` `/rd` encore sur mockup —
+    UI live sous `*-v2` (BUG-013, Phase B).
+  - **Phases 30-32 / 35-36 :** toujours Not started (workflow validation recipes,
+    Trust, Review Board, Brand transversal, event bus cross-dept) — bus
+    `event_bus.py` existe déjà, wiring Phase 36 non fait.
+  - **DEC-011–016 :** Trust séparé compétition, workflow générique unique, Review
+    Board, stats Marketing manuelles, OpenRouter prompt cache, Comptabilité
+    SaaS/factures/Revolut.
+  - **Ops :** mapping Résonance dans Sentry hotfix + bug_watchdog ; security-ingest
+    fortress alerts.
+  - **BUG-009 / BUG-010 :** rate-limit authentifié + loader dossier R&D (corrigés
+    fin juillet, absents du CHANGELOG jusqu’ici).
+  - **Audit 002 (2026-08-09) :** verdict 🟡 Concerning — ouverture BUG-011…016 ;
+    Phase A = ce catch-up gouvernance.
 
 ## 2026-07-31 — Roster Gaming/Robo, redesign UI départements, real-data Phases 15-20, fix Academy (feat + fix + chore)
 

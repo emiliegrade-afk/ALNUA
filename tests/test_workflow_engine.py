@@ -69,7 +69,9 @@ def test_ship_app_happy_path(workflow_runs_dir: Path) -> None:
 
     assert result["success"] is True
     assert result["status"] == "completed"
-    emit_mock.assert_called_once()
+    assert emit_mock.call_count >= 1
+    event_types = [c.args[0] for c in emit_mock.call_args_list if c.args]
+    assert "workflow_step_completed" in event_types or "feature_shipped" in event_types
 
 
 def test_run_ops_scan_registry(workflow_runs_dir: Path) -> None:

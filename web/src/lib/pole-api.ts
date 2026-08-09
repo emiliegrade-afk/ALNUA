@@ -411,6 +411,14 @@ export function accountingFinancialAdvice(body: {
   );
 }
 
+export function accountingListInvoices(
+  status = "to_pay",
+): Promise<Record<string, unknown>> {
+  return hubFetch(
+    `/agents/accounting/invoices?status=${encodeURIComponent(status)}`,
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Analytics — Layla (business)
 // ---------------------------------------------------------------------------

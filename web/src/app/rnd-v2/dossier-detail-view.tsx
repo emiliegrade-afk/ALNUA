@@ -379,7 +379,7 @@ export function DossierDetailView({
                     type="button"
                     onClick={() => setActiveId(t.id)}
                     className="shrink-0 whitespace-nowrap border-b-2 pb-2 text-[10.5px] tracking-[0.3px]"
-                    style={{ borderColor: activeId === t.id ? C.copper : "transparent", color: activeId === t.id ? "#F2E9DE" : C.faint }}
+                    style={{ borderColor: activeId === t.id ? C.copper : "transparent", color: activeId === t.id ? "#F5F2EA" : C.faint }}
                   >
                     {t.label.toUpperCase()}
                   </button>

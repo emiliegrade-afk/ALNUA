@@ -40,11 +40,16 @@ Règles :
 | `ship_app` | Release app (registry) | qa + coo | **P0** | ✅ MVP |
 | `ship_hub` | Release Hub (registry) | qa + coo | **P0** | ✅ MVP |
 | `run_ops` | Surveillance multi-repo | coo | **P0** | ✅ MVP |
-| `sav_lite` | SAV Nadia + fiche produit | secretary | P1 | À faire |
-| `ship_game` | Release jeu | game_director | P2 | Agents existants |
-| `ship_robo` | Release robotique | hardware | P2 | Agents existants |
+| `sav_lite` | SAV Nadia + fiche produit | secretary | P1 | ✅ Implémenté (`services/sav_lite.py` + handlers) |
+| `ship_game` | Release jeu | game_director | P2 | ✅ MVP (handlers `ship_game` dans `workflow_engine`) |
+| `ship_robo` | Release robotique | hardware | P2 | ✅ MVP (handlers `ship_robo` dans `workflow_engine`) |
 | `fiscal` | Déclarations agentiques | accounting | Later | Hors scope |
 | `semaine` | Brief hebdo ops + queue CEO | coo | **P0** | ✅ MVP |
+
+> Aligné code le 2026-08-09 (Phase A / Audit 002) — le catalogue ci-dessus était
+> resté sur « À faire » pour `sav_lite` / `ship_*` alors que les `WorkflowRecipe`
+> existent déjà dans `services/workflow_engine.py::RECIPE_CATALOG`.
+
 
 ## Recette `dossier_ceo`
 
@@ -113,8 +118,15 @@ Branch : `app` | `gaming` | `robotics` | `hub` | `other`
 
 ## Phases suivantes
 
-1. **P1** — `sav_lite` : secretary + KB produit par slug
-2. **P1** — `semaine` : wrapper `daily_briefing` + queue CEO + erreurs RUN
-3. **P2** — `ship_game` / `ship_robo` : playbooks dispatch adaptés
+1. ~~**P1** — `sav_lite`~~ ✅ fait
+2. ~~**P1** — `semaine`~~ ✅ fait
+3. ~~**P2** — `ship_game` / `ship_robo`~~ ✅ MVP fait
 4. **UI** — panneau workflows dans Hub CEO / Ops
 5. **IA** — DiffusionGemma local (2e SSD) branché sur benchmark existant
+6. **Phase 30 ROADMAP** — recettes de **validation** :
+   - ~~`content_validation`~~ ✅ MVP (2026-08-09)
+   - ~~`campaign_validation`~~ ✅ MVP (2026-08-09)
+   - `budget_transfer` (lié Phase 34)
+   (+ niveaux d'autonomie 0–3 MVP — voir `ROADMAP.md` Phase 30, DEC-012)
+   Extension via `services/workflow_validation_recipes.py` (ne pas grossir
+   `workflow_engine.py` — BUG-004).

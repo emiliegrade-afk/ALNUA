@@ -40,13 +40,13 @@
 | 27 | Redesign R&D v2 — Dossiers (vue table) | ✅ Complete |
 | 28 | Redesign R&D v2 — Explorer (veille externe autonome) | ⏸️ Not started |
 | 29 | Marketing/Finances — Command Center visuel (chrome immersif + cockpits) | ✅ Complete |
-| 30 | Workflow engine généralisé — recettes de validation configurables + niveaux d'autonomie | ⏸️ Not started |
-| 31 | Agent Trust System — indice de confiance par agent, distinct de la compétition | ⏸️ Not started |
-| 32 | Review Board générique + Quality Gates par département | ⏸️ Not started |
+| 30 | Workflow engine généralisé — recettes de validation configurables + niveaux d'autonomie | 🔄 MVP Complete |
+| 31 | Agent Trust System — indice de confiance par agent, distinct de la compétition | 🔄 MVP Complete |
+| 32 | Review Board générique + Quality Gates par département | 🔄 MVP Complete |
 | 33 | Marketing Command Center — profondeur (campagnes, calendrier éditorial unifié) | ✅ Complete (Campagnes + Content Studio) |
 | 34 | Finance Cockpit — profondeur (budgets, factures, fiscalité) | 🔄 In progress |
 | 35 | Brand Design — design system transversal + reviewer cross-département | ⏸️ Not started |
-| 36 | Orchestration inter-départements — event bus cross-département + briefing COO étendu | ⏸️ Not started |
+| 36 | Orchestration inter-départements — event bus cross-département + briefing COO étendu | 🔄 MVP Complete |
 | 37 | Marketing Command Center : mesure de performance réelle (Reach/Engagement/ROI/Funnel) | ✅ Complete |
 | 38 | Harmonisation visuelle globale du Hub sur les maquettes ChatGPT (rendu visuel, branchement à reconnecter) | ✅ Complete |
 
@@ -54,15 +54,12 @@ Statut légende : ⏸️ Not started | 🔄 In progress | ✅ Complete | 🔴 Bl
 
 ## Current phase
 
-Phases 29-36 définies le 2026-07-31, à partir du brief "Marketing Command Center /
-Finance Cockpit / Brand Design transversal / Workflows de validation / Trust System"
-d'Emilie — voir détail de chaque phase ci-dessous. **Phase 29 (cockpit visuel) et
-Phase 33 (Campagnes + Content Studio) complétées le 2026-07-31**, dans cet ordre à
-la demande d'Emilie ("Marketing d'abord"), en avance sur les Phases 30-32
-(workflow engine/trust/review board — toujours `⏸️ Not started`, écart assumé et
-documenté dans le détail de la Phase 33). Prochaine phase à confirmer avec Emilie :
-Phase 34 (Finance profondeur), reste des fonctionnalités Marketing (Content Studio/
-Social Media/SEO/Ads/Brand Center), ou Phase 30 pour rattraper le workflow engine.
+Phases 29-36 définies le 2026-07-31 (brief Emilie). **Phase 29 + 33** complétées
+2026-07-31 ; **Phases 30/31/32/36 en MVP** le 2026-08-09 (Phase E remédiation
+Audit 002 — recettes validation, trust, quality gates structurelles, queue
+cross-dept). Suites hors MVP : débat LLM Review Board, jauge UI trust,
+`budget_transfer`, daily_briefing cross-dept. **En cours :** Phase 34 (Finance).
+**Prochaines options :** Phase 35 (Brand), profondeur 31/32, ou Audit 003.
 
 ## Points tranchés le 2026-07-25 (anciennement ouverts)
 
@@ -676,8 +673,8 @@ mirrorée dans `database/schema.sql`.
   `evaluate` lève une erreur claire (503) plutôt que de fabriquer un
   verdict. Le frontend respecte ce flag avant d'afficher la bannière.
 - Nouveau routeur `api/routers/rnd_council.py` (5 endpoints), enregistré
-  dans `api/routers/__init__.py::ALL_ROUTERS` (36 routers au total
-  désormais — `CLAUDE.md` mis à jour).
+  dans `api/routers/__init__.py::ALL_ROUTERS` (compte actuel **40** routers +
+  `gdd` conditionnel — Phase E `trust` ; historique Phase 25 = 38).
 - `web/src/lib/rnd-council.ts` — client complet.
 - `web/src/app/rnd-v2/conseil-tab.tsx` — 3 colonnes (participants/
   conversation/jauges), toggle Discussion libre ↔ 💎 Conseil IA (formulaire
@@ -1181,7 +1178,10 @@ type de tâche/département déterminant combien d'étapes s'auto-valident.
 **Décision d'architecture :** un seul moteur générique — voir `DECISIONS.md`
 DEC-012 (pas de second moteur de workflow).
 **Dépendances :** aucune côté code existant ; conditionne les Phases 31-32.
-**Statut :** ⏸️ Not started.
+**Statut :** 🔄 MVP Complete (2026-08-09) — recettes `content_validation` /
+`campaign_validation` + autonomie 0–3 dans `services/workflow_validation_recipes.py`
+(enregistrées dans le catalogue existant, DEC-012) ; `workflow_step_completed`
+émis à chaque étape. `budget_transfer` encore absent (Phase 34).
 
 ### Phase 31 — Agent Trust System
 **Objectif :** indice de confiance par agent, alimenté par l'historique réel
@@ -1194,7 +1194,8 @@ pondéré/décroissant, pas cumulatif. Nouveau service `services/agent_trust.py`
 **Dépendances :** Phase 30 (le trust score se calcule à partir de
 l'historique des workflows de validation — sans Phase 30, pas de données à
 mesurer).
-**Statut :** ⏸️ Not started.
+**Statut :** 🔄 MVP Complete (2026-08-09) — JSON `data/agent_trust.json` +
+`GET /agents/trust` / `GET /agents/trust/{id}` ; jauge frontend encore à faire.
 
 ### Phase 32 — Review Board générique + Quality Gates
 **Objectif :** généraliser `agents/rnd_council_agent.py` (aujourd'hui scopé
@@ -1206,7 +1207,10 @@ passage par le workflow engine (Phase 30).
 **Dépendances :** Phase 30 (les gates bloquent une transition d'étape du
 workflow engine) et Phase 31 (un score sous le seuil doit pouvoir peser sur
 le trust de l'agent producteur).
-**Statut :** ⏸️ Not started.
+**Statut :** 🔄 MVP Complete (2026-08-09) — `config/quality_gates.py` +
+`services/review_board.py` (score structurel, pas encore débat LLM multi-
+personas) + `POST /review-board/evaluate`. Délibération type `rnd_council`
+reste Phase 32+.
 
 ### Phase 33 — Marketing Command Center — profondeur (Campagnes + Content Studio)
 **Objectif :** livrer deux fonctionnalités précises du brief Emilie —
@@ -1348,7 +1352,10 @@ mécanisme exact (pub/sub, handlers déjà câblés pour d'autres événements) 
 `services/daily_briefing.py` pour une synthèse cross-département.
 **Dépendances :** Phases 33/34 (les départements doivent avoir une logique
 métier réelle à déclencher, pas juste un cockpit d'affichage).
-**Statut :** ⏸️ Not started.
+**Statut :** 🔄 MVP Complete (2026-08-09) — handlers `project_validated` /
+`content_validated` / `campaign_validated` → file `data/cross_dept_queue.json`
+(actions Marketing / Finance / Analytics en queue, sans LLM auto) ;
+`GET /cross-dept/queue`. Synthèse daily_briefing cross-dept encore à faire.
 
 ### Phase 37 — Marketing Command Center : mesure de performance réelle (Reach/Engagement/ROI/Funnel)
 **Contexte :** Phase 33/29 avaient explicitement exclu Performances par
@@ -1428,12 +1435,10 @@ Ivoire #F5F2EA, Titane #A7ADB5, Cuivre Rosé #C08A72 en accent uniquement) pour
   sur les tokens ALNUA officiels.
 
 **Fonctionnalités temporairement déconnectées (à rebrancher) :**
-- `/rd` — Brainstorm, Centre R&D, arbres d'hypothèses, dossiers R&D, comité
-  (anciennement dans `rd-page-content.tsx`).
-- `/marketing` — Marketing console, posts en attente, content pipeline
-  (anciennement dans `marketing/page.tsx`).
-- `/finances` — Finances view, coûts, budgets, transactions
-  (anciennement dans `finances/page.tsx`).
+- ~~`/rd`~~ — **reconnecté Phase B (2026-08-09)** → `rnd-v2` (+ `RdPageContent` pour deep-links).
+- ~~`/marketing`~~ — **reconnecté** → `marketing-v2`.
+- ~~`/finances`~~ — **reconnecté** → `finances-v2` (incl. Coûts & Factures DEC-016).
+- ~~`/app`, `/gaming`, `/robo`~~ — **reconnectés** → `*-v2`.
 - `/analytics` — Analytics agents panel, analytics view
   (anciennement dans `analytics/page.tsx`).
 - `/brand` — Brand view / brand kits (anciennement dans `brand/page.tsx`).
@@ -1444,15 +1449,11 @@ Ivoire #F5F2EA, Titane #A7ADB5, Cuivre Rosé #C08A72 en accent uniquement) pour
 - `/hub` — Bureau Office Hero, agents section, workflows, automations,
   CEO cockpit, production ops cockpit, pipeline codage, coûts LLM
   (anciennement dans `hub/page.tsx`).
-- `/app`, `/gaming`, `/robo` et leurs versions `-v2` restent fonctionnels
-  avec leur chrome propre mais ne sont pas encore basculés sur `MockupShell`
-  (à harmoniser pour un modèle unique au prochain sprint visuel).
 
 **Hors scope / prochaines étapes :**
-- Reconnecter les fonctionnalités listées ci-dessus dans les vues du nouveau
-  `MockupDepartmentPage` (onglets spécialisés par département).
-- Bascule de `/app-v2`, `/gaming-v2`, `/robo-v2` sur le `MockupShell` unifié.
-- Remplacement des données mockées (projets, missions, backlog) par les vraies
-  sources de données du Hub.
-**Statut :** ✅ Complete (rendu visuel uniquement — branchement fonctionnel
-suivant).
+- Reconnecter `/analytics`, `/brand`, `/secretary`, `/ceo`, `/hub` (encore MockupShell
+  si basculés en Phase 38).
+- Bascule visuelle optionnelle des `*-v2` sur un `MockupShell` unifié (chrome only).
+- Remplacement des données mockées résiduelles dans les maquettes design.
+**Statut :** ✅ Complete (rendu) + **Phase B** reconnecte les départements listés
+ci-dessus (BUG-013 fermé). Reste analytics/brand/secretary/ceo/hub.

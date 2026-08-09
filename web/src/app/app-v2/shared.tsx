@@ -3,32 +3,60 @@
 import type { AgentStatus } from "@/lib/openroom-api";
 import { Sparkline } from "@/components/console/charts";
 
-/* Palette et primitives visuelles partagées entre page.tsx, tabs.tsx et
-   team.tsx — un seul endroit à modifier si la charte change, pas trois. */
-
+/** Palette charte ALNUA — obsidienne dominante, cuivre rosé en accent léger,
+ * titane pour textes secondaires et filets (pas de brun/orange). */
 export const C = {
-  line: "rgba(192,138,114,.16)",
-  lineSoft: "rgba(192,138,114,.13)",
-  lineStrong: "rgba(192,138,114,.3)",
-  copper: "#C87F4E",
-  copperLight: "#E8A87C",
+  obsidian: "#0E1014",
+  obsidian2: "#13161B",
+  obsidian3: "#1A1E24",
+  obsidianDeep: "#08090C",
+  copper: "#C08A72",
+  copperLight: "#D9A88F",
+  copperDim: "#8A6050",
+  copperRgb: "192,138,114",
   ivory: "#F5F2EA",
-  warm: "#C9C0B6",
-  muted: "#A79C92",
-  dim: "#8C8177",
-  faint: "#7A7069",
+  titanium: "#A7ADB5",
+  titaniumCold: "#9BA3AC",
+  titaniumMuted: "#7A8089",
+  titaniumDim: "#5C626A",
+  /** Filets structurels — titane, pas cuivre (évite l'effet « brun partout »). */
+  line: "rgba(167,173,181,0.12)",
+  lineSoft: "rgba(167,173,181,0.08)",
+  lineStrong: "rgba(167,173,181,0.22)",
+  /** Accents cuivre — bordures actives, icônes, glow discret. */
+  copperLine: "rgba(192,138,114,0.24)",
+  copperGlow: "rgba(192,138,114,0.32)",
+  copperFill: "rgba(192,138,114,0.07)",
+  copperFillActive: "rgba(192,138,114,0.11)",
   online: "#7FC98C",
   onlineSoft: "#8FCB99",
+  /** Alias legacy — texte secondaire en titane, plus de teinte brune. */
+  warm: "#A7ADB5",
+  muted: "#9BA3AC",
+  dim: "#7A8089",
+  faint: "#5C626A",
 } as const;
 
-/** Charge dérivée du statut : le Hub ne trace pas d'utilisation réelle par
- * agent, on ne fabrique donc pas un pourcentage précis. */
+export const DEPT_V2_BG = C.obsidian;
+export const ALNUA_STAR_SPARK_MID = C.copperLight;
+export const ALNUA_STAR_SPARK_OUTER = C.copper;
+export const ALNUA_STAR_GLOW_RGB = C.copperRgb;
+
+export function copperAlpha(alpha: number): string {
+  return `rgba(${C.copperRgb},${alpha})`;
+}
+
+export function titaniumAlpha(alpha: number): string {
+  return `rgba(167,173,181,${alpha})`;
+}
+
 export const STATUS_LOAD: Record<AgentStatus["status"], number> = {
   idle: 10,
   waiting: 40,
   working: 78,
   error: 0,
 };
+
 export const STATUS_TEXT: Record<AgentStatus["status"], string> = {
   idle: "En veille",
   waiting: "En attente",
@@ -36,26 +64,21 @@ export const STATUS_TEXT: Record<AgentStatus["status"], string> = {
   error: "Erreur",
 };
 
-/** Couleur par statut réel — la maquette distingue plusieurs états par
- * couleur (vert/ambre/bleu), pas un simple binaire vert/gris. */
 export const STATUS_COLOR: Record<AgentStatus["status"], string> = {
-  idle: "#7A7069",
-  waiting: "#E0A95C",
-  working: "#7FC98C",
+  idle: C.titaniumDim,
+  waiting: C.copperLight,
+  working: C.online,
   error: "#f87171",
 };
 
-/** Icône + couleur par nature d'événement (flux d'activité réel du Hub) —
- * la maquette varie la couleur du point par type d'action, pas une seule
- * teinte cuivre partout. Partagé entre le rail d'activité (page.tsx) et le
- * panneau « Tâches récentes » (team.tsx). */
 export const KIND_META: Record<string, { icon: string; label: string; color: string }> = {
-  ship: { icon: "🚀", label: "Livraison", color: "#7FC98C" },
-  decide: { icon: "◈", label: "Décision", color: "#A7ADB5" },
-  research: { icon: "◎", label: "Recherche", color: "#D8CFC4" },
+  ship: { icon: "🚀", label: "Livraison", color: C.online },
+  decide: { icon: "◈", label: "Décision", color: C.titanium },
+  research: { icon: "◎", label: "Recherche", color: C.titaniumCold },
   alert: { icon: "⚠", label: "Alerte", color: "#f87171" },
-  create: { icon: "✦", label: "Création", color: "#C87F4E" },
+  create: { icon: "✦", label: "Création", color: C.copperLight },
 };
+
 export const LOAD_LABEL: Record<AgentStatus["status"], string> = {
   idle: "Faible",
   waiting: "Modérée",
@@ -63,8 +86,6 @@ export const LOAD_LABEL: Record<AgentStatus["status"], string> = {
   error: "Bloquée",
 };
 
-/** Formatage de l'échéance réelle d'un ticket (`due_date`, Phase 12) —
- * `overdue` sert à colorer la carte en alerte quand la date est dépassée. */
 export function formatDueDate(iso: string): { label: string; overdue: boolean } {
   const d = new Date(`${iso}T00:00:00`);
   const today = new Date();
@@ -75,7 +96,6 @@ export function formatDueDate(iso: string): { label: string; overdue: boolean } 
   };
 }
 
-/** Anneau de progression — dimensions et dégradé du fichier source. */
 export function Ring({ value, size, stroke }: { value: number; size: number; stroke: number }) {
   const r = (size - stroke) / 2;
   const circ = 2 * Math.PI * r;
@@ -87,7 +107,7 @@ export function Ring({ value, size, stroke }: { value: number; size: number; str
         cy={size / 2}
         r={r}
         fill="none"
-        stroke="rgba(192,138,114,.15)"
+        stroke={C.lineSoft}
         strokeWidth={stroke}
       />
       <circle
@@ -100,17 +120,12 @@ export function Ring({ value, size, stroke }: { value: number; size: number; str
         strokeLinecap="round"
         strokeDasharray={dash}
         transform={`rotate(-90 ${size / 2} ${size / 2})`}
-        style={{ filter: "drop-shadow(0 0 5px rgba(217,168,143,.6))" }}
+        style={{ filter: `drop-shadow(0 0 5px ${copperAlpha(0.45)})` }}
       />
     </svg>
   );
 }
 
-/** Tuile chiffre — cockpits Marketing/Finances (Phase 29, ROADMAP.md). Reprend
- * le visuel du `Tile` local de gaming-v2/analytics-tab.tsx (seule variante
- * jusqu'ici) ; extrait ici dès le 2e usage concret plutôt que dupliqué une
- * 3e fois. `tone` ne fait qu'accentuer une valeur positive/négative (ex.
- * balance) — n'invente jamais un sens qu'une donnée neutre n'a pas. */
 export function KpiTile({
   label,
   value,
@@ -123,16 +138,15 @@ export function KpiTile({
   value: string | number;
   sublabel?: string;
   tone?: "default" | "positive" | "negative";
-  /** Historique réel (ex. `last_6_months`) pour une vraie sparkline — sinon
-   * une ligne plate honnête (`flatTrend`, voir web/src/lib/console/
-   * rich-data.ts) plutôt qu'une série inventée. Omettre entièrement si même
-   * une ligne plate n'a pas de sens (valeur inconnue/non renseignée). */
   trend?: number[];
   trendColor?: string;
 }) {
   const color = tone === "positive" ? C.online : tone === "negative" ? "#f87171" : C.ivory;
   return (
-    <div className="flex-1 rounded-xl border p-3 text-center" style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}>
+    <div
+      className="flex-1 rounded-xl border p-3 text-center"
+      style={{ borderColor: C.line, background: `${C.obsidian2}CC` }}
+    >
       <p className="text-[19px] font-semibold" style={{ color }}>
         {value}
       </p>
@@ -163,11 +177,15 @@ export function Bar({ value, thick = 3 }: { value: number; thick?: number }) {
   return (
     <span
       className="block min-w-0 flex-1 overflow-hidden rounded-full"
-      style={{ height: thick, background: "rgba(192,138,114,.16)" }}
+      style={{ height: thick, background: C.lineSoft }}
     >
       <span
         className="block h-full rounded-full"
-        style={{ width: `${value}%`, background: `linear-gradient(90deg,#8A5230,${C.copperLight})` }}
+        style={{
+          width: `${value}%`,
+          background: `linear-gradient(90deg, ${C.copperDim}, ${C.copperLight})`,
+          boxShadow: `0 0 8px ${copperAlpha(0.25)}`,
+        }}
       />
     </span>
   );

@@ -149,6 +149,131 @@ export function fetchFinanceDashboard(month?: string): Promise<FinanceDashboard>
   );
 }
 
+export type InvoiceStatus =
+  | "draft"
+  | "received"
+  | "to_pay"
+  | "paid_externally"
+  | "cancelled";
+
+export interface FinanceInvoice {
+  id: string;
+  vendor: string;
+  amount: number;
+  currency: string;
+  description: string;
+  due_date: string;
+  category: string;
+  receipt_url: string;
+  external_ref: string;
+  status: InvoiceStatus;
+  paid_at?: string | null;
+  created_at: string;
+  updated_at?: string;
+  notes?: string;
+}
+
+export interface InvoiceSummary {
+  count: number;
+  by_status_amount: Record<string, number>;
+  to_pay_count: number;
+  to_pay_total: number;
+  payment_policy: string;
+}
+
+export interface SaasSpendSource {
+  id: string;
+  name: string;
+  sync: string;
+  amount_usd: number;
+  detail?: Record<string, unknown>;
+}
+
+export interface SaasSpendReport {
+  as_of: string;
+  days: number;
+  currency_note: string;
+  total_tracked_usd: number;
+  sources: SaasSpendSource[];
+  catalog?: {
+    tools?: Array<{
+      name: string;
+      sync?: string;
+      monthly_usd?: number | null;
+      plan?: string;
+      category?: string;
+    }>;
+  };
+  gmail_ops?: {
+    connected?: boolean;
+    expected?: string;
+    profile?: string | null;
+    ok?: boolean;
+  };
+}
+
+export interface RevolutStatus {
+  configured: boolean;
+  expenses?: unknown[];
+  total_eur?: number;
+  reason?: string;
+  message?: string;
+  status?: string;
+}
+
+export function fetchSaasSpend(days = 30): Promise<SaasSpendReport> {
+  return hubFetch(`/finances/saas-spend?days=${days}`);
+}
+
+export function fetchFinanceInvoices(filters?: {
+  status?: InvoiceStatus;
+  vendor?: string;
+}): Promise<{ invoices: FinanceInvoice[]; summary: InvoiceSummary }> {
+  return hubFetch(
+    `/finances/invoices${qs({
+      status: filters?.status,
+      vendor: filters?.vendor,
+    })}`
+  );
+}
+
+export function createFinanceInvoice(body: {
+  vendor: string;
+  amount: number;
+  currency?: string;
+  description?: string;
+  due_date?: string;
+  category?: string;
+  status?: InvoiceStatus;
+}): Promise<FinanceInvoice> {
+  return hubFetch("/finances/invoices", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export function updateFinanceInvoice(
+  id: string,
+  body: Partial<{
+    vendor: string;
+    amount: number;
+    description: string;
+    due_date: string;
+    category: string;
+    status: InvoiceStatus;
+    notes: string;
+  }>
+): Promise<FinanceInvoice> {
+  return hubFetch(`/finances/invoices/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+}
+
+export function fetchRevolutStatus(days = 30): Promise<RevolutStatus> {
+  return hubFetch(`/finances/revolut/status?days=${days}`);
+}
+
 export function formatCurrency(amount: number, currency = "EUR"): string {
   return new Intl.NumberFormat("fr-FR", {
     style: "currency",

@@ -279,7 +279,7 @@ export function MissionsTab({
           <div className="flex min-w-0 items-center gap-3">
             <span
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border text-[13px]"
-              style={{ borderColor: "rgba(192,138,114,.4)", background: "radial-gradient(circle at 30% 20%, rgba(192,138,114,.25), rgba(15,12,10,.9))", color: C.copperLight }}
+              style={{ borderColor: "rgba(192,138,114,.4)", background: "radial-gradient(circle at 30% 20%, rgba(192,138,114,.25), rgba(19,22,27,.9))", color: C.copperLight }}
             >
               ◈
             </span>
@@ -325,7 +325,7 @@ export function MissionsTab({
             { label: "En test", value: counts.in_review },
             { label: "Terminées", value: counts.done },
           ].map((s) => (
-            <div key={s.label} className="rounded-xl border p-3 text-center" style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}>
+            <div key={s.label} className="rounded-xl border p-3 text-center" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
               <p className="text-[20px] font-semibold" style={{ color: C.ivory }}>
                 {s.value}
               </p>
@@ -345,7 +345,7 @@ export function MissionsTab({
               {BOARD_COLUMNS.map((col, colIdx) => {
                 const items = filtered.filter((t) => t.status === col.status);
                 return (
-                  <div key={col.status} className="flex min-h-[200px] flex-col rounded-xl border" style={{ borderColor: C.line, background: "rgba(16,13,11,.5)" }}>
+                  <div key={col.status} className="flex min-h-[200px] flex-col rounded-xl border" style={{ borderColor: C.line, background: "rgba(19,22,27,.5)" }}>
                     <div className="flex items-center justify-between border-b px-3 py-2.5" style={{ borderColor: C.lineSoft }}>
                       <span className="text-[9px] tracking-[1.2px]" style={{ color: C.copperLight }}>
                         {col.label}
@@ -394,7 +394,7 @@ export function MissionsTab({
           </p>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             {priorityBuckets.map((b) => (
-              <div key={b.key} className="flex flex-col gap-2 rounded-xl border p-3" style={{ borderColor: C.line, background: "rgba(16,13,11,.5)" }}>
+              <div key={b.key} className="flex flex-col gap-2 rounded-xl border p-3" style={{ borderColor: C.line, background: "rgba(19,22,27,.5)" }}>
                 <span className="text-[10.5px] font-medium" style={{ color: C.warm }}>
                   {b.key}
                 </span>
@@ -430,7 +430,7 @@ export function MissionsTab({
           <p className="mb-2 text-[9.5px] tracking-[1.5px]" style={{ color: C.faint }}>
             CHRONOLOGIE DES MISSIONS
           </p>
-          <div className="flex flex-col gap-2 rounded-xl border p-3" style={{ borderColor: C.line, background: "rgba(16,13,11,.5)" }}>
+          <div className="flex flex-col gap-2 rounded-xl border p-3" style={{ borderColor: C.line, background: "rgba(19,22,27,.5)" }}>
             {activityFeed.length === 0 ? (
               <p className="py-4 text-center text-[10.5px]" style={{ color: C.faint }}>
                 Aucune activité récente.
@@ -460,7 +460,7 @@ export function MissionsTab({
       </div>
 
       <div className="hidden w-[clamp(240px,19vw,300px)] shrink-0 flex-col gap-3 min-[1200px]:flex">
-        <div className="rounded-xl border p-3.5" style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}>
+        <div className="rounded-xl border p-3.5" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
           <div className="mb-2.5 flex items-center justify-between">
             <p className="text-[9.5px] tracking-[1.5px]" style={{ color: C.faint }}>
               FILTRES
@@ -515,7 +515,7 @@ export function MissionsTab({
           </div>
         </div>
 
-        <div className="rounded-xl border p-3.5" style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}>
+        <div className="rounded-xl border p-3.5" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
           <p className="mb-2.5 text-[9.5px] tracking-[1.5px]" style={{ color: C.faint }}>
             CHARGE DE TRAVAIL
           </p>
@@ -540,7 +540,7 @@ export function MissionsTab({
           </div>
         </div>
 
-        <div className="rounded-xl border p-3.5" style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}>
+        <div className="rounded-xl border p-3.5" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
           <p className="mb-2.5 text-[9.5px] tracking-[1.5px]" style={{ color: C.faint }}>
             MISSIONS À RISQUE
           </p>
@@ -572,7 +572,7 @@ export function MissionsTab({
           )}
         </div>
 
-        <div className="flex flex-col items-center gap-2 rounded-xl border p-3.5" style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}>
+        <div className="flex flex-col items-center gap-2 rounded-xl border p-3.5" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
           <p className="w-full text-[9.5px] tracking-[1.5px]" style={{ color: C.faint }}>
             PERFORMANCE GLOBALE
           </p>

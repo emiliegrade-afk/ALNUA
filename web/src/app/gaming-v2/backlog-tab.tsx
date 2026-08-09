@@ -128,7 +128,7 @@ export function BacklogTab({
         ) : (
           <div className="grid grid-cols-[repeat(auto-fill,minmax(230px,1fr))] gap-2.5">
             {ideas.map(({ ticket, meta }) => (
-              <div key={ticket.id} className="flex flex-col gap-2 rounded-xl border p-3" style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}>
+              <div key={ticket.id} className="flex flex-col gap-2 rounded-xl border p-3" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
                 <div className="flex items-center justify-between gap-2">
                   <span className="rounded-full border px-1.5 py-px text-[8px]" style={{ borderColor: "rgba(192,138,114,.22)", color: C.copperLight }}>
                     {meta.category}
@@ -174,7 +174,7 @@ export function BacklogTab({
       </div>
 
       <div className="hidden w-[clamp(220px,17vw,270px)] shrink-0 flex-col gap-3 min-[1200px]:flex">
-        <div className="rounded-xl border p-3.5" style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}>
+        <div className="rounded-xl border p-3.5" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
           <p className="mb-2.5 text-[9.5px] tracking-[1.5px]" style={{ color: C.faint }}>
             ACTIVITÉ RÉCENTE
           </p>

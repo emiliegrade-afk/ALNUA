@@ -24,7 +24,7 @@ export const PROJECT_LABEL: Record<ProjectStatus, string> = {
   active: "Actif",
 };
 export const PROJECT_COLOR: Record<ProjectStatus, string> = {
-  paused: "#9A9089",
+  paused: "#7A8089",
   dev: "#A7ADB5",
   beta: C.copperLight,
   active: C.online,

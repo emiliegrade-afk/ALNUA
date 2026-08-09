@@ -114,7 +114,7 @@ export function DocumentationTab({ projects }: { projects: Project[] }) {
           {filtered.map((e) => {
             const author = e.agent_id ? getAgentById(e.agent_id) : undefined;
             return (
-              <div key={e.id} className="flex flex-col gap-1.5 rounded-xl border p-3" style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}>
+              <div key={e.id} className="flex flex-col gap-1.5 rounded-xl border p-3" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
                 <div className="flex items-center justify-between gap-2">
                   <span className="rounded-full border px-1.5 py-px text-[8px]" style={{ borderColor: "rgba(192,138,114,.22)", color: C.copperLight }}>
                     {categoryOf(e)}

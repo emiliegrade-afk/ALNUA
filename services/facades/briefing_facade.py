@@ -1,7 +1,16 @@
 """
 Briefing facade — compose operational, COO, and orchestration paths without merging them.
 
-Phase 0: thin wrappers + feature flags only. Existing routes/agents unchanged.
+Three call sites still exist in the wild; prefer this module for new code:
+
+| Path | Module | Role |
+|------|--------|------|
+| Operational | `briefing_generator` via `fetch_operational_briefing_for_date` | Persisted Supabase daily ops brief |
+| Executive COO | `daily_briefing` via `fetch_coo_daily_briefing` | Aria synthesis (trends/costs/events) |
+| Agent method | `COOAgent.get_daily_briefing` | Legacy agent-facing wrapper used by dashboard/bots |
+
+Phase 0: thin wrappers + feature flags. Do not collapse these into one pipeline
+without an explicit product decision — they serve different consumers.
 """
 
 from __future__ import annotations

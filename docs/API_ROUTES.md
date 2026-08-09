@@ -30,8 +30,12 @@ Last updated: Phase 4 assainissement.
 | Monthly summary | `GET /finances/summary/{month}` | was implemented in `rnd.py` (removed Phase 4) |
 | Force regenerate summary | `POST /finances/summary/generate` | was in `rnd.py` |
 | Dashboard aggregates | `GET /finances/dashboard` | was in `rnd.py` |
+| SaaS spend (live + catalogue) | `GET /finances/saas-spend` | Phase 34 |
+| Invoice ledger | `GET/POST /finances/invoices`, `PATCH /finances/invoices/{id}` | no agent payment |
+| Revolut read-only | `GET /finances/revolut/status` | needs `REVOLUT_ACCESS_TOKEN` |
 
-**Router:** `api/routers/finances.py` (transactions + summaries).  
+**Router:** `api/routers/finances.py` (transactions + summaries + SaaS/invoices).  
+**Agents:** `POST /agents/accounting/advice`, `GET /agents/accounting/invoices` ; Rémi via `/agents/controller/*`.  
 **Note:** URLs unchanged for clients; only the owning router changed.
 
 ---
@@ -64,7 +68,22 @@ Some capabilities overlap historically — prefer **orchestration** for schedule
 | Action | Router |
 |--------|--------|
 | Dossiers, comité, CEO package, product pages | `api/routers/rnd.py` |
+| Arbres / hypothèses R&D | `api/routers/rnd_trees.py` (split Phase D) |
 | Finance summaries | `api/routers/finances.py` uniquement (retiré de `rnd.py`, phase 4) |
+
+---
+
+## Trust / Quality / Cross-dept (Phase E MVP)
+
+| Action | Canonical |
+|--------|-----------|
+| Trust scores | `GET /agents/trust`, `GET /agents/trust/{agent_id}` |
+| Quality gate thresholds | `GET /quality-gates` |
+| Review board (structural) | `POST /review-board/evaluate` |
+| Cross-dept work queue | `GET /cross-dept/queue` |
+| Validation recipes | `POST /workflows/run` with `content_validation` / `campaign_validation` |
+
+**Router:** `api/routers/trust.py`. Trust ≠ competition (`DEC-011`).
 
 ---
 

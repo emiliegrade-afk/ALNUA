@@ -1,6 +1,7 @@
 # Implementation Status — ALNUA Hub
 
-> Reconstitué le 2026-07-25 lors du bootstrap de gouvernance. Vue d'ensemble
+> Reconstitué le 2026-07-25 lors du bootstrap de gouvernance. Resynchronisé le
+> 2026-08-09 (Phase A remédiation Audit 002 / BUG-011). Vue d'ensemble
 > "implémenté vs planifié vs gap" — le détail agent-par-agent exhaustif reste dans
 > `CLAUDE.md` (source de vérité pour room/team/tier), pas dupliqué ici.
 
@@ -8,8 +9,8 @@
 
 | Domaine | Status | Notes |
 |---------|--------|-------|
-| API FastAPI (35 routers) | ✅ Implémenté | `api/routers/__init__.py::ALL_ROUTERS` |
-| 49 agents personas (9 poles, dont 15 rôles Gaming/Robo Phase 13) | ✅ Implémenté | Voir tableau complet dans `CLAUDE.md` |
+| API FastAPI (**40** routers + `gdd` conditionnel) | ✅ Implémenté | `ALL_ROUTERS` — Phase D `rnd_trees` ; Phase E `trust` |
+| **49** agents personas (9 poles, dont 15 rôles Gaming/Robo Phase 13) | ✅ Implémenté | Voir tableau complet dans `CLAUDE.md` |
 | Orchestration CrewAI | ✅ Implémenté | Tâches multi-agents complexes |
 | Système compétition (points/leaderboard) | ✅ Implémenté | `services/competition.py` |
 | Routeur LLM dynamique (tier fast/standard/premium) | ✅ Implémenté | `services/llm_router.py` |
@@ -23,11 +24,12 @@
 | Apprentissage + compression mémoire (Mem0) | ✅ Implémenté | `skills/skill_agent_learning.py` |
 | Suivi coûts LLM | ✅ Implémenté | `services/cost_monitor.py`, étendu à ElevenLabs + hosting (2026-07-24) |
 | A/B test prompts/agents | ✅ Implémenté | `services/a_b_tester.py` |
-| Bus d'événements inter-agents | ✅ Implémenté | `services/event_bus.py` |
+| Bus d'événements inter-agents | ✅ Implémenté + fan-out MVP | `event_bus` + `cross_dept_handlers` (Phase 36 MVP) ; briefing cross-dept encore à faire |
 | Briefing quotidien COO | ✅ Implémenté | `services/daily_briefing.py` |
+| Workflow engine (ship/ops/dossier/sav + validation) | ✅ MVP Phase 30 | `workflow_engine` + `workflow_validation_recipes` ; `budget_transfer` encore absent |
 | MCP Server (`fastapi-mcp` sur `/mcp`) | ✅ Implémenté | Protégé par `X-Hub-Key` |
 
-## Centre R&D (dossier hub)
+## Centre R&D (dossier hub + v2)
 
 | Phase | Status | Référence |
 |-------|--------|-----------|
@@ -40,6 +42,20 @@
 | Fiche produit / waitlist | ✅ Implémenté | `agents/rnd_product_agent.py`, `services/waitlist.py` |
 | Estimation finance/pricing | ✅ Implémenté | `services/rnd_finance_estimate.py`, `rnd_pricing_model.py` |
 | Arbre d'hypothèses | ✅ Implémenté | `services/rnd_hypothesis_tree.py` |
+| R&D v2 — coquille `/rnd-v2` (Phases 22-27) | ✅ Implémenté | Pipeline, Incubateur, Conseil (réceptacle), Arbres, Dossiers |
+| R&D v2 — Explorer veille externe (Phase 28) | ⏸️ Non démarré | `ROADMAP.md` |
+| R&D council agent / router | ✅ Implémenté | `agents/rnd_council_agent.py`, `api/routers/rnd_council.py` |
+
+## Marketing & Finances
+
+| Zone | Status | Notes |
+|------|--------|-------|
+| Marketing Command Center visuel (Phase 29) | ✅ Implémenté | `/marketing-v2` |
+| Campagnes + Content Studio (Phase 33) | ✅ Implémenté | `api/routers/campaigns.py` + UI |
+| Mesure perf Reach/Engagement/ROI/Funnel (Phase 37) | ✅ Implémenté | `api/routers/marketing_funnel.py` + saisie manuelle (DEC-014) |
+| Finance Cockpit visuel (Phase 29) | ✅ Implémenté | `/finances-v2` (onglets de base) |
+| Finance profondeur — invoices / SaaS / Revolut (Phase 34 / DEC-016) | 🔄 Backend ✅ / UI partielle ✅ | API + `SaasInvoicesPanel` dans onglet « Coûts & Factures » + KPI à payer Vue globale. Reste : tables budgets / fiscalité |
+| Budgets / obligations fiscales (Phase 34 suite) | ⏸️ Non démarré | Tables + UI |
 
 ## Frontend (`web/`)
 
@@ -53,21 +69,21 @@
 | Page Admin Events | 🔄 Implémenté, **désactivé par défaut** | `ADMIN_EVENTS_PAGE_ENABLED=false` |
 | Page Admin A/B Test | 🔄 Implémenté, **désactivé par défaut** | `ADMIN_AB_TEST_PAGE_ENABLED=false` |
 | Onglet exécutif COO sur `/briefing` | 🔄 Implémenté, **désactivé par défaut** | `BRIEFING_COO_SECTION_ENABLED=false` |
-| GDD Manager (router + endpoints) | 🔄 Implémenté, **désactivé par défaut** | `GDD_MANAGER_ENABLED=false` — c'est pourquoi `gdd.py` est monté conditionnellement |
-| Redesign UI départements (équipe/mission/chat, missions kanban, backlog, docs, modules) | ✅ Implémenté | `web/src/app/{app,gaming,robo}-v2/` — `/app`, `/gaming`, `/robo` sont de simples ré-exports vers `-v2` (2026-07-31) |
-| Real-data Gaming/Robo (builds, assets, labo, télémétrie, communauté) | ✅ Implémenté (réceptacle) | Phases 15-20, `ROADMAP.md` — vraies tables/endpoints/scripts rapporteurs ; pas de pipeline UE5/Steam Wishlist/accès robot réel derrière (voir gaps) |
+| GDD Manager (router + endpoints) | 🔄 Implémenté, **désactivé par défaut** | `GDD_MANAGER_ENABLED=false` — `gdd.py` monté conditionnellement |
+| Redesign UI départements App/Gaming/Robo | ✅ Implémenté | `web/src/app/{app,gaming,robo}-v2/` — `/app`, `/gaming`, `/robo` ré-exportent vers `-v2` |
+| Real-data Gaming/Robo (builds, assets, labo, télémétrie, communauté) | ✅ Implémenté (réceptacle) | Phases 15-20 — pas de pipeline UE5/Steam/robot physique derrière |
+| Harmonisation visuelle MockupShell (Phase 38) | ✅ Rendu + routes reconnectées | Phase B 2026-08-09 : `/finances` `/marketing` `/rd` `/app` `/gaming` `/robo` servent les shells live (`*-v2` / RdPageContent deep-link). Mockups restent sous `components/mockup/` pour preview design. |
 
-> Ces 5 fonctionnalités sont codées et testées (flags forcés à `1` dans le job e2e de
-> la CI) mais restent **éteintes par défaut** en prod tant que non activées
-> explicitement — à vérifier avec Emilie si c'est intentionnel (rollout progressif) ou
-> un oubli d'activation.
+> Les 5 features admin/GDD/briefing COO sont codées et testées (flags forcés à `1`
+> dans le job e2e CI) mais restent **éteintes par défaut** en prod tant que non
+> activées explicitement.
 
 ## Intégrations externes
 
 | Intégration | Status | Notes |
 |-------------|--------|-------|
 | Supabase (DB + auth + RLS) | ✅ Implémenté | |
-| OpenRouter (LLM) | ✅ Implémenté | |
+| OpenRouter (LLM) | ✅ Implémenté | Prompt cache + retries (DEC-015) |
 | Mem0 (mémoire agents) | ✅ Implémenté | |
 | Langfuse (tracing) | ✅ Implémenté | |
 | n8n (workflows externes) | ✅ Implémenté | |
@@ -75,24 +91,29 @@
 | Discord / Telegram bots | ✅ Implémenté | Fallback gracieux si token/channel absent |
 | ElevenLabs (voix, coûts) | ✅ Implémenté | |
 | Godot 4 (`godot-mcp`) | ✅ Implémenté | Skill `.claude/skills/alnua-godot/` |
-| Nwiro/UE5 (`skill_nwiro.py`) | ✅ Implémenté, assumé | Coexiste avec Godot par choix — voir `DECISIONS.md` DEC-009 (tranché 2026-07-25) |
+| Nwiro/UE5 (`skill_nwiro.py`) | ✅ Implémenté, assumé | Coexiste avec Godot — `DECISIONS.md` DEC-009 |
+| Sentry / security-ingest (Résonance) | ✅ Implémenté | Ops 2026-08-08 |
+| Revolut Business (lecture) | 🔄 Branché API | DEC-016 — credentials requis |
 
-## Gap connu (pas un audit exhaustif — juste ce qui saute aux yeux)
+## Planifié (ROADMAP — Not started / suite MVP)
 
-- **Gouvernance** : jusqu'au 2026-07-25, aucun des 8 fichiers de gouvernance standard
-  n'existait pour ce projet (contrairement à `NAÏA/`, `NUAWAY/`, `RESONANCE/`) — comblé
-  par ce bootstrap.
-- Le reste des gaps potentiels (sécurité, qualité de code) est dans `BUGS.md`, alimenté
-  par l'audit mené en parallèle de ce bootstrap.
-- **Real-data Gaming/Robo (Phases 15-20)** : infra "réceptacle" honnête, mais sans
-  source réelle branchée derrière pour Gaming (pas de pipeline UE5 local — projet
-  Wyrdheim sur un disque dur externe non accessible ; pas de clé Steam/Discord
-  configurée) ni pour Robo (pas d'accès physique au robot Eve pour rapporter
-  builds/tests labo/télémétrie réels). Liste complète des actions externes à faire
-  par Emilie documentée en fin de session du 2026-07-30/31 (voir `CHANGELOG.md`).
-- **Academy (dev_app training pipeline)** : `agent_wake.py` corrigé (BUG-008) et le
-  repo `alnua-academy` cloné dans `C:\Dev\alnua-academy` le 2026-07-31 — mais
-  `dev_app` (Théo) est actuellement bloqué en erreur `OpenRouter 402 : crédits
-  insuffisants` sur `minimax/minimax-m3`. Ajouter des crédits sur
-  https://openrouter.ai/settings/credits pour que le pipeline recommence à coder
-  réellement.
+| Phase | Objectif |
+|-------|---------|
+| 21 | Skills réels pour les 15 agents Gaming/Robo |
+| 28 | Explorer R&D (veille externe autonome) |
+| 30 | Suite : `budget_transfer` + UI workflows (MVP recettes validation ✅ 2026-08-09) |
+| 31 | Suite : jauge trust frontend (service + API ✅ 2026-08-09) |
+| 32 | Suite : débat LLM multi-personas Review Board (gates structurelles ✅) |
+| 35 | Brand Design transversal |
+| 36 | Suite : daily_briefing cross-dept (queue handlers ✅ 2026-08-09) |
+
+## Gap connu (pas un audit exhaustif)
+
+- **Gouvernance drift** : comblé en Phase A (2026-08-09) pour CHANGELOG /
+  IMPLEMENTATION_STATUS / comptes — voir `DOC_AUDIT.md` Audit 002 + BUG-011.
+- **Real-data Gaming/Robo (Phases 15-20)** : réceptacle honnête sans source UE5 /
+  Steam / robot Eve physique.
+- **Academy** : pipeline corrigé (BUG-008) ; risque OpenRouter 402 (crédits) toujours
+  possible.
+- **Suite remédiation Audit 002 :** Phases A–E livrées 2026-08-09 (MVP) ;
+  résiduels BUG-004 (file size), BUG-017 (Next 14 npm highs).

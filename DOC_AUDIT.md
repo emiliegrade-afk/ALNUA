@@ -115,3 +115,77 @@ Historique des audits de gouvernance effectués.
   audit ciblé ; (4) Phase 34 UI Finance ; (5) un découpage BUG-004 (coo/rnd).
 - **Next audit planned :** après resync gouvernance + Phase 34 UI, ou au plus
   tard dans 4 semaines — ne pas laisser 2 mois sans audit comme entre 001 et 002.
+
+### Audit 002 — addendum Phase A (resync gouvernance)
+
+- **Date :** 2026-08-09
+- **Scope :** exécution Phase A du plan de remédiation — docs only, BUG-011 fermé.
+- **Fait :** CHANGELOG catch-up 2026-08-01→09 ; IMPLEMENTATION_STATUS Phases 22-38 /
+  Marketing / Finance ; ARCHITECTURE / AGENTS / TESTING / README / CLAUDE skill
+  table / ROADMAP compte routers ; SPEC_WORKFLOW_ENGINE `sav_lite`/`ship_*`/`semaine`
+  alignés ; règle anti-drift >500 lignes dans CHANGELOG + AGENTS.md.
+- **Restant (Phases B–E) :** BUG-012…016, routes mockup, npm, vault, splits.
+
+### Audit 002 — addendum Phase B (routes live + Finance UI)
+
+- **Date :** 2026-08-09
+- **Scope :** BUG-013 + branchement visible DEC-016 (factures/SaaS déjà dans
+  `SaasInvoicesPanel` / `CoutsTab`).
+- **Fait :** ré-exports `/finances` `/marketing` `/app` `/gaming` `/robo` → `*-v2` ;
+  `/rd` → `rnd-v2` + legacy deep-links ; KPI factures Vue globale ; onglet
+  « Coûts & Factures » ; Vitest 12 tests verts ; BUG-013 fermé.
+- **Restant mockup :** `/analytics` `/brand` `/secretary` `/ceo` `/hub` si encore
+  sur MockupShell — hors Phase B stricte, à traiter en suivi.
+- **Suite :** Phase C (npm audit, vault, branches).
+
+### Audit 002 — addendum Phase C (deps + vault + git hygiene)
+
+- **Date :** 2026-08-09
+- **Fait :** vitest 4.1.10 (0 critical) ; postcss 8.5.26 + overrides ; npm 21→8
+  vulns ; RETENTION vault + gitignore library dumps ; `git rm --cached`
+  `data/agent_models.json` ; `fastapi-mcp` dans lock ; 3 branches juin
+  supprimées ; BUG-002/003/012/016 fermés ; BUG-017 ouvert (reste Next 14).
+- **Note :** pages `*/page.tsx` départements ont été réécrites en mockup par un
+  autre process pendant C — **re-restaurées** vers `*-v2` avant fin de phase ;
+  Vitest routes live 12/12 verts.
+- **Suite :** Phase D (orphelin skills, façades, 1er split BUG-004).
+
+### Audit 002 — addendum Phase D (structure)
+
+- **Date :** 2026-08-09
+- **Fait :** delete `skill_aider`/`skill_openhands` ; `coding_facade` ;
+  briefing facade doc ; split `rnd_trees` (alors 39 routers) ; aliases
+  `rnd_*_agent` ; BUG-005/014/015 fermés ; BUG-004 mitigé (1er cut).
+  MissionsTab reporté.
+- **Tests :** 21 passed (`workflow_engine`, `facades_phase0`, `pole_services`).
+- **Suite :** Phase E (ROADMAP 30–32/36 MVP) ou Audit 003.
+
+### Audit 002 — addendum Phase E (MVP Phases 30/31/32/36)
+
+- **Date :** 2026-08-09
+- **Fait :** `workflow_validation_recipes` (`content_validation`,
+  `campaign_validation`, autonomie 0–3) ; `agent_trust` + `quality_gates` +
+  `review_board` ; handlers cross-dept + queue ; router `trust` (**40**e) ;
+  emit `workflow_step_completed` ; tests `test_phase_e_mvp.py`.
+- **Honnêteté MVP :** pas de débat LLM Review Board, pas de jauge frontend
+  trust, pas de `budget_transfer`, pas de daily_briefing cross-dept.
+- **Tests :** 16 passed (`test_phase_e_mvp` + `test_workflow_engine`).
+- **Suite :** Audit 003 ou profondeur Phases 31/32/34.
+
+## Audit 003 — Vérification post-remédiation A–E + nettoyage
+
+- **Date :** 2026-08-09
+- **Verdict :** remédiation **pas 100 %** avant nettoyage (dérive docs +
+  hygiène) ; **code Phases B–E OK** ; après nettoyage docs/hygiène →
+  **conforme MVP** (suites produit hors scope : BUG-004, BUG-017, mockup
+  analytics/brand/secretary/ceo/hub, profondeur 31/32/34/35).
+- **Vérifié vert :** routes live BUG-013 ; recettes/trust/gates/cross-dept ;
+  orphans skills absents disque ; vitest 4.1.10 ; fastapi-mcp lock ;
+  agent_models untracked ; RETENTION vault ; ruff OK ; **29** pytest cible +
+  **12** vitest routes/finances.
+- **Écarts corrigés dans cet audit :** table ROADMAP 30/31/32/36 + blurb
+  « Current phase » ; comptes routers **40** (README / IMPLEMENTATION_STATUS /
+  ROADMAP historique / DOC_AUDIT) ; lignes IMPLEMENTATION_STATUS encore ⏸️
+  pour 30/36 ; gitignore `tmp-mockup-refs/` ; suppression `tmp-audit-*.png` /
+  `tmp-live-*.png` ; stage suppressions `skill_aider` / `skill_openhands`.
+- **Canvas :** `project-health-audit-003-2026-08-09.canvas.tsx`

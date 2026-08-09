@@ -90,7 +90,7 @@ export function CampagnesTab() {
                 type="button"
                 onClick={() => openEdit(c)}
                 className="flex flex-col gap-2.5 rounded-xl border p-3 text-left transition-colors hover:opacity-90"
-                style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}
+                style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}
               >
                 <div className="flex items-start justify-between gap-2">
                   <span className="min-w-0 truncate text-[12.5px] font-semibold" style={{ color: C.ivory }}>
