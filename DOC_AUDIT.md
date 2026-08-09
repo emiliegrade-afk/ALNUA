@@ -216,10 +216,11 @@ Historique des audits de gouvernance effectués.
     via Next — fermeture = Next 16)
   - 🟡 Phase 21 non démarrée — 15 personas Gaming/Robo sans skills réels
   - 🟡 `ALNUA_OVERVIEW.md` non tracké ; `origin/fix/auto…` (2026-06-12) stale
+    — **résolu Vague 0** (`8cee105` + prune remote)
   - ✅ TypeScript : toujours 0 `any` / 0 `@ts-ignore`
   - ✅ Routes primaires : 0 `MockupDepartmentPage` (Vitest guard)
   - ✅ Secrets : `.env` non tracké ; pas de `VITE_` secrets ; `.env.example` OK
-- **Ouverts après audit :** BUG-004, BUG-017
+- **Ouverts après audit :** BUG-004, BUG-017 *(BUG-019 ajouté puis fermé en Vague 0)*
 - **Vs Audit 002 :** Concerning → Good ; mockup routes et critical npm fermés
 - **Vs Audit 003 :** code MVP confirmé + suite clean (hub/analytics/ceo/…) ;
   docs avaient déjà redérivé — anti-drift pas encore une habitude
@@ -229,6 +230,27 @@ Historique des audits de gouvernance effectués.
   Review Board LLM / trust UI
 - **Next audit planned :** après Phase 34 depth ou Next 16, **≤ 3 semaines**
   (ne pas retomber dans le trou 001→002 de ~2 semaines)
+
+---
+
+## Vague 0 — Garde-fous code sain (clôture 100 %)
+
+- **Date :** 2026-08-09 (soir)
+- **Commit :** `8cee105` (+ docs clôture ci-dessous)
+- **Scope :** checklist anti-drift + CI mentale opérationnelle ; OVERVIEW tracké ;
+  prune branches ; working tree clean (WIP FE stashed, HEAD live).
+- **Done criteria (tous verts) :**
+  - [x] Checklist fin de lot dans `AGENTS.md` (anti-drift + ruff/pytest + tsc/vitest + `build:safe`)
+  - [x] `ALNUA_OVERVIEW.md` tracké + ordre de lecture
+  - [x] Next 15 + `build:safe` dans stack `CLAUDE.md`
+  - [x] Branches mortes supprimées local + remote (`feat/rnd-dossier-hub`, `fix/auto…`) — seul `main` reste
+  - [x] CHANGELOG Vague 0
+  - [x] Working tree clean : WIP pole-dashboard `/finances`/`/marketing` **stashé**
+    (`git stash list` — message `WIP BUG-019…`) ; HEAD garde ré-exports `*-v2`
+  - [x] BUG-019 fermé (arbre propre, live conservé)
+  - [x] `main` poussé sur `origin` (sync remote)
+- **Ouverts restants (hors Vague 0) :** BUG-004, BUG-017
+- **Suite plan code sain :** Vague 1 (BUG-017 / trust) ou Vague 2 (MissionsTab)
 
 ---
 
@@ -242,12 +264,10 @@ Historique des audits de gouvernance effectués.
   ajoute l’analyse 14 sections + BUG-019 (WIP).
 - **Scope :** code review + intégrité (tsc / lint / vitest / pytest / ruff /
   `build:safe`) + sync gouvernance. **Aucun code produit** dans ce close-out.
-- **Verdict global :** ⚠️ **Corrections needed** avant le prochain sprint produit
-  — pas un blocker build/tests (tout vert), mais **BUG-019** (WIP local qui
-  remonte mockups `/finances`/`/marketing`) doit être tranché (discard ou DEC)
-  avant tout commit FE.
-- **DoD remédiation :** ~**90%** (MVP A–E + clean livrés ; suites hors MVP
-  assumées : trust UI, Review Board LLM, `budget_transfer`, briefing cross-dept).
+- **Verdict global (après Vague 0) :** ✅ **DoD remédiation + Vague 0 à 100 %**
+  — BUG-019 tranché (WIP stashé, HEAD live). Suites produit hors scope restent
+  BUG-004 / BUG-017.
+- **DoD remédiation :** ~**90%** produit MVP (A–E + clean) ; **Vague 0 hygiene = 100 %**.
 - **Integrity (rejoué 2026-08-09 soir) :**
   - `npx tsc --noEmit` (web) ✅
   - `npm run lint` ✅ (0 warnings)
@@ -256,9 +276,9 @@ Historique des audits de gouvernance effectués.
   - `ruff check agents/ services/ api/ config/ database/ bots/ skills/` ✅
   - `pytest tests/ -q` ✅ **386** passed / **6** skipped (**392** collected)
   - `npm audit` (web) : **6** vulns (3 high sharp → BUG-017 / Next 16)
-- **Finding nouveau :** BUG-019 — working tree dirty réintroduit
-  `MockupDepartmentPage` sur `/finances` + `/marketing` et adapte les tests
-  Vitest pour l’accepter. HEAD reste live (ré-exports `*-v2`).
-- **Ouverts après close-out :** BUG-004, BUG-017, BUG-019
-- **Next step ordonné :** (1) trancher BUG-019 ; (2) Phase 34 budgets/fiscalité
-  **ou** 1 split BUG-004 ; (3) profondeur 31/32 ; (4) Next 16.
+- **Finding BUG-019 :** WIP local (évolué vers `pole-dashboard`, plus seulement
+  MockupShell) sorti de l’arbre de travail via `git stash` en Vague 0 — HEAD
+  conserve `/finances` → `finances-v2`, `/marketing` → `marketing-v2`.
+- **Ouverts après Vague 0 :** BUG-004, BUG-017
+- **Next step ordonné :** Vague 1 (Next 16 / BUG-017) **ou** Vague 2 (MissionsTab /
+  BUG-004) **ou** `git stash pop` si reprise volontaire du pole-dashboard.
