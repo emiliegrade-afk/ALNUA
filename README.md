@@ -21,7 +21,7 @@ database/   → Client Supabase + schéma SQL
 api/        → API REST FastAPI (40 routers + gdd conditionnel)
 config/     → Configuration pydantic-settings + personas / specs
 services/   → Logique métier (compétition, coûts, R&D, workflows…)
-web/        → Dashboard Next.js 15 (lobby, départements, Marketing/Finance/R&D v2)
+web/        → Dashboard Next.js 16 (lobby, départements, Marketing/Finance/R&D v2)
 ```
 
 ## Installation

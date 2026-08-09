@@ -60,9 +60,10 @@ Audit 002). Audits 002–004 + Sprint REM-002 + **Vague 0 code sain = 100 %** le
 même jour (checklist AGENTS, OVERVIEW, prune branches, BUG-019 fermé, arbre
 propre). Next 15.5.23. Suites hors MVP : débat LLM Review Board, jauge UI trust,
 `budget_transfer`, daily_briefing cross-dept.
+**Vague 0 + Vague 1 code sain = 100 %** (Next 16.3.0, npm audit 0, `/trust` live).
 **En cours :** Phase 34 (Finance — budgets/fiscalité).
-**Prochaines options (plan code sain) :** Vague 1 (Next 16 / BUG-017), Vague 2
-(MissionsTab / BUG-004), profondeur Phase 34, Phase 21 (skills Gaming/Robo).
+**Prochaines options :** Vague 2 (MissionsTab / BUG-004), profondeur Phase 34,
+Phase 21 (skills Gaming/Robo).
 
 ## Points tranchés le 2026-07-25 (anciennement ouverts)
 
@@ -1198,7 +1199,7 @@ pondéré/décroissant, pas cumulatif. Nouveau service `services/agent_trust.py`
 l'historique des workflows de validation — sans Phase 30, pas de données à
 mesurer).
 **Statut :** 🔄 MVP Complete (2026-08-09) — JSON `data/agent_trust.json` +
-`GET /agents/trust` / `GET /agents/trust/{id}` ; jauge frontend encore à faire.
+`GET /agents/trust` / `GET /agents/trust/{id}` ; jauge frontend `/trust` (Vague 1).
 
 ### Phase 32 — Review Board générique + Quality Gates
 **Objectif :** généraliser `agents/rnd_council_agent.py` (aujourd'hui scopé

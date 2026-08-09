@@ -233,6 +233,21 @@ Historique des audits de gouvernance effectués.
 
 ---
 
+## Vague 1 — Hygiène bloquante (clôture 100 %)
+
+- **Date :** 2026-08-09 (soir)
+- **Scope :** 1A docs sync ; 1B Next 16 / BUG-017 ; 1C UI trust minimale.
+- **Done :**
+  - [x] Next **16.3.0** + eslint 9 + flat config ; `npm audit` **0**
+  - [x] BUG-017 fermé
+  - [x] `/trust` page + hub link + Vitest bands DEC-011
+  - [x] `build:safe` / `tsc` / lint / Vitest 35 verts
+  - [x] Gouvernance resync (Next 16, Phase 31 jauge)
+- **Ouvert restant :** BUG-004 seulement
+- **Suite :** Vague 2 (MissionsTab / splits)
+
+---
+
 ## Vague 0 — Garde-fous code sain (clôture 100 %)
 
 - **Date :** 2026-08-09 (soir)

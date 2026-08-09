@@ -58,7 +58,7 @@ interface AgentAvatarProps {
  * La présence du fichier est connue via le manifeste généré
  * (`scripts/sync-portraits.mjs`) et non testée à l'exécution : demander un
  * fichier absent produit un 404 par avatar, et en dev ces 404 font compiler
- * `/_not-found`, ce qui déclenche un bug de Next 14.2 (« Invariant: missing
+ * `/_not-found`, ce qui déclenchait un bug Next 14.2 (« Invariant: missing
  * bootstrap script ») qui casse la page entière. On ne demande donc que ce qui
  * existe. Déposer un PNG puis relancer le serveur suffit à le faire
  * apparaître.

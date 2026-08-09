@@ -61,7 +61,8 @@
 
 | Zone | Status | Notes |
 |------|--------|-------|
-| Dashboard v3 — lobby + bureaux par département | ✅ Implémenté | Next.js 15.5.23 |
+| Dashboard v3 — lobby + bureaux par département | ✅ Implémenté | Next.js 16.3.0 |
+| Agent Trust UI (`/trust`) | ✅ MVP | Vague 1 — `GET /agents/trust` + jauges DEC-011 |
 | OpenRoom (war room visuelle, avatars live) | ✅ Implémenté | |
 | Page Comptabilité — coûts combinés | ✅ Implémenté | 2026-07-24 |
 | Jalons à venir (Google Calendar) | ✅ Implémenté | 2026-07-24 |
@@ -102,7 +103,7 @@
 | 21 | Skills réels pour les 15 agents Gaming/Robo |
 | 28 | Explorer R&D (veille externe autonome) |
 | 30 | Suite : `budget_transfer` + UI workflows (MVP recettes validation ✅ 2026-08-09) |
-| 31 | Suite : jauge trust frontend (service + API ✅ 2026-08-09) |
+| 31 | Suite : jauge trust frontend | ✅ `/trust` Vague 1 |
 | 32 | Suite : débat LLM multi-personas Review Board (gates structurelles ✅) |
 | 35 | Brand Design transversal |
 | 36 | Suite : daily_briefing cross-dept (queue handlers ✅ 2026-08-09) |
@@ -115,7 +116,6 @@
   Steam / robot Eve physique.
 - **Academy** : pipeline corrigé (BUG-008) ; risque OpenRouter 402 (crédits) toujours
   possible.
-- **Suite remédiation Audit 002 (Sprint REM-002) :** Phases A–E + clean livrés
-  2026-08-09 ; close-out analysis dans `DOC_AUDIT.md` ; résiduels BUG-004,
-  BUG-017, **BUG-019** (WIP local mockup finances/marketing — ne pas merger
-  sans DEC). Voir aussi Audit 004.
+- **Suite remédiation + Vague 0/1 :** A–E + hygiene + Next **16.3.0** + UI
+  `/trust` ; BUG-017/019 fermés. Résiduel structurel : **BUG-004** (fichiers
+  >1000 lignes). WIP pole-dashboard éventuel : `git stash list`.

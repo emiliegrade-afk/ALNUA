@@ -56,6 +56,7 @@ y compris `tests/test_devex_phase6.py` réécrit pour le nouveau comportement.
 | BUG-005 | Info | `AGENT_NAME` suffixe `_agent` vs IDs courts | Phase D : aliases `rnd_*_agent` ajoutés ; `coo_agent`→`coo` existait déjà |
 | BUG-013 | Moyenne | Routes mockup restantes | Suite clean : `/hub` `/analytics` live (DeptV2 shells) — **plus de MockupDepartmentPage** sur routes primaires |
 | BUG-018 | Faible | Micro-drift docs post-Audit 003 (même jour) : README/ARCHITECTURE/TESTING/IMPLEMENTATION_STATUS encore « Next.js 14 » et « ~381 tests » alors que `web/package.json` = Next **15.5.23** et `pytest --collect-only` = **392** ; ROADMAP « Current phase » proposait encore Audit 003 ; DOC_AUDIT 003 listait des mockups déjà reconnectés | Audit 004 : resync Next 15 + comptes tests + ROADMAP blurb + stats ; règle anti-drift rappelée |
+| BUG-017 | Info | Next / sharp vulns (npm audit highs) | Vague 1 : upgrade Next **15.5.23 → 16.3.0** + eslint 9 + `eslint.config.mjs` ; override `dompurify` 3.4.13 ; `npm audit` = **0** vulns ; `build:safe` + tsc + vitest 35 verts |
 | BUG-019 | Moyenne | WIP local dirty sur /finances + /marketing (mockup puis draft pole-dashboard) risquait une régression vs ré-exports *-v2 live | Vague 0 100 % : arbre restauré sur HEAD live ; WIP en git stash (WIP BUG-019 pole-dashboard…). Reprise = git stash pop + DEC si remplacement des *-v2 |
 
 ## Ouverts — nécessitent une décision produit, non corrigés
@@ -63,17 +64,17 @@ y compris `tests/test_devex_phase6.py` réécrit pour le nouveau comportement.
 | ID | Gravité | Description | Constat |
 |----|---------|-------------|-----------|
 | BUG-004 | Info | Fichiers Python >300 lignes — mitigé encore | Audit 004 / Sprint REM-002 : `workflow_engine` ~387 + handlers ≤300 ; encore **4** fichiers >1000 (`agent_specs_registry` 1411, `coo_agent` 1289, `agent_personas` 1110, `rnd_center` 1042) + MissionsTab ×3 (~600) |
-| BUG-017 | Info | Next / sharp vulns — mitigé partiel | Next **15.5.23** : npm **6** vulns (0 critical, **3 high** sharp/libvips). Fermeture = Next 16 (`npm audit fix --force`). Build : `npm run build:safe` si `next dev` tourne |
 
-## Statistiques (mises à jour Vague 0 clôture 100 % — 2026-08-09 soir)
+## Statistiques (mises à jour Vague 1 — 2026-08-09 soir)
 
 | Bucket | Count |
 |--------|------:|
-| Ouverts | 2 (`BUG-004`, `BUG-017`) — tous deux **mitigés**, pas fermés |
-| Fermés remédiation A–E + Vague 0 | 13 (`BUG-002`/`003`/`005`/`011`–`016`, `BUG-018`, `BUG-019`) |
-| Residual mockup routes (working tree) | **0** (arbre propre = HEAD live) |
+| Ouverts | 1 (`BUG-004`) — mitigé, pas fermé |
+| Fermés remédiation + Vague 0/1 | 14 (`BUG-002`/`003`/`005`/`011`–`019`) |
+| Residual mockup routes (working tree) | **0** |
+| npm audit (web) | **0** vulns (post Next 16) |
 | Corrigés (SEC) | 6 (`SEC-001`–`006`) |
-| Corrigés (BUG) | 17 (`BUG-001`–`003`, `BUG-005`–`016`, `BUG-018`, `BUG-019`) |
+| Corrigés (BUG) | 18 (`BUG-001`–`003`, `BUG-005`–`019`) |
 | Décision fermée | 1 (`DEC-009`) |
 
 ## Vérifié sans anomalie (audit sécurité, pour mémoire)

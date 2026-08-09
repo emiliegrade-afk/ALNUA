@@ -32,6 +32,7 @@ export const ROUTES = {
   academy: "/academy",
   library: "/library",
   settings: "/settings",
+  trust: "/trust",
   // Non-department utility routes also referenced from bureau components.
   tickets: "/tickets",
   content: "/content",
@@ -76,6 +77,7 @@ export const DEPARTMENT_ROUTES = [
   ROUTES.academy,
   ROUTES.library,
   ROUTES.settings,
+  ROUTES.trust,
 ] as const;
 
 export function isDepartmentRoute(pathname: string | null): boolean {

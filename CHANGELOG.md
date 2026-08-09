@@ -7,6 +7,19 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-09 — Vague 1 hygiène bloquante : Next 16 + Trust UI (feat + fix + docs)
+
+- **Type :** feat + fix + docs
+- **Details :**
+  - **BUG-017 fermé :** Next **15.5.23 → 16.3.0**, eslint **9**, `eslint.config.mjs`
+    (plus de `next lint`), override `dompurify@3.4.13` → `npm audit` **0** vulns.
+  - **Phase 31 UI :** `/trust` + `AgentTrustView` + `trust-api` (bandes DEC-011) ;
+    lien depuis `/hub` ; Vitest helpers.
+  - Docs sync Next 16 (README / ARCHITECTURE / CLAUDE / TESTING / ROADMAP).
+  - Vérifié : `tsc` / `eslint` / Vitest **35**/35 / `build:safe` verts.
+  - Note : règles hooks React Compiler v6 nouvelles laissées `off` (dette lint
+    progressive, pas un silence produit).
+
 ## 2026-08-09 — Vague 0 garde-fous code sain — clôture 100 % (docs + chore)
 
 - **Type :** docs + chore

@@ -36,6 +36,7 @@ export default function HubPage() {
               { href: ROUTES.activity, label: "Activité", desc: "Feed live agents" },
               { href: ROUTES.finances, label: "Finance", desc: "Trésorerie · factures" },
               { href: "/admin", label: "Admin", desc: "Flags · coûts LLM" },
+              { href: ROUTES.trust, label: "Agent Trust", desc: "Fiabilité ≠ compétition" },
               { href: ROUTES.academy, label: "Académie", desc: "Pipeline agents" },
               { href: ROUTES.settings, label: "Réglages", desc: "Modèles · clés" },
             ].map((card) => (

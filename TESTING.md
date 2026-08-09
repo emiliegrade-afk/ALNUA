@@ -9,7 +9,7 @@
 | Job | Étapes | Outil |
 |-----|--------|-------|
 | `backend` | ruff lint → smoke import (composio + `api.app`) → pytest + coverage | Python 3.12, pytest, ruff |
-| `frontend` | typecheck (`tsc --noEmit`) → lint → tests unitaires | Next.js 15, Vitest |
+| `frontend` | typecheck (`tsc --noEmit`) → lint (`eslint .`) → tests unitaires | Next.js 16, Vitest |
 | `e2e` | build + Playwright (Chromium) | Playwright, avec feature flags admin activés (`ADMIN_COSTS_PAGE_ENABLED`, etc.) |
 
 Ordre respecté : lint avant build/tests (le moins cher d'abord), conforme au principe
