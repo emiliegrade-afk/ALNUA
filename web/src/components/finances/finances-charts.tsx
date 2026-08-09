@@ -72,26 +72,6 @@ export function FinancesEvolutionChart({ months }: { months: MonthTotals[] }) {
   );
 }
 
-/** Composition legacy — utilisée par `/finances` (finances-view.tsx), qui
- * reste sur son propre chrome Card shadcn (pas le redesign cockpit). Garder
- * ce composant combiné évite de toucher la page legacy pendant que
- * `/finances-v2` compose les deux panneaux granulaires ci-dessous
- * différemment (nouvelle disposition, chrome cockpit). */
-export function FinancesCharts({
-  months,
-  expenseByCategory,
-}: {
-  months: MonthTotals[];
-  expenseByCategory: Record<string, number>;
-}) {
-  return (
-    <div className="grid gap-4 lg:grid-cols-2">
-      <FinancesEvolutionChart months={months} />
-      <FinancesExpenseDonut expenseByCategory={expenseByCategory} />
-    </div>
-  );
-}
-
 export function FinancesExpenseDonut({
   expenseByCategory,
   monthLabel,

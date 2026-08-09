@@ -7,6 +7,12 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-09 — Clean suite : DeptV2 chrome + live CEO/Secretary/Brand (refactor + fix)
+
+- Shared `DeptV2PageShell` on all `*-v2` pages (dead local header/sidebar removed).
+- `/ceo` → `CeoCockpitPanel` ; `/secretary` → Nadia + console ; `/brand` déjà `BrandView`.
+- Residual mockup : `/hub` + `/analytics` only. Vitest routes live étendu.
+
 ## 2026-08-09 — Audit 003 : vérification A–E + nettoyage docs/hygiène (docs + chore)
 
 - Verdict : code Phases B–E conforme MVP ; docs ROADMAP/README/IMPLEMENTATION_STATUS

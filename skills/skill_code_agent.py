@@ -43,30 +43,18 @@ def _default_model(agent_id: str = DEFAULT_AGENT_ID) -> str:
 
 
 def _llm(system: str, user: str, model: str | None = None, agent_id: str = DEFAULT_AGENT_ID) -> str:
-    """Appel OpenRouter direct. Retourne le texte de la réponse."""
-    resolved = model or _default_model(agent_id)
-    payload = json.dumps({
-        "model": resolved.replace("openrouter/", ""),
-        "messages": [
-            {"role": "system", "content": system},
-            {"role": "user", "content": user},
-        ],
-        "temperature": 0.1,
-        "max_tokens": 8000,
-    }).encode()
+    """OpenRouter via LLMClient — costs, retries, prompt-cache included."""
+    from agents.base import LLMClient
 
-    req = urllib.request.Request(
-        OPENROUTER_BASE,
-        data=payload,
-        headers={
-            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-            "Content-Type": "application/json",
-        },
+    return LLMClient().complete(
+        system,
+        user,
+        model=model,
+        agent_id=agent_id,
+        method_name="fix_bug",
+        temperature=0.1,
+        max_tokens=8000,
     )
-    with urllib.request.urlopen(req, timeout=120) as r:
-        data = json.loads(r.read())
-        return data["choices"][0]["message"]["content"]
-
 
 # ---------------------------------------------------------------------------
 # Git operations via gitpython

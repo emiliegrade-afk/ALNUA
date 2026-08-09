@@ -96,5 +96,50 @@ class AgentBase:
             project_id=project_id,
         )
 
+    def run_json_task(
+        self,
+        *,
+        action: str,
+        prompt: str,
+        learning_key: str,
+        input_summary: str,
+        output_summary: str | Any = "",
+        temperature: float = 0.5,
+        max_tokens: int = 2048,
+    ) -> dict[str, Any]:
+        """
+        Shared one-shot JSON task path used by Phase-13 specialty agents.
+
+        Callers still own ``@trace_agent`` and the domain prompt; this helper
+        owns learning inject, complete, parse, log, and learning record.
+        ``output_summary`` may be a static string or ``callable(result) -> str``.
+        """
+        from collections.abc import Callable
+
+        from skills.skill_agent_learning import inject_learning_context, record_task_learning
+
+        wrapped = inject_learning_context(prompt, self.AGENT_NAME, learning_key)
+        raw = self._complete(wrapped, temperature=temperature, max_tokens=max_tokens)
+        result = parse_json_response(raw)
+        if callable(output_summary):
+            summary_fn: Callable[[dict[str, Any]], str] = output_summary
+            out = summary_fn(result)
+        else:
+            out = str(output_summary or str(result)[:100])
+        log_agent_action(
+            self.db,
+            self.AGENT_NAME,
+            action,
+            input_summary=input_summary,
+            output_summary=out,
+        )
+        try:
+            record_task_learning(
+                self.AGENT_NAME, action, str(result)[:400], success=True
+            )
+        except Exception:
+            pass
+        return result
+
 
 __all__ = ["AgentBase", "parse_json_response"]

@@ -41,6 +41,7 @@ const LIVE_V2_CANONICAL = [
   "/rd",
 ] as const;
 
+/** Self-contained live shells (DeptV2 / BrandView) — no ConsoleShell wrap. */
 const SELF_CONTAINED_V2_ROUTES = [
   ...LIVE_V2_CANONICAL,
   "/app-v2",
@@ -49,11 +50,16 @@ const SELF_CONTAINED_V2_ROUTES = [
   "/rnd-v2",
   "/marketing-v2",
   "/finances-v2",
+  "/ceo",
+  "/secretary",
+  "/brand",
 ];
 
-/** Mockup ProtoFullShell — hub, ceo, secretary, analytics, brand only. */
+/** Residual mockup ProtoFullShell — hub + analytics only. */
 const DEPT_SHELL_ROUTES = PROTO_SHELL_PATHS.filter(
-  (route) => !(LIVE_V2_CANONICAL as readonly string[]).includes(route),
+  (route) =>
+    !(LIVE_V2_CANONICAL as readonly string[]).includes(route) &&
+    !(SELF_CONTAINED_V2_ROUTES as readonly string[]).includes(route),
 );
 
 function isSelfContainedV2(pathname: string): boolean {

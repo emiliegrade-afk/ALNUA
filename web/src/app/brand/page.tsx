@@ -1,7 +1,8 @@
 "use client";
 
-import { MockupDepartmentPage } from "@/components/mockup/mockup-department-page";
+import { BrandView } from "@/components/brand/brand-view";
 
+/** Live Brand Design pipeline (analyze → kit → formats). */
 export default function BrandPage() {
-  return <MockupDepartmentPage deptId="brand" />;
+  return <BrandView />;
 }

@@ -47,7 +47,7 @@ const POLES: PoleDef[] = [
     icon: Compass,
     dept: "hub",
     bureau: "hub",
-    glow: "#ffa500",
+    glow: "#C08A72",
   },
   {
     id: "secretary",
@@ -70,7 +70,7 @@ const POLES: PoleDef[] = [
     href: "/ceo",
     icon: Crown,
     dept: "ceo",
-    glow: "#ffa500",
+    glow: "#C08A72",
   },
   {
     id: "rd",
@@ -106,7 +106,7 @@ const POLES: PoleDef[] = [
     icon: Gamepad2,
     dept: "gaming",
     bureau: "gaming",
-    glow: "#ffa500",
+    glow: "#C08A72",
   },
   {
     id: "robo",

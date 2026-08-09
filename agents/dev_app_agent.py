@@ -10,7 +10,7 @@ Responsabilités :
 - Code Review (validation qualité avant merge)
 - Debugging builds CI
 
-Tools : skill_coding_agent, skill_gh_issues, skill_playwright, skill_git, skill_model_usage
+Tools : skill_coding_agent, skill_gh_issues, skill_playwright, skill_git, costs_facade
 Règle : max 6 tools. Ne touche pas aux projets Gaming ou Robotique.
 """
 
@@ -28,7 +28,7 @@ from config.llm_runtime import CREWAI_MAX_ITER_DEFAULT
 from config.agent_operating_spec import crew_backstory
 from skills.skill_gh_issues import comment_on_issue, get_issue, get_open_issues, list_ready_issues, process_issue
 from skills.skill_langfuse import trace_agent
-from skills.skill_model_usage import format_costs_report
+from services.facades.costs_facade import format_costs_report
 from skills.skill_playwright import run_and_report
 
 logger = logging.getLogger(__name__)

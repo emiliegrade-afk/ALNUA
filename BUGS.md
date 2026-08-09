@@ -46,7 +46,7 @@ y compris `tests/test_devex_phase6.py` réécrit pour le nouveau comportement.
 | ID | Gravité | Description | Correctif |
 |----|---------|-------------|-----------|
 | BUG-011 | **Haute** | Dérive de gouvernance : CHANGELOG figé au 2026-07-31 ; IMPLEMENTATION_STATUS / ARCHITECTURE / AGENTS / TESTING / README avec comptes obsolètes (27 agents, 35 routers, 63 tests) ; SPEC_WORKFLOW_ENGINE en retard sur `sav_lite`/`ship_*` | Catch-up CHANGELOG (Phases 22-38, DEC-011–016, ops, Audit 002) ; resync IMPLEMENTATION_STATUS ; comptes 49 / 38 / ~67·381 ; README nettoyé + `HUB_API_KEY` en table ; SPEC alignée ; règle anti-drift CHANGELOG dans `AGENTS.md` |
-| BUG-013 | Moyenne | Routes primaires `/finances`, `/marketing`, `/rd` (et app/gaming/robo) servaient `MockupDepartmentPage` alors que l'UI live est sous `*-v2` | Phase B : ré-exports vers `*-v2` ; `/rd` = `rnd-v2` + `RdPageContent` pour deep-links. Tests Vitest `department-routes-live`. Reste mockup éventuel : analytics/brand/secretary/ceo/hub |
+| BUG-013 | Moyenne | Routes primaires `/finances`, `/marketing`, `/rd` (et app/gaming/robo) servaient `MockupDepartmentPage` alors que l'UI live est sous `*-v2` | Phase B : ré-exports vers `*-v2` ; `/rd` = `rnd-v2` + `RdPageContent`. Suite clean 2026-08-09 : `/ceo` `/secretary` `/brand` live. **Reste mockup :** `/hub` `/analytics` |
 | BUG-002 | Info | `data/agent_models.json` tracké alors qu'il est dans `.gitignore` | Phase C : `git rm --cached` — plus suivi ; fichier local intact |
 | BUG-003 | Info | `fastapi-mcp==0.4.0` absent de `requirements.lock.txt` | Phase C : ligne ajoutée au lock depuis le venv (`0.4.0`) |
 | BUG-012 | Moyenne | `npm audit` : 21 vulns dont 1 critical vitest | Phase C : critical fermée (vitest 4.1.10) ; postcss 8.5.26 + overrides ; **reste 8** (5 high Next 14 — accepté jusqu’à upgrade majeur documenté) |
@@ -68,7 +68,7 @@ y compris `tests/test_devex_phase6.py` réécrit pour le nouveau comportement.
 |--------|------:|
 | Ouverts | 2 (`BUG-004`, `BUG-017`) |
 | Fermés remédiation A–E | 11 (`BUG-002`/`003`/`005`/`011`–`016`) |
-| Residual Phase B (hors scope) | mockup `/analytics` `/brand` `/secretary` `/ceo` `/hub` |
+| Residual Phase B (hors scope) | mockup `/hub` `/analytics` seulement |
 | Corrigés (SEC) | 6 (`SEC-001`–`006`) |
 | Corrigés (BUG) | 15 (`BUG-001`–`003`, `BUG-005`–`016`) |
 | Décision fermée | 1 (`DEC-009`) |

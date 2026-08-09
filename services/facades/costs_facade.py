@@ -1,88 +1,27 @@
 """
-Costs facade — routes all cost reads through one module.
+Costs facade — single read path via cost_monitor JSON.
 
-Phase 0: default behaviour unchanged (cost_monitor JSON is primary).
-Shadow mode logs deltas vs Supabase legacy without affecting consumers.
+Legacy Supabase skill_model_usage writes are retired (LLMClient → cost_monitor only).
 """
 
 from __future__ import annotations
 
-import logging
 from datetime import date
 from typing import Any
 
-logger = logging.getLogger(__name__)
-
-_SHADOW_DELTA_THRESHOLD_USD = 0.01
-_SHADOW_DELTA_RATIO = 0.05
-
-
-def _settings() -> Any:
-    from config.settings import get_settings
-
-    return get_settings()
-
-
-def _shadow_compare(primary: dict[str, Any], legacy: dict[str, Any], *, label: str) -> None:
-    """Log when JSON store and Supabase legacy totals diverge (no UI impact)."""
-    if not _settings().costs_shadow_compare:
-        return
-
-    primary_total = float(primary.get("total_usd", 0.0))
-    legacy_total = float(legacy.get("total_usd", 0.0))
-    delta = abs(primary_total - legacy_total)
-    denom = max(primary_total, legacy_total, 1e-9)
-    ratio = delta / denom
-
-    if delta <= _SHADOW_DELTA_THRESHOLD_USD and ratio <= _SHADOW_DELTA_RATIO:
-        return
-
-    logger.info(
-        "[costs_facade] shadow %s — primary=$%.4f legacy=$%.4f delta=$%.4f (%.1f%%)",
-        label,
-        primary_total,
-        legacy_total,
-        delta,
-        ratio * 100,
-    )
-
 
 def get_daily_costs(target_date: date | None = None) -> dict[str, Any]:
-    """Hub UI + lobby — cost_monitor primary; optional Supabase shadow."""
+    """Hub UI + lobby + Telegram — cost_monitor primary."""
     from services import cost_monitor
 
-    primary = cost_monitor.get_daily_costs(target_date)
-    if _settings().costs_unified_read:
-        return primary
-
-    try:
-        from skills import skill_model_usage
-
-        legacy = skill_model_usage.get_daily_costs(target_date)
-        _shadow_compare(primary, legacy, label="daily")
-    except Exception:
-        pass
-
-    return primary
+    return cost_monitor.get_daily_costs(target_date)
 
 
 def get_monthly_costs() -> dict[str, Any]:
-    """Lobby month widget — same JSON shape as before."""
+    """Lobby month widget / Telegram month report."""
     from services import cost_monitor
 
-    primary = cost_monitor.get_monthly_costs()
-    if _settings().costs_unified_read:
-        return primary
-
-    try:
-        from skills import skill_model_usage
-
-        legacy = skill_model_usage.get_monthly_costs()
-        _shadow_compare(primary, legacy, label="monthly")
-    except Exception:
-        pass
-
-    return primary
+    return cost_monitor.get_monthly_costs()
 
 
 def get_weekly_costs() -> dict[str, Any]:
@@ -93,17 +32,7 @@ def get_weekly_costs() -> dict[str, Any]:
 
 
 def get_telegram_costs_report(period: str = "day") -> str:
-    """
-    Telegram /costs — uses facade reads when unified; legacy formatter otherwise.
-
-    Phase 0: still delegates to skill_model_usage formatter (Supabase path).
-    Phase 1+: flip via costs_unified_read without touching the bot.
-    """
-    if not _settings().costs_unified_read:
-        from skills.skill_model_usage import format_costs_report
-
-        return format_costs_report(period)
-
+    """Telegram /costs — formatted from cost_monitor."""
     if period == "month":
         data = get_monthly_costs()
         header = f"💰 **Coûts LLM — {data['month']}**"
@@ -118,18 +47,14 @@ def get_telegram_costs_report(period: str = "day") -> str:
         key=lambda x: x[1] if isinstance(x[1], float) else x[1].get("total_usd", 0),
         reverse=True,
     ):
-        cost = info if isinstance(info, float) else info.get("total_usd", 0)
-        calls = "" if isinstance(info, float) else f" ({info.get('calls', '?')} appels)"
-        lines.append(f"• {agent} : ${cost:.4f}{calls}")
-
+        if isinstance(info, dict):
+            usd = info.get("total_usd", 0)
+            calls = info.get("calls", "?")
+            lines.append(f"• `{agent}` — ${usd} ({calls} calls)")
+        else:
+            lines.append(f"• `{agent}` — ${info}")
     return "\n".join(lines)
 
 
-def is_costs_unified_read_enabled() -> bool:
-    """When true, all cost reads use cost_monitor JSON only."""
-    return _settings().costs_unified_read
-
-
-def is_costs_shadow_compare_enabled() -> bool:
-    """When true, log deltas between cost_monitor and Supabase legacy reads."""
-    return _settings().costs_shadow_compare
+# Back-compat alias used by CrewAI tools / older imports
+format_costs_report = get_telegram_costs_report

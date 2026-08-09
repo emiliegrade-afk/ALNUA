@@ -5,19 +5,17 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { RoboConsole } from "@/components/robo/robo-console";
 import { AlnuaStar } from "@/components/brand/alnua-star";
+import { DeptV2PageShell } from "@/components/dept-v2";
 import { AgentAvatar } from "@/components/shared/agent-avatar";
 import { useConsoleData, ConsoleProvider } from "@/components/console/console-provider";
 import { useAgentStatuses } from "@/hooks/use-agent-statuses";
 import { getAgentsForBureau, type BureauAgentDef } from "@/lib/agent-bureau";
-import { CONSOLE_POLES } from "@/lib/console/departments";
-import { HUB_CHIEF, HUB_OWNER } from "@/lib/console/owner";
 import { fetchProjects } from "@/lib/api";
 import { fetchLatestRoboBuild } from "@/lib/robo-builds";
 import { ROUTES } from "@/lib/routes";
 import type { Project, RoboBuild } from "@/lib/types";
 import type { TicketWithProject } from "@/lib/tickets";
 import type { ConsoleActivityItem } from "@/lib/console/types";
-import { cn } from "@/lib/utils";
 import { C, STATUS_LOAD, STATUS_TEXT, STATUS_COLOR, KIND_META } from "../app-v2/shared";
 import { useBureauTickets } from "../app-v2/tabs";
 import { MissionBox, ChatPanel, RecentTasksPanel, ApercuPanel } from "../app-v2/team";
@@ -53,25 +51,6 @@ const TAB_ICON: Record<Tab, string> = {
   Paramètres: "⚙",
 };
 
-const DASHBOARD_NAV = [
-  { icon: "◉", label: "Command Center", href: ROUTES.home },
-  { icon: "〰", label: "Activité en direct", href: ROUTES.activity },
-  { icon: "▤", label: "Décisions", href: ROUTES.ceo, badge: true },
-];
-
-const DEPT_ICON: Record<string, string> = {
-  hub: "◎",
-  secretary: "🗂",
-  rd: "◇",
-  app: "▦",
-  marketing: "📣",
-  gaming: "🎮",
-  robo: "🤖",
-  finances: "💠",
-  analytics: "📈",
-  brand: "🎨",
-};
-
 const QUICK_ACTIONS = [
   { icon: "＋", label: "Nouvelle mission" },
   { icon: "▤", label: "Rapport d'équipe" },
@@ -79,37 +58,11 @@ const QUICK_ACTIONS = [
   { icon: "⚙", label: "Automatisation" },
 ] as const;
 
-const TOOLS_NAV = [
-  { icon: "📄", label: "Documents", href: "/docs" },
-  { icon: "📖", label: "Connaissances", href: ROUTES.library },
-  { icon: "🗒", label: "Modèles", href: ROUTES.settings },
-  { icon: "⚙", label: "Automatisations", href: ROUTES.settings },
-] as const;
-
-const TOP_TABS: { icon: string; label: string; href: string; active?: boolean }[] = [
-  { icon: "☰", label: "Vue générale", href: ROUTES.home },
-  { icon: "▦", label: "Départements", href: ROUTES.robo, active: true },
-  { icon: "◈", label: "Missions", href: ROUTES.tickets },
-  { icon: "📈", label: "Analytics", href: ROUTES.analytics },
-  { icon: "🗂", label: "Ressources", href: ROUTES.library },
-];
-
 /* Les 10 rôles du plan Robotique ont désormais tous un agent réel (Phase 13,
    ROADMAP.md, 2026-07-30) — plus de postes vacants. Le tableau reste en
    place (vide) pour ne pas retoucher le rendu ci-dessous si un nouveau rôle
    venait à manquer plus tard. */
 const VACANT_ROLES: string[] = [];
-
-function SectionBox({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="rounded-[10px] border p-2" style={{ borderColor: "rgba(192,138,114,.14)", background: "rgba(19,22,27,.5)" }}>
-      <p className="mb-2 ml-2 mt-0.5 text-[8.5px] tracking-[0.2em]" style={{ color: C.faint }}>
-        {title}
-      </p>
-      {children}
-    </div>
-  );
-}
 
 function RoboDepartmentView() {
   const agents = getAgentsForBureau("robo");
@@ -151,190 +104,7 @@ function RoboDepartmentView() {
   }).length;
 
   return (
-    <div
-      className="alnua-scroll flex h-full w-full flex-col overflow-x-auto overflow-y-auto"
-      style={{
-        background:
-          "radial-gradient(1100px 600px at 15% -10%, rgba(192,138,114,.07), transparent 55%), radial-gradient(900px 700px at 90% 110%, rgba(167,173,181,.05), transparent 60%), #07080A",
-        color: C.ivory,
-      }}
-    >
-      {/* Grille façon labo/PCB — décorative, accents titane plutôt que cuivre. */}
-      <div
-        className="pointer-events-none fixed inset-0 z-0 opacity-[0.03]"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(167,173,181,.6) 1px, transparent 1px), linear-gradient(90deg, rgba(167,173,181,.6) 1px, transparent 1px)",
-          backgroundSize: "40px 40px",
-        }}
-      />
-
-      {/* ══ HEADER ══ */}
-      <header className="relative z-10 flex h-[clamp(56px,6vh,64px)] shrink-0 items-stretch border-b" style={{ borderColor: C.line }}>
-        <Link href={ROUTES.home} className="flex w-[clamp(178px,13.7vw,210px)] shrink-0 items-center gap-[11px] border-r pl-[18px]" style={{ borderColor: C.line }}>
-          <span
-            className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full border"
-            style={{ borderColor: "rgba(192,138,114,.45)", background: "radial-gradient(circle,rgba(192,138,114,.28),transparent 70%)", boxShadow: "0 0 18px rgba(192,138,114,.25)" }}
-          >
-            <AlnuaStar size={24} animated={false} sparkMid="#D9A88F" sparkOuter="#C08A72" glowColorRgb="192,138,114" />
-          </span>
-          <span>
-            <span className="block font-title text-[21px] leading-none tracking-[4px]" style={{ color: C.copperLight }}>
-              ALNUA
-            </span>
-            <span className="mt-[3px] block text-[8px] tracking-[3.4px]" style={{ color: C.dim }}>
-              AGENTIC OS
-            </span>
-          </span>
-        </Link>
-
-        <div className="flex flex-1 items-center justify-between gap-4 px-5">
-          <div className="flex min-w-0 items-center gap-[11px]">
-            <AgentAvatar agentId={HUB_CHIEF.agentId} name={HUB_CHIEF.name} size={38} ring />
-            <span className="min-w-0">
-              <span className="block truncate text-[12.5px] font-medium">
-                {HUB_CHIEF.shortRole} : {HUB_CHIEF.name}
-              </span>
-              <span className="mt-[3px] flex items-center gap-2">
-                <span className="flex items-center gap-1 rounded-[10px] border px-[7px] py-px" style={{ borderColor: "rgba(140,200,150,.3)" }}>
-                  <span className="h-[5px] w-[5px] rounded-full" style={{ background: C.online }} />
-                  <span className="text-[9px]" style={{ color: C.onlineSoft }}>
-                    {STATUS_TEXT[statuses[HUB_CHIEF.agentId]?.status ?? "idle"]}
-                  </span>
-                </span>
-              </span>
-            </span>
-          </div>
-
-          <nav className="hidden items-center gap-1 lg:flex">
-            {TOP_TABS.map((t) => (
-              <Link
-                key={t.label}
-                href={t.href}
-                className={cn("flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] transition-colors", t.active ? "border" : "border border-transparent hover:opacity-80")}
-                style={t.active ? { borderColor: "rgba(192,138,114,.4)", background: "rgba(192,138,114,.12)", color: C.copperLight } : { color: C.warm }}
-              >
-                <span className="text-[12px] opacity-90">{t.icon}</span>
-                <span className="hidden xl:inline">{t.label}</span>
-              </Link>
-            ))}
-          </nav>
-
-          <div className="flex shrink-0 items-center gap-[18px]">
-            <span className="relative flex h-[34px] w-[34px] items-center justify-center rounded-full border text-[13px]" style={{ borderColor: "rgba(192,138,114,.22)" }}>
-              🔔
-              {stats.ceoNotifications > 0 ? <span className="absolute right-[3px] top-[2px] h-[6px] w-[6px] rounded-full" style={{ background: C.copper, boxShadow: `0 0 6px ${C.copper}` }} /> : null}
-            </span>
-            <span className="flex items-center gap-[9px]">
-              <AgentAvatar agentId={HUB_OWNER.id} name={HUB_OWNER.name} size={36} />
-              <span className="hidden xl:block">
-                <span className="block text-[12px] font-medium">{HUB_OWNER.name}</span>
-                <span className="block text-[9.5px]" style={{ color: C.dim }}>
-                  {HUB_OWNER.role}
-                </span>
-              </span>
-              <span className="text-[9px]" style={{ color: C.dim }}>
-                ▾
-              </span>
-            </span>
-          </div>
-        </div>
-      </header>
-
-      {/* ══ BODY ══ */}
-      <div className="relative z-10 flex min-h-[600px] flex-1">
-        <aside className="flex w-[clamp(178px,13.7vw,210px)] shrink-0 flex-col gap-3 overflow-y-auto border-r px-3 py-4" style={{ borderColor: C.line }}>
-          <SectionBox title="TABLEAU DE BORD">
-            {DASHBOARD_NAV.map((it) => (
-              <Link key={it.label} href={it.href} className="flex items-center justify-between gap-1 whitespace-nowrap rounded-[7px] px-2 py-[7px] text-[12px] transition-colors hover:bg-obsidian-deep/50" style={{ color: C.warm }}>
-                <span className="flex min-w-0 items-center gap-2">
-                  <span className="w-[15px] shrink-0 text-center text-[12px]" style={{ color: C.copper }}>
-                    {it.icon}
-                  </span>
-                  {it.label}
-                </span>
-                {it.badge && stats.ceoNotifications > 0 ? (
-                  <span className="rounded-lg border px-1.5 text-[9px]" style={{ borderColor: "rgba(192,138,114,.5)", color: C.copperLight }}>
-                    {stats.ceoNotifications}
-                  </span>
-                ) : null}
-              </Link>
-            ))}
-          </SectionBox>
-
-          <SectionBox title="DÉPARTEMENTS">
-            {CONSOLE_POLES.filter((pole) => pole.id !== "ceo").map((pole, i) => {
-              const active = pole.id === "robo";
-              const icon = DEPT_ICON[pole.id] ?? "◈";
-              return (
-                <Link
-                  key={pole.id}
-                  href={pole.href}
-                  className="flex items-center justify-between rounded-[7px] px-2 py-[7px] transition-colors hover:bg-obsidian-deep/50"
-                  style={active ? { background: "rgba(192,138,114,.12)", color: C.copperLight } : { color: C.warm }}
-                >
-                  <span className="flex min-w-0 items-center gap-2">
-                    <span className="w-[16px] shrink-0 text-center text-[11px]" style={{ color: C.copper }}>
-                      {icon}
-                    </span>
-                    <span className="text-[10.5px]" style={{ color: C.faint }}>
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <span className="truncate text-[12px]">{pole.name.replace("Bureau ", "").replace("Pôle ", "")}</span>
-                  </span>
-                  <span className="text-[10px]" style={{ color: "#5C626A" }}>
-                    ›
-                  </span>
-                </Link>
-              );
-            })}
-          </SectionBox>
-
-          <SectionBox title="OUTILS">
-            {TOOLS_NAV.map((t) => (
-              <Link key={t.label} href={t.href} className="flex items-center justify-between gap-1 whitespace-nowrap rounded-[7px] px-2 py-[7px] text-[12px] transition-colors hover:bg-obsidian-deep/50" style={{ color: C.warm }}>
-                <span className="flex min-w-0 items-center gap-2">
-                  <span className="w-[15px] shrink-0 text-center text-[11px]" style={{ color: C.copper }}>
-                    {t.icon}
-                  </span>
-                  {t.label}
-                </span>
-                <span className="text-[10px]" style={{ color: "#5C626A" }}>
-                  ›
-                </span>
-              </Link>
-            ))}
-          </SectionBox>
-
-          <div
-            className="relative mt-auto overflow-hidden rounded-xl border p-3 pb-3.5"
-            style={{ borderColor: "rgba(192,138,114,.2)", background: "radial-gradient(120% 90% at 50% 45%, rgba(192,138,114,.13), rgba(14,16,20,.92) 70%)" }}
-          >
-            <div className="flex items-center justify-center gap-2">
-              <span className="h-px w-4" style={{ background: "linear-gradient(90deg,transparent,rgba(192,138,114,.6))" }} />
-              <span className="text-[10px] tracking-[2.4px]" style={{ color: C.copperLight }}>
-                ALNUA CORE
-              </span>
-              <span className="h-px w-4" style={{ background: "linear-gradient(90deg,rgba(192,138,114,.6),transparent)" }} />
-            </div>
-            <p className="mt-[3px] text-center text-[9.5px]" style={{ color: C.dim }}>
-              Laboratoire opérationnel
-            </p>
-            <div className="relative mt-1.5 flex h-[100px] items-center justify-center">
-              <AlnuaStar size={48} glow className="relative" sparkMid="#D9A88F" sparkOuter="#C08A72" glowColorRgb="192,138,114" />
-            </div>
-            <div className="mt-0.5 flex items-center justify-center gap-2">
-              <span className="h-[7px] w-[7px] shrink-0 rounded-full" style={{ background: C.online, boxShadow: `0 0 7px ${C.online}` }} />
-              <p className="text-left text-[9.5px] leading-tight" style={{ color: "#7A8089" }}>
-                Tous les systèmes
-                <br />
-                opérationnels
-              </p>
-            </div>
-          </div>
-        </aside>
-
-        {/* MAIN */}
+    <DeptV2PageShell deptHref={ROUTES.robo} activeDeptId="robo" coreSubtitle="Atelier opérationnel">
         <div className="flex min-w-0 flex-1 flex-col gap-3 px-4 pb-3 pt-3.5">
           <div className="flex shrink-0 items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
@@ -461,8 +231,7 @@ function RoboDepartmentView() {
             </div>
           </details>
         </div>
-      </div>
-    </div>
+    </DeptV2PageShell>
   );
 }
 

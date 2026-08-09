@@ -449,7 +449,7 @@ class LLMClient:
         model: str,
         method_name: str,
     ) -> None:
-        """Track LLM usage in cost_monitor (+ optional Supabase legacy)."""
+        """Track LLM usage in cost_monitor (single source of truth)."""
         try:
             usage = data.get("usage") or {}
             prompt_tokens = int(usage.get("prompt_tokens") or 0)
@@ -462,7 +462,7 @@ class LLMClient:
 
             cache_stats = extract_cache_stats(usage)
             native_cost = usage.get("cost")
-            cost_usd = record_call(
+            record_call(
                 agent_id=agent_id or "unknown",
                 model=model,
                 prompt_tokens=prompt_tokens,
@@ -471,19 +471,6 @@ class LLMClient:
                 cached_tokens=cache_stats["cached_tokens"],
                 native_cost_usd=float(native_cost) if native_cost is not None else None,
             )
-            try:
-                from skills.skill_model_usage import log_usage
-
-                log_usage(
-                    agent_name=agent_id or "unknown",
-                    model=model,
-                    tokens_in=prompt_tokens,
-                    tokens_out=completion_tokens,
-                    cost_usd=cost_usd,
-                    task_id=method_name or None,
-                )
-            except Exception:
-                pass
 
             alert = check_budget_alert()
             if alert.get("alert"):

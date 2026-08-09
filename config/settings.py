@@ -224,16 +224,16 @@ class Settings(BaseSettings):
         description="Chemin skills/ du clone Hermes (ex: C:\\Dev\\hermes-agent-main\\skills)",
     )
 
-    # Phase 0 — gradual migration flags (defaults preserve current behaviour)
+    # Costs — cost_monitor JSON is the single source of truth (Audit 003+)
     costs_unified_read: bool = Field(
-        default=False,
+        default=True,
         alias="COSTS_UNIFIED_READ",
         description="When true, all cost reads use cost_monitor JSON (Telegram included)",
     )
     costs_shadow_compare: bool = Field(
-        default=True,
+        default=False,
         alias="COSTS_SHADOW_COMPARE",
-        description="Log deltas between cost_monitor and Supabase legacy reads",
+        description="Log deltas between cost_monitor and Supabase legacy reads (off by default)",
     )
     briefing_coo_section_enabled: bool = Field(
         default=False,

@@ -17,6 +17,7 @@ import {
   STATUS_TEXT,
 } from "@/app/app-v2/shared";
 import { deptV2TopTabs } from "./nav";
+import { DeptV2Sidebar } from "./sidebar";
 
 export interface DeptV2HeaderProps {
   /** Route canonique du département (`/app`, `/rd`…) pour l'onglet Départements. */

@@ -26,7 +26,6 @@ import json
 import logging
 import os
 import subprocess
-import urllib.request
 from pathlib import Path
 from typing import Any
 
@@ -37,8 +36,6 @@ logger = logging.getLogger(__name__)
 # Cap retries so a stuck fix loop cannot starve the API thread pool.
 MAX_PIPELINE_ATTEMPTS = int(os.getenv("WATCHDOG_MAX_ATTEMPTS", "3"))
 
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
-OPENROUTER_BASE = "https://openrouter.ai/api/v1/chat/completions"
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
 REVIEW_MODEL = os.getenv("REVIEW_MODEL", "anthropic/claude-sonnet-4-5")
 FIX_MODEL = os.getenv("FIX_MODEL", "minimax/minimax-m1")
@@ -57,25 +54,18 @@ CONTEXT_LEVELS = [
 # ---------------------------------------------------------------------------
 
 def _llm(system: str, user: str, model: str = REVIEW_MODEL) -> str:
-    payload = json.dumps({
-        "model": model,
-        "messages": [
-            {"role": "system", "content": system},
-            {"role": "user", "content": user},
-        ],
-        "temperature": 0.1,
-        "max_tokens": 6000,
-    }).encode()
-    req = urllib.request.Request(
-        OPENROUTER_BASE,
-        data=payload,
-        headers={
-            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-            "Content-Type": "application/json",
-        },
+    """OpenRouter via LLMClient — costs + retries."""
+    from agents.base import LLMClient
+
+    return LLMClient().complete(
+        system,
+        user,
+        model=model,
+        agent_id="qa",
+        method_name="fix_pipeline_review",
+        temperature=0.1,
+        max_tokens=6000,
     )
-    with urllib.request.urlopen(req, timeout=120) as r:
-        return json.loads(r.read())["choices"][0]["message"]["content"]
 
 
 # ---------------------------------------------------------------------------
