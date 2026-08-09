@@ -90,3 +90,7 @@ tmp-mockup-refs/
 vault/obsidian/library/**
 !vault/obsidian/library/_index/
 !vault/obsidian/library/_index/**
+
+# One-off local patch scripts
+web/tmp-patch-*.mjs
+
