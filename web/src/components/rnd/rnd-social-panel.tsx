@@ -239,7 +239,7 @@ export function RndSocialPanel({
           <Loader2 className="h-8 w-8 animate-spin text-copper/40" />
         </div>
       ) : items.length === 0 ? (
-        <div className="rounded-xl border border-copper/15 bg-white/[0.02] p-8 text-center text-sm text-titanium/60">
+        <div className="rounded-xl border border-copper/15 bg-obsidian-deep/40 p-8 text-center text-sm text-titanium/60">
           Aucun calendrier — génère le pipeline internal → launch → post-launch.
         </div>
       ) : (
@@ -249,14 +249,14 @@ export function RndSocialPanel({
               key={item.id}
               className={cn(
                 "rounded-xl border p-4",
-                PHASE_COLORS[item.phase] ?? "border-white/10 bg-white/[0.02]"
+                PHASE_COLORS[item.phase] ?? "border-copper/15 bg-obsidian-deep/40"
               )}
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
                   <div className="mb-1 flex flex-wrap items-center gap-2">
                     <StatusIcon status={item.status} />
-                    <span className="rounded-full border border-white/10 px-2 py-0.5 text-[10px] uppercase tracking-wider text-titanium/60">
+                    <span className="rounded-full border border-copper/15 px-2 py-0.5 text-[10px] uppercase tracking-wider text-titanium/60">
                       {PHASE_LABELS[item.phase]}
                     </span>
                     <span className="text-xs text-titanium/50">{formatDate(item.planned_at)}</span>
@@ -279,7 +279,7 @@ export function RndSocialPanel({
                             key={p}
                             className={cn(
                               "rounded-full px-2 py-0.5 text-[10px] ring-1",
-                              style?.badge ?? "bg-white/5 text-titanium/60 ring-white/10"
+                              style?.badge ?? "bg-obsidian/50 text-titanium/60 ring-copper/15"
                             )}
                           >
                             {style?.label ?? p}
@@ -289,7 +289,7 @@ export function RndSocialPanel({
                     </div>
                   ) : null}
                   {item.post?.text_content ? (
-                    <p className="mt-3 rounded-lg border border-white/5 bg-obsidian-deep/50 p-3 text-xs leading-relaxed text-ivory/75">
+                    <p className="mt-3 rounded-lg border border-copper/10 bg-obsidian-deep/50 p-3 text-xs leading-relaxed text-ivory/75">
                       {item.post.text_content.slice(0, 280)}
                       {item.post.text_content.length > 280 ? "…" : ""}
                     </p>
@@ -300,7 +300,7 @@ export function RndSocialPanel({
                     type="button"
                     size="sm"
                     variant="outline"
-                    className="shrink-0 border-white/10 text-xs"
+                    className="shrink-0 border-copper/15 text-xs"
                     disabled={generatingItem === item.id || generatingAll}
                     onClick={() => void handleGenerateItem(item.id)}
                   >

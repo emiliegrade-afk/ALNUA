@@ -168,19 +168,19 @@ export function PartnerDetailPanel({
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <div className="shrink-0 border-b border-white/10 p-4">
+      <div className="shrink-0 border-b border-copper/15 p-4">
         <Input
           value={partner.name}
           onChange={(e) => onUpdate({ ...partner, name: e.target.value })}
           onBlur={(e) => patch({ name: e.target.value })}
-          className="border-transparent bg-transparent text-lg font-semibold text-ivory focus:border-white/20"
+          className="border-transparent bg-transparent text-lg font-semibold text-ivory focus:border-copper/25"
         />
         <div className="mt-2 flex flex-wrap gap-2">
           <Select
             value={partner.type}
             onValueChange={(v) => patch({ type: v }).catch(() => {})}
           >
-            <SelectTrigger className="h-8 w-auto border-white/10 text-xs">
+            <SelectTrigger className="h-8 w-auto border-copper/15 text-xs">
               <SelectValue>{partnerTypeLabel(partner.type)}</SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -195,7 +195,7 @@ export function PartnerDetailPanel({
             value={partner.status}
             onValueChange={(v) => patch({ status: v }).catch(() => {})}
           >
-            <SelectTrigger className="h-8 w-auto border-white/10 text-xs">
+            <SelectTrigger className="h-8 w-auto border-copper/15 text-xs">
               <SelectValue>{partnerStatusLabel(partner.status)}</SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -243,7 +243,7 @@ export function PartnerDetailPanel({
           <Button
             size="sm"
             variant="outline"
-            className="border-white/10 text-xs"
+            className="border-copper/15 text-xs"
             onClick={() => setShowIxForm(true)}
           >
             <MessageSquarePlus className="mr-1 h-3 w-3" />
@@ -252,7 +252,7 @@ export function PartnerDetailPanel({
           <Button
             size="sm"
             variant="outline"
-            className="border-white/10 text-xs"
+            className="border-copper/15 text-xs"
             onClick={() => fileRef.current?.click()}
           >
             <FileText className="mr-1 h-3 w-3" />
@@ -290,19 +290,19 @@ export function PartnerDetailPanel({
             onChange={(e) => saveNotes(e.target.value)}
             placeholder="Notes internes..."
             rows={4}
-            className="mt-3 border-white/10 bg-obsidian/40 text-sm"
+            className="mt-3 border-copper/15 bg-obsidian/40 text-sm"
           />
           <div className="mt-3 flex items-center gap-2">
             <Input
               type="date"
               value={followup}
               onChange={(e) => setFollowup(e.target.value)}
-              className="border-white/10 bg-obsidian/40 text-sm"
+              className="border-copper/15 bg-obsidian/40 text-sm"
             />
             <Button
               size="sm"
               variant="outline"
-              className="border-white/10 shrink-0"
+              className="border-copper/15 shrink-0"
               onClick={() =>
                 patch({ next_followup: followup || null }).then(() =>
                   toast.success("Relance enregistrée")
@@ -329,9 +329,9 @@ export function PartnerDetailPanel({
             </Button>
           </div>
           {showIxForm ? (
-            <div className="mt-2 space-y-2 rounded-lg border border-white/10 p-3">
+            <div className="mt-2 space-y-2 rounded-lg border border-copper/15 p-3">
               <Select value={ixType} onValueChange={setIxType}>
-                <SelectTrigger className="border-white/10 text-sm">
+                <SelectTrigger className="border-copper/15 text-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -347,7 +347,7 @@ export function PartnerDetailPanel({
                 onChange={(e) => setIxNote(e.target.value)}
                 placeholder="Note..."
                 rows={2}
-                className="border-white/10 text-sm"
+                className="border-copper/15 text-sm"
               />
               <div className="flex gap-2">
                 <Button size="sm" onClick={addInteraction}>
@@ -366,7 +366,7 @@ export function PartnerDetailPanel({
           {loadingIx ? (
             <Loader2 className="mt-4 h-5 w-5 animate-spin text-titanium" />
           ) : (
-            <ul className="mt-3 space-y-3 border-l border-white/10 pl-4">
+            <ul className="mt-3 space-y-3 border-l border-copper/15 pl-4">
               {interactions.map((ix) => {
                 const meta = INTERACTION_TYPES.find((t) => t.id === ix.type);
                 return (
@@ -416,7 +416,7 @@ export function PartnerDetailPanel({
                 <Button
                   size="sm"
                   variant="outline"
-                  className="border-white/10"
+                  className="border-copper/15"
                   onClick={() =>
                     openPartnerContract(partner.id).catch(() =>
                       toast.error("Impossible d'ouvrir le PDF")
@@ -428,7 +428,7 @@ export function PartnerDetailPanel({
                 <Button
                   size="sm"
                   variant="outline"
-                  className="border-white/10"
+                  className="border-copper/15"
                   onClick={() => fileRef.current?.click()}
                   disabled={uploading}
                 >
@@ -441,7 +441,7 @@ export function PartnerDetailPanel({
               <Button
                 size="sm"
                 variant="outline"
-                className="border-white/10"
+                className="border-copper/15"
                 onClick={() => fileRef.current?.click()}
                 disabled={uploading}
               >
@@ -477,7 +477,7 @@ export function PartnerDetailPanel({
             {affiliateLinks.map((link) => (
               <div
                 key={link.id}
-                className="mt-2 rounded-lg border border-white/10 p-3"
+                className="mt-2 rounded-lg border border-copper/15 p-3"
               >
                 <div className="flex items-center justify-between">
                   <code className="text-sm text-copper-glow">{link.code}</code>
@@ -509,7 +509,7 @@ export function PartnerDetailPanel({
                 value={newLinkUrl}
                 onChange={(e) => setNewLinkUrl(e.target.value)}
                 placeholder="URL de redirection"
-                className="border-white/10 text-sm"
+                className="border-copper/15 text-sm"
               />
               <Button size="sm" onClick={createLink}>
                 <Link2 className="h-4 w-4" />

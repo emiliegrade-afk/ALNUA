@@ -10,16 +10,17 @@ from typing import Any
 
 import httpx
 
+from config.llm_runtime import (
+    LLM_FALLBACK_STATUS,
+    LLM_RETRY_BACKOFF_S,
+    LLM_RETRYABLE_STATUS,
+    http_timeout_s,
+    max_attempts_per_model,
+)
 from config.settings import get_settings
 from database.supabase_client import SupabaseClient
 
 logger = logging.getLogger(__name__)
-
-# Statuses worth retrying (transient/overload) — never retried: 4xx client/auth errors
-# other than 408/429, since retrying or failing over won't fix a bad request or a bad key.
-_RETRYABLE_STATUS = {408, 429, 500, 502, 503, 504}
-_MAX_ATTEMPTS_PER_MODEL = 3
-_RETRY_BACKOFF_SECONDS = 1.5
 
 
 def to_api_model_slug(model: str) -> str:
@@ -66,16 +67,21 @@ def resolve_openrouter_model(agent_id: str) -> str:
 
 
 def build_crewai_llm(agent_id: str, temperature: float = 0.3):
-    """CrewAI LLM instance using per-agent model config."""
+    """CrewAI LLM instance using per-agent model config + prompt-cache params."""
     from crewai import LLM
+
+    from services.openrouter_prompt_cache import crewai_additional_params
 
     settings = get_settings()
     model = to_crewai_model_slug(resolve_openrouter_model(agent_id))
+    extra = crewai_additional_params(agent_id, settings=settings)
     return LLM(
         model=model,
         base_url=settings.openrouter_base_url,
         api_key=settings.openrouter_api_key,
         temperature=temperature,
+        timeout=http_timeout_s(settings),
+        additional_params=extra or None,
     )
 
 
@@ -178,7 +184,7 @@ class LLMClient:
         use_cache: bool = True,
     ) -> str:
         """Native async OpenRouter call via httpx.AsyncClient."""
-        resolved_model, enriched_system, payload, headers, url = self._build_request(
+        resolved_model, _enriched, payload, headers, url = self._build_request(
             system=system,
             messages=messages,
             model=model,
@@ -189,7 +195,7 @@ class LLMClient:
             use_cache=use_cache,
         )
         if isinstance(payload, str):
-            return payload  # cache hit returned as string
+            return payload
 
         actual_model, data = await self._send_with_retry_async(url, headers, payload, resolved_model)
         content = data["choices"][0]["message"]["content"]
@@ -219,36 +225,40 @@ class LLMClient:
         payload: dict[str, Any],
         resolved_model: str,
     ) -> tuple[str, dict[str, Any]]:
-        """POST with exponential backoff on transient errors, failing over to a
-        fallback model if the primary keeps erroring (rate-limited, overloaded,
-        deprecated). Client/auth errors (4xx other than 408/429) fail fast — no
-        retry, no fallback, since neither would fix a bad request or a bad key."""
+        """POST with capped retries. Timeouts do not failover (avoids double burn).
+        Client/auth 4xx (except 408/429) fail fast. Fallback only on 404/502/503."""
         last_exc: Exception | None = None
-        for model in self._fallback_models(resolved_model):
+        attempts = max_attempts_per_model(self._settings)
+        timeout = http_timeout_s(self._settings)
+        for model_idx, model in enumerate(self._fallback_models(resolved_model)):
             model_payload = {**payload, "model": model}
-            for attempt in range(_MAX_ATTEMPTS_PER_MODEL):
+            for attempt in range(attempts):
                 try:
-                    with httpx.Client(timeout=120.0) as client:
+                    with httpx.Client(timeout=timeout) as client:
                         response = client.post(url, headers=headers, json=model_payload)
                 except (httpx.TimeoutException, httpx.NetworkError) as exc:
                     last_exc = exc
-                    if attempt < _MAX_ATTEMPTS_PER_MODEL - 1:
-                        time.sleep(_RETRY_BACKOFF_SECONDS * (2**attempt))
+                    if attempt < attempts - 1:
+                        time.sleep(LLM_RETRY_BACKOFF_S * (2**attempt))
                         continue
-                    break
+                    raise last_exc from None
                 if response.status_code >= 400:
                     if (
-                        response.status_code in _RETRYABLE_STATUS
-                        and attempt < _MAX_ATTEMPTS_PER_MODEL - 1
+                        response.status_code in LLM_RETRYABLE_STATUS
+                        and attempt < attempts - 1
                     ):
-                        time.sleep(_RETRY_BACKOFF_SECONDS * (2**attempt))
+                        time.sleep(LLM_RETRY_BACKOFF_S * (2**attempt))
                         continue
                     last_exc = RuntimeError(
                         f"OpenRouter {response.status_code} model={model}: {response.text[:500]}"
                     )
-                    if response.status_code not in _RETRYABLE_STATUS and response.status_code != 404:
+                    if response.status_code not in LLM_RETRYABLE_STATUS:
+                        if response.status_code in LLM_FALLBACK_STATUS and model_idx == 0:
+                            break
                         raise last_exc from None
-                    break  # exhausted retries or model-level failure — try next model
+                    if response.status_code not in LLM_FALLBACK_STATUS:
+                        raise last_exc from None
+                    break
                 return model, response.json()
             logger.warning("LLMClient: model %s failed, trying fallback if any", model)
         raise last_exc or RuntimeError("OpenRouter request failed with no response")
@@ -262,29 +272,35 @@ class LLMClient:
     ) -> tuple[str, dict[str, Any]]:
         """Async twin of _send_with_retry — same retry/fallback semantics."""
         last_exc: Exception | None = None
-        for model in self._fallback_models(resolved_model):
+        attempts = max_attempts_per_model(self._settings)
+        timeout = http_timeout_s(self._settings)
+        for model_idx, model in enumerate(self._fallback_models(resolved_model)):
             model_payload = {**payload, "model": model}
-            for attempt in range(_MAX_ATTEMPTS_PER_MODEL):
+            for attempt in range(attempts):
                 try:
-                    async with httpx.AsyncClient(timeout=120.0) as client:
+                    async with httpx.AsyncClient(timeout=timeout) as client:
                         response = await client.post(url, headers=headers, json=model_payload)
                 except (httpx.TimeoutException, httpx.NetworkError) as exc:
                     last_exc = exc
-                    if attempt < _MAX_ATTEMPTS_PER_MODEL - 1:
-                        await asyncio.sleep(_RETRY_BACKOFF_SECONDS * (2**attempt))
+                    if attempt < attempts - 1:
+                        await asyncio.sleep(LLM_RETRY_BACKOFF_S * (2**attempt))
                         continue
-                    break
+                    raise last_exc from None
                 if response.status_code >= 400:
                     if (
-                        response.status_code in _RETRYABLE_STATUS
-                        and attempt < _MAX_ATTEMPTS_PER_MODEL - 1
+                        response.status_code in LLM_RETRYABLE_STATUS
+                        and attempt < attempts - 1
                     ):
-                        await asyncio.sleep(_RETRY_BACKOFF_SECONDS * (2**attempt))
+                        await asyncio.sleep(LLM_RETRY_BACKOFF_S * (2**attempt))
                         continue
                     last_exc = RuntimeError(
                         f"OpenRouter {response.status_code} model={model}: {response.text[:500]}"
                     )
-                    if response.status_code not in _RETRYABLE_STATUS and response.status_code != 404:
+                    if response.status_code not in LLM_RETRYABLE_STATUS:
+                        if response.status_code in LLM_FALLBACK_STATUS and model_idx == 0:
+                            break
+                        raise last_exc from None
+                    if response.status_code not in LLM_FALLBACK_STATUS:
                         raise last_exc from None
                     break
                 return model, response.json()
@@ -343,34 +359,63 @@ class LLMClient:
             except Exception:
                 pass
 
-        enriched_system = system
+        static_system = system
+        dynamic_tail = ""
         if agent_id:
             try:
-                from config.agent_personas import get_persona, get_competitive_context
+                from config.agent_personas import get_competitive_context, get_persona
                 persona = get_persona(agent_id)
                 if persona and persona.get("competitive", False):
                     from services.competition import get_scores
-                    current_scores = get_scores()
-                    competitive_block = get_competitive_context(agent_id, current_scores)
+                    competitive_block = get_competitive_context(agent_id, get_scores())
                     if competitive_block:
-                        enriched_system = f"{system}\n\n{competitive_block}"
+                        dynamic_tail = competitive_block
             except Exception:
                 pass
 
+        from services.openrouter_prompt_cache import (
+            apply_prompt_cache_to_payload,
+            build_system_message,
+            prompt_cache_enabled,
+            prompt_cache_ttl,
+        )
+
+        ttl = prompt_cache_ttl(self._settings)
+        cache_on = prompt_cache_enabled(self._settings)
+        or_messages: list[dict[str, Any]] = [
+            build_system_message(
+                static_system,
+                model=resolved_model,
+                ttl=ttl,
+                enable=cache_on,
+            )
+        ]
+        if dynamic_tail:
+            or_messages.append({"role": "system", "content": dynamic_tail})
+        or_messages.extend(messages)
+
         payload: dict[str, Any] = {
             "model": resolved_model,
-            "messages": [{"role": "system", "content": enriched_system}, *messages],
+            "messages": or_messages,
             "temperature": temperature,
             "max_tokens": max_tokens,
         }
+        payload = apply_prompt_cache_to_payload(
+            payload,
+            model=resolved_model,
+            agent_id=agent_id,
+            settings=self._settings,
+        )
         headers = {
             "Authorization": f"Bearer {self._settings.openrouter_api_key}",
             "Content-Type": "application/json",
             "HTTP-Referer": "https://alnua-hub.local",
             "X-Title": "ALNUA Hub",
         }
+        if agent_id:
+            headers["X-Session-Id"] = str(payload.get("session_id", f"alnua:{agent_id}"))
         url = openrouter_chat_completions_url(self._settings.openrouter_base_url)
-        return resolved_model, enriched_system, payload, headers, url
+        return resolved_model, static_system, payload, headers, url
 
     def _store_cache(
         self,
@@ -413,13 +458,18 @@ class LLMClient:
                 return
 
             from services.cost_monitor import check_budget_alert, record_call
+            from services.openrouter_prompt_cache import extract_cache_stats
 
+            cache_stats = extract_cache_stats(usage)
+            native_cost = usage.get("cost")
             cost_usd = record_call(
                 agent_id=agent_id or "unknown",
                 model=model,
                 prompt_tokens=prompt_tokens,
                 completion_tokens=completion_tokens,
                 method=method_name,
+                cached_tokens=cache_stats["cached_tokens"],
+                native_cost_usd=float(native_cost) if native_cost is not None else None,
             )
             try:
                 from skills.skill_model_usage import log_usage
@@ -532,7 +582,6 @@ async def run_with_learning_async(
     **kwargs,
 ) -> Any:
     """Async variant — runs sync fn in thread pool, preserves learning hooks."""
-    import asyncio
     return await asyncio.to_thread(run_with_learning, agent_id, task, fn, *args, **kwargs)
 
 

@@ -154,7 +154,7 @@ export function BetaView() {
         </div>
 
         <Select value={projectFilter} onValueChange={setProjectFilter}>
-          <SelectTrigger className="w-[200px] border-white/10 bg-surface">
+          <SelectTrigger className="w-[200px] border-copper/15 bg-surface">
             <SelectValue placeholder="Projet" />
           </SelectTrigger>
           <SelectContent>
@@ -170,7 +170,7 @@ export function BetaView() {
 
       <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
         <aside className="space-y-4">
-          <Card className="border-white/10 bg-surface/80">
+          <Card className="border-copper/15 bg-surface/80">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-ivory">Stats</CardTitle>
             </CardHeader>
@@ -220,7 +220,7 @@ export function BetaView() {
             </Button>
             <Button
               variant="outline"
-              className="w-full justify-start gap-2 border-white/10"
+              className="w-full justify-start gap-2 border-copper/15"
               asChild
             >
               <a href={betaTestersCsvUrl(projectId)} download>
@@ -232,7 +232,7 @@ export function BetaView() {
         </aside>
 
         <section className="min-w-0 space-y-4">
-          <div className="flex gap-1 rounded-lg border border-white/10 bg-surface/50 p-1">
+          <div className="flex gap-1 rounded-lg border border-copper/15 bg-surface/50 p-1">
             {tabs.map((t) => (
               <button
                 key={t.id}
@@ -254,7 +254,7 @@ export function BetaView() {
             <div className="space-y-4">
               <div className="flex flex-wrap gap-2">
                 <Select value={typeFilter} onValueChange={setTypeFilter}>
-                  <SelectTrigger className="w-[160px] border-white/10 bg-surface">
+                  <SelectTrigger className="w-[160px] border-copper/15 bg-surface">
                     <SelectValue placeholder="Type" />
                   </SelectTrigger>
                   <SelectContent>
@@ -267,7 +267,7 @@ export function BetaView() {
                   </SelectContent>
                 </Select>
                 <Select value={severityFilter} onValueChange={setSeverityFilter}>
-                  <SelectTrigger className="w-[160px] border-white/10 bg-surface">
+                  <SelectTrigger className="w-[160px] border-copper/15 bg-surface">
                     <SelectValue placeholder="Sévérité" />
                   </SelectTrigger>
                   <SelectContent>
@@ -299,7 +299,7 @@ export function BetaView() {
                           setSelectedFeedback(f);
                           setDetailOpen(true);
                         }}
-                        className="w-full rounded-xl border border-white/10 bg-surface/60 p-4 text-left transition hover:border-copper/25 hover:bg-surface"
+                        className="w-full rounded-xl border border-copper/15 bg-surface/60 p-4 text-left transition hover:border-copper/25 hover:bg-surface"
                       >
                         <div className="flex flex-wrap items-start justify-between gap-2">
                           <div className="min-w-0">
@@ -318,7 +318,7 @@ export function BetaView() {
                             >
                               {f.severity ?? "—"}
                             </Badge>
-                            <Badge variant="outline" className="border-white/10 text-titanium">
+                            <Badge variant="outline" className="border-copper/15 text-titanium">
                               {BETA_TYPE_LABELS[f.type ?? "autre"]}
                             </Badge>
                           </div>
@@ -348,7 +348,7 @@ export function BetaView() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Rechercher par email ou prénom…"
-                  className="border-white/10 bg-surface pl-9"
+                  className="border-copper/15 bg-surface pl-9"
                 />
               </div>
 
@@ -357,10 +357,10 @@ export function BetaView() {
                   <Loader2 className="h-6 w-6 animate-spin text-copper/50" />
                 </div>
               ) : (
-                <div className="overflow-x-auto rounded-xl border border-white/10">
+                <div className="overflow-x-auto rounded-xl border border-copper/15">
                   <table className="w-full min-w-[600px] text-sm">
                     <thead>
-                      <tr className="border-b border-white/10 bg-white/[0.02] text-left text-xs text-titanium">
+                      <tr className="border-b border-copper/15 bg-obsidian-deep/40 text-left text-xs text-titanium">
                         <th className="px-4 py-3 font-medium">Prénom</th>
                         <th className="px-4 py-3 font-medium">Email</th>
                         <th className="px-4 py-3 font-medium">Appareil</th>
@@ -372,7 +372,7 @@ export function BetaView() {
                       {filteredTesters.map((t) => (
                         <tr
                           key={t.id}
-                          className="border-b border-white/5 text-ivory/90 last:border-0"
+                          className="border-b border-copper/10 text-ivory/90 last:border-0"
                         >
                           <td className="px-4 py-3">{t.first_name ?? "—"}</td>
                           <td className="px-4 py-3 text-titanium">{t.email}</td>

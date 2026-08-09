@@ -49,7 +49,7 @@ export function RndHypothesisTreeGraph({
   const byId = new Map(nodes.map((n) => [n.id, n]));
 
   return (
-    <div className="overflow-auto rounded-lg border border-white/10 bg-obsidian/80 p-2">
+    <div className="overflow-auto rounded-lg border border-copper/15 bg-obsidian/80 p-2">
       <svg
         width={svgW}
         height={svgH}

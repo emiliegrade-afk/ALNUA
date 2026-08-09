@@ -26,13 +26,20 @@ class ControllerAgent(AgentBase):
         budget: dict[str, float] | None = None,
     ) -> dict[str, Any]:
         """Analyse les coûts sur une période et compare au budget."""
+        from services.saas_spend import build_saas_spend_report, catalog_for_agents
+
+        spend = build_saas_spend_report(days=30)
         prompt = inject_learning_context(
             f"""Analyse ces données de coûts pour la période : {period}
 
-Données de coûts :
+Données de coûts (appel) :
 {costs_data}
 
 Budget prévu : {budget or 'Non défini'}
+
+Contexte abonnements / live spend ALNUA :
+{catalog_for_agents()}
+Live total≈{spend.get('total_tracked_usd')}$ — sources: {[{'id': s['id'], 'usd': s['amount_usd'], 'sync': s['sync']} for s in spend.get('sources') or []]}
 
 Réponds en JSON :
 {{
@@ -52,6 +59,9 @@ Réponds en JSON :
         )
         raw = self._complete(prompt, temperature=0.2)
         result = parse_json_response(raw)
+        result["_saas_spend_snapshot"] = {
+            "total_tracked_usd": spend.get("total_tracked_usd"),
+        }
         log_agent_action(
             self.db, self.AGENT_NAME, "analyze_costs",
             input_summary=f"Période: {period}",

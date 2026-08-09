@@ -1,39 +1,59 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ConsoleShell } from "@/components/console/console-shell";
+import { ConsoleProvider } from "@/components/console/console-provider";
 import { HubAuthBanner } from "@/components/shared/hub-auth-banner";
 import { HubNavigationProvider } from "@/components/layout/hub-navigation";
 import { prefetchLobby } from "@/lib/hq-prefetch";
-import { CONSOLE_HQ, CONSOLE_IDE } from "@/lib/console/nav";
+import { dynamicWithChunkRetry } from "@/lib/dynamic-chunk-retry";
+import { CONSOLE_IDE, CONSOLE_HQ } from "@/lib/console/nav";
 import { isPublicPortalRoute } from "@/lib/routes";
 import { Toaster } from "@/components/ui/sonner";
+import { PROTO_SHELL_PATHS } from "@/components/mockup/prototype/proto-dept-routes";
 
-const HubStatusMonitor = dynamic(
-  () =>
-    import("@/components/shared/hub-status-monitor").then((m) => ({
-      default: m.HubStatusMonitor,
-    })),
-  { ssr: false },
+const HubStatusMonitor = dynamicWithChunkRetry(() =>
+  import("@/components/shared/hub-status-monitor").then((m) => ({
+    default: m.HubStatusMonitor,
+  })),
 );
 
-const CooDrawer = dynamic(
-  () =>
-    import("@/components/shared/coo-drawer").then((m) => ({
-      default: m.CooDrawer,
-    })),
-  { ssr: false },
+const CooDrawer = dynamicWithChunkRetry(() =>
+  import("@/components/shared/coo-drawer").then((m) => ({
+    default: m.CooDrawer,
+  })),
 );
 
-const QuickCaptureButton = dynamic(
-  () =>
-    import("@/components/shared/quick-capture-button").then((m) => ({
-      default: m.QuickCaptureButton,
-    })),
-  { ssr: false },
+const QuickCaptureButton = dynamicWithChunkRetry(() =>
+  import("@/components/shared/quick-capture-button").then((m) => ({
+    default: m.QuickCaptureButton,
+  })),
 );
+
+const SELF_CONTAINED_V2_ROUTES = [
+  "/app-v2",
+  "/gaming-v2",
+  "/robo-v2",
+  "/rnd-v2",
+  "/marketing-v2",
+  "/finances-v2",
+];
+
+/** Pôles = shell maquette ChatGPT (pas ConsoleShell). */
+const DEPT_SHELL_ROUTES = PROTO_SHELL_PATHS;
+
+function isSelfContainedV2(pathname: string): boolean {
+  return SELF_CONTAINED_V2_ROUTES.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`),
+  );
+}
+
+function isDeptShellRoute(pathname: string): boolean {
+  return DEPT_SHELL_ROUTES.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`),
+  );
+}
 
 export function HubShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -41,28 +61,18 @@ export function HubShell({ children }: { children: React.ReactNode }) {
   const isPublic = isPublicPortalRoute(pathname);
   const isHqImmersive = pathname === CONSOLE_HQ;
   const isIdeImmersive = pathname === CONSOLE_IDE;
-  // Département App : rend son propre chrome (en-tête, sidebar, barre de
-  // commande) pour être un calque fidèle de la maquette source — elle ne
-  // doit donc pas être enveloppée par ConsoleShell. /app-v2 reste un alias
-  // de la même page pendant la transition.
-  const isAppV2 = pathname === "/app-v2" || pathname === "/app";
-  // Détail projet : plein écran avec un simple bouton retour, pas de sidebar
-  // ni de chrome ConsoleShell (maquette dédiée "clic sur un projet").
   const isProjectDetail = pathname?.startsWith("/projects/") ?? false;
-  // Département Gaming (nouvelle DA, validée le 2026-07-31) — /gaming est
-  // désormais la vraie route ; /gaming-v2 reste un alias.
-  const isGamingV2 = pathname === "/gaming-v2" || pathname === "/gaming";
-  // Département Robotique — même bascule, /robo est la vraie route.
-  const isRoboV2 = pathname === "/robo-v2" || pathname === "/robo";
-  const isImmersive = isHqImmersive || isIdeImmersive || isAppV2 || isProjectDetail || isGamingV2 || isRoboV2;
-  const showAuthBanner = !isPublic && !isImmersive;
-  const isRdRoute = pathname === "/rd";
+  const isSelfContainedV2Page = isSelfContainedV2(pathname);
+  const isDeptShell = isDeptShellRoute(pathname);
+  const isImmersive =
+    isHqImmersive || isIdeImmersive || isProjectDetail || isSelfContainedV2Page;
+  const showAuthBanner = !isPublic && !isImmersive && !isDeptShell;
 
   useEffect(() => {
-    if (!isPublic && !isImmersive) {
+    if (!isPublic && !isImmersive && !isDeptShell) {
       prefetchLobby(router);
     }
-  }, [isImmersive, isPublic, router]);
+  }, [isImmersive, isDeptShell, isPublic, router]);
 
   if (isPublic) {
     return (
@@ -73,7 +83,7 @@ export function HubShell({ children }: { children: React.ReactNode }) {
           position="bottom-center"
           toastOptions={{
             classNames: {
-              toast: "bg-surface border-white/10 text-ivory/90",
+              toast: "bg-surface border-copper/15 text-ivory/90",
             },
           }}
         />
@@ -93,26 +103,48 @@ export function HubShell({ children }: { children: React.ReactNode }) {
           position="bottom-left"
           toastOptions={{
             classNames: {
-              toast: "bg-surface border-white/10 text-ivory/90",
+              toast: "bg-surface border-copper/15 text-ivory/90",
             },
           }}
         />
+        <CooDrawer />
       </HubNavigationProvider>
     );
   }
 
+  // Pôles : pages auto-contenues (shell maquette ChatGPT dans MockupDepartmentPage)
+  if (isDeptShell) {
+    return (
+      <HubNavigationProvider>
+        <ConsoleProvider>
+          {children}
+          <Toaster
+            theme="dark"
+            position="bottom-left"
+            toastOptions={{
+              classNames: {
+                toast: "bg-surface border-copper/15 text-ivory/90",
+              },
+            }}
+          />
+        </ConsoleProvider>
+      </HubNavigationProvider>
+    );
+  }
+
+  // Vue générale + reste console — shell d'origine, non touché
   return (
     <HubNavigationProvider>
       {showAuthBanner ? <HubAuthBanner /> : null}
       <ConsoleShell>{children}</ConsoleShell>
-      {!isRdRoute ? <QuickCaptureButton /> : null}
-      {!isRdRoute ? <CooDrawer /> : null}
+      <QuickCaptureButton />
+      <CooDrawer />
       <Toaster
         theme="dark"
         position="bottom-left"
         toastOptions={{
           classNames: {
-            toast: "bg-surface border-white/10 text-ivory/90",
+            toast: "bg-surface border-copper/15 text-ivory/90",
           },
         }}
       />

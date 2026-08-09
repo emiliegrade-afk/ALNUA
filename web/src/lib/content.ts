@@ -24,6 +24,11 @@ export interface Post {
   published_at: string | null;
   status: PostStatus;
   created_at: string;
+  // Stats de performance réelle (Phase 37) — saisie manuelle après
+  // publication, null tant que personne ne les a renseignées.
+  reach: number | null;
+  engagement_count: number | null;
+  stats_updated_at: string | null;
 }
 
 export interface GeneratePostsResponse {
@@ -89,6 +94,8 @@ export async function updatePost(
     layout?: Record<string, unknown>;
     media_urls?: string[];
     channel?: string;
+    reach?: number;
+    engagement_count?: number;
   }
 ): Promise<Post> {
   return hubFetch<Post>(`/posts/${postId}`, {

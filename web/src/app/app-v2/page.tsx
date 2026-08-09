@@ -103,7 +103,7 @@ function SectionBox({ title, children }: { title: string; children: React.ReactN
   return (
     <div
       className="rounded-[10px] border p-2"
-      style={{ borderColor: "rgba(200,127,78,.14)", background: "rgba(16,13,11,.5)" }}
+      style={{ borderColor: "rgba(192,138,114,.14)", background: "rgba(16,13,11,.5)" }}
     >
       <p
         className="mb-2 ml-2 mt-0.5 text-[8.5px] tracking-[0.2em]"
@@ -204,7 +204,7 @@ function AppDepartmentView() {
       className="alnua-scroll flex h-full w-full flex-col overflow-x-auto overflow-y-auto"
       style={{
         background:
-          "radial-gradient(900px 500px at 12% -5%, rgba(200,127,78,.10), transparent 60%), radial-gradient(1000px 600px at 88% 105%, rgba(200,127,78,.09), transparent 62%), #08090B",
+          "radial-gradient(900px 500px at 12% -5%, rgba(192,138,114,.10), transparent 60%), radial-gradient(1000px 600px at 88% 105%, rgba(192,138,114,.09), transparent 62%), #08090B",
         color: C.ivory,
       }}
     >
@@ -221,9 +221,9 @@ function AppDepartmentView() {
           <span
             className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full border"
             style={{
-              borderColor: "rgba(200,127,78,.45)",
-              background: "radial-gradient(circle,rgba(200,127,78,.28),transparent 70%)",
-              boxShadow: "0 0 18px rgba(200,127,78,.25)",
+              borderColor: "rgba(192,138,114,.45)",
+              background: "radial-gradient(circle,rgba(192,138,114,.28),transparent 70%)",
+              boxShadow: "0 0 18px rgba(192,138,114,.25)",
             }}
           >
             <AlnuaStar size={24} animated={false} sparkMid="#E8A87C" sparkOuter="#C87F4E" glowColorRgb="200,127,78" />
@@ -268,7 +268,7 @@ function AppDepartmentView() {
                   <polyline
                     points="0,6 6,6 10,2 14,10 18,4 22,8 26,3 30,9 34,5 38,7 42,1 46,11 50,6 54,6 58,4 62,8 66,6 70,6 74,3 78,9 82,6 88,6"
                     fill="none"
-                    stroke="rgba(200,127,78,.55)"
+                    stroke="rgba(192,138,114,.55)"
                     strokeWidth="1"
                   />
                 </svg>
@@ -288,8 +288,8 @@ function AppDepartmentView() {
                 style={
                   t.active
                     ? {
-                        borderColor: "rgba(200,127,78,.4)",
-                        background: "rgba(200,127,78,.12)",
+                        borderColor: "rgba(192,138,114,.4)",
+                        background: "rgba(192,138,114,.12)",
                         color: C.copperLight,
                       }
                     : { color: C.warm }
@@ -304,7 +304,7 @@ function AppDepartmentView() {
           <div className="flex shrink-0 items-center gap-[18px]">
             <span
               className="relative flex h-[34px] w-[34px] items-center justify-center rounded-full border text-[13px]"
-              style={{ borderColor: "rgba(200,127,78,.22)" }}
+              style={{ borderColor: "rgba(192,138,114,.22)" }}
             >
               🔔
               {stats.ceoNotifications > 0 ? (
@@ -342,7 +342,7 @@ function AppDepartmentView() {
               <Link
                 key={it.label}
                 href={it.href}
-                className="flex items-center justify-between gap-1 whitespace-nowrap rounded-[7px] px-2 py-[7px] text-[12px] transition-colors hover:bg-white/[0.03]"
+                className="flex items-center justify-between gap-1 whitespace-nowrap rounded-[7px] px-2 py-[7px] text-[12px] transition-colors hover:bg-obsidian-deep/50"
                 style={{ color: C.warm }}
               >
                 <span className="flex min-w-0 items-center gap-2">
@@ -354,7 +354,7 @@ function AppDepartmentView() {
                 {it.badge && stats.ceoNotifications > 0 ? (
                   <span
                     className="rounded-lg border px-1.5 text-[9px]"
-                    style={{ borderColor: "rgba(200,127,78,.5)", color: C.copperLight }}
+                    style={{ borderColor: "rgba(192,138,114,.5)", color: C.copperLight }}
                   >
                     {stats.ceoNotifications}
                   </span>
@@ -379,10 +379,10 @@ function AppDepartmentView() {
                 <Link
                   key={pole.id}
                   href={pole.href}
-                  className="flex items-center justify-between rounded-[7px] px-2 py-[7px] transition-colors hover:bg-white/[0.03]"
+                  className="flex items-center justify-between rounded-[7px] px-2 py-[7px] transition-colors hover:bg-obsidian-deep/50"
                   style={
                     active
-                      ? { background: "rgba(200,127,78,.12)", color: C.copperLight }
+                      ? { background: "rgba(192,138,114,.12)", color: C.copperLight }
                       : { color: C.warm }
                   }
                 >
@@ -410,7 +410,7 @@ function AppDepartmentView() {
               <Link
                 key={t.label}
                 href={t.href}
-                className="flex items-center justify-between gap-1 whitespace-nowrap rounded-[7px] px-2 py-[7px] text-[12px] transition-colors hover:bg-white/[0.03]"
+                className="flex items-center justify-between gap-1 whitespace-nowrap rounded-[7px] px-2 py-[7px] text-[12px] transition-colors hover:bg-obsidian-deep/50"
                 style={{ color: C.warm }}
               >
                 <span className="flex min-w-0 items-center gap-2">
@@ -430,22 +430,22 @@ function AppDepartmentView() {
           <div
             className="relative mt-auto overflow-hidden rounded-xl border p-3 pb-3.5"
             style={{
-              borderColor: "rgba(200,127,78,.2)",
+              borderColor: "rgba(192,138,114,.2)",
               background:
-                "radial-gradient(120% 90% at 50% 45%, rgba(200,127,78,.13), rgba(12,10,9,.9) 70%)",
+                "radial-gradient(120% 90% at 50% 45%, rgba(192,138,114,.13), rgba(12,10,9,.9) 70%)",
             }}
           >
             <div className="flex items-center justify-center gap-2">
               <span
                 className="h-px w-4"
-                style={{ background: "linear-gradient(90deg,transparent,rgba(200,127,78,.6))" }}
+                style={{ background: "linear-gradient(90deg,transparent,rgba(192,138,114,.6))" }}
               />
               <span className="text-[10px] tracking-[2.4px]" style={{ color: C.copperLight }}>
                 ALNUA CORE
               </span>
               <span
                 className="h-px w-4"
-                style={{ background: "linear-gradient(90deg,rgba(200,127,78,.6),transparent)" }}
+                style={{ background: "linear-gradient(90deg,rgba(192,138,114,.6),transparent)" }}
               />
             </div>
             <p className="mt-[3px] text-center text-[9.5px]" style={{ color: C.dim }}>
@@ -453,11 +453,11 @@ function AppDepartmentView() {
             </p>
             <div className="relative mt-1.5 flex h-[100px] items-center justify-center">
               <svg viewBox="0 0 168 112" className="absolute inset-0 m-auto h-full w-full" aria-hidden>
-                <g fill="none" stroke="rgba(200,127,78,.35)">
+                <g fill="none" stroke="rgba(192,138,114,.35)">
                   <ellipse cx="84" cy="56" rx="78" ry="30" />
-                  <ellipse cx="84" cy="56" rx="60" ry="46" stroke="rgba(200,127,78,.22)" />
+                  <ellipse cx="84" cy="56" rx="60" ry="46" stroke="rgba(192,138,114,.22)" />
                   <ellipse cx="84" cy="56" rx="44" ry="17" />
-                  <ellipse cx="84" cy="56" rx="26" ry="34" stroke="rgba(200,127,78,.2)" />
+                  <ellipse cx="84" cy="56" rx="26" ry="34" stroke="rgba(192,138,114,.2)" />
                   <ellipse cx="84" cy="56" rx="20" ry="8" />
                 </g>
                 <circle cx="162" cy="56" r="2" fill={C.copperLight} />
@@ -491,9 +491,9 @@ function AppDepartmentView() {
                   <span
                     className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border text-[15px]"
                     style={{
-                      borderColor: "rgba(200,127,78,.4)",
+                      borderColor: "rgba(192,138,114,.4)",
                       background:
-                        "radial-gradient(circle at 30% 20%, rgba(200,127,78,.25), rgba(15,12,10,.9))",
+                        "radial-gradient(circle at 30% 20%, rgba(192,138,114,.25), rgba(15,12,10,.9))",
                       color: C.copperLight,
                     }}
                   >
@@ -515,7 +515,7 @@ function AppDepartmentView() {
                   <span
                     className="hidden items-center gap-[7px] rounded-[18px] border px-[13px] py-1.5 text-[11.5px] sm:flex"
                     style={{
-                      borderColor: "rgba(200,127,78,.22)",
+                      borderColor: "rgba(192,138,114,.22)",
                       background: "rgba(16,13,11,.6)",
                       color: C.warm,
                     }}
@@ -532,8 +532,8 @@ function AppDepartmentView() {
                     onClick={requestNewAgent}
                     className="flex items-center gap-1.5 rounded-[18px] border px-[13px] py-1.5 text-[11.5px]"
                     style={{
-                      borderColor: "rgba(200,127,78,.45)",
-                      background: "rgba(200,127,78,.08)",
+                      borderColor: "rgba(192,138,114,.45)",
+                      background: "rgba(192,138,114,.08)",
                       color: C.copperLight,
                     }}
                   >
@@ -541,7 +541,7 @@ function AppDepartmentView() {
                   </button>
                   <span
                     className="flex h-[30px] w-[30px] items-center justify-center rounded-lg border"
-                    style={{ borderColor: "rgba(200,127,78,.2)", color: C.dim }}
+                    style={{ borderColor: "rgba(192,138,114,.2)", color: C.dim }}
                   >
                     ⋮
                   </span>
@@ -551,7 +551,7 @@ function AppDepartmentView() {
               {/* Onglets */}
               <div
                 className="flex gap-[22px] overflow-x-auto border-b"
-                style={{ borderColor: "rgba(200,127,78,.15)" }}
+                style={{ borderColor: "rgba(192,138,114,.15)" }}
               >
                 {SUB_TABS.map((t) => {
                   const active = t.label === subTab;
@@ -591,9 +591,9 @@ function AppDepartmentView() {
                       style={{
                         borderColor: active ? C.copper : C.line,
                         background: active
-                          ? "radial-gradient(120% 120% at 0% 0%, rgba(200,127,78,.12), rgba(16,13,11,.6) 60%)"
+                          ? "radial-gradient(120% 120% at 0% 0%, rgba(192,138,114,.12), rgba(16,13,11,.6) 60%)"
                           : "rgba(16,13,11,.45)",
-                        boxShadow: active ? "0 0 22px rgba(200,127,78,.12)" : undefined,
+                        boxShadow: active ? "0 0 22px rgba(192,138,114,.12)" : undefined,
                       }}
                     >
                       <span className="flex items-center gap-2">
@@ -651,14 +651,14 @@ function AppDepartmentView() {
                           Chaque tag tronque désormais lui-même proprement
                           (`min-w-0` + `truncate`) au lieu d'être rogné par le
                           conteneur. */}
-                      <span className="mt-auto flex min-w-0 gap-1 border-t pt-1.5" style={{ borderColor: "rgba(200,127,78,.12)" }}>
+                      <span className="mt-auto flex min-w-0 gap-1 border-t pt-1.5" style={{ borderColor: "rgba(192,138,114,.12)" }}>
                         {agent.skills.slice(0, 3).map((sk) => (
                           <span
                             key={sk}
                             className="min-w-0 truncate rounded-[5px] border px-[5px] py-px text-[8.5px]"
                             style={{
-                              borderColor: "rgba(200,127,78,.2)",
-                              background: "rgba(200,127,78,.05)",
+                              borderColor: "rgba(192,138,114,.2)",
+                              background: "rgba(192,138,114,.05)",
                               color: "#B5ABA1",
                             }}
                           >
@@ -674,11 +674,11 @@ function AppDepartmentView() {
                   type="button"
                   onClick={requestNewAgent}
                   className="flex w-[92px] shrink-0 flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed transition-colors hover:opacity-80"
-                  style={{ borderColor: "rgba(200,127,78,.3)", background: "rgba(16,13,11,.3)" }}
+                  style={{ borderColor: "rgba(192,138,114,.3)", background: "rgba(16,13,11,.3)" }}
                 >
                   <span
                     className="flex h-[26px] w-[26px] items-center justify-center rounded-full border text-[14px]"
-                    style={{ borderColor: "rgba(200,127,78,.35)", color: C.copperLight }}
+                    style={{ borderColor: "rgba(192,138,114,.35)", color: C.copperLight }}
                   >
                     ＋
                   </span>
@@ -746,7 +746,7 @@ function AppDepartmentView() {
               <Link
                 href={ROUTES.activity}
                 className="rounded-lg border py-[7px] text-center text-[10.5px]"
-                style={{ borderColor: "rgba(200,127,78,.22)", color: C.warm }}
+                style={{ borderColor: "rgba(192,138,114,.22)", color: C.warm }}
               >
                 Voir toute l&apos;activité
               </Link>
@@ -829,7 +829,7 @@ function AppDepartmentView() {
                       className="flex w-full items-center gap-2 rounded-lg px-1.5 py-1.5 text-left transition-colors"
                       style={
                         active
-                          ? { background: "rgba(200,127,78,.12)" }
+                          ? { background: "rgba(192,138,114,.12)" }
                           : undefined
                       }
                     >
@@ -861,7 +861,7 @@ function AppDepartmentView() {
               <Link
                 href={ROUTES.agents}
                 className="rounded-lg border py-[6px] text-center text-[10px]"
-                style={{ borderColor: "rgba(200,127,78,.22)", color: C.warm }}
+                style={{ borderColor: "rgba(192,138,114,.22)", color: C.warm }}
               >
                 Voir toute l&apos;équipe
               </Link>
@@ -873,8 +873,8 @@ function AppDepartmentView() {
               style={{
                 borderColor: C.lineStrong,
                 background:
-                  "radial-gradient(120% 120% at 0% 0%, rgba(200,127,78,.08), rgba(16,13,11,.6) 55%)",
-                boxShadow: "0 0 24px rgba(200,127,78,.07)",
+                  "radial-gradient(120% 120% at 0% 0%, rgba(192,138,114,.08), rgba(16,13,11,.6) 55%)",
+                boxShadow: "0 0 24px rgba(192,138,114,.07)",
               }}
             >
               <div className="flex items-start justify-between gap-3">
@@ -946,9 +946,9 @@ function AppDepartmentView() {
             <span
               className="absolute inset-0 rounded-[34px] border"
               style={{
-                borderColor: "rgba(200,127,78,.28)",
+                borderColor: "rgba(192,138,114,.28)",
                 background:
-                  "radial-gradient(60% 220% at 50% 50%, rgba(200,127,78,.14), rgba(14,11,9,.7) 70%)",
+                  "radial-gradient(60% 220% at 50% 50%, rgba(192,138,114,.14), rgba(14,11,9,.7) 70%)",
               }}
             />
             <div className="relative flex flex-1 items-center justify-between px-7">
@@ -960,7 +960,7 @@ function AppDepartmentView() {
                   <span key={qa.label} className="flex items-center gap-[7px]">
                     <span
                       className="flex h-[22px] w-[22px] items-center justify-center rounded-md border text-[10px]"
-                      style={{ borderColor: "rgba(200,127,78,.28)", color: C.copperLight }}
+                      style={{ borderColor: "rgba(192,138,114,.28)", color: C.copperLight }}
                     >
                       {qa.icon}
                     </span>
@@ -973,12 +973,12 @@ function AppDepartmentView() {
               className="absolute left-1/2 top-1/2 flex h-[88px] w-[88px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full"
               style={{
                 background:
-                  "radial-gradient(circle, rgba(200,127,78,.30) 0%, rgba(200,127,78,.10) 45%, transparent 70%)",
+                  "radial-gradient(circle, rgba(192,138,114,.30) 0%, rgba(192,138,114,.10) 45%, transparent 70%)",
               }}
             >
               <span
                 className="absolute h-[76px] w-[76px] rounded-full border"
-                style={{ borderColor: "rgba(200,127,78,.35)" }}
+                style={{ borderColor: "rgba(192,138,114,.35)" }}
               />
               <AlnuaStar size={60} glow sparkMid="#E8A87C" sparkOuter="#C87F4E" glowColorRgb="200,127,78" />
             </span>

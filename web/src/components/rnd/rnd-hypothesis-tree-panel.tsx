@@ -309,7 +309,7 @@ export function RndHypothesisTreePanel({
             ))}
           </div>
           {benchmark ? (
-            <div className="rounded-lg border border-white/10 bg-obsidian-deep/70 p-3 text-xs text-titanium/75">
+            <div className="rounded-lg border border-copper/15 bg-obsidian-deep/70 p-3 text-xs text-titanium/75">
               <p className="font-medium text-ivory/85">
                 OpenRouter ~{benchmark.openrouter.avg_elapsed_ms ?? "?"} ms ·{" "}
                 ~{benchmark.openrouter.avg_tokens_per_second ?? "?"} tok/s
@@ -328,7 +328,7 @@ export function RndHypothesisTreePanel({
       ) : null}
 
       <div className="grid min-h-0 flex-1 gap-3 lg:grid-cols-[180px_1fr_260px]">
-        <div className="flex min-h-0 flex-col gap-1 overflow-y-auto rounded-xl border border-white/10 bg-obsidian-deep/50 p-2">
+        <div className="flex min-h-0 flex-col gap-1 overflow-y-auto rounded-xl border border-copper/15 bg-obsidian-deep/50 p-2">
           <p className="px-1 text-[10px] font-medium uppercase text-titanium/45">Historique</p>
           {trees.length === 0 ? (
             <p className="px-1 py-4 text-xs text-titanium/50">Aucun arbre.</p>
@@ -345,7 +345,7 @@ export function RndHypothesisTreePanel({
                 className={`rounded-lg px-2 py-2 text-left text-xs transition ${
                   selectedSlug === t.slug
                     ? "bg-copper/15 text-ivory"
-                    : "text-titanium/70 hover:bg-white/[0.04]"
+                    : "text-titanium/70 hover:bg-obsidian-deep/50"
                 }`}
               >
                 <p className="line-clamp-2 font-medium">{t.topic}</p>
@@ -379,7 +379,7 @@ export function RndHypothesisTreePanel({
           )}
         </div>
 
-        <div className="flex min-h-0 flex-col gap-2 overflow-y-auto rounded-xl border border-white/10 bg-obsidian-deep/50 p-3">
+        <div className="flex min-h-0 flex-col gap-2 overflow-y-auto rounded-xl border border-copper/15 bg-obsidian-deep/50 p-3">
           <p className="text-[10px] font-medium uppercase text-titanium/45">Branche sélectionnée</p>
           {!selectedNode ? (
             <p className="text-xs text-titanium/50">Clique un nœud du graphe.</p>
@@ -466,20 +466,20 @@ export function RndHypothesisTreePanel({
                 </Link>
               ) : null}
 
-              <div className="space-y-1.5 border-t border-white/10 pt-2">
+              <div className="space-y-1.5 border-t border-copper/15 pt-2">
                 <p className="text-[10px] text-titanium/45">Branche manuelle</p>
                 <Input
                   value={manualTitle}
                   onChange={(e) => setManualTitle(e.target.value)}
                   placeholder="Titre"
-                  className="h-8 border-white/10 bg-obsidian-deep/70 text-xs"
+                  className="h-8 border-copper/15 bg-obsidian-deep/70 text-xs"
                 />
                 <Textarea
                   value={manualHypothesis}
                   onChange={(e) => setManualHypothesis(e.target.value)}
                   placeholder="Hypothèse à tester"
                   rows={2}
-                  className="resize-none border-white/10 bg-obsidian-deep/70 text-xs"
+                  className="resize-none border-copper/15 bg-obsidian-deep/70 text-xs"
                 />
                 <Button
                   size="sm"

@@ -58,7 +58,7 @@ export function ReleaseDetailPanel({
 
   if (loading) {
     return (
-      <div className="flex flex-1 items-center justify-center rounded-xl border border-white/10 bg-white/[0.02] py-24">
+      <div className="flex flex-1 items-center justify-center rounded-xl border border-copper/15 bg-obsidian-deep/40 py-24">
         <Loader2 className="h-6 w-6 animate-spin text-copper" />
       </div>
     );
@@ -139,8 +139,8 @@ export function ReleaseDetailPanel({
   }
 
   return (
-    <div className="flex flex-1 flex-col rounded-xl border border-white/10 bg-white/[0.02]">
-      <div className="border-b border-white/10 px-6 py-4">
+    <div className="flex flex-1 flex-col rounded-xl border border-copper/15 bg-obsidian-deep/40">
+      <div className="border-b border-copper/15 px-6 py-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
@@ -154,7 +154,7 @@ export function ReleaseDetailPanel({
                   "text-[10px] uppercase",
                   release.status === "published"
                     ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
-                    : "border-white/15 text-titanium"
+                    : "border-copper/20 text-titanium"
                 )}
               >
                 {release.status === "published" ? "publiée" : "brouillon"}
@@ -191,13 +191,13 @@ export function ReleaseDetailPanel({
         />
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 px-6 py-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-copper/15 px-6 py-4">
         <Badge
           variant="outline"
           className={cn(
             release.status === "published"
               ? "border-emerald-500/40 text-emerald-300"
-              : "border-white/15 text-titanium"
+              : "border-copper/20 text-titanium"
           )}
         >
           Statut : {release.status === "published" ? "Publiée" : "Brouillon"}
@@ -208,7 +208,7 @@ export function ReleaseDetailPanel({
             variant="outline"
             onClick={handleSave}
             disabled={saving || !dirty}
-            className="border-white/15"
+            className="border-copper/20"
           >
             {saving ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

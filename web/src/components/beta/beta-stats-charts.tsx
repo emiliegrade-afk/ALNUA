@@ -48,7 +48,7 @@ export function BetaStatsCharts({ stats }: BetaStatsChartsProps) {
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
-      <Card className="border-white/10 bg-surface/80">
+      <Card className="border-copper/15 bg-surface/80">
         <CardHeader>
           <CardTitle className="text-sm font-medium text-ivory">
             Feedbacks par type
@@ -77,7 +77,7 @@ export function BetaStatsCharts({ stats }: BetaStatsChartsProps) {
         </CardContent>
       </Card>
 
-      <Card className="border-white/10 bg-surface/80">
+      <Card className="border-copper/15 bg-surface/80">
         <CardHeader>
           <CardTitle className="text-sm font-medium text-ivory">
             Feedbacks par sévérité
@@ -106,7 +106,7 @@ export function BetaStatsCharts({ stats }: BetaStatsChartsProps) {
         </CardContent>
       </Card>
 
-      <Card className="border-white/10 bg-surface/80 lg:col-span-2">
+      <Card className="border-copper/15 bg-surface/80 lg:col-span-2">
         <CardHeader>
           <CardTitle className="text-sm font-medium text-ivory">
             Timeline — 7 derniers jours

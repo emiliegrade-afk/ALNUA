@@ -90,7 +90,7 @@ export function RoadmapTimeline({
   }
 
   return (
-    <div className="rounded-2xl border border-copper/10 bg-obsidian/40 ring-1 ring-white/[0.04]">
+    <div className="rounded-2xl border border-copper/10 bg-obsidian/40 ring-1 ring-copper/10">
       <div
         ref={scrollRef}
         className="overflow-x-auto"
@@ -98,16 +98,16 @@ export function RoadmapTimeline({
       >
         <div style={{ minWidth: LABEL_WIDTH + timelineWidth + 32 }}>
           {/* Month headers */}
-          <div className="flex border-b border-white/[0.06]">
+          <div className="flex border-b border-copper/10">
             <div
-              className="shrink-0 border-r border-white/[0.06] bg-obsidian/60"
+              className="shrink-0 border-r border-copper/10 bg-obsidian/60"
               style={{ width: LABEL_WIDTH }}
             />
             <div className="relative" style={{ width: timelineWidth, height: 36 }}>
               {months.map((m) => (
                 <div
                   key={m.label}
-                  className="absolute top-0 flex h-full items-center border-r border-white/[0.06] px-2 text-xs capitalize text-titanium"
+                  className="absolute top-0 flex h-full items-center border-r border-copper/10 px-2 text-xs capitalize text-titanium"
                   style={{ left: m.offset * DAY_WIDTH, width: m.width * DAY_WIDTH }}
                 >
                   {m.label}
@@ -128,11 +128,11 @@ export function RoadmapTimeline({
               return (
                 <div
                   key={project.id}
-                  className="flex border-b border-white/[0.04]"
+                  className="flex border-b border-copper/10"
                   style={{ height: ROW_HEIGHT }}
                 >
                   <div
-                    className="flex shrink-0 items-center gap-2 border-r border-white/[0.06] bg-obsidian/60 px-3"
+                    className="flex shrink-0 items-center gap-2 border-r border-copper/10 bg-obsidian/60 px-3"
                     style={{ width: LABEL_WIDTH }}
                   >
                     <span className={cn("h-2 w-2 rounded-full", accent.dot)} />

@@ -36,7 +36,7 @@ import { RndSubmitDossierModal } from "@/components/rnd/rnd-submit-dossier-modal
 // ---------------------------------------------------------------------------
 
 function VerdictBadge({ verdict }: { verdict?: string | null }) {
-  if (!verdict) return <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] text-titanium/50">En attente</span>;
+  if (!verdict) return <span className="rounded-full bg-obsidian/50 px-2 py-0.5 text-[10px] text-titanium/50">En attente</span>;
   const map: Record<string, { label: string; icon: React.ReactNode; cls: string }> = {
     GO: { label: "GO", icon: <CheckCircle2 className="h-3 w-3" />, cls: "bg-emerald-500/15 text-emerald-400 border-emerald-500/20" },
     MAYBE: { label: "MAYBE", icon: <HelpCircle className="h-3 w-3" />, cls: "bg-amber-500/15 text-amber-400 border-amber-500/20" },
@@ -73,7 +73,7 @@ function IdeaCard({
       : reasoning;
 
   return (
-    <div className="group relative w-full rounded-xl border border-copper/10 bg-white/[0.02] p-4 transition hover:border-copper/25 hover:bg-white/[0.04]">
+    <div className="group relative w-full rounded-xl border border-copper/10 bg-obsidian-deep/40 p-4 transition hover:border-copper/25 hover:bg-obsidian-deep/50">
       <button
         type="button"
         className="w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-copper/40 rounded-lg"
@@ -84,7 +84,7 @@ function IdeaCard({
           <div className="mb-1.5 flex flex-wrap items-center gap-2">
             <VerdictBadge verdict={idea.verdict} />
             {idea.domain && (
-              <span className="rounded-full border border-white/10 px-2 py-0.5 text-[10px] text-titanium/60">
+              <span className="rounded-full border border-copper/15 px-2 py-0.5 text-[10px] text-titanium/60">
                 {idea.domain}
               </span>
             )}
@@ -270,7 +270,7 @@ export function RndCenterView({ onDossierCreated }: RndCenterViewProps) {
           { label: "GO", value: counts.GO, icon: <Rocket className="h-4 w-4 text-emerald-400" />, cls: "border-emerald-500/20 bg-emerald-500/5" },
           { label: "Maybe", value: counts.MAYBE, icon: <HelpCircle className="h-4 w-4 text-amber-400" />, cls: "border-amber-500/20 bg-amber-500/5" },
           { label: "No", value: counts.NO, icon: <XCircle className="h-4 w-4 text-red-400" />, cls: "border-red-500/20 bg-red-500/5" },
-          { label: "En attente", value: counts.pending, icon: <Beaker className="h-4 w-4 text-titanium/50" />, cls: "border-white/10 bg-white/[0.02]" },
+          { label: "En attente", value: counts.pending, icon: <Beaker className="h-4 w-4 text-titanium/50" />, cls: "border-copper/15 bg-obsidian-deep/40" },
         ].map(({ label, value, icon, cls }) => (
           <div key={label} className={`rounded-xl border p-3 ${cls}`}>
             <div className="flex items-center gap-2">
@@ -295,7 +295,7 @@ export function RndCenterView({ onDossierCreated }: RndCenterViewProps) {
             onClick={toggleVision}
             aria-label="Replier le fil conducteur"
             title="Replier"
-            className="shrink-0 rounded p-1 text-titanium/50 transition hover:bg-white/5 hover:text-ivory/80"
+            className="shrink-0 rounded p-1 text-titanium/50 transition hover:bg-obsidian/50 hover:text-ivory/80"
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -313,7 +313,7 @@ export function RndCenterView({ onDossierCreated }: RndCenterViewProps) {
 
       {/* Controls */}
       <div className="flex shrink-0 flex-wrap items-center gap-2">
-        <div className="flex rounded-lg border border-white/10 p-0.5">
+        <div className="flex rounded-lg border border-copper/15 p-0.5">
           {(["ALL", "GO", "MAYBE", "NO"] as FilterVerdict[]).map((v) => (
             <button
               key={v}
@@ -333,7 +333,7 @@ export function RndCenterView({ onDossierCreated }: RndCenterViewProps) {
             size="sm"
             variant="outline"
             onClick={load}
-            className="border-white/10 text-titanium/70 hover:text-ivory/80"
+            className="border-copper/15 text-titanium/70 hover:text-ivory/80"
           >
             <RefreshCw className="h-3.5 w-3.5" />
           </Button>
@@ -361,7 +361,7 @@ export function RndCenterView({ onDossierCreated }: RndCenterViewProps) {
             onChange={(e) => setInjectText(e.target.value)}
             placeholder="Idée rapide (1 ligne) — ou ouvre le formulaire dossier complet ↓"
             rows={2}
-            className="min-h-[52px] resize-none border-copper/15 bg-white/[0.02] text-ivory/90 placeholder:text-titanium/50"
+            className="min-h-[52px] resize-none border-copper/15 bg-obsidian-deep/40 text-ivory/90 placeholder:text-titanium/50"
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();

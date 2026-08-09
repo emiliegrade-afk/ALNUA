@@ -24,6 +24,11 @@ export type PostStatus =
 
 export type StatusTab = "pending_approval" | "approved" | "published" | "all";
 
+// Statuts atteignables par une création manuelle (Content Studio, Phase 33) —
+// "published" ne l'est pas : createPost() ne l'accepte pas comme statut
+// initial, seul le vrai publisher bot y amène un post.
+export type CreatablePostStatus = "draft" | "pending_approval" | "approved";
+
 export const CONTENT_TYPES: { id: PostContentType; label: string }[] = [
   { id: "announcement", label: "Annonce feature" },
   { id: "teaser", label: "Teaser mystère" },
@@ -107,6 +112,28 @@ export const CONTENT_TYPE_LABELS: Record<string, string> = {
   behind_scenes: "Behind the scenes",
   short_video: "Hype",
   lore: "Lore",
+};
+
+/* Content Studio (Phase 33, ROADMAP.md) — colonnes Kanban draggables. Seuls
+   draft/pending_approval/approved/published sont de vrais statuts atteints
+   par une action humaine ; rejected/failed sont produits par le pipeline
+   automatique (publisher bot) et restent en lecture seule ailleurs (voir
+   content-kanban.tsx) pour ne pas casser published_at si un post est glissé
+   directement vers "Publié" sans passer par le vrai publisher. */
+export const CONTENT_STUDIO_COLUMNS: { id: PostStatus; label: string; emoji: string }[] = [
+  { id: "draft", label: "Brouillon", emoji: "📝" },
+  { id: "pending_approval", label: "À approuver", emoji: "⏳" },
+  { id: "approved", label: "Approuvé", emoji: "✅" },
+  { id: "published", label: "Publié", emoji: "🚀" },
+];
+
+export const POST_STATUS_LABELS: Record<PostStatus, string> = {
+  draft: "Brouillon",
+  pending_approval: "À approuver",
+  approved: "Approuvé",
+  published: "Publié",
+  rejected: "Rejeté",
+  failed: "Échoué",
 };
 
 export const GLOBAL_PROJECT_ID = "__alnua_global__";

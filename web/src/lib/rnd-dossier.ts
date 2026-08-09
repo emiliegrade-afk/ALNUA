@@ -839,6 +839,54 @@ export async function fetchDossierPipeline(
   return hubFetch(`/rnd/dossiers/${dossierId}/pipeline`);
 }
 
+/* Vue table Dossiers (Phase 27, ROADMAP.md) — read model pré-joint côté
+   backend (services/rnd_dossier_table.py) : score/verdict de l'idée liée,
+   verdict Conseil (Phase 25, si une session d'évaluation existe pour cette
+   idée), nombre de documents, extrait de la section marché. Un seul appel
+   plutôt qu'un N+1 par dossier depuis le frontend. */
+export interface RndDossierCouncilVote {
+  verdict: "GO" | "MAYBE" | "NO";
+  consensus_pct: number;
+  votes_count: number;
+}
+
+export interface RndDossierTableRow {
+  id: string;
+  slug: string;
+  title: string;
+  tagline?: string | null;
+  domain: string;
+  branch?: string | null;
+  status: DossierStatus;
+  ceo_status: string;
+  ceo_note?: string | null;
+  updated_at?: string | null;
+  idea_legacy_id: string | null;
+  score: number | null;
+  verdict: "GO" | "MAYBE" | "NO" | null;
+  market_score?: number | null;
+  feasibility_score?: number | null;
+  vision_score?: number | null;
+  incubator_stage?: string;
+  agents_count: number;
+  votes: RndDossierCouncilVote | null;
+  documents_count: number;
+  market_excerpt: string | null;
+  prototype_label: string | null;
+}
+
+export async function fetchRndDossierTableView(params?: {
+  status?: string;
+  domain?: string;
+  limit?: number;
+}): Promise<RndDossierTableRow[]> {
+  const qs = new URLSearchParams();
+  if (params?.status) qs.set("status", params.status);
+  if (params?.domain) qs.set("domain", params.domain);
+  qs.set("limit", String(params?.limit ?? 100));
+  return hubFetch<RndDossierTableRow[]>(`/rnd/dossiers/table-view?${qs.toString()}`);
+}
+
 export async function fetchRndModuleHealth(): Promise<{
   status: string;
   module: string;

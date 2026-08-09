@@ -31,7 +31,7 @@ export function AnalyticsFilters({
   projects,
 }: AnalyticsFiltersProps) {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-copper/10 bg-obsidian/50 p-4 ring-1 ring-white/[0.04] sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-3 rounded-2xl border border-copper/10 bg-obsidian/50 p-4 ring-1 ring-copper/10 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex flex-wrap gap-1.5">
         {PERIOD_OPTIONS.map(({ id, label }) => (
           <button
@@ -42,7 +42,7 @@ export function AnalyticsFilters({
               "rounded-lg border px-3 py-1.5 text-xs transition",
               period === id
                 ? "border-copper/45 bg-copper/10 text-copper-glow"
-                : "border-transparent text-titanium hover:border-copper/20 hover:bg-white/[0.03]"
+                : "border-transparent text-titanium hover:border-copper/20 hover:bg-obsidian-deep/50"
             )}
           >
             {label}

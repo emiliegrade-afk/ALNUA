@@ -56,7 +56,7 @@ export function TicketRow({
         "group relative flex w-full items-stretch gap-0 overflow-hidden rounded-xl border text-left transition",
         active
           ? "border-copper/35 bg-copper/10 ring-1 ring-copper/20"
-          : "border-white/[0.06] bg-surface/60 hover:border-copper/15 hover:bg-white/[0.02]"
+          : "border-copper/10 bg-surface/60 hover:border-copper/15 hover:bg-obsidian-deep/40"
       )}
     >
       <div className={cn("w-1 shrink-0", priorityStyle.bar)} />

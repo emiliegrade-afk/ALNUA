@@ -43,7 +43,7 @@ function Chip({
         "rounded-lg border px-2.5 py-1.5 text-left text-[11px] transition",
         active
           ? "border-copper/40 bg-copper/15 text-copper-glow"
-          : "border-white/[0.08] bg-white/[0.02] text-titanium hover:border-copper/20"
+          : "border-copper/15 bg-obsidian-deep/40 text-titanium hover:border-copper/20"
       )}
     >
       {label}
@@ -192,7 +192,7 @@ export function PostComposer({ projects, onProjectsUpdated, onCreated }: PostCom
               value={channel}
               onChange={(e) => setChannel(e.target.value)}
               placeholder="dev-log"
-              className="border-copper/15 bg-white/[0.02]"
+              className="border-copper/15 bg-obsidian-deep/40"
             />
           </div>
         )}
@@ -205,7 +205,7 @@ export function PostComposer({ projects, onProjectsUpdated, onCreated }: PostCom
               value={hook}
               onChange={(e) => setHook(e.target.value)}
               placeholder="1ère ligne qui accroche"
-              className="border-copper/15 bg-white/[0.02]"
+              className="border-copper/15 bg-obsidian-deep/40"
             />
           </div>
           <div className="space-y-2">
@@ -215,7 +215,7 @@ export function PostComposer({ projects, onProjectsUpdated, onCreated }: PostCom
               value={cta}
               onChange={(e) => setCta(e.target.value)}
               placeholder="Découvrir, wishlist, DM ouverts…"
-              className="border-copper/15 bg-white/[0.02]"
+              className="border-copper/15 bg-obsidian-deep/40"
             />
           </div>
         </div>
@@ -228,7 +228,7 @@ export function PostComposer({ projects, onProjectsUpdated, onCreated }: PostCom
             onChange={(e) => setText(e.target.value)}
             rows={6}
             placeholder="Le texte du post…"
-            className="border-copper/15 bg-white/[0.02] text-ivory/90 placeholder:text-titanium/60"
+            className="border-copper/15 bg-obsidian-deep/40 text-ivory/90 placeholder:text-titanium/60"
           />
         </div>
 
@@ -240,7 +240,7 @@ export function PostComposer({ projects, onProjectsUpdated, onCreated }: PostCom
               value={hashtags}
               onChange={(e) => setHashtags(e.target.value)}
               placeholder="#ALNUA #buildinpublic"
-              className="border-copper/15 bg-white/[0.02]"
+              className="border-copper/15 bg-obsidian-deep/40"
             />
           </div>
           <div className="space-y-2">
@@ -250,7 +250,7 @@ export function PostComposer({ projects, onProjectsUpdated, onCreated }: PostCom
               type="datetime-local"
               value={scheduledAt}
               onChange={(e) => setScheduledAt(e.target.value)}
-              className="border-copper/15 bg-white/[0.02]"
+              className="border-copper/15 bg-obsidian-deep/40"
             />
           </div>
         </div>

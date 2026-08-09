@@ -109,7 +109,7 @@ export function ProjectSelector({
       <Select value={selectValue} onValueChange={handleSelectChange}>
         <SelectTrigger
           className={cn(
-            "border-copper/25 bg-white/[0.03] text-ivory/90 focus-visible:border-copper focus-visible:ring-copper/40",
+            "border-copper/25 bg-obsidian-deep/50 text-ivory/90 focus-visible:border-copper focus-visible:ring-copper/40",
             mode === "brainstorm" ? "w-[220px]" : "w-full",
             triggerClassName,
             className

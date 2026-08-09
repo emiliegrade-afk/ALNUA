@@ -38,6 +38,7 @@ from agents.accountant_agent import AccountantAgent
 from agents.ai_programmer_agent import AiProgrammerAgent
 from agents.analyst_business_agent import BusinessAnalystAgent
 from agents.analyst_data_agent import DataAnalystAgent
+from agents.ads_agent import AdsAgent
 from agents.brainstorm_agent import BrainstormAgent, BRAINSTORM_NOTES_ROOT, WELCOME_MESSAGE
 from agents.content_agent import ContentAgent
 from agents.controller_agent import ControllerAgent

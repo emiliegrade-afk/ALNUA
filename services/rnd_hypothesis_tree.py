@@ -789,6 +789,62 @@ def set_node_status(slug: str, node_id: str, status: str) -> dict[str, Any]:
     return {"success": True, "node_id": node_id, "status": status}
 
 
+def _recompute_depths(tree: dict[str, Any], node_id: str, base_depth: int) -> None:
+    """Recalcule depth pour un nœud + tout son sous-arbre après un reparent."""
+    node = tree["nodes"].get(node_id)
+    if not node:
+        return
+    node["depth"] = base_depth
+    for child_id in node.get("children") or []:
+        _recompute_depths(tree, child_id, base_depth + 1)
+
+
+def reparent_node(slug: str, node_id: str, new_parent_id: str) -> dict[str, Any]:
+    """Glisser un nœud sur un autre = "relier" (Phase 26, ROADMAP.md) — le
+    détache de son parent actuel et le rattache au nœud cible. Refuse les
+    cycles (impossible de rattacher un nœud à l'un de ses propres
+    descendants) plutôt que de corrompre l'arbre silencieusement."""
+    tree = _load_tree(slug)
+    if not tree:
+        raise ValueError("Arbre introuvable")
+    node = _node(tree, node_id)
+    new_parent = _node(tree, new_parent_id)
+
+    if node_id == new_parent_id:
+        raise ValueError("Un nœud ne peut pas être son propre parent")
+    if node_id == tree.get("root_id"):
+        raise ValueError("La racine de l'arbre ne peut pas être déplacée")
+
+    # new_parent_id ne doit pas être un descendant de node_id (cycle).
+    descendants: set[str] = set()
+    queue = list(node.get("children") or [])
+    while queue:
+        cid = queue.pop()
+        if cid in descendants:
+            continue
+        descendants.add(cid)
+        child = tree["nodes"].get(cid)
+        if child:
+            queue.extend(child.get("children") or [])
+    if new_parent_id in descendants:
+        raise ValueError("Impossible de relier un nœud à l'un de ses propres descendants")
+
+    old_parent_id = node.get("parent_id")
+    if old_parent_id and old_parent_id in tree["nodes"]:
+        old_parent = tree["nodes"][old_parent_id]
+        old_parent["children"] = [c for c in old_parent.get("children", []) if c != node_id]
+        old_parent["updated_at"] = _utc_now()
+
+    node["parent_id"] = new_parent_id
+    new_parent.setdefault("children", []).append(node_id)
+    new_parent["updated_at"] = _utc_now()
+    _recompute_depths(tree, node_id, int(new_parent.get("depth", 0)) + 1)
+    node["updated_at"] = _utc_now()
+    tree["updated_at"] = _utc_now()
+    _save_tree(tree)
+    return {"success": True, "node_id": node_id, "new_parent_id": new_parent_id}
+
+
 def promote_node_to_dossier(slug: str, node_id: str, *, enrich: bool = True) -> dict[str, Any]:
     """Create idea (if needed) + promote to R&D dossier in one step."""
     tree = _load_tree(slug)

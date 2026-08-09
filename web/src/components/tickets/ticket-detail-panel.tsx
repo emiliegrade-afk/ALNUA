@@ -203,7 +203,7 @@ export function TicketDetailPanel({
 
       <aside className="fixed inset-y-0 right-0 z-50 flex w-full max-w-[480px] flex-col border-l border-copper/15 bg-surface-raised shadow-2xl">
         {/* En-tête */}
-        <div className="shrink-0 border-b border-white/[0.06] p-4">
+        <div className="shrink-0 border-b border-copper/10 p-4">
           <div className="mb-3 flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">
               {editingTitle ? (
@@ -250,7 +250,7 @@ export function TicketDetailPanel({
               type="button"
               onClick={onClose}
               title="Fermer le panneau (le ticket reste ouvert)"
-              className="rounded p-1.5 text-titanium hover:bg-white/[0.05] hover:text-ivory"
+              className="rounded p-1.5 text-titanium hover:bg-obsidian-deep/50 hover:text-ivory"
             >
               <X className="h-5 w-5" />
             </button>
@@ -325,7 +325,7 @@ export function TicketDetailPanel({
               </Badge>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 rounded-lg border border-white/[0.06] bg-obsidian/40 p-3 text-xs">
+            <div className="grid grid-cols-2 gap-3 rounded-lg border border-copper/10 bg-obsidian/40 p-3 text-xs">
               <div>
                 <p className="text-[10px] uppercase tracking-wider text-titanium/50">
                   Priorité
@@ -444,7 +444,7 @@ export function TicketDetailPanel({
                   tabIndex={0}
                   onClick={() => setEditingDescription(true)}
                   onKeyDown={(e) => e.key === "Enter" && setEditingDescription(true)}
-                  className="cursor-pointer rounded-lg border border-white/[0.06] bg-obsidian/60 p-3 transition hover:border-copper/20"
+                  className="cursor-pointer rounded-lg border border-copper/10 bg-obsidian/60 p-3 transition hover:border-copper/20"
                 >
                   {ticket.description ? (
                     <MarkdownContent className="prose prose-invert prose-sm max-w-none prose-p:text-titanium prose-li:text-titanium pointer-events-none">
@@ -460,14 +460,14 @@ export function TicketDetailPanel({
             </div>
 
             {/* Prompt Cursor — section secondaire */}
-            <details className="rounded-lg border border-white/[0.06] bg-obsidian/30">
+            <details className="rounded-lg border border-copper/10 bg-obsidian/30">
               <summary className="cursor-pointer px-3 py-2.5 text-sm text-titanium hover:text-ivory">
                 <span className="inline-flex items-center gap-1.5">
                   <Zap className="h-3.5 w-3.5 text-emerald-400" />
                   Prompt Cursor (optionnel — pour implémenter dans l&apos;IDE)
                 </span>
               </summary>
-              <div className="space-y-2 border-t border-white/[0.06] p-3">
+              <div className="space-y-2 border-t border-copper/10 p-3">
                 {generating ? (
                   <div className="flex items-center gap-2 text-sm text-titanium">
                     <Loader2 className="h-4 w-4 animate-spin text-copper" />
@@ -475,7 +475,7 @@ export function TicketDetailPanel({
                   </div>
                 ) : ticket.cursor_prompt ? (
                   <>
-                    <pre className="max-h-48 overflow-auto rounded border border-white/[0.08] bg-obsidian p-3 text-[11px] text-ivory/85 whitespace-pre-wrap">
+                    <pre className="max-h-48 overflow-auto rounded border border-copper/15 bg-obsidian p-3 text-[11px] text-ivory/85 whitespace-pre-wrap">
                       {ticket.cursor_prompt}
                     </pre>
                     <div className="flex gap-2">

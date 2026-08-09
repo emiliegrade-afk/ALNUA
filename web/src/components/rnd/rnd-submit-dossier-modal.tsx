@@ -208,7 +208,7 @@ export function RndSubmitDossierModal({
                       "rounded-full border px-3 py-1 text-xs font-medium transition",
                       domain === d.id
                         ? "border-copper bg-copper/20 text-copper-glow"
-                        : "border-white/10 text-titanium hover:border-copper/30"
+                        : "border-copper/15 text-titanium hover:border-copper/30"
                     )}
                   >
                     {d.label}
@@ -235,7 +235,7 @@ export function RndSubmitDossierModal({
                   onChange={(e) => setSection(field.key, e.target.value)}
                   placeholder={field.hint}
                   rows={field.rows}
-                  className="resize-none border-copper/15 bg-white/[0.02] text-sm text-ivory/90"
+                  className="resize-none border-copper/15 bg-obsidian-deep/40 text-sm text-ivory/90"
                 />
               </div>
             ))}
@@ -250,12 +250,12 @@ export function RndSubmitDossierModal({
                 onChange={(e) => setWhyNow(e.target.value)}
                 placeholder="Timing, tendance, fenêtre d'opportunité…"
                 rows={2}
-                className="resize-none border-copper/15 bg-white/[0.02] text-sm text-ivory/90"
+                className="resize-none border-copper/15 bg-obsidian-deep/40 text-sm text-ivory/90"
               />
             </div>
           </div>
 
-          <label className="flex cursor-pointer items-start gap-2 rounded-lg border border-white/8 bg-white/[0.02] p-3">
+          <label className="flex cursor-pointer items-start gap-2 rounded-lg border border-copper/10 bg-obsidian-deep/40 p-3">
             <input
               type="checkbox"
               checked={enrichWithAgents}
@@ -274,7 +274,7 @@ export function RndSubmitDossierModal({
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
-            className="border-white/10"
+            className="border-copper/15"
           >
             Annuler
           </Button>

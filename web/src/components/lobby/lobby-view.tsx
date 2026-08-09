@@ -250,7 +250,7 @@ export function LobbyView() {
         <div className="flex h-9 items-center px-2 sm:px-3">
           <Link
             href="/"
-            className="flex h-8 items-center gap-2 rounded px-2 transition hover:bg-white/5"
+            className="flex h-8 items-center gap-2 rounded px-2 transition hover:bg-obsidian/50"
             title="ALNUA Hub"
           >
             <AlnuaLogo variant="icon" height={22} />
@@ -259,13 +259,13 @@ export function LobbyView() {
           <div className="flex flex-1 items-center justify-end gap-1 sm:gap-2">
             <Link
               href={ROUTES.ide}
-              className="hidden rounded px-2 py-1 font-body text-[11px] text-copper hover:bg-white/5 sm:inline"
+              className="hidden rounded px-2 py-1 font-body text-[11px] text-copper hover:bg-obsidian/50 sm:inline"
             >
               IDE
             </Link>
             <Link
               href={ROUTES.apps}
-              className="hidden rounded px-2 py-1 font-body text-[11px] text-copper hover:bg-white/5 sm:inline"
+              className="hidden rounded px-2 py-1 font-body text-[11px] text-copper hover:bg-obsidian/50 sm:inline"
             >
               Mes apps
             </Link>
@@ -273,7 +273,7 @@ export function LobbyView() {
             {activeAgents > 0 ? (
               <Link
                 href={ROUTES.openroom}
-                className="hidden rounded px-2 py-1 font-body text-[11px] text-emerald-400 hover:bg-white/5 sm:inline"
+                className="hidden rounded px-2 py-1 font-body text-[11px] text-emerald-400 hover:bg-obsidian/50 sm:inline"
               >
                 {activeAgents} actif{activeAgents > 1 ? "s" : ""}
               </Link>
@@ -283,7 +283,7 @@ export function LobbyView() {
               <button
                 type="button"
                 onClick={() => setAdminOpen((v) => !v)}
-                className="flex h-8 w-8 items-center justify-center rounded text-titanium transition hover:bg-white/5 hover:text-ivory"
+                className="flex h-8 w-8 items-center justify-center rounded text-titanium transition hover:bg-obsidian/50 hover:text-ivory"
                 aria-label="Outils admin"
               >
                 <MoreHorizontal className="h-4 w-4" />
@@ -314,7 +314,7 @@ export function LobbyView() {
 
             <Link
               href={ROUTES.settings}
-              className="flex h-8 w-8 items-center justify-center rounded text-titanium transition hover:bg-white/5 hover:text-ivory"
+              className="flex h-8 w-8 items-center justify-center rounded text-titanium transition hover:bg-obsidian/50 hover:text-ivory"
               aria-label="Paramètres"
             >
               <Settings className="h-4 w-4" />
@@ -322,7 +322,7 @@ export function LobbyView() {
 
             <Link
               href={ROUTES.ceo}
-              className="relative flex h-8 w-8 items-center justify-center rounded text-titanium transition hover:bg-white/5 hover:text-ivory"
+              className="relative flex h-8 w-8 items-center justify-center rounded text-titanium transition hover:bg-obsidian/50 hover:text-ivory"
               aria-label="Notifications CEO"
             >
               <Bell className="h-4 w-4" />

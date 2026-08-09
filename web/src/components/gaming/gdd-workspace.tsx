@@ -315,7 +315,7 @@ export function GddWorkspace({ projects }: { projects: Project[] }) {
             {searchHits.map((hit) => (
               <div
                 key={hit.id}
-                className="rounded-lg border border-white/5 bg-obsidian/50 p-3"
+                className="rounded-lg border border-copper/10 bg-obsidian/50 p-3"
               >
                 <p className="text-xs text-copper-light">
                   {hit.section_title} · chunk {hit.chunk_index}
@@ -345,7 +345,7 @@ export function GddWorkspace({ projects }: { projects: Project[] }) {
                   "w-full rounded-lg px-3 py-2 text-left text-xs transition",
                   selectedSection === null
                     ? "bg-copper/15 text-ivory"
-                    : "text-titanium hover:bg-white/5"
+                    : "text-titanium hover:bg-obsidian/50"
                 )}
               >
                 Toutes
@@ -359,7 +359,7 @@ export function GddWorkspace({ projects }: { projects: Project[] }) {
                     "w-full rounded-lg px-3 py-2 text-left text-xs transition",
                     selectedSection === s.section_title
                       ? "bg-copper/15 text-ivory"
-                      : "text-titanium hover:bg-white/5"
+                      : "text-titanium hover:bg-obsidian/50"
                   )}
                 >
                   {s.section_title}
@@ -385,7 +385,7 @@ export function GddWorkspace({ projects }: { projects: Project[] }) {
               chunks.map((c) => (
                 <div
                   key={c.id}
-                  className="rounded-lg border border-white/5 bg-obsidian/40 p-3"
+                  className="rounded-lg border border-copper/10 bg-obsidian/40 p-3"
                 >
                   <p className="text-xs text-copper/80">
                     {c.section_title} #{c.chunk_index} · ~{c.token_estimate} tokens

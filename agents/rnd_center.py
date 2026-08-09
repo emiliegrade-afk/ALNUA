@@ -91,6 +91,8 @@ def _llm(system: str, user: str, model: str | None = None, max_tokens: int = 400
         ],
         "temperature": 0.8,  # Plus élevé pour la créativité R&D
         "max_tokens": max_tokens,
+        "session_id": "alnua:rnd_center",
+        "cache_control": {"type": "ephemeral", "ttl": "1h"},
     }).encode()
     req = urllib.request.Request(
         OPENROUTER_BASE,
@@ -98,9 +100,11 @@ def _llm(system: str, user: str, model: str | None = None, max_tokens: int = 400
         headers={
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
+            "X-Session-Id": "alnua:rnd_center",
+            "X-Title": "ALNUA Hub R&D",
         },
     )
-    with urllib.request.urlopen(req, timeout=120) as r:
+    with urllib.request.urlopen(req, timeout=60) as r:
         data = json.loads(r.read())
     message = data["choices"][0]["message"]
     text = _extract_message_text(message)
@@ -1169,6 +1173,7 @@ def get_top_ideas(
                     "spec_file": i.spec_file,
                     "lifecycle_status": i.lifecycle_status,
                     "dossier_id": i.dossier_id,
+                    "incubator_stage": i.incubator_stage,
                     "created_at": i.created_at,
                     "evaluated_at": i.evaluated_at,
                 }

@@ -80,7 +80,7 @@ export function FinancesTransactionList({
   const categoryOptions = useMemo(
     () =>
       typeFilter === "all"
-        ? [...categoriesForType("expense"), ...categoriesForType("income")]
+        ? Array.from(new Set([...categoriesForType("expense"), ...categoriesForType("income")]))
         : categoriesForType(typeFilter),
     [typeFilter],
   );
@@ -120,7 +120,7 @@ export function FinancesTransactionList({
           value={typeFilter}
           onValueChange={(v) => onTypeFilterChange(v as "all" | TransactionType)}
         >
-          <SelectTrigger className="w-[160px] border-white/10 bg-surface/60">
+          <SelectTrigger className="w-[160px] border-copper/15 bg-surface/60">
             <SelectValue placeholder="Type" />
           </SelectTrigger>
           <SelectContent>
@@ -131,7 +131,7 @@ export function FinancesTransactionList({
         </Select>
 
         <Select value={categoryFilter} onValueChange={onCategoryFilterChange}>
-          <SelectTrigger className="w-[180px] border-white/10 bg-surface/60">
+          <SelectTrigger className="w-[180px] border-copper/15 bg-surface/60">
             <SelectValue placeholder="Catégorie" />
           </SelectTrigger>
           <SelectContent>
@@ -146,20 +146,20 @@ export function FinancesTransactionList({
       </div>
 
       {transactions.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-white/10 px-4 py-8 text-center text-sm text-titanium">
+        <p className="rounded-xl border border-dashed border-copper/15 px-4 py-8 text-center text-sm text-titanium">
           Aucune transaction pour ce mois.
         </p>
       ) : (
-        <ul className="divide-y divide-white/5 rounded-xl border border-white/10 bg-surface/40">
+        <ul className="divide-y divide-white/5 rounded-xl border border-copper/15 bg-surface/40">
           {transactions.map((tx) => {
             const Icon = CATEGORY_ICONS[tx.category] ?? Wallet;
             const isIncome = tx.type === "income";
             return (
               <li
                 key={tx.id}
-                className="flex items-center gap-3 px-4 py-3 transition hover:bg-white/[0.02]"
+                className="flex items-center gap-3 px-4 py-3 transition hover:bg-obsidian-deep/40"
               >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/5">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-obsidian/50">
                   <Icon className="h-4 w-4 text-copper-glow" />
                 </div>
 
@@ -171,7 +171,7 @@ export function FinancesTransactionList({
                         tx.category}
                     </p>
                     {tx.project_name ? (
-                      <Badge variant="outline" className="border-white/10 text-xs">
+                      <Badge variant="outline" className="border-copper/15 text-xs">
                         {tx.project_name}
                       </Badge>
                     ) : null}

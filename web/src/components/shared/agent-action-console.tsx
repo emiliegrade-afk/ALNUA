@@ -105,7 +105,7 @@ export function AgentActionConsole({
                   }
                   placeholder={field.placeholder}
                   rows={field.rows ?? 3}
-                  className="border-copper/15 bg-white/[0.02] text-ivory/90"
+                  className="border-copper/15 bg-obsidian-deep/40 text-ivory/90"
                 />
               ) : field.type === "select" && field.options ? (
                 <Select
@@ -114,7 +114,7 @@ export function AgentActionConsole({
                     setValues((prev) => ({ ...prev, [field.name]: v }))
                   }
                 >
-                  <SelectTrigger className="border-copper/15 bg-white/[0.02]">
+                  <SelectTrigger className="border-copper/15 bg-obsidian-deep/40">
                     <SelectValue placeholder={field.placeholder} />
                   </SelectTrigger>
                   <SelectContent>
@@ -133,7 +133,7 @@ export function AgentActionConsole({
                     setValues((v) => ({ ...v, [field.name]: e.target.value }))
                   }
                   placeholder={field.placeholder}
-                  className="border-copper/15 bg-white/[0.02] text-ivory/90"
+                  className="border-copper/15 bg-obsidian-deep/40 text-ivory/90"
                 />
               )}
             </div>

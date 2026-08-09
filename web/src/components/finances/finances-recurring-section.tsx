@@ -37,7 +37,7 @@ export function FinancesRecurringSection({
   const order: Recurrence[] = ["monthly", "annual", "one_time"];
 
   return (
-    <Card className="border-white/10 bg-surface/80">
+    <Card className="border-copper/15 bg-surface/80">
       <CardHeader className="pb-2">
         <button
           type="button"
@@ -73,7 +73,7 @@ export function FinancesRecurringSection({
                   {group.map((tx) => (
                     <li
                       key={tx.id}
-                      className="flex items-center justify-between rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2"
+                      className="flex items-center justify-between rounded-lg border border-copper/10 bg-obsidian-deep/40 px-3 py-2"
                     >
                       <div>
                         <p className="text-sm text-ivory">

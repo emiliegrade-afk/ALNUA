@@ -39,7 +39,7 @@ function ToggleChip({
         "rounded-lg border px-2.5 py-1.5 text-left text-[11px] transition",
         active
           ? "border-copper/40 bg-copper/15 text-copper-glow"
-          : "border-white/[0.08] bg-white/[0.02] text-titanium hover:border-copper/20"
+          : "border-copper/15 bg-obsidian-deep/40 text-titanium hover:border-copper/20"
       )}
     >
       {label}
@@ -123,7 +123,7 @@ export function DevLogForm({ projects, onGenerated, onProjectsUpdated }: DevLogF
           placeholder="Décris ce que tu as fait aujourd'hui ou cette semaine…"
           rows={5}
           disabled={loading}
-          className="border-copper/15 bg-white/[0.02] text-ivory/90 placeholder:text-titanium/60"
+          className="border-copper/15 bg-obsidian-deep/40 text-ivory/90 placeholder:text-titanium/60"
         />
 
         <div>

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from config.llm_runtime import CREWAI_MAX_ITER_DEFAULT
 from agents.agent_base import AgentBase
 
 from typing import Any
@@ -44,7 +45,7 @@ class QAAgent(AgentBase):
                 tools=QA_TOOLS,
                 llm=self._crew_llm,
                 allow_delegation=False,
-                max_iter=10,
+                max_iter=CREWAI_MAX_ITER_DEFAULT,
             )
         return self._crew_agent
 

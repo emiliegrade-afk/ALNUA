@@ -441,7 +441,7 @@ export function BrandView() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Left column */}
-        <section className="space-y-4 rounded-2xl border border-copper/10 bg-obsidian/50 p-5 ring-1 ring-white/[0.04]">
+        <section className="space-y-4 rounded-2xl border border-copper/10 bg-obsidian/50 p-5 ring-1 ring-copper/10">
           <div>
             <label className="mb-2 block text-xs font-medium uppercase tracking-widest text-titanium">
               Projet
@@ -545,7 +545,7 @@ export function BrandView() {
         </section>
 
         {/* Right column */}
-        <section className="flex min-h-[480px] flex-col rounded-2xl border border-copper/10 bg-obsidian/50 p-5 ring-1 ring-white/[0.04]">
+        <section className="flex min-h-[480px] flex-col rounded-2xl border border-copper/10 bg-obsidian/50 p-5 ring-1 ring-copper/10">
           <h2 className="mb-3 text-xs font-medium uppercase tracking-widest text-titanium">
             Résultats
           </h2>
@@ -553,7 +553,7 @@ export function BrandView() {
         </section>
       </div>
 
-      <section className="rounded-2xl border border-copper/10 bg-obsidian/50 p-5 ring-1 ring-white/[0.04]">
+      <section className="rounded-2xl border border-copper/10 bg-obsidian/50 p-5 ring-1 ring-copper/10">
         <h2 className="mb-4 text-xs font-medium uppercase tracking-widest text-titanium">
           Historique des kits
         </h2>

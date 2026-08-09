@@ -134,7 +134,7 @@ export function CeoCockpitPanel() {
               </div>
             </div>
 
-            <div className="rounded-lg border border-white/10 p-3">
+            <div className="rounded-lg border border-copper/15 p-3">
               <p className="mb-2 text-xs font-medium text-titanium/50">Critères gate agents</p>
               <div className="space-y-1">
                 {(gate.criteria ?? []).map((c) => (
@@ -143,7 +143,7 @@ export function CeoCockpitPanel() {
               </div>
             </div>
 
-            <div className="rounded-lg border border-white/10 p-3">
+            <div className="rounded-lg border border-copper/15 p-3">
               <p className="mb-2 text-xs font-medium text-titanium/50">File CEO R&D</p>
               {(queue?.to_validate?.length ?? 0) === 0 &&
               (queue?.to_prepare?.length ?? 0) === 0 ? (

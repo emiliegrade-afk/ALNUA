@@ -16,13 +16,13 @@ const config: Config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
         obsidian: {
-          DEFAULT: "#100F0D",
-          2: "#171512",
-          3: "#201D19",
+          DEFAULT: "#0E1014",
+          2: "#13161B",
+          3: "#1A1E24",
         },
         ivory: "#F5F2EA",
         titanium: "#A7ADB5",
-        "titanium-cold": "#A7ADB5",
+        "titanium-cold": "#9ba3ac",
         copper: {
           DEFAULT: "#C08A72",
           light: "#D9A88F",
@@ -31,8 +31,8 @@ const config: Config = {
           muted: "#8A6050",
         },
         surface: {
-          DEFAULT: "#171512",
-          raised: "#201D19",
+          DEFAULT: "#13161B",
+          raised: "#1A1E24",
         },
         primary: {
           DEFAULT: "var(--primary)",
@@ -86,9 +86,10 @@ const config: Config = {
         ivoire: "#F5F2EA",
         glow: "#D9A88F",
         online: { DEFAULT: "#7FC98C", soft: "#8FCB99" },
-        "obsidian-deep": "#0A0908",
+        "obsidian-deep": "#08090C",
       },
       fontFamily: {
+        display: ["var(--font-space-grotesk)", "Space Grotesk", "sans-serif"],
         title: ["var(--font-space-grotesk)", "Space Grotesk", "sans-serif"],
         subtitle: ["Avenir Next", "Nunito", "sans-serif"],
         body: ["var(--font-geist-sans)", "Inter", "sans-serif"],
@@ -124,8 +125,8 @@ const config: Config = {
         "forge-sm": "0.2em",
       },
       boxShadow: {
-        "copper-glow": "0 0 24px rgba(192, 138, 98, 0.08)",
-        "copper-glow-lg": "0 0 20px rgba(192, 138, 98, 0.15)",
+        "copper-glow": "0 0 24px rgba(192, 138, 114, 0.06)",
+        "copper-glow-lg": "0 0 20px rgba(192, 138, 114, 0.12)",
       },
     },
   },

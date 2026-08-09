@@ -134,7 +134,7 @@ export function CreateModuleModal({ open, onOpenChange, projectId, onCreated }: 
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={submitting}
-              className="border-white/10"
+              className="border-copper/15"
             >
               Annuler
             </Button>

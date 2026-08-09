@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from config.llm_runtime import CREWAI_MAX_ITER_DEFAULT
 from agents.agent_base import AgentBase
 
 import logging
@@ -57,7 +58,7 @@ class PMAgent(AgentBase):
                 llm=self._crew_llm,
                 verbose=self.verbose,
                 allow_delegation=False,
-                max_iter=10,
+                max_iter=CREWAI_MAX_ITER_DEFAULT,
             )
         return self._crew_agent
 

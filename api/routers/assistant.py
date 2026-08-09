@@ -12,7 +12,11 @@ def assistant_connections() -> dict[str, Any]:
     """Composio OAuth status for CEO mailbox + calendar."""
     from services.secretary_composio import (
         composio_user_id,
+        connected_gmail_email,
         connection_status_text,
+        expected_ceo_gmail,
+        gmail_account_ok,
+        is_connected,
         list_ceo_connections,
     )
 
@@ -20,6 +24,12 @@ def assistant_connections() -> dict[str, Any]:
         "composio_user_id": composio_user_id(),
         "apps": list_ceo_connections(),
         "summary": connection_status_text(),
+        "gmail": {
+            "connected": is_connected("gmail"),
+            "expected": expected_ceo_gmail(),
+            "profile": connected_gmail_email(),
+            "ok": gmail_account_ok(),
+        },
     }
 
 

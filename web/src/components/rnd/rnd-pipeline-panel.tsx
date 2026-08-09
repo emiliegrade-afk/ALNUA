@@ -80,14 +80,14 @@ export function RndPipelinePanel({
         </p>
       </div>
 
-      <div className="rounded-xl border border-copper/15 bg-white/[0.02] p-5">
+      <div className="rounded-xl border border-copper/15 bg-obsidian-deep/40 p-5">
         <div className="mb-3 flex items-center justify-between gap-3">
           <span className="text-sm text-ivory/90">
             {data.stages_done}/{data.stages_total} étapes
           </span>
           <span className="font-title text-lg text-copper">{data.progress_pct}%</span>
         </div>
-        <div className="h-2 overflow-hidden rounded-full bg-white/10">
+        <div className="h-2 overflow-hidden rounded-full bg-obsidian/60">
           <div
             className="h-full rounded-full bg-copper transition-all"
             style={{ width: `${data.progress_pct}%` }}
@@ -140,7 +140,7 @@ function StageRow({
             ? "border-copper/25 bg-copper/5"
             : stage.status === "locked"
               ? "border-amber-500/15 bg-amber-500/5"
-              : "border-white/10 bg-white/[0.02]"
+              : "border-copper/15 bg-obsidian-deep/40"
       )}
     >
       <div className="mt-0.5 shrink-0">{icon}</div>

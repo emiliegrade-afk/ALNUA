@@ -38,7 +38,7 @@ export function ColorPalette({ colors }: ColorPaletteProps) {
             type="button"
             title={`${color.hex} — ${color.name}`}
             onClick={() => copyHex(color.hex)}
-            className="h-10 w-10 rounded-lg border border-white/10 shadow-sm transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-copper/60"
+            className="h-10 w-10 rounded-lg border border-copper/15 shadow-sm transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-copper/60"
             style={{ backgroundColor: color.hex }}
             aria-label={`Copier ${color.hex}, ${color.name}`}
           />

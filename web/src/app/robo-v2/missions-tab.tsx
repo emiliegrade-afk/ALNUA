@@ -106,11 +106,11 @@ function TicketCard({
         ) : null}
       </div>
       <div className="mt-1.5 flex flex-wrap gap-1">
-        <span className="rounded-full border px-1.5 py-px text-[8px]" style={{ borderColor: "rgba(200,127,78,.2)", color: C.warm }}>
+        <span className="rounded-full border px-1.5 py-px text-[8px]" style={{ borderColor: "rgba(192,138,114,.2)", color: C.warm }}>
           🔧 {meta.component}
         </span>
         {meta.bench ? (
-          <span className="rounded-full border px-1.5 py-px text-[8px]" style={{ borderColor: "rgba(200,127,78,.2)", color: C.warm }}>
+          <span className="rounded-full border px-1.5 py-px text-[8px]" style={{ borderColor: "rgba(192,138,114,.2)", color: C.warm }}>
             🧪 {meta.bench}
           </span>
         ) : null}
@@ -132,7 +132,7 @@ function TicketCard({
           </span>
         ) : ticket.status === "in_progress" || ticket.status === "in_review" ? (
           <span className="flex items-center gap-1.5">
-            <span className="h-1 w-10 overflow-hidden rounded-full" style={{ background: "rgba(200,127,78,.18)" }}>
+            <span className="h-1 w-10 overflow-hidden rounded-full" style={{ background: "rgba(192,138,114,.18)" }}>
               <span className="block h-full rounded-full" style={{ width: `${pseudoProgress(ticket.id)}%`, background: C.copper }} />
             </span>
             <span className="text-[9px]" style={{ color: C.dim }}>
@@ -272,7 +272,7 @@ export function MissionsTab({
           <div className="flex min-w-0 items-center gap-3">
             <span
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border text-[13px]"
-              style={{ borderColor: "rgba(200,127,78,.4)", background: "radial-gradient(circle at 30% 20%, rgba(200,127,78,.25), rgba(15,12,10,.9))", color: C.copperLight }}
+              style={{ borderColor: "rgba(192,138,114,.4)", background: "radial-gradient(circle at 30% 20%, rgba(192,138,114,.25), rgba(15,12,10,.9))", color: C.copperLight }}
             >
               ◈
             </span>
@@ -293,7 +293,7 @@ export function MissionsTab({
                   type="button"
                   onClick={() => setView(v)}
                   className="px-3 py-1.5 text-[10.5px]"
-                  style={{ background: view === v ? "rgba(200,127,78,.18)" : "transparent", color: view === v ? C.copperLight : C.faint }}
+                  style={{ background: view === v ? "rgba(192,138,114,.18)" : "transparent", color: view === v ? C.copperLight : C.faint }}
                 >
                   {v === "board" ? "Vue Board" : "Vue Liste"}
                 </button>
@@ -303,7 +303,7 @@ export function MissionsTab({
               type="button"
               onClick={() => openCreateFor(projects[0]?.id)}
               className="rounded-[18px] border px-3.5 py-1.5 text-[11px]"
-              style={{ borderColor: "rgba(200,127,78,.45)", background: "rgba(200,127,78,.12)", color: C.copperLight }}
+              style={{ borderColor: "rgba(192,138,114,.45)", background: "rgba(192,138,114,.12)", color: C.copperLight }}
             >
               ＋ Nouvelle mission
             </button>
@@ -410,7 +410,7 @@ export function MissionsTab({
                   type="button"
                   onClick={() => setPriorityFocus(priorityFocus === b.key ? null : b.key)}
                   className="mt-1 rounded-lg border py-1 text-[9.5px]"
-                  style={{ borderColor: priorityFocus === b.key ? C.copper : "rgba(200,127,78,.22)", color: priorityFocus === b.key ? C.copperLight : C.warm }}
+                  style={{ borderColor: priorityFocus === b.key ? C.copper : "rgba(192,138,114,.22)", color: priorityFocus === b.key ? C.copperLight : C.warm }}
                 >
                   {priorityFocus === b.key ? "Filtre actif — retirer" : `Voir toutes (${b.items.length})`}
                 </button>
@@ -441,7 +441,7 @@ export function MissionsTab({
                     <span className="min-w-0 flex-1 truncate" style={{ color: C.muted }}>
                       {ev.action}
                     </span>
-                    <span className="shrink-0 rounded-full border px-2 py-0.5 text-[8.5px]" style={{ borderColor: "rgba(200,127,78,.2)", color: C.faint }}>
+                    <span className="shrink-0 rounded-full border px-2 py-0.5 text-[8.5px]" style={{ borderColor: "rgba(192,138,114,.2)", color: C.faint }}>
                       {ev.dept}
                     </span>
                   </div>
@@ -521,7 +521,7 @@ export function MissionsTab({
                   <span className="min-w-0 flex-1 truncate text-[10px]" style={{ color: C.warm }}>
                     {a.name}
                   </span>
-                  <span className="h-1 w-12 overflow-hidden rounded-full" style={{ background: "rgba(200,127,78,.15)" }}>
+                  <span className="h-1 w-12 overflow-hidden rounded-full" style={{ background: "rgba(192,138,114,.15)" }}>
                     <span className="block h-full rounded-full" style={{ width: `${load}%`, background: C.copper }} />
                   </span>
                   <span className="w-8 shrink-0 text-right text-[9.5px]" style={{ color: C.ivory }}>
@@ -551,7 +551,7 @@ export function MissionsTab({
                     </span>
                     <span
                       className="shrink-0 rounded-full px-1.5 py-px text-[8px]"
-                      style={{ background: r.level === "Risque élevé" ? "rgba(248,113,113,.18)" : "rgba(200,127,78,.18)", color: r.level === "Risque élevé" ? "#f87171" : C.copperLight }}
+                      style={{ background: r.level === "Risque élevé" ? "rgba(248,113,113,.18)" : "rgba(192,138,114,.18)", color: r.level === "Risque élevé" ? "#f87171" : C.copperLight }}
                     >
                       {r.level}
                     </span>
@@ -571,7 +571,7 @@ export function MissionsTab({
           </p>
           <div className="relative h-[70px] w-[70px]">
             <svg width="70" height="70" viewBox="0 0 70 70">
-              <circle cx="35" cy="35" r="29" fill="none" stroke="rgba(200,127,78,.15)" strokeWidth="5" />
+              <circle cx="35" cy="35" r="29" fill="none" stroke="rgba(192,138,114,.15)" strokeWidth="5" />
               <circle
                 cx="35"
                 cy="35"

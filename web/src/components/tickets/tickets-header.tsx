@@ -52,7 +52,7 @@ function FilterChip({
         "rounded-lg border px-2.5 py-1 text-[11px] transition",
         active
           ? "border-copper/40 bg-copper/15 text-copper-glow"
-          : "border-white/[0.08] text-titanium hover:border-copper/20"
+          : "border-copper/15 text-titanium hover:border-copper/20"
       )}
     >
       {label}
@@ -111,7 +111,7 @@ export function TicketsHeader({
         </Button>
       </div>
 
-      <div className="rounded-2xl border border-copper/10 bg-obsidian/50 p-4 ring-1 ring-white/[0.04]">
+      <div className="rounded-2xl border border-copper/10 bg-obsidian/50 p-4 ring-1 ring-copper/10">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <Select value={projectFilter} onValueChange={onProjectFilterChange}>
             <SelectTrigger className="w-full border-copper/20 bg-obsidian sm:w-[220px]">
@@ -145,7 +145,7 @@ export function TicketsHeader({
                   "rounded-lg border px-3 py-1.5 text-xs transition",
                   statusTab === id
                     ? "border-copper/45 bg-copper/10 text-copper-glow"
-                    : "border-transparent text-titanium hover:border-copper/20 hover:bg-white/[0.03]"
+                    : "border-transparent text-titanium hover:border-copper/20 hover:bg-obsidian-deep/50"
                 )}
               >
                 {label}

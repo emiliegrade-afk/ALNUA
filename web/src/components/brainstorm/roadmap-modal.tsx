@@ -88,7 +88,7 @@ export function RoadmapModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="border-white/10 bg-surface-raised text-ivory/90 sm:max-w-md">
+      <DialogContent className="border-copper/15 bg-surface-raised text-ivory/90 sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-ivory">Convertir en roadmap</DialogTitle>
         </DialogHeader>
@@ -99,7 +99,7 @@ export function RoadmapModal({
               id="rm-title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="border-white/10 bg-white/[0.03]"
+              className="border-copper/15 bg-obsidian-deep/50"
             />
           </div>
           <div className="space-y-2">
@@ -109,16 +109,16 @@ export function RoadmapModal({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
-              className="border-white/10 bg-white/[0.03]"
+              className="border-copper/15 bg-obsidian-deep/50"
             />
           </div>
           <div className="space-y-2">
             <Label>Projet</Label>
             <Select value={projectId} onValueChange={setProjectId}>
-              <SelectTrigger className="border-white/10 bg-white/[0.03]">
+              <SelectTrigger className="border-copper/15 bg-obsidian-deep/50">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="border-white/10 bg-surface-raised">
+              <SelectContent className="border-copper/15 bg-surface-raised">
                 {projects.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
                     {p.name}
@@ -133,10 +133,10 @@ export function RoadmapModal({
               value={priority}
               onValueChange={(v) => setPriority(v as typeof priority)}
             >
-              <SelectTrigger className="border-white/10 bg-white/[0.03]">
+              <SelectTrigger className="border-copper/15 bg-obsidian-deep/50">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="border-white/10 bg-surface-raised">
+              <SelectContent className="border-copper/15 bg-surface-raised">
                 <SelectItem value="low">Low</SelectItem>
                 <SelectItem value="medium">Medium</SelectItem>
                 <SelectItem value="high">High</SelectItem>

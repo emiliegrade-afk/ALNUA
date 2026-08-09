@@ -106,7 +106,7 @@ export function RatingsChart({
   const chartHeight = Math.max(200, data.length * 28);
 
   return (
-    <Card className="border-white/[0.06] bg-surface/80">
+    <Card className="border-copper/10 bg-surface/80">
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-4">
           <CardTitle className="text-sm font-medium text-ivory">
@@ -161,7 +161,7 @@ export function RatingsChart({
             </ResponsiveContainer>
 
             {projectFilter === "all" && (
-              <div className="hidden shrink-0 flex-col gap-2 border-l border-white/[0.06] pl-4 sm:flex">
+              <div className="hidden shrink-0 flex-col gap-2 border-l border-copper/10 pl-4 sm:flex">
                 <p className="text-[10px] uppercase tracking-wider text-titanium/60">
                   Moyenne
                 </p>

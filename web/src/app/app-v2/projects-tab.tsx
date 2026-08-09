@@ -88,7 +88,7 @@ function DonutChart({ segments }: { segments: { color: string; count: number }[]
   let acc = 0;
   return (
     <svg width="120" height="120" viewBox="0 0 120 120">
-      <circle cx="60" cy="60" r={r} fill="none" stroke="rgba(200,127,78,.1)" strokeWidth="14" />
+      <circle cx="60" cy="60" r={r} fill="none" stroke="rgba(192,138,114,.1)" strokeWidth="14" />
       {total > 0
         ? segments
             .filter((seg) => seg.count > 0)
@@ -170,7 +170,7 @@ function ProjectCard({
         <div className="flex items-center gap-2.5">
           <div className="relative h-[42px] w-[42px] shrink-0">
             <svg width="42" height="42" viewBox="0 0 42 42">
-              <circle cx="21" cy="21" r="17" fill="none" stroke="rgba(200,127,78,.15)" strokeWidth="3.5" />
+              <circle cx="21" cy="21" r="17" fill="none" stroke="rgba(192,138,114,.15)" strokeWidth="3.5" />
               <circle
                 cx="21"
                 cy="21"
@@ -206,7 +206,7 @@ function ProjectCard({
               <span
                 className="h-[6px] w-[6px] rounded-full"
                 style={{
-                  background: i <= stageIdx ? C.copper : "rgba(200,127,78,.18)",
+                  background: i <= stageIdx ? C.copper : "rgba(192,138,114,.18)",
                   boxShadow: i === stageIdx ? `0 0 5px ${C.copper}` : undefined,
                 }}
               />
@@ -270,7 +270,7 @@ function ProjectCard({
                 {extra > 0 ? (
                   <span
                     className="flex h-5 w-5 items-center justify-center rounded-full text-[8px]"
-                    style={{ background: "rgba(200,127,78,.18)", color: C.warm, boxShadow: "0 0 0 2px #100F0D" }}
+                    style={{ background: "rgba(192,138,114,.18)", color: C.warm, boxShadow: "0 0 0 2px #100F0D" }}
                   >
                     +{extra}
                   </span>
@@ -287,7 +287,7 @@ function ProjectCard({
         <Link
           href={`/projects/${encodeURIComponent(project.id)}`}
           className="rounded-lg border py-1.5 text-center text-[10.5px]"
-          style={{ borderColor: "rgba(200,127,78,.22)", color: C.warm }}
+          style={{ borderColor: "rgba(192,138,114,.22)", color: C.warm }}
         >
           Ouvrir le projet ›
         </Link>
@@ -393,8 +393,8 @@ export function ProjetsTab({
             <span
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border text-[13px]"
               style={{
-                borderColor: "rgba(200,127,78,.4)",
-                background: "radial-gradient(circle at 30% 20%, rgba(200,127,78,.25), rgba(15,12,10,.9))",
+                borderColor: "rgba(192,138,114,.4)",
+                background: "radial-gradient(circle at 30% 20%, rgba(192,138,114,.25), rgba(15,12,10,.9))",
                 color: C.copperLight,
               }}
             >
@@ -412,7 +412,7 @@ export function ProjetsTab({
           <div className="flex shrink-0 items-center gap-2">
             <span
               className="flex items-center gap-1.5 rounded-[16px] border px-3 py-1.5 text-[10.5px]"
-              style={{ borderColor: "rgba(200,127,78,.22)", color: C.warm }}
+              style={{ borderColor: "rgba(192,138,114,.22)", color: C.warm }}
             >
               <SlidersHorizontal className="h-3 w-3" /> Filtres
             </span>
@@ -421,7 +421,7 @@ export function ProjetsTab({
                 type="button"
                 onClick={() => setView("grid")}
                 className="flex h-[26px] w-[26px] items-center justify-center"
-                style={{ background: view === "grid" ? "rgba(200,127,78,.18)" : "transparent", color: view === "grid" ? C.copperLight : C.faint }}
+                style={{ background: view === "grid" ? "rgba(192,138,114,.18)" : "transparent", color: view === "grid" ? C.copperLight : C.faint }}
               >
                 <LayoutGrid className="h-3.5 w-3.5" />
               </button>
@@ -429,24 +429,24 @@ export function ProjetsTab({
                 type="button"
                 onClick={() => setView("list")}
                 className="flex h-[26px] w-[26px] items-center justify-center"
-                style={{ background: view === "list" ? "rgba(200,127,78,.18)" : "transparent", color: view === "list" ? C.copperLight : C.faint }}
+                style={{ background: view === "list" ? "rgba(192,138,114,.18)" : "transparent", color: view === "list" ? C.copperLight : C.faint }}
               >
                 <List className="h-3.5 w-3.5" />
               </button>
             </span>
-            <span className="flex overflow-hidden rounded-[18px] border" style={{ borderColor: "rgba(200,127,78,.45)" }}>
+            <span className="flex overflow-hidden rounded-[18px] border" style={{ borderColor: "rgba(192,138,114,.45)" }}>
               <button
                 type="button"
                 onClick={() => setCreateOpen(true)}
                 className="flex items-center gap-1.5 px-3.5 py-1.5 text-[11px]"
-                style={{ background: "rgba(200,127,78,.12)", color: C.copperLight }}
+                style={{ background: "rgba(192,138,114,.12)", color: C.copperLight }}
               >
                 ＋ Nouveau projet
               </button>
               <Link
                 href="/apps"
                 className="flex items-center border-l px-3 py-1.5 text-[11px]"
-                style={{ borderColor: "rgba(200,127,78,.3)", color: C.warm }}
+                style={{ borderColor: "rgba(192,138,114,.3)", color: C.warm }}
                 title="Lier un repo GitHub existant ou lancer une app via Factory"
               >
                 Mes apps
@@ -455,7 +455,7 @@ export function ProjetsTab({
           </div>
         </div>
 
-        <div className="flex gap-[22px] overflow-x-auto border-b" style={{ borderColor: "rgba(200,127,78,.15)" }}>
+        <div className="flex gap-[22px] overflow-x-auto border-b" style={{ borderColor: "rgba(192,138,114,.15)" }}>
           {STATUS_FILTERS.map((f) => {
             const active = f.key === filter;
             return (
@@ -469,7 +469,7 @@ export function ProjetsTab({
                 {f.label}
                 <span
                   className="rounded-full px-1.5 py-px text-[9px]"
-                  style={{ background: "rgba(200,127,78,.12)", color: C.dim }}
+                  style={{ background: "rgba(192,138,114,.12)", color: C.dim }}
                 >
                   {counts[f.key] ?? 0}
                 </span>
@@ -494,7 +494,7 @@ export function ProjetsTab({
               type="button"
               onClick={() => setCreateOpen(true)}
               className="flex min-h-[220px] flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed text-center"
-              style={{ borderColor: "rgba(200,127,78,.25)" }}
+              style={{ borderColor: "rgba(192,138,114,.25)" }}
             >
               <span
                 className="flex h-9 w-9 items-center justify-center rounded-full text-[16px]"

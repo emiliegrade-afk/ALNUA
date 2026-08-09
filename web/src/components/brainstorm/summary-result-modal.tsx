@@ -65,7 +65,7 @@ export function SummaryResultModal({
           <DialogTitle className="text-xl text-ivory">{result.title}</DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="min-h-0 flex-1 rounded-lg border border-white/[0.06] bg-obsidian/60 p-4">
+        <ScrollArea className="min-h-0 flex-1 rounded-lg border border-copper/10 bg-obsidian/60 p-4">
           <MarkdownContent>{result.summary_md}</MarkdownContent>
         </ScrollArea>
 
@@ -76,7 +76,7 @@ export function SummaryResultModal({
               variant="outline"
               size="sm"
               onClick={handleCopy}
-              className="border-white/10 text-titanium"
+              className="border-copper/15 text-titanium"
             >
               <Copy className="mr-1.5 h-3.5 w-3.5" />
               Copier
@@ -86,7 +86,7 @@ export function SummaryResultModal({
               variant="outline"
               size="sm"
               onClick={handleReveal}
-              className="border-white/10 text-titanium"
+              className="border-copper/15 text-titanium"
             >
               <FolderOpen className="mr-1.5 h-3.5 w-3.5" />
               Ouvrir dans l&apos;explorateur

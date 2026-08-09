@@ -48,6 +48,38 @@ class Settings(BaseSettings):
         ge=60,
         le=86400,
     )
+    # OpenRouter prompt caching (provider-side) — distinct from llm_cache above
+    openrouter_prompt_cache_enabled: bool = Field(
+        default=True,
+        alias="OPENROUTER_PROMPT_CACHE_ENABLED",
+        description="Send cache_control + session_id so static system/tools are cached",
+    )
+    openrouter_prompt_cache_ttl: str = Field(
+        default="1h",
+        alias="OPENROUTER_PROMPT_CACHE_TTL",
+        description="Ephemeral cache TTL for Anthropic-compatible breakpoints: 5m or 1h",
+    )
+    llm_http_timeout_s: float = Field(
+        default=60.0,
+        alias="LLM_HTTP_TIMEOUT_S",
+        ge=10.0,
+        le=300.0,
+        description="OpenRouter HTTP timeout (seconds) — fail fast to avoid retry burn",
+    )
+    llm_http_timeout_long_s: float = Field(
+        default=120.0,
+        alias="LLM_HTTP_TIMEOUT_LONG_S",
+        ge=30.0,
+        le=600.0,
+        description="Long OpenRouter timeout for coding / heavy generations",
+    )
+    llm_max_attempts_per_model: int = Field(
+        default=2,
+        alias="LLM_MAX_ATTEMPTS_PER_MODEL",
+        ge=1,
+        le=3,
+        description="Retries per model before failover (cap 3)",
+    )
     rate_limit_enabled: bool = Field(
         default=True,
         alias="RATE_LIMIT_ENABLED",
@@ -74,6 +106,16 @@ class Settings(BaseSettings):
         default="alnua.global@gmail.com",
         alias="CEO_GMAIL",
         description="Compte Gmail ALNUA à connecter via Composio (Nadia)",
+    )
+    revolut_access_token: str = Field(
+        default="",
+        alias="REVOLUT_ACCESS_TOKEN",
+        description="Revolut Business API bearer token (Grow+) — lecture dépenses only",
+    )
+    revolut_api_base: str = Field(
+        default="https://b2b.revolut.com/api/1.0",
+        alias="REVOLUT_API_BASE",
+        description="Revolut Business API base URL",
     )
     discord_token: str = Field(default="", alias="DISCORD_TOKEN")
     discord_bot_token: str = Field(default="", alias="DISCORD_BOT_TOKEN")

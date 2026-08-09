@@ -1,0 +1,24 @@
+{
+  "currency": "USD",
+  "updated": "2026-08-09",
+  "notes": "Catalogue abonnements ALNUA pour Jules/Rémi. live = sync API Hub; estimated = montant catalogue; manual = saisie; pending_api = connecteur à brancher.",
+  "tools": [
+    {"id": "cursor", "name": "Cursor", "category": "saas_tools", "sync": "estimated", "monthly_usd": 20, "plan": "Pro", "billing_url": "https://cursor.com/dashboard"},
+    {"id": "openrouter", "name": "OpenRouter", "category": "saas_tools", "sync": "live", "monthly_usd": null, "plan": "pay-as-you-go", "billing_url": "https://openrouter.ai/activity"},
+    {"id": "supabase", "name": "Supabase", "category": "hosting", "sync": "estimated", "monthly_usd": 25, "plan": "Pro", "billing_url": "https://supabase.com/dashboard"},
+    {"id": "n8n", "name": "n8n Cloud", "category": "saas_tools", "sync": "estimated", "monthly_usd": 22, "plan": "Starter ~20 EUR", "billing_url": "https://app.n8n.cloud"},
+    {"id": "vercel", "name": "Vercel", "category": "hosting", "sync": "manual", "monthly_usd": 0, "plan": "Hobby→Pro 20$", "billing_url": "https://vercel.com/dashboard"},
+    {"id": "railway", "name": "Railway", "category": "hosting", "sync": "manual", "monthly_usd": 5, "plan": "Hobby", "billing_url": "https://railway.com"},
+    {"id": "mem0", "name": "Mem0", "category": "saas_tools", "sync": "estimated", "monthly_usd": 0, "plan": "Hobby", "billing_url": "https://app.mem0.ai"},
+    {"id": "langfuse", "name": "Langfuse", "category": "saas_tools", "sync": "estimated", "monthly_usd": 0, "plan": "Hobby", "billing_url": "https://cloud.langfuse.com"},
+    {"id": "composio", "name": "Composio", "category": "saas_tools", "sync": "estimated", "monthly_usd": 0, "plan": "Hobby", "billing_url": "https://app.composio.dev"},
+    {"id": "sentry", "name": "Sentry", "category": "saas_tools", "sync": "estimated", "monthly_usd": 0, "plan": "Developer", "billing_url": "https://sentry.io"},
+    {"id": "github", "name": "GitHub", "category": "saas_tools", "sync": "estimated", "monthly_usd": 0, "plan": "Free", "billing_url": "https://github.com/settings/billing"},
+    {"id": "google_workspace", "name": "Google Workspace", "category": "saas_tools", "sync": "estimated", "monthly_usd": 8, "plan": "Business Starter", "billing_url": "https://admin.google.com"},
+    {"id": "apple_developer", "name": "Apple Developer", "category": "saas_tools", "sync": "estimated", "monthly_usd": 8, "plan": "99$/an", "billing_url": "https://developer.apple.com"},
+    {"id": "stripe", "name": "Stripe", "category": "saas_tools", "sync": "pending_api", "monthly_usd": 0, "plan": "0$ + % GMV", "billing_url": "https://dashboard.stripe.com"},
+    {"id": "revolut", "name": "Revolut Business", "category": "autre", "sync": "pending_api", "monthly_usd": null, "plan": "Bank feed / expenses API", "billing_url": "https://business.revolut.com"},
+    {"id": "expo_eas", "name": "Expo EAS", "category": "saas_tools", "sync": "manual", "monthly_usd": 0, "plan": "Free→Starter", "billing_url": "https://expo.dev"},
+    {"id": "domains", "name": "Domaines DNS", "category": "hosting", "sync": "manual", "monthly_usd": 3, "plan": "amorti annuel", "billing_url": ""}
+  ]
+}

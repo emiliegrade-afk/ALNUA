@@ -31,7 +31,7 @@ function StatusBadge({ status }: { status: Release["status"] }) {
         "text-[10px] font-medium uppercase tracking-wide",
         status === "published"
           ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
-          : "border-white/15 bg-white/5 text-titanium"
+          : "border-copper/20 bg-obsidian/50 text-titanium"
       )}
     >
       {status === "published" ? "publiée" : "brouillon"}
@@ -78,7 +78,7 @@ export function ReleasesList({
 
   if (releases.length === 0) {
     return (
-      <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6 text-center text-sm text-titanium">
+      <div className="rounded-xl border border-copper/15 bg-obsidian-deep/40 p-6 text-center text-sm text-titanium">
         Aucune release pour l&apos;instant.
       </div>
     );
@@ -91,12 +91,12 @@ export function ReleasesList({
         return (
           <div
             key={projectId}
-            className="overflow-hidden rounded-xl border border-white/10 bg-white/[0.02]"
+            className="overflow-hidden rounded-xl border border-copper/15 bg-obsidian-deep/40"
           >
             <button
               type="button"
               onClick={() => toggleProject(projectId)}
-              className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-medium text-ivory hover:bg-white/[0.03]"
+              className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-medium text-ivory hover:bg-obsidian-deep/50"
             >
               {open ? (
                 <ChevronDown className="h-4 w-4 shrink-0 text-titanium" />
@@ -109,7 +109,7 @@ export function ReleasesList({
               </span>
             </button>
             {open && (
-              <ul className="border-t border-white/10">
+              <ul className="border-t border-copper/15">
                 {items.map((release) => {
                   const active = release.id === selectedId;
                   return (
@@ -121,7 +121,7 @@ export function ReleasesList({
                           "flex w-full flex-col gap-1.5 px-4 py-3 text-left transition-colors",
                           active
                             ? "bg-copper/10 text-ivory"
-                            : "text-titanium hover:bg-white/[0.03] hover:text-ivory"
+                            : "text-titanium hover:bg-obsidian-deep/50 hover:text-ivory"
                         )}
                       >
                         <div className="flex items-center gap-2">

@@ -152,7 +152,7 @@ export function RoadmapDetailPanel({
       />
 
       <aside className="fixed inset-y-0 right-0 z-50 flex w-full max-w-[480px] flex-col border-l border-copper/15 bg-surface-raised shadow-2xl">
-        <div className="shrink-0 border-b border-white/[0.06] p-4">
+        <div className="shrink-0 border-b border-copper/10 p-4">
           <div className="mb-3 flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">
               {editingTitle ? (
@@ -195,7 +195,7 @@ export function RoadmapDetailPanel({
             <button
               type="button"
               onClick={onClose}
-              className="rounded p-1.5 text-titanium hover:bg-white/[0.05] hover:text-ivory"
+              className="rounded p-1.5 text-titanium hover:bg-obsidian-deep/50 hover:text-ivory"
             >
               <X className="h-5 w-5" />
             </button>
@@ -239,7 +239,7 @@ export function RoadmapDetailPanel({
                       "rounded-lg border px-2.5 py-1 text-xs transition",
                       status === s.id
                         ? STATUS_STYLES[s.id]
-                        : "border-white/[0.08] text-titanium hover:border-copper/20"
+                        : "border-copper/15 text-titanium hover:border-copper/20"
                     )}
                   >
                     {s.emoji} {s.label}
@@ -410,7 +410,7 @@ export function RoadmapDetailPanel({
           </div>
         </ScrollArea>
 
-        <div className="shrink-0 border-t border-white/[0.06] p-4">
+        <div className="shrink-0 border-t border-copper/10 p-4">
           <div className="flex gap-2">
             <Button
               variant="outline"

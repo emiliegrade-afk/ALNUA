@@ -152,6 +152,7 @@ class RndRepository:
             spec_file=row.get("spec_file"),
             lifecycle_status=row.get("lifecycle_status", "raw"),
             dossier_id=str(dossier_id) if dossier_id else None,
+            incubator_stage=row.get("incubator_stage") or "idee",
             created_at=row.get("created_at"),
             evaluated_at=row.get("evaluated_at"),
         )

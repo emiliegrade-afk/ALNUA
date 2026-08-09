@@ -19,7 +19,7 @@ export function WaitlistSourceDonut({ bySource }: WaitlistSourceDonutProps) {
 
   if (data.length === 0) {
     return (
-      <Card className="border-white/10 bg-surface/80">
+      <Card className="border-copper/15 bg-surface/80">
         <CardHeader>
           <CardTitle className="text-sm font-medium text-ivory">
             Sources d&apos;inscription
@@ -31,7 +31,7 @@ export function WaitlistSourceDonut({ bySource }: WaitlistSourceDonutProps) {
   }
 
   return (
-    <Card className="border-white/10 bg-surface/80">
+    <Card className="border-copper/15 bg-surface/80">
       <CardHeader>
         <CardTitle className="text-sm font-medium text-ivory">
           Sources d&apos;inscription

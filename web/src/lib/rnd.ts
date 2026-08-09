@@ -20,10 +20,13 @@ export interface RndIdea {
   spec_file?: string;
   lifecycle_status?: string;
   dossier_id?: string | null;
+  incubator_stage?: IncubatorStage;
   db_id?: string | null;
   created_at?: string;
   evaluated_at?: string;
 }
+
+export type IncubatorStage = "idee" | "prototype" | "validation" | "mvp" | "projet" | "departement";
 
 export interface RndCompetitive {
   product?: string;
@@ -36,9 +39,13 @@ export async function fetchRndIdeas(
   verdict?: string,
   inboxOnly = true
 ): Promise<RndIdea[]> {
-  const params = new URLSearchParams({ limit: "50" });
+  // `inbox_only` doit toujours être envoyé explicitement : l'omettre ne
+  // désactive pas le filtre, le backend retombe sur son propre défaut
+  // (`inbox_only=True`) — bug réel trouvé le 2026-07-31 (Pipeline
+  // n'affichait qu'un sous-ensemble "inbox" au lieu du pipeline complet
+  // malgré fetchRndIdeas(undefined, false)).
+  const params = new URLSearchParams({ limit: "100", inbox_only: inboxOnly ? "true" : "false" });
   if (verdict) params.set("verdict", verdict);
-  if (inboxOnly) params.set("inbox_only", "true");
   return hubFetch<RndIdea[]>(`/rnd/ideas?${params.toString()}`);
 }
 
@@ -110,4 +117,76 @@ export async function archiveRndIdea(ideaId: string): Promise<void> {
 
 export async function fetchRndCompetitive(): Promise<RndCompetitive[]> {
   return hubFetch<RndCompetitive[]>("/rnd/competitive");
+}
+
+/* Incubateur (Phase 24, ROADMAP.md) — Kanban Idée→Prototype→Validation→MVP→
+   Projet→Département. `departement` n'est jamais envoyé ici (rejeté côté
+   API, 400) : c'est un vrai geste d'approbation CEO, voir
+   promoteIdeaToDepartment. */
+export async function updateIncubatorStage(
+  ideaId: string,
+  stage: Exclude<IncubatorStage, "departement">
+): Promise<{ idea_id: string; incubator_stage: IncubatorStage }> {
+  return hubFetch(`/rnd/ideas/${encodeURIComponent(ideaId)}/incubator-stage`, {
+    method: "PATCH",
+    body: JSON.stringify({ stage }),
+  });
+}
+
+export interface PromoteToDepartmentResult {
+  dossier_id: string;
+  dispatch: {
+    message?: string;
+    project_id?: string;
+    roadmap_items?: unknown[];
+  };
+}
+
+export async function promoteIdeaToDepartment(ideaId: string): Promise<PromoteToDepartmentResult> {
+  return hubFetch(`/rnd/ideas/${encodeURIComponent(ideaId)}/incubator/promote-to-department`, {
+    method: "POST",
+  });
+}
+
+/* Recherche approfondie par thème (services/deep_research.py) — pipeline
+   multi-rounds existant côté backend, jamais branché sur aucune UI R&D
+   (ni /rd, ni rnd-v2) avant ce câblage. Endpoint générique hors /rnd, mais
+   thématiquement R&D — client regroupé ici plutôt que dans un fichier à
+   part pour une seule fonction. */
+export interface DeepResearchFinding {
+  finding: string;
+  confidence: string;
+  source: string;
+}
+
+export interface DeepResearchReport {
+  query: string;
+  agent_id: string;
+  rounds_completed: number;
+  depth: "quick" | "standard" | "deep";
+  executive_summary: string;
+  key_findings: DeepResearchFinding[];
+  verified_claims: string[];
+  unverified_claims: string[];
+  knowledge_gaps: string[];
+  recommended_actions: string[];
+  generated_at: string;
+}
+
+export async function runDeepResearch(params: {
+  query: string;
+  context?: string;
+  rounds?: number;
+  agent_id?: "brainstorm" | "rnd_agent" | "analyst_business";
+}): Promise<DeepResearchReport> {
+  return hubFetch("/services/deep-research/run", {
+    method: "POST",
+    body: JSON.stringify({
+      query: params.query,
+      context: params.context ?? "",
+      rounds: params.rounds ?? 2,
+      agent_id: params.agent_id ?? "brainstorm",
+    }),
+    timeoutMs: 150_000,
+  });
 }

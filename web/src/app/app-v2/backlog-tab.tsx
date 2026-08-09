@@ -93,7 +93,7 @@ function IdeaCard({
       </div>
       <span
         className="mt-1.5 inline-flex items-center gap-1 rounded-full border px-1.5 py-px text-[8.5px]"
-        style={{ borderColor: "rgba(200,127,78,.2)", color: TYPE_COLOR[ticket.type] ?? C.faint }}
+        style={{ borderColor: "rgba(192,138,114,.2)", color: TYPE_COLOR[ticket.type] ?? C.faint }}
       >
         <span className="h-1 w-1 rounded-full" style={{ background: TYPE_COLOR[ticket.type] ?? C.faint }} />
         {TYPE_LABEL[ticket.type] ?? ticket.type}
@@ -124,7 +124,7 @@ function IdeaCard({
         ) : stage === "En attente" ? (
           <span
             className="shrink-0 rounded-full border px-1.5 py-px text-[8px]"
-            style={{ borderColor: "rgba(200,127,78,.25)", color: C.warm }}
+            style={{ borderColor: "rgba(192,138,114,.25)", color: C.warm }}
           >
             {hasDependency ? "Dépendance" : "En attente"}
           </span>
@@ -145,7 +145,7 @@ function DonutChart({ segments }: { segments: { color: string; count: number }[]
   let acc = 0;
   return (
     <svg width="64" height="64" viewBox="0 0 64 64">
-      <circle cx="32" cy="32" r={r} fill="none" stroke="rgba(200,127,78,.1)" strokeWidth="9" />
+      <circle cx="32" cy="32" r={r} fill="none" stroke="rgba(192,138,114,.1)" strokeWidth="9" />
       {total > 0
         ? segments
             .filter((s) => s.count > 0)
@@ -245,7 +245,7 @@ export function BacklogTab({
             type="button"
             onClick={() => setCreateOpen(true)}
             className="shrink-0 rounded-[18px] border px-3.5 py-1.5 text-[11px]"
-            style={{ borderColor: "rgba(200,127,78,.45)", background: "rgba(200,127,78,.12)", color: C.copperLight }}
+            style={{ borderColor: "rgba(192,138,114,.45)", background: "rgba(192,138,114,.12)", color: C.copperLight }}
           >
             ＋ Nouvelle idée
           </button>

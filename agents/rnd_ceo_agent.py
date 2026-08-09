@@ -608,6 +608,35 @@ class RndCeoAgent:
             "workspace_path": workspace_path_str,
         }
 
+    def promote_idea_to_department(self, idea_id: str, *, actor: str = "emilie") -> dict[str, Any]:
+        """Incubateur (Phase 24, ROADMAP.md) — glisser une carte vers la
+        colonne Département est un geste d'approbation CEO explicite.
+
+        Enchaîne : dossier (créé si l'idée n'en a pas encore) → package CEO
+        (généré si absent et éligible) → décision approuvée → dispatch COO.
+        Ne fabrique jamais une approbation : si le dossier n'est pas encore
+        éligible (pas de rapport comité), `generate_package` lève
+        `CeoPackageNotReadyError` et cette méthode la laisse remonter telle
+        quelle — le geste de glisser est refusé plutôt que simulé.
+        """
+        idea = self.repo.get_idea_by_id(idea_id)
+        if not idea:
+            raise ValueError(f"Idée introuvable : {idea_id}")
+
+        if idea.dossier_id:
+            dossier_id = str(idea.dossier_id)
+        else:
+            from agents.rnd_dossier_agent import promote_idea_to_dossier as _promote
+
+            created = _promote(idea_id, actor=actor, enrich=False)
+            dossier_id = created["dossier"]["id"]
+
+        self.generate_package(dossier_id, actor=actor)
+        self.record_ceo_decision(dossier_id, ceo_status="approved", actor=actor)
+        dispatch_result = self.dispatch_to_coo(dossier_id, actor=actor)
+
+        return {"dossier_id": dossier_id, "dispatch": dispatch_result}
+
     def _start_dispatch_execution(
         self,
         dossier: RndDossierOut,

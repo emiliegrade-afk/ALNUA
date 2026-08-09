@@ -86,7 +86,7 @@ export function NadiaDesktopPanel() {
                 </span>
               ) : null}
             </p>
-            <pre className="whitespace-pre-wrap rounded-lg border border-white/10 bg-obsidian/60 p-3 font-body text-sm text-ivory/90">
+            <pre className="whitespace-pre-wrap rounded-lg border border-copper/15 bg-obsidian/60 p-3 font-body text-sm text-ivory/90">
               {status.greeting_preview}
             </pre>
             <div className="flex flex-wrap gap-2">

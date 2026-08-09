@@ -17,7 +17,10 @@ from api.routers.beta import router as beta_router
 from api.routers.waitlist import router as waitlist_router
 from api.routers.partnerships import router as partnerships_router
 from api.routers.finances import router as finances_router
+from api.routers.campaigns import router as campaigns_router
+from api.routers.marketing_funnel import router as marketing_funnel_router
 from api.routers.rnd import router as rnd_router
+from api.routers.rnd_council import router as rnd_council_router
 from api.routers.composio import router as composio_router
 from api.routers.scanner import router as scanner_router
 from api.routers.settings import router as settings_router
@@ -56,7 +59,10 @@ ALL_ROUTERS = [
     waitlist_router,
     partnerships_router,
     finances_router,
+    campaigns_router,
+    marketing_funnel_router,
     rnd_router,
+    rnd_council_router,
     composio_router,
     scanner_router,
     settings_router,

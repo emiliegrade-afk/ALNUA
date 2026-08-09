@@ -106,7 +106,7 @@ export function RndVisualPanel({
             variant="outline"
             disabled={generating}
             onClick={() => void load()}
-            className="border-white/10 text-titanium/80"
+            className="border-copper/15 text-titanium/80"
           >
             <RefreshCw className="mr-2 h-4 w-4" />
             Actualiser
@@ -119,7 +119,7 @@ export function RndVisualPanel({
           <Loader2 className="h-6 w-6 animate-spin text-copper/50" />
         </div>
       ) : !hasAssets ? (
-        <div className="rounded-xl border border-dashed border-copper/20 bg-white/[0.02] p-10 text-center">
+        <div className="rounded-xl border border-dashed border-copper/20 bg-obsidian-deep/40 p-10 text-center">
           <ImageIcon className="mx-auto mb-3 h-10 w-10 text-copper/25" />
           <p className="text-sm text-titanium/60">
             Aucun visuel pour l&apos;instant. Lance la génération après enrichissement
@@ -137,7 +137,7 @@ export function RndVisualPanel({
             return (
               <article
                 key={asset.id}
-                className="overflow-hidden rounded-xl border border-copper/15 bg-white/[0.02]"
+                className="overflow-hidden rounded-xl border border-copper/15 bg-obsidian-deep/40"
               >
                 <div className="border-b border-copper/10 px-3 py-2">
                   <p className="text-xs font-medium text-ivory/90">{label}</p>

@@ -148,7 +148,7 @@ export function WaitlistView() {
       <section className="flex flex-wrap items-center gap-3">
         <Button
           variant="outline"
-          className="gap-2 border-white/10"
+          className="gap-2 border-copper/15"
           onClick={handleExport}
         >
           <Download className="h-4 w-4" />
@@ -170,12 +170,12 @@ export function WaitlistView() {
             placeholder="Rechercher par email…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="border-white/10 pl-9"
+            className="border-copper/15 pl-9"
           />
         </div>
 
         <Select value={projectFilter} onValueChange={setProjectFilter}>
-          <SelectTrigger className="w-[160px] border-white/10">
+          <SelectTrigger className="w-[160px] border-copper/15">
             <SelectValue placeholder="Projet" />
           </SelectTrigger>
           <SelectContent>
@@ -189,7 +189,7 @@ export function WaitlistView() {
         </Select>
 
         <Select value={sourceFilter} onValueChange={setSourceFilter}>
-          <SelectTrigger className="w-[160px] border-white/10">
+          <SelectTrigger className="w-[160px] border-copper/15">
             <SelectValue placeholder="Source" />
           </SelectTrigger>
           <SelectContent>
@@ -204,7 +204,7 @@ export function WaitlistView() {
         </Select>
 
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[140px] border-white/10">
+          <SelectTrigger className="w-[140px] border-copper/15">
             <SelectValue placeholder="Statut" />
           </SelectTrigger>
           <SelectContent>
@@ -218,7 +218,7 @@ export function WaitlistView() {
         </Select>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-white/10 bg-surface/60">
+      <div className="overflow-hidden rounded-xl border border-copper/15 bg-surface/60">
         {loading ? (
           <div className="flex items-center justify-center py-16">
             <Loader2 className="h-6 w-6 animate-spin text-copper" />
@@ -231,7 +231,7 @@ export function WaitlistView() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[720px] text-sm">
               <thead>
-                <tr className="border-b border-white/10 text-left text-xs text-titanium">
+                <tr className="border-b border-copper/15 text-left text-xs text-titanium">
                   <th className="px-4 py-3 font-medium">Prénom</th>
                   <th className="px-4 py-3 font-medium">Email</th>
                   <th className="px-4 py-3 font-medium">Source</th>
@@ -245,7 +245,7 @@ export function WaitlistView() {
                   <tr
                     key={entry.id}
                     className={cn(
-                      "cursor-pointer border-b border-white/5 transition hover:bg-white/[0.03]",
+                      "cursor-pointer border-b border-copper/10 transition hover:bg-obsidian-deep/50",
                       selectedEntry?.id === entry.id && "bg-copper/5"
                     )}
                     onClick={() => {
@@ -290,7 +290,7 @@ export function WaitlistView() {
         )}
 
         {filteredEntries.length > PAGE_SIZE ? (
-          <div className="flex items-center justify-between border-t border-white/10 px-4 py-3">
+          <div className="flex items-center justify-between border-t border-copper/15 px-4 py-3">
             <p className="text-xs text-titanium">
               {(page - 1) * PAGE_SIZE + 1}–
               {Math.min(page * PAGE_SIZE, filteredEntries.length)} sur{" "}

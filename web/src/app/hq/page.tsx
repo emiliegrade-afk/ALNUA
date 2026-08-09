@@ -1,7 +1,7 @@
 "use client";
 
-import { LobbyView } from "@/components/lobby/lobby-view";
+import { MockupDirectory } from "@/components/mockup/mockup-directory";
 
 export default function HqPage() {
-  return <LobbyView />;
+  return <MockupDirectory />;
 }

@@ -41,7 +41,7 @@ function CollapsibleBlock({
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="rounded-lg border border-white/[0.06] bg-white/[0.02]">
+    <div className="rounded-lg border border-copper/10 bg-obsidian-deep/40">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
@@ -55,7 +55,7 @@ function CollapsibleBlock({
         )}
       </button>
       {open && (
-        <div className="border-t border-white/[0.06] px-3 py-2">
+        <div className="border-t border-copper/10 px-3 py-2">
           <p className="whitespace-pre-wrap text-xs leading-relaxed text-ivory/75">
             {content}
           </p>
@@ -96,7 +96,7 @@ export function PostCard({ post, project, onUpdated, onEdit }: PostCardProps) {
   }
 
   return (
-    <Card className="border-white/[0.08] bg-surface/80 ring-1 ring-copper/10">
+    <Card className="border-copper/15 bg-surface/80 ring-1 ring-copper/10">
       <CardContent className="space-y-3 p-4">
         <div className="flex flex-wrap gap-1.5">
           <Badge
@@ -113,12 +113,12 @@ export function PostCard({ post, project, onUpdated, onEdit }: PostCardProps) {
               {project.name}
             </Badge>
           )}
-          <Badge variant="secondary" className="bg-white/[0.06] text-titanium">
+          <Badge variant="secondary" className="bg-obsidian-deep/50 text-titanium">
             {CONTENT_TYPE_LABELS[post.content_type] ?? post.content_type}
           </Badge>
         </div>
 
-        <div className="max-h-48 overflow-y-auto rounded-lg bg-white/[0.02] p-3 text-sm leading-relaxed text-ivory/85 whitespace-pre-wrap">
+        <div className="max-h-48 overflow-y-auto rounded-lg bg-obsidian-deep/40 p-3 text-sm leading-relaxed text-ivory/85 whitespace-pre-wrap">
           {post.text_content}
         </div>
 
@@ -173,7 +173,7 @@ export function PostCard({ post, project, onUpdated, onEdit }: PostCardProps) {
               variant="outline"
               disabled={!!loading}
               onClick={() => onEdit(post)}
-              className="border-white/10 bg-white/[0.04]"
+              className="border-copper/15 bg-obsidian-deep/50"
             >
               <Pencil className="mr-1 h-3.5 w-3.5" />
               Modifier

@@ -30,7 +30,7 @@ function RatingStars({ rating }: { rating: number | null }) {
             "h-3 w-3",
             i < rating
               ? "fill-amber-400 text-amber-400"
-              : "text-white/15"
+              : "text-titanium/20"
           )}
         />
       ))}
@@ -43,7 +43,7 @@ export function RecentFeedbackTable({ feedback, projects }: RecentFeedbackTableP
   const projectMap = Object.fromEntries(projects.map((p) => [p.id, p]));
 
   return (
-    <Card className="border-white/[0.06] bg-surface/80">
+    <Card className="border-copper/10 bg-surface/80">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-sm font-medium text-ivory">
           Derniers avis

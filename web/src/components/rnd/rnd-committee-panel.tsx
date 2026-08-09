@@ -23,7 +23,7 @@ const MEMBER_STYLES: Record<string, string> = {
   accounting: "border-emerald-500/25 bg-emerald-500/10 text-emerald-300",
   dev_app: "border-violet-500/25 bg-violet-500/10 text-violet-300",
   content: "border-amber-500/25 bg-amber-500/10 text-amber-200",
-  default: "border-white/15 bg-white/[0.04] text-ivory/80",
+  default: "border-copper/20 bg-obsidian-deep/50 text-ivory/80",
 };
 
 function speakerLabel(speaker: string, team: CommitteeMember[]): string {
@@ -61,7 +61,7 @@ function CommitteeBubble({
           isUser
             ? "bg-copper/20 text-ivory/95"
             : isSystem
-              ? "border border-white/10 bg-white/[0.03] text-titanium/70 italic"
+              ? "border border-copper/15 bg-obsidian-deep/50 text-titanium/70 italic"
               : cn("border", style)
         )}
       >
@@ -316,7 +316,7 @@ export function RndCommitteePanel({
           {team.map((m) => (
             <span
               key={m.id}
-              className="rounded-full border border-white/10 bg-white/[0.03] px-2 py-0.5 text-[10px] text-titanium/70"
+              className="rounded-full border border-copper/15 bg-obsidian-deep/50 px-2 py-0.5 text-[10px] text-titanium/70"
               title={m.title}
             >
               {m.emoji} {m.name}
@@ -359,7 +359,7 @@ export function RndCommitteePanel({
             placeholder="Challenge le dossier… @marketing @compta"
             rows={2}
             disabled={sending}
-            className="min-h-[48px] resize-none border-copper/15 bg-white/[0.02] text-sm"
+            className="min-h-[48px] resize-none border-copper/15 bg-obsidian-deep/40 text-sm"
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();

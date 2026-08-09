@@ -66,7 +66,7 @@ export function ProductionOpsCockpit() {
           type="button"
           variant="outline"
           size="sm"
-          className="border-white/10"
+          className="border-copper/15"
           onClick={() => void load()}
           disabled={loading}
         >
@@ -85,7 +85,7 @@ export function ProductionOpsCockpit() {
         </p>
 
         <div className="grid gap-3 sm:grid-cols-3">
-          <div className="rounded-lg border border-white/10 px-3 py-2">
+          <div className="rounded-lg border border-copper/15 px-3 py-2">
             <p className="text-[10px] uppercase tracking-wide text-titanium/50">
               Fingerprints
             </p>
@@ -93,13 +93,13 @@ export function ProductionOpsCockpit() {
               {data?.sentry.tracked_fingerprints ?? "—"}
             </p>
           </div>
-          <div className="rounded-lg border border-white/10 px-3 py-2">
+          <div className="rounded-lg border border-copper/15 px-3 py-2">
             <p className="text-[10px] uppercase tracking-wide text-titanium/50">
               Erreurs ouvertes
             </p>
             <p className="font-title text-lg text-ivory">{openCount}</p>
           </div>
-          <div className="rounded-lg border border-white/10 px-3 py-2">
+          <div className="rounded-lg border border-copper/15 px-3 py-2">
             <p className="text-[10px] uppercase tracking-wide text-titanium/50">
               Auto-issue
             </p>

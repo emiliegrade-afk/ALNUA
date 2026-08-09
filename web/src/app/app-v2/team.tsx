@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Check } from "lucide-react";
 import { PerformanceTab, MemoireTab } from "@/components/shared/member-detail-panel";
 import { useConsoleData } from "@/components/console/console-provider";
-import { devAppInstruction } from "@/lib/pole-api";
+import { devAppInstruction, marketingInstruction } from "@/lib/pole-api";
 import { ROUTES } from "@/lib/routes";
 import type { TicketWithProject } from "@/lib/tickets";
 import type { BureauAgentDef } from "@/lib/agent-bureau";
@@ -25,11 +25,13 @@ import { PROJECT_COLOR, PROJECT_LABEL, PROJECT_PROGRESS } from "./tabs";
 
 // ─── Mission ────────────────────────────────────────────────────────────────
 
-/** Seul dev_app (Théo) a aujourd'hui un endpoint d'instruction libre côté API
- * (voir lib/pole-api.ts) — les autres agents du bureau App n'en ont pas. On
- * ne simule pas une réponse pour ceux qui n'en ont pas. */
+/** Agents avec un endpoint d'instruction libre réel côté API (voir
+ * lib/pole-api.ts) — dev_app (Théo) et marketing (Camille, Phase 29,
+ * ROADMAP.md, via /agents/marketing/instruction). Les autres agents n'en ont
+ * pas ; on ne simule pas de réponse pour eux. */
 const INSTRUCTION_HANDLERS: Record<string, (text: string) => Promise<{ result: string }>> = {
   dev_app: devAppInstruction,
+  marketing: marketingInstruction,
 };
 
 export function MissionBox({
@@ -47,7 +49,7 @@ export function MissionBox({
     return (
       <div
         className="flex w-full shrink-0 flex-col self-start rounded-[10px] border p-[11px] min-[1240px]:w-[clamp(146px,11.2vw,172px)]"
-        style={{ borderColor: "rgba(200,127,78,.32)", background: "rgba(22,17,13,.6)" }}
+        style={{ borderColor: "rgba(192,138,114,.32)", background: "rgba(22,17,13,.6)" }}
       >
         <p
           className="border-b pb-2 text-[8.5px] tracking-[1.6px]"
@@ -76,7 +78,7 @@ export function MissionBox({
   return (
     <div
       className="flex w-full shrink-0 flex-col self-start rounded-[10px] border p-[11px] min-[1240px]:w-[clamp(146px,11.2vw,172px)]"
-      style={{ borderColor: "rgba(200,127,78,.32)", background: "rgba(22,17,13,.6)" }}
+      style={{ borderColor: "rgba(192,138,114,.32)", background: "rgba(22,17,13,.6)" }}
     >
       <p
         className="border-b pb-2 text-[8.5px] tracking-[1.6px]"
@@ -301,8 +303,8 @@ export function ChatPanel({ agent }: { agent: BureauAgentDef }) {
                   <div
                     className="max-w-[85%] rounded-lg px-2.5 py-2"
                     style={{
-                      background: m.me ? "rgba(200,127,78,.14)" : "rgba(255,255,255,.03)",
-                      border: `1px solid ${m.me ? "rgba(200,127,78,.25)" : C.line}`,
+                      background: m.me ? "rgba(192,138,114,.14)" : "rgba(255,255,255,.03)",
+                      border: `1px solid ${m.me ? "rgba(192,138,114,.25)" : C.line}`,
                     }}
                   >
                     <div className="mb-1 flex items-center justify-between gap-3.5">
@@ -341,7 +343,7 @@ export function ChatPanel({ agent }: { agent: BureauAgentDef }) {
               className="min-w-0 flex-1 rounded-[9px] border px-3 py-2 text-[11px] outline-none"
               style={{
                 background: "rgba(8,7,6,.7)",
-                borderColor: "rgba(200,127,78,.2)",
+                borderColor: "rgba(192,138,114,.2)",
                 color: C.ivory,
               }}
             />
@@ -355,8 +357,8 @@ export function ChatPanel({ agent }: { agent: BureauAgentDef }) {
               aria-label="Envoyer"
               className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[9px] border text-[13px] disabled:opacity-40"
               style={{
-                borderColor: "rgba(200,127,78,.5)",
-                background: "rgba(200,127,78,.14)",
+                borderColor: "rgba(192,138,114,.5)",
+                background: "rgba(192,138,114,.14)",
                 color: C.copperLight,
               }}
             >
@@ -373,7 +375,7 @@ export function ChatPanel({ agent }: { agent: BureauAgentDef }) {
             className="min-h-0 flex-1 resize-none rounded-[9px] border p-3 text-[11px] outline-none"
             style={{
               background: "rgba(8,7,6,.7)",
-              borderColor: "rgba(200,127,78,.2)",
+              borderColor: "rgba(192,138,114,.2)",
               color: C.ivory,
             }}
           />
@@ -437,7 +439,7 @@ export function RecentTasksPanel({
       <Link
         href={ROUTES.activity}
         className="rounded-lg border py-1.5 text-center text-[10px]"
-        style={{ borderColor: "rgba(200,127,78,.22)", color: C.warm }}
+        style={{ borderColor: "rgba(192,138,114,.22)", color: C.warm }}
       >
         Voir tout l&apos;historique
       </Link>

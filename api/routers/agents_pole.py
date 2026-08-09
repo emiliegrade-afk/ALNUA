@@ -298,6 +298,19 @@ def marketing_create_content(body: MarketingContentRequest) -> dict[str, str]:
     return {"result": result}
 
 
+@router.post("/agents/ads/create-campaign")
+def ads_create_campaign(body: AdsCreateCampaignRequest) -> dict[str, Any]:
+    return AdsAgent().create_campaign(
+        _clean(body.brief, max_length=2000),
+        platform=body.platform,
+        budget_usd=body.budget_usd,
+        objective=body.objective,
+        audience=body.audience,
+        project_id=body.project_id,
+        name=body.name,
+    )
+
+
 @router.post("/agents/hardware/instruction")
 def hardware_instruction(body: AgentInstructionRequest) -> dict[str, str]:
     result = HardwareAgent().handle_instruction(_clean(body.instruction))

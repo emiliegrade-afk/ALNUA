@@ -83,7 +83,7 @@ export function PartnerCreateModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="border-white/10 bg-surface sm:max-w-md">
+      <DialogContent className="border-copper/15 bg-surface sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-ivory">Nouveau partenaire</DialogTitle>
         </DialogHeader>
@@ -93,17 +93,17 @@ export function PartnerCreateModal({
             onChange={(e) => setName(e.target.value)}
             placeholder="Nom *"
             required
-            className="border-white/10 bg-obsidian/50"
+            className="border-copper/15 bg-obsidian/50"
           />
           <Input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
-            className="border-white/10 bg-obsidian/50"
+            className="border-copper/15 bg-obsidian/50"
           />
           <Select value={type} onValueChange={setType}>
-            <SelectTrigger className="border-white/10 bg-obsidian/50">
+            <SelectTrigger className="border-copper/15 bg-obsidian/50">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -118,7 +118,7 @@ export function PartnerCreateModal({
             value={direction}
             onValueChange={(v) => setDirection(v as "outbound" | "inbound")}
           >
-            <SelectTrigger className="border-white/10 bg-obsidian/50">
+            <SelectTrigger className="border-copper/15 bg-obsidian/50">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -135,7 +135,7 @@ export function PartnerCreateModal({
                 className={`rounded-full border px-2 py-0.5 text-xs ${
                   projectIds.includes(p.id)
                     ? "border-copper/50 bg-copper/15 text-copper-glow"
-                    : "border-white/10 text-titanium"
+                    : "border-copper/15 text-titanium"
                 }`}
               >
                 {p.name}

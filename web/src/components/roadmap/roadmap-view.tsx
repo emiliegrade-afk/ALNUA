@@ -188,7 +188,7 @@ export function RoadmapView() {
                 onAddInColumn={openCreate}
               />
             ) : filteredItems.length === 0 ? (
-              <div className="flex flex-col items-center justify-center rounded-2xl border border-copper/10 bg-obsidian/50 py-20 text-center ring-1 ring-white/[0.04]">
+              <div className="flex flex-col items-center justify-center rounded-2xl border border-copper/10 bg-obsidian/50 py-20 text-center ring-1 ring-copper/10">
                 <p className="text-sm text-titanium">
                   Rien à afficher sur la timeline
                 </p>

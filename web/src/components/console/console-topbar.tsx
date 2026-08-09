@@ -1,101 +1,70 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import {
-  BarChart3,
-  Bell,
-  BookOpen,
-  ChevronDown,
-  KanbanSquare,
-  LayoutGrid,
-  Map,
-  Menu,
-  MessageCircle,
-  Plug,
-  Rows3,
-  Search,
-  Settings,
-  type LucideIcon,
-} from "lucide-react";
-import { useConsoleData, CONSOLE_POLL_MS } from "./console-provider";
-import { Sparkline } from "./charts";
-import { AgentAvatar } from "@/components/shared/agent-avatar";
-import { CONSOLE_AGENTS } from "@/lib/console/nav";
+import { Bell, Search, Zap } from "lucide-react";
+import { useConsoleData } from "./console-provider";
+import { consolePathTitle } from "@/lib/console/nav";
 import { CONSOLE_POLES } from "@/lib/console/departments";
-import { HUB_OWNER, HUB_CHIEF } from "@/lib/console/owner";
-import { ROUTES } from "@/lib/routes";
 import { useHubHealthLive } from "@/hooks/use-hub-health-live";
 import { useCooStore } from "@/store/coo-store";
-import { cn } from "@/lib/utils";
 
 interface ConsoleTopbarProps {
   onMobileMenu: () => void;
 }
 
-const HUB_PHASE_STYLE = {
-  ok: "border-emerald-500/35 text-emerald-300 bg-emerald-500/10",
-  checking: "border-white/15 text-titanium/80 bg-white/5",
-  key: "border-amber-500/40 text-amber-200 bg-amber-500/10",
-  down: "border-red-500/40 text-red-300 bg-red-500/10",
-} as const;
+/** Maquette : la topbar porte breadcrumbs + titre + search + clock + bell +
+ * bouton "Lancer un agent". Les segments de nav centraux (Vue générale /
+ * Départements / Missions / Analytics / Ressources) ont été retirés — ils
+ * duppliquaient la sidebar et envoyaient vers des pages héritées (HQ lobby,
+ * tickets, analytics dept) qui ne correspondent pas à la maquette. */
+function useLiveClock(): Date | null {
+  const [now, setNow] = useState<Date | null>(null);
+  useEffect(() => {
+    const tick = () => setNow(new Date());
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+  return now;
+}
 
-/** Nav segmentée centrale des maquettes. Chaque entrée mène à une vue réelle —
- * "Départements" pointe vers le plan des bureaux et s'allume aussi sur
- * n'importe quelle page de pôle (c'est là qu'on se trouve en la lisant). */
-const SEGMENTS: { id: string; label: string; href: string; icon: LucideIcon }[] = [
-  { id: "overview", label: "Vue générale", href: ROUTES.home, icon: Rows3 },
-  { id: "departments", label: "Départements", href: ROUTES.hq, icon: LayoutGrid },
-  { id: "missions", label: "Missions", href: ROUTES.tickets, icon: KanbanSquare },
-  { id: "analytics", label: "Analytics", href: ROUTES.analytics, icon: BarChart3 },
-  { id: "resources", label: "Ressources", href: ROUTES.library, icon: BookOpen },
-];
-
-const POLE_HREFS = CONSOLE_POLES.map((p) => p.href);
-
-function activeSegment(pathname: string): string {
-  if (pathname === ROUTES.home) return "overview";
-  if (POLE_HREFS.some((h) => pathname === h || pathname.startsWith(`${h}/`))) {
-    return "departments";
-  }
-  const match = SEGMENTS.find(
-    (s) => s.id !== "overview" && (pathname === s.href || pathname.startsWith(`${s.href}/`)),
+function findPole(pathname: string) {
+  return CONSOLE_POLES.find(
+    (p) => pathname === p.href || pathname.startsWith(`${p.href}/`),
   );
-  return match?.id ?? "";
 }
 
 export function ConsoleTopbar({ onMobileMenu }: ConsoleTopbarProps) {
   const pathname = usePathname();
-  const { stats, activity24h, liveAgents, lastSyncedAt } = useConsoleData();
+  const { stats } = useConsoleData();
   const { phase } = useHubHealthLive();
   const openDrawer = useCooStore((s) => s.openDrawer);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  const current = activeSegment(pathname);
-  const chiefStatus = liveAgents[HUB_CHIEF.agentId]?.status ?? "idle";
-  const chiefOnline = chiefStatus === "working" || chiefStatus === "waiting";
+  const now = useLiveClock();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!menuOpen) return;
-    function onDown(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
-    }
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setMenuOpen(false);
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setSearchOpen((v) => !v);
+      }
+      if (e.key === "Escape") setSearchOpen(false);
     }
-    document.addEventListener("mousedown", onDown);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onDown);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [menuOpen]);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   useEffect(() => {
-    setMenuOpen(false);
-  }, [pathname]);
+    if (searchOpen) searchRef.current?.focus();
+  }, [searchOpen]);
+
+  const fallback = consolePathTitle(pathname);
+  const pole = findPole(pathname);
+  const crumb = pole ? "ALNUA / PÔLES" : fallback.crumb;
+  const title = pole ? `Pôle ${pole.name.replace("Bureau ", "").replace("Pôle ", "")}` : fallback.title;
+  const sub = pole ? pole.tagline : fallback.sub;
 
   const hubLabel =
     phase === "ok"
@@ -108,93 +77,57 @@ export function ConsoleTopbar({ onMobileMenu }: ConsoleTopbarProps) {
 
   return (
     <header className="sticky top-0 z-30 h-16 border-b border-bronze-faint bg-obsidian-deep/85 backdrop-blur-xl">
-      <div className="flex h-full items-center gap-3 px-4 sm:px-6">
-        <button
-          type="button"
-          onClick={onMobileMenu}
-          className="-ml-2 p-2 text-titane hover:text-ivoire lg:hidden"
-          aria-label="Menu"
-        >
-          <Menu className="h-5 w-5" />
-        </button>
+      <div className="flex h-full items-center gap-4 px-4 sm:px-6">
+        {/* Breadcrumbs + titre — maquette : "ALNUA > Vue d'ensemble" + sub-caption */}
+        <div className="flex min-w-0 shrink-0 items-center gap-3">
+          <button
+            type="button"
+            onClick={onMobileMenu}
+            className="-ml-1 p-2 text-titane hover:text-ivoire lg:hidden"
+            aria-label="Menu"
+          >
+            <span className="text-xl leading-none">≡</span>
+          </button>
+          <div className="min-w-0">
+            <p className="truncate text-[10px] uppercase tracking-[0.2em] text-titane/55">
+              {crumb}
+            </p>
+            <div className="flex items-baseline gap-2">
+              <h1 className="truncate font-title text-sm font-semibold tracking-wide text-ivoire sm:text-base">
+                {title}
+              </h1>
+              <span className="hidden truncate text-[11px] text-titane/60 sm:inline">
+                {sub}
+              </span>
+            </div>
+          </div>
+        </div>
 
-        {/* Identité du chef d'orchestre — présence permanente des maquettes */}
-        <Link
-          href={ROUTES.hub}
-          className="group flex min-w-0 shrink-0 items-center gap-2.5"
-          title={`${HUB_CHIEF.role} — ${HUB_CHIEF.name}`}
-        >
-          <AgentAvatar
-            agentId={HUB_CHIEF.agentId}
-            name={HUB_CHIEF.name}
-            size={38}
-            ring
-            className="hidden sm:inline-flex"
-          />
-          <span className="min-w-0">
-            <span className="flex items-baseline gap-1.5">
-              <span className="text-[11px] uppercase tracking-[0.18em] text-titane/50">
-                {HUB_CHIEF.shortRole}
-              </span>
-              <span className="truncate text-sm font-semibold text-ivoire group-hover:text-bronze-bright">
-                {HUB_CHIEF.name}
-              </span>
-            </span>
-            <span className="mt-0.5 flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-bronze-faint bg-obsidian/60 px-1.5 py-px text-[9px] text-titane/65">
-                <span
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    chiefOnline ? "bg-bronze-bright" : "bg-titane/40",
-                  )}
-                />
-                {chiefOnline ? "En ligne" : "En veille"}
-              </span>
-              {activity24h.length > 1 ? (
-                <Sparkline
-                  data={activity24h}
-                  width={72}
-                  height={14}
-                  fill={false}
-                  strokeWidth={1}
-                  className="hidden opacity-70 min-[1180px]:block"
-                />
-              ) : null}
-            </span>
+        {/* Search — maquette : barre centrée "Rechercher un agent, un pôle..." + ⌘K */}
+        <div className="mx-auto hidden max-w-md flex-1 md:block">
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            className="flex w-full items-center gap-2 rounded-lg border border-bronze-faint bg-obsidian/60 px-3 py-2 text-xs text-titane/55 transition-colors hover:border-bronze/40 hover:text-titane"
+          >
+            <Search className="h-3.5 w-3.5 shrink-0" />
+            <span className="flex-1 text-left">Rechercher un agent, un pôle…</span>
+            <kbd className="rounded border border-bronze-faint bg-obsidian-deep px-1.5 py-0.5 font-mono text-[9px] text-titane/60">
+              ⌘K
+            </kbd>
+          </button>
+        </div>
+
+        {/* Droite — clock + bell + "Lancer un agent" */}
+        <div className="ml-auto flex items-center gap-2 sm:gap-3">
+          <span
+            className="hidden font-mono text-xs tabular-nums text-titane/70 lg:inline"
+            suppressHydrationWarning
+            title={hubLabel}
+          >
+            {now ? now.toLocaleTimeString("fr-FR", { hour12: false }) : "--:--:--"}
           </span>
-        </Link>
 
-        {/* Nav segmentée centrale */}
-        <nav
-          aria-label="Sections principales"
-          className="mx-auto hidden items-center gap-1 rounded-xl border border-bronze-faint bg-obsidian/50 p-1 md:flex"
-        >
-          {SEGMENTS.map((seg) => {
-            const Icon = seg.icon;
-            const active = current === seg.id;
-            return (
-              <Link
-                key={seg.id}
-                href={seg.href}
-                aria-current={active ? "page" : undefined}
-                className={cn(
-                  "inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
-                  active
-                    ? "border border-bronze/40 bg-bronze/12 text-bronze-bright"
-                    : "border border-transparent text-titane/70 hover:bg-obsidian-deep hover:text-ivoire",
-                )}
-              >
-                <Icon className="h-3.5 w-3.5 shrink-0" />
-                <span className="hidden lg:inline">{seg.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* Maquette : à droite, la cloche et la carte profil, rien d'autre —
-            recherche, capture et assistants vivent dans le menu profil et la
-            barre d'action basse, sinon la nav centrale se fait écraser. */}
-        <div className="ml-auto flex items-center gap-2">
           <button
             type="button"
             className="relative rounded-lg border border-bronze-faint bg-obsidian/70 p-2 text-titane transition-colors hover:border-bronze/40 hover:text-bronze-bright"
@@ -212,131 +145,59 @@ export function ConsoleTopbar({ onMobileMenu }: ConsoleTopbarProps) {
             ) : null}
           </button>
 
-          {/* Carte profil — replie Connexions / statut Hub / Carte HQ */}
-          <div className="relative" ref={menuRef}>
-            <button
-              type="button"
-              onClick={() => setMenuOpen((v) => !v)}
-              aria-expanded={menuOpen}
-              aria-haspopup="menu"
-              className={cn(
-                "flex h-11 items-center gap-2.5 rounded-xl border px-2 transition-colors",
-                menuOpen
-                  ? "border-bronze/40 bg-bronze/10"
-                  : "border-bronze-faint bg-obsidian/70 hover:border-bronze/30",
-              )}
-            >
-              <AgentAvatar agentId={HUB_OWNER.id} name={HUB_OWNER.name} size={30} />
-              <span className="hidden text-left leading-tight min-[1240px]:block">
-                <span className="block text-xs font-semibold text-ivoire">{HUB_OWNER.name}</span>
-                <span className="block text-[10px] text-titane/55">{HUB_OWNER.role}</span>
-              </span>
-              <ChevronDown
-                className={cn(
-                  "h-3.5 w-3.5 shrink-0 text-titane/50 transition-transform",
-                  menuOpen && "rotate-180",
-                )}
-              />
-            </button>
-
-            {menuOpen ? (
-              <div
-                role="menu"
-                className="absolute right-0 top-[calc(100%+0.5rem)] w-64 overflow-hidden rounded-xl border border-bronze-faint bg-obsidian-deep/95 shadow-[0_16px_48px_rgba(0,0,0,0.6)] backdrop-blur-xl"
-              >
-                <div className="border-b border-bronze-faint px-4 py-3">
-                  <p className="text-sm font-semibold text-ivoire">{HUB_OWNER.name}</p>
-                  <p className="text-[11px] text-titane/55">{HUB_OWNER.role}</p>
-                </div>
-
-                <div
-                  className={cn(
-                    "mx-3 my-3 flex items-center gap-2 rounded-lg border px-3 py-2",
-                    HUB_PHASE_STYLE[phase],
-                  )}
-                  title={`Dernière sync dashboard · ${CONSOLE_POLL_MS / 1000}s`}
-                >
-                  <span className="relative flex h-1.5 w-1.5">
-                    {phase === "ok" ? (
-                      <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-50 animate-ping" />
-                    ) : null}
-                    <span
-                      className={cn(
-                        "relative inline-flex h-1.5 w-1.5 rounded-full",
-                        phase === "ok" && "bg-emerald-400",
-                        phase === "checking" && "bg-titanium/50",
-                        phase === "key" && "bg-amber-400",
-                        phase === "down" && "bg-red-400",
-                      )}
-                    />
-                  </span>
-                  <span className="text-xs font-medium">{hubLabel}</span>
-                  {lastSyncedAt ? (
-                    <span className="ml-auto font-mono text-[10px] tabular-nums opacity-70">
-                      {lastSyncedAt.toLocaleTimeString("fr-FR", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                  ) : null}
-                </div>
-
-                <div className="pb-2">
-                  <button
-                    type="button"
-                    role="menuitem"
-                    onClick={() => {
-                      setMenuOpen(false);
-                      openDrawer();
-                    }}
-                    className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-xs text-titane/75 transition-colors hover:bg-obsidian hover:text-ivoire"
-                  >
-                    <MessageCircle className="h-3.5 w-3.5 shrink-0" />
-                    Assistants — Aria &amp; Nadia
-                  </button>
-                  <Link
-                    href={CONSOLE_AGENTS}
-                    role="menuitem"
-                    className="flex items-center gap-2.5 px-4 py-2.5 text-xs text-titane/75 transition-colors hover:bg-obsidian hover:text-ivoire"
-                  >
-                    <Search className="h-3.5 w-3.5 shrink-0" />
-                    Rechercher un agent
-                  </Link>
-                  <Link
-                    href={ROUTES.connections}
-                    role="menuitem"
-                    className="flex items-center gap-2.5 px-4 py-2.5 text-xs text-titane/75 transition-colors hover:bg-obsidian hover:text-ivoire"
-                  >
-                    <Plug className="h-3.5 w-3.5 shrink-0" />
-                    Connexions
-                    {stats.connectedApps > 0 ? (
-                      <span className="ml-auto rounded bg-emerald-500/20 px-1.5 py-0.5 font-mono text-[10px] text-emerald-300">
-                        {stats.connectedApps}
-                      </span>
-                    ) : null}
-                  </Link>
-                  <Link
-                    href={ROUTES.hq}
-                    role="menuitem"
-                    className="flex items-center gap-2.5 px-4 py-2.5 text-xs text-titane/75 transition-colors hover:bg-obsidian hover:text-ivoire"
-                  >
-                    <Map className="h-3.5 w-3.5 shrink-0" />
-                    Carte HQ
-                  </Link>
-                  <Link
-                    href={ROUTES.settings}
-                    role="menuitem"
-                    className="flex items-center gap-2.5 px-4 py-2.5 text-xs text-titane/75 transition-colors hover:bg-obsidian hover:text-ivoire"
-                  >
-                    <Settings className="h-3.5 w-3.5 shrink-0" />
-                    Paramètres système
-                  </Link>
-                </div>
-              </div>
-            ) : null}
-          </div>
+          <button
+            type="button"
+            onClick={() => openDrawer()}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-copper px-3 py-2 text-xs font-semibold text-obsidian transition-colors hover:bg-copper-light"
+          >
+            <Zap className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Lancer un agent</span>
+            <span className="sm:hidden">Lancer</span>
+          </button>
         </div>
       </div>
+
+      {/* Search modal — ouvert via ⌘K ou clic sur la barre */}
+      {searchOpen ? (
+        <div
+          className="fixed inset-0 z-50 flex items-start justify-center bg-obsidian-deep/70 backdrop-blur-sm"
+          onClick={() => setSearchOpen(false)}
+        >
+          <div
+            className="mt-24 w-full max-w-lg rounded-xl border border-bronze-faint bg-obsidian-deep/95 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 border-b border-bronze-faint px-4 py-3">
+              <Search className="h-4 w-4 text-titane/60" />
+              <input
+                ref={searchRef}
+                type="text"
+                placeholder="Rechercher un agent, un pôle…"
+                className="flex-1 bg-transparent text-sm text-ivoire placeholder:text-titane/50 focus:outline-none"
+              />
+              <kbd className="rounded border border-bronze-faint bg-obsidian px-1.5 py-0.5 font-mono text-[9px] text-titane/60">
+                ESC
+              </kbd>
+            </div>
+            <div className="max-h-80 overflow-y-auto p-2 alnua-scroll">
+              <p className="px-3 py-2 text-[10px] uppercase tracking-widest text-titane/45">
+                Pôles
+              </p>
+              {CONSOLE_POLES.map((p) => (
+                <a
+                  key={p.id}
+                  href={p.href}
+                  className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-titane/80 transition-colors hover:bg-obsidian hover:text-ivoire"
+                >
+                  <span className="font-mono text-[10px] text-titane/40">{p.code}</span>
+                  <span className="flex-1">{p.name.replace("Bureau ", "").replace("Pôle ", "")}</span>
+                  <span className="truncate text-[11px] text-titane/45">{p.tagline}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : null}
     </header>
   );
 }

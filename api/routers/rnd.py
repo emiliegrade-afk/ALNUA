@@ -186,6 +186,23 @@ def rnd_patch_node(slug: str, node_id: str, body: dict[str, Any]) -> dict[str, A
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
+@router.patch("/rnd/trees/{slug}/nodes/{node_id}/reparent")
+def rnd_reparent_node(slug: str, node_id: str, body: dict[str, Any]) -> dict[str, Any]:
+    """Glisser un nœud sur un autre dans le canvas Arbres (Phase 26, ROADMAP.md) = "relier"."""
+    new_parent_id = str(body.get("new_parent_id") or "").strip()
+    if not new_parent_id:
+        raise HTTPException(status_code=400, detail="new_parent_id requis")
+    try:
+        from services.rnd_hypothesis_tree import reparent_node
+
+        return reparent_node(slug, node_id, new_parent_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("rnd_reparent_node failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
 @router.post("/rnd/trees/{slug}/nodes/{node_id}/promote")
 def rnd_promote_tree_node(
     slug: str,
@@ -352,6 +369,79 @@ def rnd_promote_idea(
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
+@router.patch("/rnd/ideas/{idea_id}/incubator-stage")
+def rnd_set_incubator_stage(idea_id: str, body: dict[str, Any]) -> dict[str, Any]:
+    """Incubateur (Phase 24) — glisser une carte vers une colonne
+    intermédiaire (Idée/Prototype/Validation/MVP/Projet). Simple étiquette,
+    aucune conséquence réelle — voir promote-to-department pour la colonne
+    Département, qui elle déclenche un vrai dispatch."""
+    from datetime import datetime, timezone
+
+    from services.rnd_repository import get_rnd_repository
+    from services.rnd_schemas import RndIncubatorStageBody
+
+    payload = RndIncubatorStageBody.model_validate(body)
+    if payload.stage == "departement":
+        raise HTTPException(
+            status_code=400,
+            detail="Utilise POST /rnd/ideas/{idea_id}/incubator/promote-to-department pour la colonne Département.",
+        )
+
+    repo = get_rnd_repository()
+    idea_row = repo.get_idea_db_row(idea_id)
+    if not idea_row:
+        raise HTTPException(status_code=404, detail=f"Idée introuvable : {idea_id}")
+
+    repo.db.update(
+        "rnd_ideas",
+        idea_row["id"],
+        {
+            "incubator_stage": payload.stage,
+            "incubator_stage_updated_at": datetime.now(timezone.utc).isoformat(),
+        },
+    )
+    return {"idea_id": idea_id, "incubator_stage": payload.stage}
+
+
+@router.post("/rnd/ideas/{idea_id}/incubator/promote-to-department")
+def rnd_promote_idea_to_department(idea_id: str) -> dict[str, Any]:
+    """Incubateur (Phase 24) — glisser une carte vers la colonne Département.
+    Geste d'approbation CEO explicite : crée le dossier si absent, génère le
+    package CEO si éligible, approuve, dispatch. Refuse honnêtement
+    (403) si le dossier n'a pas encore de rapport comité plutôt que de
+    fabriquer une approbation."""
+    from agents.rnd_ceo_agent import CeoDecisionError, CeoPackageNotReadyError, DispatchNotAllowedError, RndCeoAgent
+
+    try:
+        result = RndCeoAgent().promote_idea_to_department(idea_id, actor="emilie")
+    except CeoPackageNotReadyError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except (CeoDecisionError, DispatchNotAllowedError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("rnd_promote_idea_to_department failed for %s", idea_id)
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+    from datetime import datetime, timezone
+
+    from services.rnd_repository import get_rnd_repository
+
+    repo = get_rnd_repository()
+    idea_row = repo.get_idea_db_row(idea_id)
+    if idea_row:
+        repo.db.update(
+            "rnd_ideas",
+            idea_row["id"],
+            {
+                "incubator_stage": "departement",
+                "incubator_stage_updated_at": datetime.now(timezone.utc).isoformat(),
+            },
+        )
+    return result
+
+
 @router.post("/rnd/dossiers")
 def rnd_create_dossier(
     body: dict[str, Any],
@@ -426,6 +516,23 @@ def rnd_get_dossier_by_slug(slug: str) -> dict[str, Any]:
     if not dossier:
         raise HTTPException(status_code=404, detail="Dossier introuvable")
     return dossier.model_dump()
+
+
+@router.get("/rnd/dossiers/table-view")
+def rnd_dossiers_table_view(
+    status: str | None = Query(default=None),
+    domain: str | None = Query(default=None),
+    limit: int = Query(default=50, le=100),
+) -> list[dict[str, Any]]:
+    """Vue table Dossiers (Phase 27) — préjoint idée/vote Conseil/documents/
+    section marché par dossier, pour éviter un N+1 côté frontend."""
+    from services.rnd_dossier_table import build_dossier_table_rows
+
+    try:
+        return build_dossier_table_rows(status=status, domain=domain, limit=limit)
+    except Exception as exc:
+        logger.exception("rnd_dossiers_table_view failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
 @router.get("/rnd/dossiers/{dossier_id}")

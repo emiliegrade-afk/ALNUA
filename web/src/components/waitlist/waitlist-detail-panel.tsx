@@ -81,7 +81,7 @@ export function WaitlistDetailPanel({
           "animate-fade-in"
         )}
       >
-        <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+        <div className="flex items-center justify-between border-b border-copper/15 px-5 py-4">
           <h2 className="text-sm font-semibold text-ivory">Détail inscription</h2>
           <Button variant="ghost" size="icon" onClick={onClose} aria-label="Fermer">
             <X className="h-4 w-4" />
@@ -117,7 +117,7 @@ export function WaitlistDetailPanel({
             </p>
 
             {entry.message ? (
-              <div className="rounded-lg border border-white/10 bg-white/[0.02] p-4">
+              <div className="rounded-lg border border-copper/15 bg-obsidian-deep/40 p-4">
                 <p className="mb-2 text-xs font-medium uppercase tracking-wide text-titanium">
                   Pourquoi elle veut essayer
                 </p>
@@ -137,7 +137,7 @@ export function WaitlistDetailPanel({
                 value={entry.status}
                 onValueChange={(v) => handleStatusChange(v as WaitlistStatus)}
               >
-                <SelectTrigger className="border-white/10">
+                <SelectTrigger className="border-copper/15">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -152,7 +152,7 @@ export function WaitlistDetailPanel({
           </div>
         </ScrollArea>
 
-        <div className="border-t border-white/10 p-4">
+        <div className="border-t border-copper/15 p-4">
           <Button
             variant="outline"
             className="w-full gap-2 border-red-500/30 text-red-300 hover:bg-red-500/10"

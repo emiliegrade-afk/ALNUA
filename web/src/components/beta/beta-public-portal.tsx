@@ -172,7 +172,7 @@ export function BetaPublicPortal({ projectSlug }: BetaPublicPortalProps) {
 
   if (loading) {
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-[#0d0d0d]">
+      <div className="flex min-h-dvh items-center justify-center bg-obsidian">
         <Loader2 className="h-8 w-8 animate-spin text-copper" />
       </div>
     );
@@ -180,7 +180,7 @@ export function BetaPublicPortal({ projectSlug }: BetaPublicPortalProps) {
 
   if (error && !info) {
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-[#0d0d0d] px-4">
+      <div className="flex min-h-dvh items-center justify-center bg-obsidian px-4">
         <p className="text-center text-red-300">{error}</p>
       </div>
     );
@@ -190,8 +190,8 @@ export function BetaPublicPortal({ projectSlug }: BetaPublicPortalProps) {
   const displayVersion = profile?.app_version ?? appVersion ?? info?.app_version ?? "—";
 
   return (
-    <div className="min-h-dvh bg-[#0d0d0d] text-ivory">
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,rgba(192,138,114,0.08),transparent_55%)]" />
+    <div className="min-h-dvh bg-obsidian text-ivory">
+      <div className="pointer-events-none fixed inset-0 bg-radial-glow" />
       <div className="relative mx-auto w-full max-w-[480px] px-4 py-8 pb-16">
         <div className="mb-8 flex flex-col items-center gap-3">
           <AlnuaLogo variant="symbol" height={48} />
@@ -219,7 +219,7 @@ export function BetaPublicPortal({ projectSlug }: BetaPublicPortalProps) {
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   placeholder="Ton prénom"
-                  className="border-white/10 bg-white/5"
+                  className="border-copper/15 bg-obsidian/50"
                 />
               </div>
               <div>
@@ -230,7 +230,7 @@ export function BetaPublicPortal({ projectSlug }: BetaPublicPortalProps) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="ton@email.com"
-                  className="border-white/10 bg-white/5"
+                  className="border-copper/15 bg-obsidian/50"
                 />
               </div>
               <div>
@@ -239,7 +239,7 @@ export function BetaPublicPortal({ projectSlug }: BetaPublicPortalProps) {
                   value={device}
                   onChange={(e) => setDevice(e.target.value)}
                   placeholder="iPhone 14, Samsung S23…"
-                  className="border-white/10 bg-white/5"
+                  className="border-copper/15 bg-obsidian/50"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -249,7 +249,7 @@ export function BetaPublicPortal({ projectSlug }: BetaPublicPortalProps) {
                     value={osVersion}
                     onChange={(e) => setOsVersion(e.target.value)}
                     placeholder="iOS 17.2"
-                    className="border-white/10 bg-white/5"
+                    className="border-copper/15 bg-obsidian/50"
                   />
                 </div>
                 <div>
@@ -258,7 +258,7 @@ export function BetaPublicPortal({ projectSlug }: BetaPublicPortalProps) {
                     value={appVersion}
                     onChange={(e) => setAppVersion(e.target.value)}
                     placeholder="0.9.1"
-                    className="border-white/10 bg-white/5"
+                    className="border-copper/15 bg-obsidian/50"
                   />
                 </div>
               </div>
@@ -316,8 +316,8 @@ export function BetaPublicPortal({ projectSlug }: BetaPublicPortalProps) {
                       className={cn(
                         "flex items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm transition",
                         feedbackType === t.id
-                          ? "border-copper/50 bg-copper/15 text-copper-glow"
-                          : "border-white/10 bg-white/[0.03] text-titanium hover:border-copper/25"
+                          ? "border-copper/50 bg-copper/15 text-copper-light"
+                          : "border-copper/15 bg-obsidian-deep/50 text-titanium hover:border-copper/30"
                       )}
                     >
                       <span>{t.icon}</span>
@@ -334,7 +334,7 @@ export function BetaPublicPortal({ projectSlug }: BetaPublicPortalProps) {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder={selectedType.titlePlaceholder}
-                  className="border-white/10 bg-white/5"
+                  className="border-copper/15 bg-obsidian/50"
                 />
               </div>
 
@@ -345,7 +345,7 @@ export function BetaPublicPortal({ projectSlug }: BetaPublicPortalProps) {
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder={selectedType.descriptionPlaceholder}
                   rows={4}
-                  className="border-white/10 bg-white/5 resize-none"
+                  className="border-copper/15 bg-obsidian/50 resize-none"
                 />
               </div>
 
@@ -361,7 +361,7 @@ export function BetaPublicPortal({ projectSlug }: BetaPublicPortalProps) {
                         "rounded-full border px-3 py-1.5 text-xs font-medium transition",
                         severity === s.id
                           ? s.className
-                          : "border-white/10 bg-white/[0.03] text-titanium"
+                          : "border-copper/15 bg-obsidian-deep/50 text-titanium"
                       )}
                     >
                       {s.label}
@@ -372,7 +372,7 @@ export function BetaPublicPortal({ projectSlug }: BetaPublicPortalProps) {
 
               <div>
                 <p className="mb-2 text-xs text-titanium">Screenshot (optionnel)</p>
-                <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-white/15 bg-white/[0.02] px-4 py-4 text-sm text-titanium transition hover:border-copper/30">
+                <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-copper/20 bg-obsidian-deep/40 px-4 py-4 text-sm text-titanium transition hover:border-copper/40">
                   <Camera className="h-4 w-4" />
                   Ajouter une capture
                   <input
@@ -387,7 +387,7 @@ export function BetaPublicPortal({ projectSlug }: BetaPublicPortalProps) {
                   <img
                     src={screenshotPreview}
                     alt="Aperçu"
-                    className="mt-3 max-h-48 w-full rounded-xl border border-white/10 object-contain"
+                    className="mt-3 max-h-48 w-full rounded-xl border border-copper/15 object-contain"
                   />
                 ) : null}
               </div>
@@ -413,7 +413,7 @@ export function BetaPublicPortal({ projectSlug }: BetaPublicPortalProps) {
         )}
 
         {token && history.length > 0 ? (
-          <section className="mt-12 border-t border-white/10 pt-8">
+          <section className="mt-12 border-t border-copper/15 pt-8">
             <h2 className="mb-4 text-sm font-medium text-titanium">
               Tes feedbacks précédents
             </h2>
@@ -421,7 +421,7 @@ export function BetaPublicPortal({ projectSlug }: BetaPublicPortalProps) {
               {history.map((item) => (
                 <li
                   key={item.id}
-                  className="rounded-xl border border-white/10 bg-white/[0.03] p-3"
+                  className="rounded-xl border border-copper/15 bg-obsidian-deep/50 p-3"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <p className="text-sm font-medium text-ivory">{item.title}</p>

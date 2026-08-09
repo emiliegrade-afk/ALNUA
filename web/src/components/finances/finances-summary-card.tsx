@@ -45,7 +45,7 @@ export function FinancesSummaryCard({
   const hasSummary = Boolean(summary?.summary_md?.trim());
 
   return (
-    <Card className="border-white/10 bg-surface/80">
+    <Card className="border-copper/15 bg-surface/80">
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-sm font-medium text-ivory">
           <Sparkles className="h-4 w-4 text-copper" />
@@ -72,7 +72,7 @@ export function FinancesSummaryCard({
               type="button"
               variant="outline"
               size="sm"
-              className="border-white/10"
+              className="border-copper/15"
               disabled={generating}
               onClick={() => handleGenerate(true)}
             >

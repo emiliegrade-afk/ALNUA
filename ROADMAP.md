@@ -32,14 +32,37 @@
 | 19 | Robotique — BOM étendu (PCB/firmware/tests) + bancs connectés (Laboratoire) | ✅ Complete (réceptacle) |
 | 20 | Robotique — télémétrie IoT (Analytics : conso/temp/batterie/cycles) | ✅ Complete (réceptacle) |
 | 21 | Outils réels (skills) pour les 15 agents spécialisés Gaming/Robotique (Phase 13) | ⏸️ Not started |
+| 22 | Redesign R&D v2 — socle & coquille (`/rnd-v2`) | ✅ Complete |
+| 23 | Redesign R&D v2 — Innovation Pipeline (cartes) | ✅ Complete |
+| 24 | Redesign R&D v2 — Incubateur (Kanban) | ✅ Complete |
+| 25 | Redesign R&D v2 — Moteur Conseil (stratégique + IA) | ✅ Complete (réceptacle) |
+| 26 | Redesign R&D v2 — Arbres (canvas mindmap) | ✅ Complete |
+| 27 | Redesign R&D v2 — Dossiers (vue table) | ✅ Complete |
+| 28 | Redesign R&D v2 — Explorer (veille externe autonome) | ⏸️ Not started |
+| 29 | Marketing/Finances — Command Center visuel (chrome immersif + cockpits) | ✅ Complete |
+| 30 | Workflow engine généralisé — recettes de validation configurables + niveaux d'autonomie | ⏸️ Not started |
+| 31 | Agent Trust System — indice de confiance par agent, distinct de la compétition | ⏸️ Not started |
+| 32 | Review Board générique + Quality Gates par département | ⏸️ Not started |
+| 33 | Marketing Command Center — profondeur (campagnes, calendrier éditorial unifié) | ✅ Complete (Campagnes + Content Studio) |
+| 34 | Finance Cockpit — profondeur (budgets, factures, fiscalité) | 🔄 In progress |
+| 35 | Brand Design — design system transversal + reviewer cross-département | ⏸️ Not started |
+| 36 | Orchestration inter-départements — event bus cross-département + briefing COO étendu | ⏸️ Not started |
+| 37 | Marketing Command Center : mesure de performance réelle (Reach/Engagement/ROI/Funnel) | ✅ Complete |
+| 38 | Harmonisation visuelle globale du Hub sur les maquettes ChatGPT (rendu visuel, branchement à reconnecter) | ✅ Complete |
 
 Statut légende : ⏸️ Not started | 🔄 In progress | ✅ Complete | 🔴 Blocked
 
 ## Current phase
 
-Aucun sprint actif identifié dans le code au moment du bootstrap — le dernier commit
-(`8b366a5`, 2026-07-24) clôt un correctif ponctuel (`fix(library)`), pas une phase. La
-prochaine phase reste **à définir avec Emilie** ; ne pas la deviner ici.
+Phases 29-36 définies le 2026-07-31, à partir du brief "Marketing Command Center /
+Finance Cockpit / Brand Design transversal / Workflows de validation / Trust System"
+d'Emilie — voir détail de chaque phase ci-dessous. **Phase 29 (cockpit visuel) et
+Phase 33 (Campagnes + Content Studio) complétées le 2026-07-31**, dans cet ordre à
+la demande d'Emilie ("Marketing d'abord"), en avance sur les Phases 30-32
+(workflow engine/trust/review board — toujours `⏸️ Not started`, écart assumé et
+documenté dans le détail de la Phase 33). Prochaine phase à confirmer avec Emilie :
+Phase 34 (Finance profondeur), reste des fonctionnalités Marketing (Content Studio/
+Social Media/SEO/Ads/Brand Center), ou Phase 30 pour rattraper le workflow engine.
 
 ## Points tranchés le 2026-07-25 (anciennement ouverts)
 
@@ -399,3 +422,1037 @@ texte → JSON chacun (aucun outil `tool()`, aucune connexion réelle) — contr
 (BOM étendu + Laboratoire connecté) — pas de sens de brancher un outil avant que
 l'infra sous-jacente existe.
 **Statut :** ⏸️ Not started — décidé le 2026-07-30 ("on le fera plus tard").
+
+### Phase 22 — Redesign R&D v2 : socle & coquille (`/rnd-v2`)
+**Objectif :** premier étage d'une refonte en 7 phases (22-28) du département
+R&D — passer d'un "chat + liste d'idées" à une expérience "laboratoire"
+(Skunk Works/OpenAI/xAI), en réutilisant le pattern déjà validé pour
+App/Gaming/Robo (`app-v2`/`gaming-v2`/`robo-v2`) plutôt que l'ancien système
+`DepartmentWorkspace` encore utilisé par `/rd`. Plan complet approuvé par
+Emilie : `PLAN` en pièce jointe de la session (Phases 22-28 détaillées —
+socle, Innovation Pipeline, Incubateur Kanban, Moteur Conseil IA, Arbres
+mindmap, Dossiers table, Explorer veille externe).
+**Investigation :** le backend R&D (~55 endpoints `api/routers/rnd.py`,
+pipeline dossier 7 étapes, comité multi-agents, arbre d'hypothèses réel,
+dispatch post-CEO déjà fonctionnel) est très mature — la refonte est donc
+très majoritairement frontend, contrairement à Gaming/Robo Phases 15-20 qui
+avaient dû reconstruire de vraies données depuis zéro.
+**Décision (validée avec Emilie) :** nouvelle route `/rnd-v2`, `/rd` reste
+la page réelle et fonctionnelle jusqu'à bascule finale (même précédent que
+`/app` → `/app-v2`) ; réutilise `C`/`Ring`/`Bar` de `app-v2/shared.tsx` et
+`MissionBox`/`ChatPanel`/`RecentTasksPanel`/`ApercuPanel` de `app-v2/team.tsx`
+sans dupliquer.
+**Livré :**
+- `web/src/app/rnd-v2/page.tsx` — coquille complète (en-tête, sidebar
+  Départements, barre d'onglets, barre de commandes) calquée sur
+  `gaming-v2/page.tsx`, avec un seul onglet Équipe pour cette phase (les
+  6 autres arrivent Phases 23-28 — pas d'onglet fantôme désactivé).
+  Onglet Équipe sur les 2 vrais agents du bureau R&D (Idris Okonkwo —
+  Brainstorm, Alex Mercer — R&D Recherche autonome), roster + panneau
+  détail (Mission/Discussion/Tâches récentes/Aperçu) réutilisés à
+  l'identique du pattern App.
+- `web/src/lib/routes.ts` — `ROUTES.rndV2 = "/rnd-v2"` (nouvelle constante,
+  `ROUTES.rd` inchangé).
+- `web/src/components/layout/hub-shell.tsx` — `/rnd-v2` ajouté à la liste
+  des routes "immersives" (chrome autonome, pas de double-wrap
+  `ConsoleShell`), même mécanisme que App/Gaming/Robo v2.
+- **Hygiène schema.sql (repérée en Phase 22, indépendante de la feature) :**
+  les 4 migrations R&D (`20260613120000_rnd_dossiers.sql`,
+  `20260613150000_rnd_ceo_phase6.sql`, `20260613150100_roadmap_rnd_dispatch.sql`,
+  `20260617120000_rnd_hub_branch.sql`) n'avaient jamais été mirrorées dans
+  `database/schema.sql` — comblé (nouvelle section "4f", + colonnes
+  `rnd_dossier_id`/`session_type`/`image_asset_path` ajoutées aux
+  définitions `roadmap`/`posts_queue`/`brainstorm_summaries` existantes).
+  Gap restant, hors périmètre : `lore_entries`/`bom_eve` (qui reçoivent
+  aussi une colonne `rnd_dossier_id`) ne sont pas du tout mirrorées dans
+  `schema.sql`, avant même cette phase — signalé en commentaire dans le
+  fichier plutôt que corrigé silencieusement.
+**Vérifié en live :** `tsc --noEmit` et `eslint` propres sur tout le projet ;
+`/rnd-v2` ouvert dans le navigateur — rendu identique au pattern
+App/Gaming/Robo (en-tête, sidebar avec "03 R&D" actif, ALNUA CORE), les 2
+agents réels s'affichent et se sélectionnent correctement (Idris Okonkwo ↔
+Alex Mercer), toutes les zones sans donnée réelle affichent un état vide
+honnête ("Aucune mission en cours.", "Aucun projet rattaché à ce bureau.")
+plutôt qu'une donnée fabriquée. Aucune erreur console/réseau après
+stabilisation (une salve de 404/500 observée sur un premier essai s'est
+avérée être un artefact de rechargement à chaud Next.js pendant que
+`schema.sql`/`ROADMAP.md` étaient en cours d'édition — non reproductible).
+**Non couvert (prévu pour les phases suivantes) :** onglets Pipeline
+(Phase 23), Incubateur (24), Conseil (25), Arbres (26), Dossiers (27),
+Explorer (28) ; `/rd` reste la page de référence jusqu'à la bascule finale.
+**Statut :** ✅ Complete, 2026-07-31.
+
+### Phase 23 — Redesign R&D v2 : Innovation Pipeline (cartes)
+**Objectif :** renommer Centre R&D → "Innovation Pipeline" — remplacer les
+vues liste par des cartes score/verdict animées, + une vue détail dossier
+"façon Apple" en cliquant une carte.
+**Réutilisé (aucun changement backend, confirmé) :** `RndIdeaOut`
+(`score`/`market_score`/`feasibility_score`/`vision_score`/`verdict`) déjà
+calculé par `rnd_center.py` ; `web/src/lib/rnd.ts::fetchRndIdeas` et
+`web/src/lib/rnd-dossier.ts::fetchRndDossier`/`fetchDossierPipeline`, déjà
+existants ; logique de mise en forme portée (pas le composant) depuis
+`web/src/components/rnd/rnd-pitch-modal.tsx::buildPitchBlocks`.
+**Livré :**
+- `web/src/app/rnd-v2/pipeline-tab.tsx` — grille de cartes (score en anneau,
+  badge GO/MAYBE/NO, sous-scores Marché/Tech/Business, pulse discret CSS
+  `animate-rnd-card-breathe` défini dans `globals.css`), filtres GO/MAYBE/NO,
+  triées par score. Onglet "Pipeline" ajouté à `rnd-v2/page.tsx`.
+- `web/src/app/rnd-v2/dossier-detail-view.tsx` — overlay plein écran :
+  en-tête (score, verdict, sous-scores, frise pipeline 7 étapes via
+  `fetchDossierPipeline`), puis onglets Résumé/Pitch/Marché & concurrence/
+  Business/Technique/Risques/Budget/Débat IA/Décision CEO (`MarkdownContent`
+  sur le contenu réel des sections). Idée sans dossier → état honnête
+  ("juste l'évaluation initiale de l'agent") + bouton "Créer le dossier
+  détaillé" (réutilise `promoteRndIdea`, déjà existant).
+**Vérifié en live :** `tsc`/`eslint` propres ; 38 idées réelles chargées et
+affichées avec leurs vrais scores/verdicts (`/rnd/ideas` en prod) ; overlay
+détail testé sur une idée réelle sans dossier (SentinelAI) — état vide
+honnête + bouton promotion corrects ; 10 dossiers réels confirmés existants
+en base (ex. SkillForge Marketplace, NomadComply) pour la suite. Aucune
+erreur console.
+**Correctif (2026-07-31, signalé par Emilie) :** l'overlay masquait
+*tout* le contenu (Résumé/Pitch/Décision CEO) dès qu'une idée n'avait pas
+encore de dossier, alors que `buildApplePanels()` génère déjà un vrai
+Résumé/Pitch à partir de `idea.description`/`reasoning` sans avoir besoin
+d'un dossier — le rendu vérifié ci-dessus ("état vide honnête") était en
+fait le bug : pour 37 des 38 idées réelles (toutes sauf celles avec un
+dossier), aucun texte de présentation n'apparaissait du tout. Corrigé :
+les panneaux s'affichent désormais toujours dès qu'au moins un a du
+contenu ; le bandeau "pas encore de dossier détaillé" devient une bannière
+au-dessus des onglets plutôt qu'un remplacement total. Revérifié en direct
+sur SentinelAI — Résumé/Pitch/Décision CEO s'affichent avec le vrai texte.
+**Correctif 2 (2026-07-31) :** `web/src/lib/rnd.ts::fetchRndIdeas(verdict,
+inboxOnly)` — quand `inboxOnly=false`, le paramètre `inbox_only` n'était
+tout simplement jamais envoyé (`if (inboxOnly) params.set(...)`) au lieu
+d'envoyer explicitement `"false"` ; le backend retombant sur son propre
+défaut (`inbox_only=True`), Pipeline affichait un sous-ensemble "inbox"
+(idées jamais promues/archivées) au lieu du pipeline complet — bug latent
+depuis toujours dans `rnd.ts`, jamais déclenché avant Phase 23 car aucun
+appelant ne passait `false` auparavant. Corrigé (+ limite remontée à 100,
+plafond backend) ; revérifié en direct : 57 idées réelles affichées (contre
+36-38 avant), plusieurs cartes affichent maintenant "Dossier ouvert" à la
+place de "Pas encore de dossier" pour les idées réellement promues.
+**Actions carte ajoutées (2026-07-31, demande Emilie) :** l'overlay détail
+n'avait qu'une action ("Créer le dossier détaillé"). Ajouté 3 choix
+explicites en en-tête : **Garder pour réfléchir** (ferme sans action),
+**🧪 Incuber** (réutilise `updateIncubatorStage` — Phase 24 — passe l'idée
+à l'étape Prototype de l'Incubateur), **Supprimer** (réutilise
+`archiveRndIdea`, déjà existant côté client mais jamais câblé sur aucune
+des deux vues détail R&D jusqu'ici). Vérifié `tsc`/`eslint` propres.
+**"+ Nouvelle idée" branché (2026-07-31, demande Emilie) :** le bouton
+existait déjà visuellement dans la barre de commandes mais ne faisait rien.
+Ouvre désormais `new-idea-modal.tsx`, 2 modes :
+- **Proposer une idée** → `injectRndIdea` (déjà existant, utilisé par
+  l'ancienne page `/rd`, jamais branché sur rnd-v2) — ajout brut au
+  Pipeline, `score: null` tant que le prochain cycle R&D ne l'a pas évaluée
+  (honnête, pas de note fabriquée).
+- **Lancer une recherche** → `services/deep_research.py::run_deep_research`
+  (pipeline réel multi-rounds explore/approfondit/vérifie, jamais exposé
+  sur aucune UI R&D avant, ni ancienne ni nouvelle) — affiche le rapport
+  tel quel (synthèse/constats/actions recommandées/zones d'ombre), ne crée
+  pas d'idée automatiquement.
+- **Bug trouvé en testant :** le client appelait `/deep-research/run` — 404,
+  le routeur `advanced_services.py` a `prefix="/services"` (visible dans le
+  docstring de `run_deep_research` lui-même, manqué à la première lecture).
+  Corrigé (`/services/deep-research/run`), revérifié : 200 réel.
+**Vérifié en live :** "Proposer une idée" testé bout en bout via l'UI
+(remplissage → clic → toast de confirmation → idée réelle créée en base) ;
+"Lancer une recherche" testé via l'API — crédits OpenRouter de nouveau
+épuisés au moment du test, mais `deep_research.py` dégrade déjà proprement
+de lui-même (`executive_summary: "Synthèse indisponible."`, l'échec listé
+dans `knowledge_gaps` plutôt qu'un plantage ou un faux rapport positif) —
+aucun correctif nécessaire côté honnêteté, déjà bien fait en amont. Données
+de test nettoyées (Supabase + `data/rnd_ideas.json`, gitignored).
+**Bouton introuvable (2026-07-31, signalé par Emilie juste après) :** sous
+~1280px de large (`xl` breakpoint Tailwind — un simple laptop non maximisé),
+les 4 icônes de la barre de commandes perdent leur libellé (`hidden
+xl:inline`) et deviennent 4 ronds identiques sans indice de ce qu'ils font
+— "Nouvelle idée" (la seule vraiment câblée) illisible au milieu de 3
+icônes décoratives inertes. Corrigé : `title` (info-bulle native) ajouté
+aux 4 ; "Nouvelle idée" garde désormais son libellé visible à toute largeur
+et un fond cuivre distinct, pour ne plus se confondre avec les 3 icônes
+inertes. Revérifié à 1200px de large — bouton net et lisible.
+**Chemin "dossier existant" vérifié (2026-07-31, pendant les correctifs
+ci-dessus) :** ouvert sur SkillForge Marketplace (dossier réel) — les
+8 onglets s'affichent (Résumé/Pitch/Marché & concurrence/Business/
+Technique/Risques/Budget/Décision CEO) avec le vrai contenu du dossier,
+sans le bandeau "pas encore de dossier" (masqué correctement). Dernier
+angle non couvert de cette phase désormais fermé.
+**Statut :** ✅ Complete, 2026-07-31.
+
+### Phase 24 — Redesign R&D v2 : Incubateur (Kanban)
+**Objectif :** nouvel onglet, Kanban Idée → Prototype → Validation → MVP →
+Projet → Département. Glisser une carte vers Département doit créer un vrai
+projet dans le département cible.
+**Découverte en cours de route (a changé la conception) :** `record_ceo_decision`
+exige qu'un package CEO existe déjà (`ceo_package_json`), et `generate_package`
+n'est éligible que si le dossier a un statut avancé OU un rapport de comité
+d'au moins 40 caractères (`PACKAGE_ELIGIBLE_STATUSES` /
+`_ceo_package_eligible`, `agents/rnd_ceo_agent.py`). Glisser une idée fraîche
+directement vers Département ne peut donc pas être automatisé de bout en
+bout sans un vrai passage en comité — au lieu de simuler cette étape, le
+nouvel endpoint **refuse honnêtement** (403, message explicite) quand ce
+n'est pas encore le cas, plutôt que de fabriquer une approbation.
+**Réutilisé :** `agents/rnd_ceo_agent.py::generate_package/record_ceo_decision/
+dispatch_to_coo` (logique existante, aucune réécriture) ; `@hello-pangea/dnd`
+(déjà une dépendance, déjà utilisé dans `web/src/components/roadmap/roadmap-kanban.tsx`).
+**Livré :**
+- Migration `supabase/migrations/20260731100000_rnd_incubator_stage.sql` —
+  `rnd_ideas.incubator_stage` (6 valeurs, défaut `idee`) +
+  `incubator_stage_updated_at`. Poussée en prod (`supabase db push --linked`).
+  Mirrorée dans `database/schema.sql`.
+- `services/rnd_schemas.py::RndIdeaOut.incubator_stage` +
+  `services/rnd_repository.py::row_to_api_idea` (mapping) — et
+  **`agents/rnd_center.py::get_top_ideas`** (bug détecté en vérifiant : ce
+  chemin construit son propre dict à la main et omettait le nouveau champ,
+  corrigé).
+- `agents/rnd_ceo_agent.py::RndCeoAgent.promote_idea_to_department()` — crée
+  le dossier si absent, génère le package si éligible, approuve, dispatch ;
+  laisse remonter `CeoPackageNotReadyError` telle quelle si non éligible.
+- Endpoints : `PATCH /rnd/ideas/{id}/incubator-stage` (étiquette simple,
+  refuse `departement` avec un message dirigeant vers le bon endpoint) et
+  `POST /rnd/ideas/{id}/incubator/promote-to-department`.
+- `web/src/lib/rnd.ts` — `updateIncubatorStage`, `promoteIdeaToDepartment`,
+  type `IncubatorStage`.
+- `web/src/app/rnd-v2/incubateur-tab.tsx` — Kanban 6 colonnes
+  `@hello-pangea/dnd`, mise à jour optimiste (+ rollback si erreur) pour les
+  5 colonnes simples, état "Promotion en cours…" (pas d'optimisme) pour
+  Département vu que l'appel peut être refusé.
+**Vérifié en live :** migration poussée ; `PATCH .../incubator-stage`
+testé bout en bout sur une idée réelle (idee→prototype→idee, confirmé puis
+nettoyé) ; `PATCH ... {stage:"departement"}` refusé (400, message correct) ;
+`POST .../promote-to-department` testé sur un dossier réel non éligible
+(OptiR&D Lab, statut `draft`) → **403 avec le message honnête attendu**,
+dossier et `incubator_stage` inchangés (aucun effet de bord) ; Kanban ouvert
+dans le navigateur — 38 idées réelles toutes en colonne Idée (cohérent après
+nettoyage), aucune erreur console.
+**Non couvert :** le chemin de succès complet (dossier déjà éligible → vrai
+dispatch) n'a pas été déclenché en direct — aucun des 10 dossiers réels
+actuels n'a encore de rapport de comité, donc aucun n'est éligible
+aujourd'hui ; se vérifiera naturellement une fois la Phase 25 (Conseil)
+livrée et un premier comité réellement tenu.
+**Statut :** ✅ Complete, 2026-07-31.
+
+### Phase 25 — Redesign R&D v2 : Moteur Conseil (stratégique + IA)
+**Objectif :** livrer ensemble la refonte Brainstorm ("Conseil stratégique
+IA" — débat live 3 colonnes avec jauges) et "💎 Conseil IA" (input structuré
+→ débat → vote individuel par agent → Décision Collective), les deux
+partageant la même infrastructure.
+**Investigation :** `RndCommitteeAgent` (comité dossier existant) exige
+toujours un `dossier_id` réel — inutilisable pour une idéation libre ou une
+évaluation sans dossier. Nouvelle orchestration (`RndCouncilAgent`), sans
+sous-classer ni modifier `RndCommitteeAgent`.
+**Décision roster (tranchée avec Emilie) :** 5 personas dédiés au Conseil,
+noms distincts de tout agent existant (voir échange précédent — Mira/Nova
+du texte de vision correspondaient en réalité à Mira Chen/Nova Fischer,
+Gaming). Personas **inline** dans `agents/rnd_council_agent.py`
+(`COUNCIL_MEMBERS`), **pas** d'entrée dans `config/agent_personas.py` : ils
+n'ont pas de méthode solo (seulement une participation aux délibérations),
+et `AgentAvatar` (frontend) rend un avatar à partir du seul (agent_id, name)
+sans registre — `agent_models.py::AGENT_TIERS.get` retombe proprement sur
+le tier "standard" pour un agent_id inconnu. Roster : Selene Marchetti
+(Présidente), Kai Osei (Innovation), Freya Lindqvist (Faisabilité), Darius
+Whitmore (Business), Amara Solis (Données).
+**Schéma :** migration `supabase/migrations/20260731110000_rnd_council_votes.sql`
+— `rnd_committee_sessions.dossier_id` devient nullable + `session_kind`
+('dossier'/'strategic'/'evaluation', défaut 'dossier' = rétrocompatible) +
+`idea_id`/`structured_input`/`topic` ; `rnd_committee_messages.dossier_id`
+nullable ; nouvelle table `rnd_committee_votes` (verdict/confidence/
+axis_scores/stance_text par agent, `round_index`+`is_final` pour servir à
+la fois les jauges live et la Décision Collective finale). Poussée en prod,
+mirrorée dans `database/schema.sql`.
+**Livré :**
+- `agents/rnd_council_agent.py::RndCouncilAgent` — `start_session`,
+  `post_message` (async, 5 appels LLM en parallèle via `asyncio.gather` +
+  `LLMClient.complete_async`, chaque membre répond en JSON structuré
+  content/stance_text/verdict/confidence_pct/axis_scores),
+  `compute_gauges` (Consensus = ratio d'accord entre verdicts, les 4 autres
+  = moyenne des axis_scores), `close_session` (fige les votes `is_final`,
+  agrège), `evaluate` (start+débat+clôture en un seul appel pour le
+  formulaire structuré).
+- **Garde-fou honnêteté (ajouté après un test réel en credits épuisés) :**
+  `close_session` renvoie `deliberated: bool` — si tous les membres ont
+  échoué (0 vote), pas de fausse "Décision Collective : MAYBE, 0%" ;
+  `evaluate` lève une erreur claire (503) plutôt que de fabriquer un
+  verdict. Le frontend respecte ce flag avant d'afficher la bannière.
+- Nouveau routeur `api/routers/rnd_council.py` (5 endpoints), enregistré
+  dans `api/routers/__init__.py::ALL_ROUTERS` (36 routers au total
+  désormais — `CLAUDE.md` mis à jour).
+- `web/src/lib/rnd-council.ts` — client complet.
+- `web/src/app/rnd-v2/conseil-tab.tsx` — 3 colonnes (participants/
+  conversation/jauges), toggle Discussion libre ↔ 💎 Conseil IA (formulaire
+  budget/équipe/délai/type produit inline, pas un onglet séparé).
+**Vérifié en live :** `ruff`/`tsc`/`eslint` propres ; session réelle créée
+(`POST /rnd/council/sessions`) ; `post_message` réel testé — **crédits
+OpenRouter épuisés au moment du test** (les 5 membres échouent proprement,
+logués, endpoint reste 200 avec le message utilisateur seul plutôt que de
+planter) ; bug BUG-006 (connexion Supabase HTTP/2 périmée) reproduit une
+fois sur `/gauges` puis confirmé transitoire au retry ; `close_session` sur
+session à 0 vote → `deliberated: false`, pas de fausse décision ; `evaluate`
+sur le même scénario → 503 avec message honnête, vérifié explicitement ;
+onglet Conseil ouvert dans le navigateur — 5 participants réels affichés,
+états vides honnêtes ("Les jauges apparaissent dès que..."), aucune erreur
+console propre à cet onglet. Sessions de test nettoyées (cascade FK
+vérifiée : 0 message/vote orphelin).
+**Non couvert :** le chemin de succès complet (débat réel avec réponses LLM
+effectives, jauges qui bougent, Décision Collective réelle) n'a pas pu être
+vérifié en direct — bloqué par les crédits OpenRouter épuisés au moment du
+test (même blocage que Théo/dev_app, déjà documenté). Se vérifiera dès que
+les crédits seront reconstitués ; le code du chemin heureux partage la même
+plomberie déjà validée (parsing JSON, écriture DB, agrégation) que le
+chemin d'échec testé.
+**Statut :** ✅ Complete (réceptacle), 2026-07-31.
+
+### Phase 26 — Redesign R&D v2 : Arbres (canvas mindmap interactif)
+**Objectif :** remplacer le rendu SVG statique de l'arbre d'hypothèses
+(`rnd-hypothesis-tree-graph.tsx`, `onClick` uniquement, aucun `useRef`/
+gestionnaire de glisser) par un vrai canvas mindmap glissable — déplacer,
+créer, relier/fusionner des nœuds, glisser pour promouvoir en dossier.
+**Investigation :** `services/rnd_hypothesis_tree.py` (873 lignes) déjà très
+mature — `build_tree_graph()` (layout BFS recalculé à chaque appel, jamais
+persisté), `expand_node(manual=...)` (création manuelle de branche, déjà
+prête), `promote_node_to_dossier()` (positionne déjà `status="merged"` +
+crée le dossier). L'arbre est en revanche **strictement parent/enfant**
+(`parent_id`/`children`, `build_tree_graph()` dérive ses `edges` de cette
+hiérarchie, aucun concept pair-à-pair stocké) : glisser un nœud sur un autre
+("relier") n'avait donc aucun endpoint — seul vrai trou backend de cette
+phase.
+**Décision :** "créer" = `expand_node(manual=...)` (existant) ; "fusionner/
+promouvoir" = `promote_node_to_dossier()` (existant, positionne déjà
+`merged`) ; "relier" = nouveau `reparent_node(slug, node_id, new_parent_id)`
+— détache du parent actuel, rattache à la cible, refuse racine déplacée/
+auto-parenté/cycle (BFS sur les descendants) plutôt que de corrompre
+l'arbre silencieusement. Positions jamais persistées côté serveur → déplacer
+un nœud sans le lâcher sur un autre est un repositionnement purement visuel,
+local à la session ; seul un dépôt sur un autre nœud déclenche une vraie
+mutation (`PATCH .../reparent`). Pattern de glisser repris de
+`web/src/components/brand/bbox-editor.tsx` (mouse events + `useEffect`
+scoping `window.addEventListener("mousemove"/"mouseup")`), pas pointer
+events — précédent déjà établi dans le projet, contrairement à l'hypothèse
+initiale du plan.
+**Livré :**
+- `services/rnd_hypothesis_tree.py::reparent_node()` — détache/rattache +
+  `_recompute_depths()` (recalcule `depth` sur tout le sous-arbre déplacé).
+- `PATCH /rnd/trees/{slug}/nodes/{node_id}/reparent` (`api/routers/rnd.py`).
+- `web/src/lib/rnd-tree-api.ts::reparentRndNode()`.
+- `web/src/app/rnd-v2/arbres-tab.tsx` — canvas SVG (nœuds = `div` absolus
+  positionnés sur les coordonnées `x`/`y` déjà calculées par
+  `build_tree_graph()`, arêtes = bézier), sélecteur d'arbre, lancement
+  d'une nouvelle investigation (`startRndInvestigation`, message honnête
+  "~3-8 min" repris tel quel du backend), panneau détail (hypothèse/statut/
+  score/insight/findings/actions recommandées/rapport markdown) avec
+  actions ▶ Explorer / + Ajouter une branche / ✂ Élaguer / ✓ Fusionner en
+  dossier.
+**Bug trouvé et corrigé en vérification live :** `HypothesisNode.evidence.
+key_findings` était typé `string[]` dans `rnd-tree-api.ts` (jamais exercé
+avant cette phase, l'ancien renderer SVG ne l'affichait pas) — en réalité
+un tableau d'objets `{finding, confidence, source}` (même pipeline
+`quick_research`/`deep_research.py` que `DeepResearchFinding`, déjà
+correctement typé ailleurs dans `rnd.ts`). Le rendu direct de l'objet
+provoquait un crash React plein écran ("Objects are not valid as a React
+child") au premier clic sur un nœud possédant des findings. Corrigé : type
+aligné sur la forme réelle + rendu `f.finding`/`f.confidence` (repris du
+pattern déjà correct de `new-idea-modal.tsx`) ; ajout au passage du rendu
+de `recommended_actions` (existait côté données, jamais affiché).
+**Vérifié en live :** `ruff`/`tsc`/`eslint` propres. Backend redémarré
+(rechargement à chaud n'avait pas pris le nouvel endpoint — même symptôme
+récurrent que les phases précédentes) puis `reparent_node` testé par
+`curl` direct sur l'arbre réel `recherche-r-d-diffusiongemma` (3 nœuds
+enfants réels) : déplacement valide confirmé (parent/depth mis à jour),
+rejet cycle confirmé (400, nœud replacé sous son propre enfant refusé),
+rejet auto-parenté confirmé (400), rejet déplacement de la racine confirmé
+(400) — puis structure ré-alignée exactement sur l'état d'origine, vérifié
+par re-fetch. Onglet Arbres ouvert dans le navigateur sur ce même arbre :
+canvas rendu correctement (4 nœuds réels, couleurs par statut, arêtes
+courbes), clic sur le nœud racine → panneau détail affiche l'hypothèse et
+l'insight réels sans erreur (post-correction du bug ci-dessus). Aucune
+donnée de test créée (toutes les mutations de vérification ont été
+inversées sur le même arbre réel).
+**Non couvert :** vérification live du glisser-déposer "relier" directement
+dans le navigateur (outil `browse` devenu instable/redémarrages répétés en
+fin de session) — la mutation qu'il déclenche (`reparentRndNode` →
+`PATCH .../reparent`) est la même déjà validée par `curl`, et la logique de
+détection de cible (distance au point de dépôt) est un calcul client simple
+sans dépendance serveur ; à confirmer visuellement à l'occasion d'un
+prochain passage sur `/rnd-v2`. Lancement d'une nouvelle investigation
+(`🌱 Investiguer`) non déclenché en vérification (opération LLM ~3-8 min,
+dépendante de crédits OpenRouter déjà épuisés plusieurs fois cette
+session) — le endpoint `POST /rnd/investigate` lui-même est pré-existant
+et hors périmètre de cette phase.
+**Statut :** ✅ Complete, 2026-07-31.
+
+### Phase 27 — Redesign R&D v2 : Dossiers (vue table façon Notion)
+
+**Objectif :** vue bibliothèque/table par dossier — Résumé/État/Dernière
+MAJ/Score/Agents/Votes/Documents/Concurrence/Études/Prototype/Décision.
+**Investigation :** `RndDossierOut` (score/verdict exclus — ils vivent sur
+l'idée liée, pas le dossier), `RndDossierListItem` (utilisé par
+`GET /rnd/dossiers`) n'incluent ni score/verdict d'idée, ni vote Conseil, ni
+nombre de documents — les construire à la volée depuis le frontend aurait
+demandé un N+1 (12 dossiers réels × plusieurs appels chacun). "Concurrence"
+et "Études" du plan initial n'ont en réalité qu'une seule source de données
+(la section `market` du dossier) — fusionnées en une colonne "Marché"
+plutôt que de fabriquer deux valeurs distinctes à partir d'un seul texte.
+**Décision :** nouveau read model backend `services/rnd_dossier_table.py::
+build_dossier_table_rows()` (même famille que `services/rnd_pipeline.py`,
+déjà établi pour ce genre de vue agrégée), exposé via
+`GET /rnd/dossiers/table-view` (placé avant `GET /rnd/dossiers/{dossier_id}`
+dans `api/routers/rnd.py` — sinon la route dynamique l'aurait masqué, comme
+`/rnd/dossiers/slug/{slug}` déjà présent pour la même raison). "Votes"
+provient d'une session Conseil (`session_kind` 'evaluation'/'strategic',
+Phase 25) rattachée au même `idea_id`, close, avec vote majoritaire calculé
+— honnêtement vide (`—`) pour les 12 dossiers réels actuels, aucun n'ayant
+encore de session Conseil close. Clic "Ouvrir ↗" renvoie vers `/rd` (via
+`ceoDossierHref`, déjà existant) plutôt que de porter toute l'UI d'édition
+dossier (sections/comité/finance/deck) en v2 — hors périmètre "vue table"
+de cette phase.
+**Livré :**
+- `services/rnd_dossier_table.py` — idées/documents/sessions comité
+  batch-fetchés en un seul appel chacun puis indexés en Python (au lieu
+  d'un appel par dossier), `repo.get_dossier(id)` restant appelé par
+  dossier (agrège sections/committee_team/statut CEO — dupliquer cette
+  logique juste pour gagner quelques secondes de plus aurait été hors
+  périmètre).
+- `GET /rnd/dossiers/table-view` (`api/routers/rnd.py`).
+- `web/src/lib/rnd-dossier.ts::fetchRndDossierTableView` + types
+  `RndDossierTableRow`/`RndDossierCouncilVote`.
+- `web/src/app/rnd-v2/dossiers-tab.tsx` — table 10 colonnes + lien "Ouvrir",
+  recherche texte + filtres statut dynamiques (calculés depuis les
+  statuts réellement présents plutôt qu'une liste figée des 9 statuts
+  possibles, la plupart absents des données réelles actuelles).
+**Bugs trouvés et corrigés avant toute vérification live (auto-relecture) :**
+(1) premier appel à `repo.get_dossier(item.id, refresh_stale_finance=False)`
+— ce paramètre n'existe que sur `RndDossierAgent.get_dossier()` (couche
+agent), pas sur `RndRepository.get_dossier()` (couche repository) —
+`TypeError` immédiat, corrigé en retirant le paramètre (pas de refresh
+finance nécessaire ici, la repository ne le fait de toute façon jamais).
+(2) lors du passage en batch-fetch, `idea_row.get("verdict")` sur la ligne
+brute Supabase — la colonne réelle est `agent_verdict` (vu dans
+`RndRepository.row_to_api_idea`), pas `verdict` ; aurait rendu la colonne
+Score toujours sans verdict silencieusement. Les deux corrigés avant tout
+test navigateur.
+**Vérifié en live :** `ruff`/`tsc`/`eslint` propres. `GET
+/rnd/dossiers/table-view` testé par `curl` direct (200, 12 lignes réelles,
+score/verdict/agents_count/documents_count/market_excerpt cohérents avec
+les dossiers sources) avant même d'écrire le frontend. Version initiale
+(un appel complet par dossier) mesurée à ~14.5s pour 12 dossiers ; passage
+au batch-fetch → ~7.5s (mesuré par `curl` avant/après, division par ~2).
+Onglet Dossiers ouvert dans le navigateur (attente généreuse ~18s) : 12
+dossiers réels affichés, colonnes Score (`24/100 GO` etc.), Agents (`6`
+pour NomadComply, `—` sinon), Marché (extraits réels de la section
+`market`), Décision (`Pivot demandé` en ambre pour NomadComply — cohérent
+avec son `ceo_status: pivot_requested` réel, vérifié par `curl`), lien
+"Ouvrir ↗" pointant vers `/rd?dossier=subventia&view=ceo` (vérifié via
+l'attribut `href`, cohérent avec `ceoDossierHref`). Filtres statut et
+recherche texte fonctionnels. Aucune donnée de test créée (endpoint
+lecture seule).
+**Non couvert / limite connue :** à attente courte (~10-12s), le navigateur
+affiche parfois un état vide transitoire ("0 dossiers") avant de se
+stabiliser sur les 12 réels à ~18-20s — confirmé non lié au nouveau code
+(`curl` direct contre le backend est fidèle et rapide à chaque essai, zéro
+trace d'erreur dans les logs uvicorn pour ces appels) ; cohérent avec les
+artefacts de rechargement à chaud Next.js déjà notés en Phase 22
+(double-fetch React StrictMode en dev + compilation à la volée de la route
+proxy `/api/hub/[...path]`). `dossiers-tab.tsx` ne distingue pas
+explicitement erreur vs "aucun dossier" (même limite pré-existante que
+`pipeline-tab.tsx`/`incubateur-tab.tsx` — cohérence entre onglets jugée
+préférable à un correctif isolé ici, hors périmètre de cette phase).
+**Statut :** ✅ Complete, 2026-07-31.
+
+**Correctif (2026-07-31) — "Ouvrir" renvoyait vers l'ancienne page /rd :**
+Emilie a signalé successivement (1) un blocage rate-limit à l'ouverture
+(BUG-009, `BUGS.md`), (2) une fois corrigé, un pop-up "tout grisé, je ne
+sais rien faire" (BUG-010 — texte de chargement ajouté à
+`rnd-pitch-modal.tsx`, X confirmé fonctionnel), puis (3) verdict final :
+"la page n'est pas bonne... il faut refaire". Plutôt qu'un nouveau
+correctif ponctuel sur l'ancienne page, décision de couper la dépendance à
+`/rd` entièrement : le bouton "Ouvrir" du tableau Dossiers rouvre
+désormais `DossierDetailView` (Phase 23) — l'overlay déjà construit et
+déjà rapide utilisé par Pipeline — au lieu de naviguer vers
+`/rd?dossier=...&view=ceo`. `DossierDetailView` attend un objet `RndIdea`
+(pas un dossier) : plutôt que de refaire un aller-retour réseau,
+reconstruit directement depuis la ligne du tableau déjà chargée
+(`rowToIdea()`), donc ouverture instantanée (score/verdict/sous-scores/
+actions visibles immédiatement) pendant que seul le contenu détaillé des
+sections continue de charger en arrière-plan.
+**Nouveau backend :** `services/rnd_dossier_table.py::build_dossier_table_rows`
+expose désormais aussi `idea_legacy_id` (nécessaire pour que
+"Incuber"/"Supprimer" opèrent sur la bonne idée — ces actions ciblent
+l'idée, pas le dossier), `market_score`/`feasibility_score`/`vision_score`
+(sous-scores affichés dans l'en-tête de `DossierDetailView`) et
+`incubator_stage` — tous déjà présents dans `ideas_by_id` (batch déjà
+fetché pour score/verdict), donc **aucune requête Supabase supplémentaire**.
+**Vérifié en live :** `ruff`/`tsc`/`eslint` propres. Endpoint re-testé par
+`curl` : `idea_legacy_id`/sous-scores/`incubator_stage` cohérents avec les
+données réelles. Onglet Dossiers ouvert dans le navigateur, clic sur
+"Ouvrir" (Subventia) → overlay `DossierDetailView` visible immédiatement
+avec score réel (24/100 GO), sous-scores (Marché 8/10, Tech 7/10, Business
+9/10), boutons Garder/Incuber/Supprimer, pendant que la barre de pipeline
+et les onglets de contenu (Résumé/Pitch/Marché & concurrence/Business/
+Technique/Risques/Budget/Décision CEO) finissent de charger — capturé une
+seconde fois quelques secondes plus tard avec tout le contenu réel affiché
+(barre de pipeline 7 étapes, onglet Résumé avec le vrai texte du dossier).
+Reste sur `/rnd-v2` tout du long (plus de saut vers l'ancienne page /rd).
+`ceoDossierHref`/le lien `/rd` retirés de `dossiers-tab.tsx`. Aucune
+donnée modifiée (pas de clic sur Incuber/Supprimer pendant la
+vérification, pour ne pas altérer les données réelles).
+**Statut :** ✅ Correctif appliqué, 2026-07-31.
+
+**Correctif (suite, 2026-07-31) — "Ouvrir" rouvrait un dossier condensé, pas
+le vrai espace de travail :** après le correctif précédent (couper la
+dépendance à `/rd`), Emilie a testé le résultat et tranché : *"c'est pas du
+tout la bonne chose... le dossier doit être beaucoup plus complet, il y en
+avait déjà des faits normalement"*. Question posée pour clarifier le
+périmètre exact ("toutes les vraies sections en entier" vs "le vrai espace
+de travail complet finance/comité/deck/social/CEO") — réponse explicite :
+**le vrai espace de travail complet**.
+**Investigation (3 agents Explore + 1 agent Plan, plan complet approuvé en
+mode plan) :** l'ancien système (`/rd`) a déjà TOUTES ces fonctionnalités,
+chacune dans un composant autonome piloté par props
+(`web/src/components/rnd/rnd-finance-panel.tsx`, `rnd-committee-panel.tsx`,
+`rnd-deck-panel.tsx`, `rnd-visual-panel.tsx`, `rnd-social-panel.tsx`,
+`rnd-ceo-panel.tsx`, `rnd-product-panel.tsx`, `rnd-pipeline-panel.tsx`),
+déjà branchées sur de vraies actions (aucune n'importe
+`rnd-pitch-modal.tsx`/`rnd-dossier-workspace.tsx` — réutilisables telles
+quelles). Seule la UI Sections (édition markdown + valider/réviser/
+régénérer) vivait en fonctions **privées** (`SectionPreview`/
+`SectionStatusIcon`, non exportées) dans `rnd-dossier-workspace.tsx` —
+encore utilisé en direct par l'ancienne page `/rd`, donc extraction requise
+plutôt que duplication.
+**Décision :** remplacer les 9 onglets "pitch" condensés de
+`dossier-detail-view.tsx` (Phase 23, `buildApplePanels`) par 8 onglets fixes
+donnant accès aux vrais panneaux : Sections · Comité · Deck · Visuels ·
+Social · Dossier CEO · Fiche produit · Pipeline. Aucune réécriture de
+logique/API — uniquement les brancher avec les props déjà disponibles
+depuis `dossier: RndDossierDetail`. Reskin visuel de ces panneaux (encore en
+shadcn/Tailwind, pas le système `C` inline du reste de `/rnd-v2`)
+**volontairement différé** — cette combinaison (nouveau cadre + ces mêmes
+panneaux) existe déjà en prod via `/rd?view=ceo|committee|...`, la demande
+d'Emilie portait sur le fonctionnel ("plus complet"), pas le visuel.
+**Livré (checkpoint A — extraction, zéro changement de comportement) :**
+`web/src/components/rnd/rnd-section-preview.tsx` (nouveau, exporte
+`SectionStatusIcon`/`SectionPreview`) + `rnd-dossier-sections-panel.tsx`
+(nouveau, exporte `RndDossierSectionsPanel` — liste sections + journal +
+preview) ; `rnd-dossier-workspace.tsx` refactoré pour consommer les deux au
+lieu de ses définitions privées, comportement identique.
+**Livré (checkpoint B — nouvelle architecture d'onglets + Sections/Comité) :**
+`dossier-detail-view.tsx` : `buildApplePanels`/rendu markdown unique
+supprimés, remplacés par un tableau `TABS` statique (8 entrées) + rendu par
+condition sur `activeId`, avec deux modes d'habillage (wrapper borné pour
+Sections/Comité qui gèrent leur propre scroll interne, wrapper
+`overflow-y-auto` générique pour les 6 autres onglets — inverser les deux
+casse l'UI). État `events` ajouté ; poll 5s/120s (déjà utilisé par
+`rnd-dossier-workspace.tsx` pour rafraîchir pendant l'enrichissement en
+arrière-plan) répliqué ici. Overlay agrandi (`max-w-[860px] max-h-[880px]`
+→ `max-w-[1180px] max-h-[92vh]` — les panneaux ont été conçus pour un cadre
+plus large). `PipelineStrip` (puces de statut dans l'en-tête) rendue
+cliquable (`onNavigate`) avec `PIPELINE_TAB_MAP = {pitch: "sections"}` pour
+faire correspondre les 6 valeurs `tab` connues du backend
+(`services/rnd_pipeline.py::STAGE_DEFS`) aux 8 nouveaux onglets. Les 6
+onglets pas encore branchés (Deck/Visuels/Social/CEO/Produit/Pipeline)
+affichent un placeholder "à venir" temporaire (diff lisible, prochains
+checkpoints).
+**Vérifié en live :** `ruff`/`tsc`/`eslint` propres après chaque étape.
+Clic-test sur `/rd?tab=dossiers` (sélection d'un vrai dossier, `Subventia`)
+confirmant zéro régression du panneau Sections extrait (liste des 10
+sections, journal, preview/édition identiques à avant). Sur `/rnd-v2` →
+Dossiers → "Ouvrir" : les 8 onglets s'affichent, onglet Sections montre le
+panneau Finance réel (VIABLE, grille tarifaire, ROI) + les 10 vraies
+sections + le journal + la preview éditable — texte identique à celui vérifié
+sur `/rd`. Onglet Comité testé : panneau réel avec équipe (Alex/Spec/Maya/
+Compta/Dev App/Content), a effectivement démarré une vraie session comité
+avec un message LLM réel d'Alex (comportement hérité de
+`RndCommitteePanel`, pas une régression — c'est le même comportement que
+l'ancien système). **Nettoyage effectué :** les 2 sessions de test créées
+(doublées par le mode strict de React en dev, comme observé ailleurs cette
+session) + leurs messages supprimés directement en base, et le statut du
+dossier `subventia` (passé à `committee_active` par la création de
+session) restauré à `draft` — aucune trace de test laissée.
+**Non couvert (checkpoint suivant) :** onglets Deck/Visuels/Social/CEO/
+Produit/Pipeline (placeholders pour l'instant) ; reskin visuel des panneaux
+réutilisés (différé, voir Décision ci-dessus).
+
+**Livré (checkpoints C+D — Deck/Visuels/Social/CEO/Produit/Pipeline +
+`onNavigateTab`) :** les 6 onglets restants branchés dans la même passe
+(mécaniquement identique à B — composant existant + props déjà disponibles
+depuis `dossier`) : `RndDeckPanel`, `RndVisualPanel`, `RndSocialPanel`,
+`RndCeoPanel`, `RndProductPanel`, `RndPipelinePanel`. `PipelineStrip`
+(en-tête) rendue cliquable via `onNavigate` ; `handleNavigateTab` mappe les
+6 valeurs `tab` connues du backend vers les 8 onglets
+(`PIPELINE_TAB_MAP = {pitch: "sections"}`, le reste 1:1).
+**Vérifié en live (les 8 onglets, un vrai dossier `subventia`) :**
+`ruff`/`tsc`/`eslint` propres. Deck → contenu réel + bouton "Générer le
+deck pitch" + état honnête "Enrichissez le dossier... avant la première
+génération" (aucun deck existant). Visuels → texte réel "hero, mockup,
+moodboard et graphiques finance" + bouton génération. Social → état
+verrouillé honnête ("Disponible après validation CEO du dossier — Statut
+actuel : draft · CEO : pending", cohérent : aucun dossier réel n'est encore
+`ceo_status=approved`). Dossier CEO → contenu réel ("Package exécutif pour
+Subventia..."). Fiche produit → état verrouillé honnête ("Fiche produit
+verrouillée — validation CEO requise"). Pipeline → suivi réel 7 phases
+(1/7 · 14%, boutons "Ouvrir" par phase, phases 5/7 verrouillées) —
+identique à ce qui était déjà vérifié sur l'ancienne page `/rd`. Navigation
+`onNavigateTab` confirmée fonctionnelle : depuis l'onglet Deck, clic sur la
+puce d'en-tête "Visuels & deck" → bascule effective vers l'onglet Visuels.
+Aucune erreur console propre au nouveau code sur les 8 onglets (seuls des
+avertissements Recharts bénins "width(-1)" lors des transitions d'onglet,
+et des 500 transitoires isolés confirmés sans rapport — même requête
+`product/status` retestée immédiatement après en isolant le réseau : 200
+propre both times). Aucune donnée de test créée par ces 6 panneaux (aucun
+n'a de `useEffect` mutant au montage, contrairement à `RndCommitteePanel` —
+confirmé par lecture directe du code avant de tester).
+**Non couvert :** clic direct sur un bouton "Ouvrir" *à l'intérieur* de
+l'onglet Pipeline (par opposition aux puces de l'en-tête, elles,
+confirmées) — non vérifié interactivement (ambiguïté DOM avec les boutons
+"Ouvrir" du tableau Dossiers sous-jacent, non résolue avec l'outil de test
+disponible) ; la logique est cependant strictement la même fonction
+`handleNavigateTab` déjà validée via les puces d'en-tête, et
+`RndPipelinePanel` lui-même n'a pas été modifié (contrat `onNavigateTab`
+préexistant, inchangé). Reskin visuel des 8 panneaux toujours différé
+(Décision ci-dessus) — périmètre assumé, pas une lacune.
+**Statut :** ✅ Correctif complet (checkpoints A-E), 2026-07-31.
+
+### Phase 29 — Marketing/Finances : Command Center visuel
+**Objectif :** transformer `/marketing` et `/finances` en cockpits immersifs
+("Marketing Command Center" / "ALNUA Finance Center" du brief Emilie) —
+sortir ces deux départements du `ConsoleShell` standard pour rejoindre le
+chrome plein écran déjà réservé à App/Gaming/Robo/R&D-v2 (`hub-shell.tsx`),
+et refondre leurs pages sur le modèle de coquille déjà établi 4 fois
+(`rnd-v2/page.tsx` / `gaming-v2/page.tsx` — header/sidebar/onglets/command-bar)
+plutôt que le `DepartmentWorkspace` générique actuellement monté
+(`marketing/page.tsx`, `finances/page.tsx`). **Correction (2026-07-31) :** la
+première rédaction de cette phase référençait `rnd-dossier-workspace.tsx`
+comme modèle — vérifié en conception détaillée que ce fichier est en
+réalité la vue détail d'un seul dossier R&D (page `/rd`), pas un pattern de
+coquille de département ; la bonne référence est le pattern `-v2` ci-dessus.
+**Contrainte :** aucune nouvelle table nécessaire pour cette phase — les
+données existent déjà (`transactions`, `financial_summaries`, `posts_queue`,
+leaderboard `services/competition.py`, `services/cost_monitor.py`) ; c'est
+une phase quasi exclusivement frontend, dans l'esprit de la Phase 22
+(R&D v2 socle) plutôt que Gaming/Robo Phases 15-20 (qui avaient dû créer de
+vraies tables).
+**Livré :**
+- `web/src/lib/routes.ts` — `ROUTES.marketingV2`/`ROUTES.financesV2`
+  (coexistence avec `/marketing`/`/finances`, même pattern que `rndV2`).
+- `web/src/components/layout/hub-shell.tsx` — `isMarketingV2`/`isFinancesV2`
+  ajoutés au chrome immersif.
+- `web/src/app/app-v2/shared.tsx` — nouveau `KpiTile` (tuile chiffre
+  réutilisable, 2e usage concret après le `Tile` local de
+  `gaming-v2/analytics-tab.tsx` → seuil d'extraction atteint).
+- `web/src/app/app-v2/team.tsx` — `INSTRUCTION_HANDLERS.marketing` ajouté
+  (`marketingInstruction`, endpoint réel `/agents/marketing/instruction`) ;
+  Camille devient le 2e agent (après Théo/dev_app) avec un vrai canal chat.
+- `web/src/lib/marketing-api.ts` (nouveau) — `fetchLeaderboard()`, seul
+  client API réellement nouveau (aucun nouvel endpoint backend).
+- `web/src/app/finances-v2/` — coquille (`page.tsx`, pattern `rnd-v2`) +
+  3 onglets neufs (`vue-globale-tab.tsx` : 4 `KpiTile` + résumé IA +
+  graphiques Recharts, tous sur données réelles `fetchFinanceDashboard` ;
+  `transactions-tab.tsx` : liste/filtre/récurrentes ; `couts-tab.tsx` :
+  `ApiCostsCard`). `FinancesAccountingPanel`/`FinancesControllerPanel`/
+  `FinancesTransactionModal` embarqués **tels quels** (verbatim, aucune
+  réécriture) dans des panneaux `<details>` repliables + la modale
+  partagée avec l'action câblée "＋ Nouvelle transaction" de la command bar.
+- `web/src/app/marketing-v2/` — même coquille + 3 onglets (`vue-globale-tab.tsx` :
+  KpiTile sur `computePostStats`/leaderboard filtré sur les 7 agents du
+  bureau/dépenses `category=marketing` réelles, répartition plateforme/secteur
+  en `Bar` ; `content-tab.tsx` : lecture seule `posts_queue` groupée par
+  statut). Roster Équipe horizontal (7 agents réels, pattern `gaming-v2`) +
+  panneau activité temps réel. `MarketingConsole` embarquée telle quelle
+  dans un `<details>` + action câblée "＋ Instruction Marketing" (drawer COO
+  pré-rempli, pattern `requestNewAgent` de `rnd-v2`).
+- Correction du texte de cette phase (référençait à tort
+  `rnd-dossier-workspace.tsx`, en réalité la vue détail d'un seul dossier
+  R&D — pas un pattern de coquille de département).
+**Bug pré-existant trouvé et corrigé (2026-07-31) :** `FinancesTransactionList`
+(`web/src/components/finances/finances-transaction-list.tsx`) construisait
+sa liste d'options de catégorie pour le filtre "Tout" en concaténant
+`categoriesForType("expense")` + `categoriesForType("income")` — les deux
+incluent `"autre"`, donc deux `<SelectItem key="autre">` avec la même clé
+React dès que `typeFilter === "all"` (le défaut, y compris sur `/finances`
+legacy — bug déjà présent avant cette phase, simplement jamais exercé en
+observant la console). Corrigé par dédoublonnage (`new Set(...)`) ; bénéficie
+aussi à `/finances`.
+**Vérifié en live (navigateur réel, `browse`) :** `/marketing-v2` et
+`/finances-v2` ouverts en URL directe — chrome plein écran confirmé (aucune
+fuite de sidebar/topbar Hub) ; Équipe : 2 agents réels sur Finances (Jules,
+Rémi), 7 sur Marketing (Camille, Sofia, Esmée, Kael, Mira + 2 via scroll) ;
+Vue globale Finances : 4 tuiles réelles (0,00 € partout, cohérent avec
+aucune transaction ce mois), résumé IA généré affiché, graphiques rendus ;
+Vue globale Marketing : tuiles réelles dont **Score équipe = 440** (valeur
+réelle confirmée identique à `data/agent_scores.json`), répartition
+plateforme/secteur honnêtement vide (aucun post) ; Transactions : état vide
+honnête + modale "Ajouter une transaction" ouverte et fonctionnelle (vraie
+liste de projets) ; Contenu : "0 posts" honnête. Aucune erreur console
+bloquante sur les deux pages. `tsc --noEmit` et `next lint` propres sur tous
+les fichiers touchés (3 erreurs lint pré-existantes, fichiers non touchés
+par cette phase, laissées en l'état).
+**Non couvert :** ouverture effective des panneaux `<details>` repliables
+(Jules/Rémi, Console Marketing) non capturée en screenshot — l'outil
+`browse` est devenu instable en fin de session (redémarrages répétés,
+même symptôme déjà documenté en Phase 26) ; risque jugé faible, ces
+panneaux réutilisent des composants (`FinancesAccountingPanel`,
+`FinancesControllerPanel`, `MarketingConsole`) déjà éprouvés sur les pages
+legacy, aucune logique nouvelle dans le `<details>` lui-même (toggle natif
+HTML). Deux avertissements console pré-existants et hors scope repérés en
+testant (non corrigés, communs à tout `Dialog`/`FinancesTransactionModal`
+de l'app, pas spécifiques à cette phase) : ref non transmis sur
+`DialogOverlay` (`components/ui/dialog.tsx`) et `DialogContent` sans
+description accessible. Bascule `/marketing`→`-v2`/`/finances`→`-v2` en
+alias et ajout à la nav principale : hors scope, pattern R&D (cutover final
+dans une phase ultérieure).
+**Statut :** ✅ Complete, 2026-07-31.
+
+**Correctif (2026-07-31/08-01) — Redesign visuel Vue Globale Marketing/Finance :**
+Emilie a partagé une maquette de référence beaucoup plus dense visuellement
+(sparklines, donut avec label central, calendrier, tableaux) et signalé que
+le premier rendu était trop minimal. Validé explicitement avec elle : design
+premium au niveau de la maquette, **jamais de métrique fabriquée** — pour
+toute donnée sans source réelle, un état honnête plutôt qu'un chiffre
+inventé.
+**Découvertes qui ont contraint le design :** `projects.branch` n'a que 4
+valeurs (`app/gaming/robotics/other`) — pas de "département" au sens des 9-10
+pôles, panneau rebaptisé "Dépenses par branche produit". `GET
+/analytics/summary` (sans `project_id`) fait une vraie somme multi-projets
+pour le MRR (fiable pour la tuile KPI) ; `GET /analytics/revenue` fait un
+`max()` par mois, pas une somme — non utilisé pour la sparkline MRR (aurait
+été incohérent avec la tuile). Aucun historique temporel réel côté
+Marketing → sparklines = ligne plate honnête (`flatTrend`, précédent déjà
+établi dans `web/src/lib/console/rich-data.ts:58-62`). `dashboard.
+recurring_expenses` n'est pas filtré par `type` côté backend (peut contenir
+des revenus récurrents) — filtré côté client. `controller_agent.
+build_forecast` est une génération LLM à la demande, pas un calcul passif —
+reste dans le panneau `<details>` Contrôleur, pas remonté en Vue Globale.
+**Livré :**
+- `web/src/app/app-v2/shared.tsx::KpiTile` — props `trend`/`trendColor`
+  (sparkline `Sparkline` de `console/charts.tsx`, déjà existant). Fix au
+  passage de la collision d'id de gradient SVG (`console/charts.tsx`,
+  nouveau param `idSeed`) — devenue réelle avec 6+ sparklines sur une même
+  page.
+- Finance Vue Globale : 6 tuiles KPI (Revenus/Dépenses/Résultat net/Burn
+  rate moyen/Solde cumulé YTD/MRR — sparklines réelles sur `last_6_months`
+  sauf MRR en `flatTrend` ou "Non renseigné" si `null`). `finances-charts.tsx`
+  scindé en `FinancesEvolutionChart` (LineChart 3 séries, chrome cockpit) et
+  `FinancesExpenseDonut` (`Donut` de `console/charts.tsx` + légende manuelle,
+  remplace le `PieChart` recharts) — `FinancesCharts` (composition des deux)
+  conservé tel quel pour ne pas casser `/finances` legacy qui l'importe
+  encore. 3 nouveaux panneaux réels : `finances-upcoming-panel.tsx`
+  ("Prochaines échéances (estimation)", dérivé des transactions récurrentes
+  via le nouveau `web/src/lib/finances-recurring.ts`), `finances-recurring-
+  preview-panel.tsx` ("Coûts récurrents", pas "Abonnements SaaS actifs" —
+  aucun champ de renouvellement en base), `finances-branch-breakdown-panel.tsx`
+  ("Dépenses par branche produit", bucket "Sans projet" jamais masqué).
+- Marketing Vue Globale : sparklines honnêtes (`flatTrend`) sur les 5 tuiles
+  existantes. 2 nouveaux panneaux réels : `campaigns-preview-panel.tsx`
+  ("Campagnes actives", top 5 réelles Phase 33, CTA vers l'onglet Campagnes)
+  et `today-content-panel.tsx` ("Aujourd'hui", `fetchCalendar` déjà existant
+  mais jamais monté sur `/marketing-v2`). Labels/couleurs de campagnes
+  extraits de `campagnes-tab.tsx` vers `web/src/components/marketing/
+  campaign.constants.ts` (partagés avec le nouveau panneau).
+**Hors scope (rappel) :** Runway (fausse précision sans vraie trésorerie
+bancaire), Investissements (aucune donnée), Reach/ROI global/entonnoir de
+conversion/performances par canal Marketing (aucune source réelle),
+nouveaux onglets Social Media/SEO/Ads/Analytics/Automatisation/Brand Center
+et Budgets/Prévisions/Facturation/Fiscalité/Salaires/Investissements comme
+onglets dédiés — phases futures.
+**Vérifié en live :** `tsc --noEmit`/`eslint` propres (mêmes 3 erreurs
+pré-existantes hors scope). Navigateur réel (`browse`) : `/finances-v2` Vue
+globale — 6 tuiles avec sparklines réelles, MRR "Non renseigné" (honnête,
+aucune donnée `/analytics` en base), Évolution financière en LineChart,
+donut avec état vide honnête, 3 nouveaux panneaux tous honnêtes (aucune
+dépense/récurrence ce mois dans les données de test actuelles).
+`/marketing-v2` Vue globale — 5 tuiles avec sparklines plates honnêtes,
+répartition plateforme cohérente avec un post de test réel existant,
+panneaux Campagnes actives et Aujourd'hui avec états vides honnêtes. Aucune
+métrique affichée qui n'existe pas réellement en base sur les deux pages.
+**Non couvert :** clic sur le CTA "Voir toutes →" (Campagnes actives → onglet
+Campagnes) non capturé en screenshot — outil `browse` redevenu instable en
+fin de session (même symptôme récurrent que Phases 26/33) ; risque jugé nul,
+c'est un simple `setTab("Campagnes")` déjà identique au clic direct sur
+l'onglet, vérifié à de nombreuses reprises dans cette même session.
+**Statut :** ✅ Correctif appliqué, 2026-08-01.
+
+### Phase 30 — Workflow engine généralisé + niveaux d'autonomie
+**Objectif :** étendre `services/workflow_engine.py` (recettes/étapes déjà
+existantes pour ops/ship/watchdog) pour porter des recettes de validation
+métier (`content_validation`, `campaign_validation`, `budget_transfer`),
+avec un niveau d'autonomie configurable (0-3, cf. brief Emilie) par
+type de tâche/département déterminant combien d'étapes s'auto-valident.
+`services/event_bus.py` (déjà présent) émet à chaque transition d'étape.
+**Décision d'architecture :** un seul moteur générique — voir `DECISIONS.md`
+DEC-012 (pas de second moteur de workflow).
+**Dépendances :** aucune côté code existant ; conditionne les Phases 31-32.
+**Statut :** ⏸️ Not started.
+
+### Phase 31 — Agent Trust System
+**Objectif :** indice de confiance par agent, alimenté par l'historique réel
+des validations (verdicts Review Board, corrections du premier coup) —
+pondéré/décroissant, pas cumulatif. Nouveau service `services/agent_trust.py`
++ table dédiée, endpoint + jauge frontend (réutilisable dans
+`model-settings-view.tsx`).
+**Décision d'architecture :** strictement séparé de `services/competition.py`
+(scoring cumulatif de gamification) — voir `DECISIONS.md` DEC-011.
+**Dépendances :** Phase 30 (le trust score se calcule à partir de
+l'historique des workflows de validation — sans Phase 30, pas de données à
+mesurer).
+**Statut :** ⏸️ Not started.
+
+### Phase 32 — Review Board générique + Quality Gates
+**Objectif :** généraliser `agents/rnd_council_agent.py` (aujourd'hui scopé
+Comité R&D) en reviewers configurables par recipe — voir `DECISIONS.md`
+DEC-013. Généraliser `services/academy_gate.py` (seuils pondérés →
+`gate_open`) en `config/quality_gates.py` avec seuils par département (ex.
+Brand ≥ 90 %, Marketing ≥ 85 %, SEO ≥ 80 %), consommés comme condition de
+passage par le workflow engine (Phase 30).
+**Dépendances :** Phase 30 (les gates bloquent une transition d'étape du
+workflow engine) et Phase 31 (un score sous le seuil doit pouvoir peser sur
+le trust de l'agent producteur).
+**Statut :** ⏸️ Not started.
+
+### Phase 33 — Marketing Command Center — profondeur (Campagnes + Content Studio)
+**Objectif :** livrer deux fonctionnalités précises du brief Emilie —
+gestion de Campagnes (budget, statut, dépenses réelles) et Content Studio
+(production de contenu par statut, glisser-déposer). Emilie a explicitement
+choisi Marketing avant Finance et validé ce MVP maintenant plutôt que
+d'attendre Phase 30 (workflow engine) — écart assumé, voir ci-dessous.
+**Écart assumé avec la version précédente de cette entrée :** pas de
+brancher sur un moteur de workflow générique (Phase 30 toujours
+`⏸️ Not started`) — le CRUD Campagnes et les transitions de statut Content
+Studio sont directs (`PATCH` immédiat, pas d'étape de validation). À
+reprendre si/quand la Phase 30 est livrée. Pas de router `/marketing` dédié
+non plus (hors scope de cette itération) ; un nouveau router `/campaigns`
+a été créé à la place (voir Livré).
+**Règle absolue respectée :** `campaign_roi_report` (ROI/reach/impressions,
+`skills/skill_ads.py`) reste un stub explicite retournant des zéros — jamais
+exposé côté API ni affiché dans le cockpit. Le seul "dépensé" réel affiché
+est calculé en sommant les vraies `transactions` liées à une campagne
+(`transactions.campaign_id`, nouvelle colonne).
+**Livré :**
+- Migration `supabase/migrations/20260731120000_marketing_campaigns.sql`
+  (poussée en prod via `supabase db push --linked`) — table `campaigns`
+  (objective/platform alignés sur `skills/skill_ads.py::OBJECTIVES`/
+  `VALID_PLATFORMS`), `transactions.campaign_id` (nullable FK), RLS
+  identique au pattern déjà établi. Reflet dans `database/schema.sql`.
+- **Bug pré-existant corrigé au passage :** `posts_queue.content_type` CHECK
+  n'incluait pas `"lore"` alors que le type TS le déclare depuis la Phase 26
+  — un `POST /posts` avec `content_type: "lore"` échouait en base. Le nom
+  réel de la contrainte n'a pas pu être vérifié à l'avance (aucun accès
+  direct à la base dans cet environnement — ni MCP Supabase, connecté à une
+  autre organisation, ni `psql`, ni Docker pour `supabase db dump`) : la
+  migration la retrouve dynamiquement via `pg_constraint` plutôt que de
+  supposer son nom.
+- `agents/ads_agent.py::AdsAgent.create_campaign` persiste désormais
+  réellement une ligne `campaigns` (avant cette phase : dict volatile,
+  aucune campagne n'existait après l'appel).
+- `api/routers/campaigns.py` (nouveau, monté dans `api/routers/__init__.py`)
+  — `GET/POST /campaigns`, `PATCH/DELETE /campaigns/{id}`, `spent_usd`
+  calculé à la volée par agrégation des transactions liées.
+  `POST /agents/ads/create-campaign` (`agents_pole.py`) — création
+  LLM-assistée par Léo (2 variantes créatives A/B), persiste via le même
+  chemin. `FinanceTransactionCreate`/`Update` acceptent désormais
+  `campaign_id` (`api/routers/finances.py`).
+- `web/src/lib/marketing-api.ts` (`Campaign`, `fetchCampaigns`,
+  `createCampaign`, `updateCampaign`, `deleteCampaign`) et
+  `web/src/lib/pole-api.ts` (`adsCreateCampaign`).
+- `web/src/app/marketing-v2/campagnes-tab.tsx` + `web/src/components/
+  marketing/campaign-modal.tsx` (calqué sur `finances-transaction-modal.tsx`)
+  — grille de cartes, budget alloué vs dépensé réel (barre `Bar`), création
+  manuelle. `marketing-console.tsx` — 4e formulaire "Léo — créer une
+  campagne (brief)".
+- **Content Studio** remplace l'ancien onglet "Contenu" (lecture seule,
+  supprimé) : `web/src/components/content/content-kanban.tsx` (calqué sur
+  `roadmap-kanban.tsx`, `@hello-pangea/dnd`), `content-card.tsx`,
+  `content-studio-create-modal.tsx` (nouveau — pas une réutilisation de
+  `post-composer.tsx`, incompatible avec un "+" par colonne). 4 colonnes
+  draggables (`draft/pending_approval/approved/published`) ; `rejected`/
+  `failed` en lecture seule dans un panneau replié séparé (évite de casser
+  `published_at`/`computePostStats` si un post est glissé directement vers
+  "Publié" sans passer par le vrai publisher bot). `CONTENT_STUDIO_COLUMNS`/
+  `POST_STATUS_LABELS`/`CreatablePostStatus` ajoutés à `content.constants.ts`.
+- `marketing-v2/page.tsx` — `TABS` devient Équipe/Vue globale/Content
+  Studio/Campagnes (4 onglets).
+**Difficulté rencontrée en vérifiant :** le serveur backend réellement
+utilisé par le proxy Next.js (`data/hub_active_port.txt` → port **8003**,
+lancé avec des flags spécifiques `--limit-concurrency 40
+--timeout-keep-alive 5`) est différent du process que j'avais lancé
+manuellement pour tester (`--port 8000`, orphelin) — mes premiers tests
+`curl` réussissaient contre le mauvais process, laissant `/campaigns` en
+404 côté navigateur (`/api/hub/campaigns`) alors que le "vrai" backend
+tournait toujours sur l'ancien code. Corrigé en redémarrant le process sur
+8003 avec les mêmes flags.
+**Vérifié en live :**
+- Backend direct (`curl`, port 8003) : `POST /campaigns` (création
+  manuelle), `POST /agents/ads/create-campaign` (Léo, brief réel → 2
+  variantes + campagne persistée), transaction réelle liée via
+  `campaign_id` → `GET /campaigns` renvoie `spent_usd` correct (42.5€ sur
+  une dépense de 42.5€), `POST /posts` avec `content_type: "lore"` accepté
+  (confirmerait l'échec avant la migration). Données de test nettoyées
+  (campagnes, transaction) ; le post de test n'a pas pu être supprimé
+  (aucun endpoint `DELETE /posts/{id}` n'existe) — marqué `rejected` à la
+  place, visible honnêtement dans le panneau lecture-seule du Content
+  Studio.
+- Navigateur réel (`browse`) : `/marketing-v2` → onglet Campagnes, création
+  manuelle bout en bout via l'UI (formulaire rempli → carte réelle apparue
+  avec statut/budget/barre corrects) ; onglet Content Studio, 4 colonnes
+  réelles (0 partout, cohérent), panneau "Rejetés / échoués (lecture
+  seule — 1)" affichant correctement le post de test marqué `rejected`.
+  Aucune erreur console bloquante sur les deux onglets (mêmes avertissements
+  `Dialog`/`aria-describedby` pré-existants déjà documentés Phase 29, hors
+  scope).
+**Non couvert :** création de post via le "+" du Content Studio (modale
+`content-studio-create-modal.tsx`) non capturée en direct dans le
+navigateur — outil `browse` devenu instable en fin de session (redémarrages
+répétés, même symptôme déjà documenté Phase 26) ; risque jugé faible,
+`createPost()` est une fonction déjà éprouvée en production (utilisée par
+`post-composer.tsx`) et la modale réutilise les mêmes primitives Select/
+Input/Textarea que `CampaignModal`, déjà validée en direct. Glisser-déposer
+du Kanban non testé en direct pour la même raison (logique client simple,
+`onStatusChange` → `updatePost`, déjà utilisée ailleurs). `tsc`/`eslint`
+(web/) et `ruff` (backend, scope complet du fichier CLAUDE.md) propres,
+zéro nouvelle erreur introduite. `/marketing` (legacy) et route API dédiée
+`/marketing/*` : hors scope, `/campaigns` créé séparément à la place.
+**Statut :** ✅ Complete, 2026-07-31.
+
+### Phase 34 — Finance Cockpit — profondeur
+**Objectif :** nouvelles tables `budgets` (allocation par département — au-
+jourd'hui seule `transactions` existe, sans notion d'allocation), `invoices`,
+`fiscal_obligations`. Exposer `controller_agent.build_forecast` (déjà codé,
+jamais exposé en cockpit). Transfert de budget entre départements validé via
+le workflow engine de la Phase 30 (ex. Marketing→App validé par Aria).
+**Avancée 2026-08-09 (DEC-016) :** ledger factures JSON + API
+(`/finances/invoices`) sans paiement auto ; agrégateur SaaS spend live
+(`/finances/saas-spend`) ; connecteur Revolut lecture seule
+(`/finances/revolut/status`). Tables Supabase `budgets` / `fiscal_obligations`
+et UI cockpit restent à faire.
+**Dépendances :** Phase 29 (cockpit) et Phase 30 (validation des transferts
+de budget).
+**Statut :** 🔄 In progress.
+
+### Phase 35 — Brand Design transversal
+**Objectif :** étendre `agents/brand_agent.py` (aujourd'hui pipeline
+image/kit uniquement — analyse + génération de formats) vers un vrai design
+system (tokens couleur/typo, guidelines de ton), en fusionnant avec
+l'embryon existant `content_company_agent.brand_voice_guide()` plutôt que
+de le dupliquer. Rendre Brand reviewer transversal dans les recipes de
+contenu de tous les départements (`config/agent_personas.py` à étendre pour
+un agent multi-room).
+**Dépendances :** Phase 32 (Brand devient un des reviewers du Review Board
+générique).
+**Statut :** ⏸️ Not started.
+
+### Phase 36 — Orchestration inter-départements
+**Objectif :** le scénario "validation d'un projet APP → Marketing crée le
+plan de lancement, Comptabilité génère le budget prévisionnel, Analytics
+prépare les KPIs" du brief Emilie — `services/event_bus.py` a déjà le
+mécanisme exact (pub/sub, handlers déjà câblés pour d'autres événements) ;
+émettre `project_validated` et câbler des handlers par département. Étendre
+`services/daily_briefing.py` pour une synthèse cross-département.
+**Dépendances :** Phases 33/34 (les départements doivent avoir une logique
+métier réelle à déclencher, pas juste un cockpit d'affichage).
+**Statut :** ⏸️ Not started.
+
+### Phase 37 — Marketing Command Center : mesure de performance réelle (Reach/Engagement/ROI/Funnel)
+**Contexte :** Phase 33/29 avaient explicitement exclu Performances par
+canal, Top contenus (avec reach%) et Entonnoir de conversion de la Vue
+Globale Marketing faute de source de donnée — traité comme une fin de
+non-recevoir. Emilie a demandé explicitement qu'on crée les champs/flux
+manquants plutôt que d'attendre qu'ils existent : "si les fonctions
+n'existent pas on va les créer."
+
+**Décision de conception :** saisie manuelle réelle (copiée depuis les
+dashboards natifs des plateformes/produits) plutôt qu'intégration API
+Meta/TikTok/Google/LinkedIn Ads — cette dernière est un chantier séparé
+(OAuth apps, vérification business, quotas, multi-semaines par plateforme)
+non lancé ici. Toujours zéro métrique fabriquée : tous les nouveaux champs
+sont `NULL`/absents tant que personne n'a saisi de vraie valeur, jamais un
+0 ou une estimation par défaut.
+
+**Livré :**
+- `20260731130000_marketing_performance_tracking.sql` — `campaigns` gagne
+  `reach`/`engagements`/`conversions`/`revenue_generated_usd`/
+  `stats_updated_at` (saisie manuelle, via `CampaignModal` → section
+  "Statistiques") ; `posts_queue` gagne `reach`/`engagement_count`/
+  `stats_updated_at` (saisie manuelle post-publication, via
+  `PostEditModal`) ; nouvelle table `funnel_snapshots` (saisie mensuelle
+  par produit : Visiteurs → Intéressés → Engagés → Abonnés → Clients,
+  `source_note` documente d'où vient le chiffre — App Store Connect / Play
+  Console / Plausible / GA4 / signups Supabase).
+- `GET /campaigns/performance-by-platform` — agrège reach/engagements/
+  conversions/spent/ROI réels par plateforme ad (meta/google/tiktok),
+  uniquement sur les campagnes où une stat a été saisie ; `sample_size`
+  expose combien de campagnes sont comptées (jamais présenté comme une
+  couverture complète du canal). ROI (`roi_pct`) calculé côté backend
+  uniquement si `revenue_generated_usd` est saisi ET `spent_usd` > 0.
+- `POST/GET /marketing/funnel`, `GET /marketing/funnel/latest` — upsert
+  mensuel par `(project_id, period_month)`.
+- Frontend : `PerformanceByPlatformPanel`, `TopContentPanel` (classe les
+  posts publiés par reach réel, sans % de reach — aucune audience totale
+  connue par plateforme pour calculer un taux honnête), `ConversionFunnelPanel`
+  + `FunnelEntryModal` (vrai entonnoir avec taux de conversion inter-étapes
+  calculés à partir des chiffres saisis, sélecteur de produit), tous montés
+  sur `/marketing-v2` → Vue globale.
+
+**Hors scope, toujours pas construit :** intégration API temps réel avec
+les plateformes ad (Meta/TikTok/Google/LinkedIn Ads) — remplacerait la
+saisie manuelle par un pull automatique, mais nécessite des comptes
+développeur/business vérifiés par plateforme ; à prioriser séparément si
+la saisie manuelle s'avère trop lourde en usage réel.
+**Statut :** ✅ Complete (vérification tsc/eslint/ruff faite ; vérification
+navigateur réel non effectuée dans ce ticket — même limite que les phases
+précédentes utilisant le skill `browse`, instable dans cet environnement).
+
+### Phase 38 — Harmonisation visuelle globale du Hub sur les maquettes ChatGPT
+**Contexte :** Emilie a réclamé un rendu visuel fidèle à ses maquettes ChatGPT
+(« copier-coller des images »), avec les couleurs/logo ALNUA, et une harmonisation
+de toutes les pages. Le rendu visuel est priorisé ; les branchements fonctionnels
+seront reconnectés ensuite.
+
+**Décision de conception :** créer un socle visuel unifié `MockupShell` qui
+donne à chaque page département la même structure maquette : sidebar encadrée,
+topbar avec titre/search/clock/actions, onglets sous le titre, grille de cartes
+glassmorphism, sidebar droite activité + métriques, barre de commande flottante
+en bas. Palette rétablie sur la charte ALNUA officielle (Obsidienne #0E1014,
+Ivoire #F5F2EA, Titane #A7ADB5, Cuivre Rosé #C08A72 en accent uniquement) pour
+éviter l'effet « brun orangé style Claude AI ».
+
+**Livré :**
+- `web/src/components/mockup/*` — `MockupShell`, `MockupTopbar`,
+  `MockupBottomBar`, `MockupRightSidebar`, `MockupDirectory`,
+  `MockupDepartmentPage` + 5 vues (overview/team/projects/missions/backlog) +
+  widgets réutilisables.
+- `web/src/components/layout/hub-shell.tsx` — route tous les départements
+  (y compris `/rd`, `/marketing`, `/finances`, `/analytics`, `/brand`,
+  `/secretary`, `/ceo`, `/hub`, `/hq`) dans le nouveau shell visuel.
+- Remplacement des pages `page.tsx` des départements listés ci-dessus par
+  `MockupDepartmentPage` (ou `MockupDirectory` pour `/hq`).
+- Palette rétablie dans `web/src/app/globals.css` et `web/tailwind.config.ts`
+  sur les tokens ALNUA officiels.
+
+**Fonctionnalités temporairement déconnectées (à rebrancher) :**
+- `/rd` — Brainstorm, Centre R&D, arbres d'hypothèses, dossiers R&D, comité
+  (anciennement dans `rd-page-content.tsx`).
+- `/marketing` — Marketing console, posts en attente, content pipeline
+  (anciennement dans `marketing/page.tsx`).
+- `/finances` — Finances view, coûts, budgets, transactions
+  (anciennement dans `finances/page.tsx`).
+- `/analytics` — Analytics agents panel, analytics view
+  (anciennement dans `analytics/page.tsx`).
+- `/brand` — Brand view / brand kits (anciennement dans `brand/page.tsx`).
+- `/secretary` — Nadia Desktop, SAV, assistant chat, secretary console
+  (anciennement dans `secretary/page.tsx`).
+- `/ceo` — Assistant chat CEO, brief du jour, PRs GitHub, dossiers en attente
+  (anciennement dans `ceo/page.tsx`).
+- `/hub` — Bureau Office Hero, agents section, workflows, automations,
+  CEO cockpit, production ops cockpit, pipeline codage, coûts LLM
+  (anciennement dans `hub/page.tsx`).
+- `/app`, `/gaming`, `/robo` et leurs versions `-v2` restent fonctionnels
+  avec leur chrome propre mais ne sont pas encore basculés sur `MockupShell`
+  (à harmoniser pour un modèle unique au prochain sprint visuel).
+
+**Hors scope / prochaines étapes :**
+- Reconnecter les fonctionnalités listées ci-dessus dans les vues du nouveau
+  `MockupDepartmentPage` (onglets spécialisés par département).
+- Bascule de `/app-v2`, `/gaming-v2`, `/robo-v2` sur le `MockupShell` unifié.
+- Remplacement des données mockées (projets, missions, backlog) par les vraies
+  sources de données du Hub.
+**Statut :** ✅ Complete (rendu visuel uniquement — branchement fonctionnel
+suivant).

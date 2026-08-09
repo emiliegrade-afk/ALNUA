@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from config.llm_runtime import CREWAI_MAX_ITER_DEFAULT
 from agents.agent_base import AgentBase
 
 from datetime import datetime, timedelta, timezone
@@ -82,7 +83,7 @@ class ContentAgent(AgentBase):
                 ],
                 llm=self._crew_llm,
                 allow_delegation=False,
-                max_iter=10,
+                max_iter=CREWAI_MAX_ITER_DEFAULT,
             )
         return self._crew_agent
 
@@ -284,6 +285,7 @@ Chaque post doit respecter les contraintes de SA plateforme."""
         allowed = {
             "status", "text_content", "hashtags", "scheduled_at", "image_prompt", "video_script",
             "layout", "media_urls", "channel", "sector", "author_agent_id",
+            "reach", "engagement_count",
         }
         payload = {k: v for k, v in values.items() if k in allowed and v is not None}
         if "status" in payload:
@@ -294,4 +296,10 @@ Chaque post doit respecter les contraintes de SA plateforme."""
                 raise ValueError(f"Statut invalide : {payload['status']}")
         if not payload:
             raise ValueError("Aucun champ à mettre à jour.")
+        # Stats de performance réelle (Phase 37) — saisie manuelle après
+        # publication, on horodate pour que l'UI affiche "à jour au ...".
+        if {"reach", "engagement_count"} & payload.keys():
+            from datetime import datetime, timezone
+
+            payload["stats_updated_at"] = datetime.now(timezone.utc).isoformat()
         return self.db.update("posts_queue", post_id, payload)

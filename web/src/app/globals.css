@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "../styles/alnua-dept-proto.css";
+@import "../styles/alnua-proto-exact.css";
 
 @config "../../tailwind.config.ts";
 
@@ -14,63 +16,53 @@
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   /* ─────────────────────────────────────────────────────────────────────
-     Palette alignée sur la maquette de référence « APP Department »
-     (projet Claude Design « Interface entreprise virtuelle »).
-
-     Trois corrections par rapport aux valeurs précédentes, qui étaient la
-     cause principale du « ça ne rend pas pareil » :
-       1. l'accent n'est pas un cuivre orangé (#b87333) mais un CUIVRE ROSÉ
-          (#C08A72, et #D9A88F pour le texte/hover — la teinte la plus
-          présente de toute la maquette) ;
-       2. les gris ne sont pas un titane FROID bleuté (#a7adb5) mais des
-          gris CHAUDS taupe (#A7ADB5 / #8c8177 / #7a7069) ;
-       3. le fond est plus profond et légèrement bleuté-noir (#080A0E),
-          pas un gris neutre (#111111).
+     Palette ALNUA officielle (brand board) appliquée au style des maquettes
+     ChatGPT. L'accent est le CUIVRE ROSÉ de la charte (#C08A72), mais il est
+     utilisé comme un ACCENT (filets, icônes, highlights, actifs) — pas une
+     couleur dominante. Les bordures et fonds restent en gris titane/obsidien
+     pour éviter l'effet "brun orangé".
      ───────────────────────────────────────────────────────────────────── */
-  --color-obsidian: #100f0d;
-  --color-obsidian-2: #171512;
-  --color-obsidian-3: #201d19;
-  --color-obsidian-deep: #0a0908;
+  --color-obsidian: #0E1014;
+  --color-obsidian-2: #13161B;
+  --color-obsidian-3: #1A1E24;
+  --color-obsidian-deep: #08090C;
   --color-ivory: #F5F2EA;
   --color-ivoire: #F5F2EA;
-  /* `titane` est le gris de texte courant du Hub : on l'aligne sur le gris
-     chaud de la maquette. Le titane froid de la charte reste disponible
-     sous --color-titanium-cold pour les usages « métal » (logo, filets). */
   --color-titanium: #A7ADB5;
   --color-titane: #A7ADB5;
-  --color-titanium-cold: #a7adb5;
+  --color-titanium-cold: #9ba3ac;
   --color-copper: #C08A72;
   --color-copper-light: #D9A88F;
   --color-copper-dim: #8A6050;
   --color-bronze: #C08A72;
   --color-bronze-bright: #D9A88F;
-  --color-bronze-faint: #C08A7229;
+  --color-bronze-faint: #C08A7215;
   --color-cuivre: #C08A72;
   /* Vert « en ligne / opérationnel » de la maquette. */
   --color-online: #7fc98c;
   --color-online-soft: #8fcb99;
   --color-glow: #D9A88F;
-  --color-surface: #14171C;
-  --color-surface-raised: #1C2027;
-  --color-sidebar: #0b0c0e;
+  --color-surface: #13161B;
+  --color-surface-raised: #1A1E24;
+  --color-sidebar: #08090C;
 }
 
-@layer base {
+  @layer base {
   :root {
-    --obsidian: #100f0d;
-    --obsidian-2: #171512;
-    --obsidian-3: #201d19;
+    --obsidian: #0E1014;
+    --obsidian-2: #13161B;
+    --obsidian-3: #1A1E24;
     --ivory: #F5F2EA;
     --titanium: #A7ADB5;
     --copper: #C08A72;
     --copper-light: #D9A88F;
     --copper-dim: #8A6050;
-    --surface: #14171C;
-    --surface-raised: #1C2027;
+    --surface: #13161B;
+    --surface-raised: #1A1E24;
 
     --background: var(--obsidian);
     --foreground: var(--ivory);
-    --card: #14171C;
+    --card: #13161B;
     --card-foreground: var(--ivory);
     --popover: var(--surface-raised);
     --popover-foreground: var(--ivory);
@@ -80,20 +72,20 @@
     --secondary-foreground: var(--ivory);
     --muted: var(--obsidian-3);
     --muted-foreground: var(--titanium);
-    --accent: rgba(192, 138, 114, 0.12);
+    --accent: rgba(192, 138, 114, 0.10);
     --accent-foreground: var(--copper-light);
     --destructive: #ef4444;
-    --border: rgba(192, 138, 114, 0.12);
-    --input: rgba(245, 242, 234, 0.1);
+    --border: rgba(167, 173, 190, 0.10);
+    --input: rgba(245, 242, 234, 0.08);
     --ring: var(--copper);
     --radius: 0.75rem;
-    --sidebar: #0b0c0e;
+    --sidebar: #08090C;
     --sidebar-foreground: var(--ivory);
     --sidebar-primary: var(--copper);
     --sidebar-primary-foreground: var(--obsidian);
-    --sidebar-accent: rgba(192, 138, 114, 0.1);
+    --sidebar-accent: rgba(192, 138, 114, 0.08);
     --sidebar-accent-foreground: var(--copper-light);
-    --sidebar-border: rgba(192, 138, 114, 0.08);
+    --sidebar-border: rgba(167, 173, 190, 0.06);
     --sidebar-ring: var(--copper);
   }
 
@@ -124,7 +116,7 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: #080A0E;
+    background: #08090C;
   }
 
   ::-webkit-scrollbar-thumb {
@@ -151,19 +143,19 @@
   .forge-grid {
     background-image: linear-gradient(
         to right,
-        rgba(192, 138, 114, 0.035) 1px,
+        rgba(192, 138, 114, 0.03) 1px,
         transparent 1px
       ),
-      linear-gradient(to bottom, rgba(192, 138, 114, 0.035) 1px, transparent 1px);
+      linear-gradient(to bottom, rgba(192, 138, 114, 0.03) 1px, transparent 1px);
     background-size: 48px 48px;
   }
 
   .glow-copper {
-    box-shadow: 0 0 40px -10px rgba(192, 138, 114, 0.35);
+    box-shadow: 0 0 40px -10px rgba(192, 138, 114, 0.25);
   }
 
   .glow-alnua {
-    box-shadow: 0 0 40px -10px rgba(192, 138, 114, 0.35);
+    box-shadow: 0 0 40px -10px rgba(192, 138, 114, 0.25);
   }
 
   .alnua-card {
@@ -188,12 +180,12 @@
   }
 
   .bureau-overlay {
-    background-color: rgba(20, 23, 28, 0.82);
+    background-color: rgba(19, 22, 27, 0.82);
   }
 
   .forge-card {
     @apply border border-copper/10 backdrop-blur-sm;
-    background-color: rgba(20, 23, 28, 0.85);
+    background-color: rgba(19, 22, 27, 0.85);
   }
 
   .forge-heading {
@@ -224,18 +216,18 @@
 
   .status-dot-active {
     background-color: var(--copper-light);
-    box-shadow: 0 0 8px rgba(217, 168, 143, 0.8);
+    box-shadow: 0 0 8px rgba(217, 168, 143, 0.6);
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
   .status-dot-beta {
     background-color: var(--copper);
-    box-shadow: 0 0 8px rgba(192, 138, 114, 0.8);
+    box-shadow: 0 0 8px rgba(192, 138, 114, 0.6);
   }
 
   .status-dot-dev {
     background-color: var(--copper-dim);
-    box-shadow: 0 0 8px rgba(138, 96, 80, 0.8);
+    box-shadow: 0 0 8px rgba(138, 96, 80, 0.6);
   }
 
   .status-dot-paused {
@@ -341,24 +333,24 @@
 
 .bg-grid-bronze {
   background-image:
-    linear-gradient(to right, rgba(192, 138, 114, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(192, 138, 114, 0.04) 1px, transparent 1px);
+    linear-gradient(to right, rgba(192, 138, 114, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(192, 138, 114, 0.03) 1px, transparent 1px);
   background-size: 48px 48px;
 }
 
 .bg-radial-glow {
   background: radial-gradient(
     ellipse 80% 60% at 50% 0%,
-    rgba(192, 138, 114, 0.14) 0%,
-    rgba(192, 138, 114, 0.06) 35%,
+    rgba(192, 138, 114, 0.10) 0%,
+    rgba(192, 138, 114, 0.04) 35%,
     transparent 70%
   );
 }
 
 .shadow-glow {
   box-shadow:
-    0 0 24px -4px rgba(192, 138, 114, 0.4),
-    0 0 48px -12px rgba(192, 138, 114, 0.3);
+    0 0 24px -4px rgba(192, 138, 114, 0.25),
+    0 0 48px -12px rgba(192, 138, 114, 0.18);
 }
 
 @keyframes alnua-pulse {
@@ -380,12 +372,12 @@
 @keyframes alnua-glow {
   0%,
   100% {
-    filter: drop-shadow(0 0 6px rgba(192, 138, 114, 0.55))
-      drop-shadow(0 0 14px rgba(192, 138, 114, 0.35));
+    filter: drop-shadow(0 0 6px rgba(192, 138, 114, 0.45))
+      drop-shadow(0 0 14px rgba(192, 138, 114, 0.25));
   }
   50% {
-    filter: drop-shadow(0 0 12px rgba(207, 141, 80, 0.75))
-      drop-shadow(0 0 28px rgba(192, 138, 114, 0.5));
+    filter: drop-shadow(0 0 12px rgba(217, 168, 143, 0.65))
+      drop-shadow(0 0 28px rgba(192, 138, 114, 0.4));
   }
 }
 
@@ -398,9 +390,26 @@
   mask-image: linear-gradient(180deg, #000 70%, transparent);
 }
 
+/* Cartes Innovation Pipeline (Phase 23, ROADMAP.md) — pulse très discret,
+   purement décoratif (le laboratoire "vit"), ne reflète aucun calcul réel
+   en cours. */
+@keyframes rnd-card-breathe {
+  0%,
+  100% {
+    box-shadow: 0 0 0 rgba(192, 138, 114, 0);
+  }
+  50% {
+    box-shadow: 0 0 22px -6px rgba(192, 138, 114, 0.25);
+  }
+}
+
+.animate-rnd-card-breathe {
+  animation: rnd-card-breathe 5s ease-in-out infinite;
+}
+
 .alnua-scroll {
   scrollbar-width: thin;
-  scrollbar-color: #C08A7229 transparent;
+  scrollbar-color: #C08A7220 transparent;
 }
 
 .alnua-scroll::-webkit-scrollbar {
@@ -413,10 +422,10 @@
 }
 
 .alnua-scroll::-webkit-scrollbar-thumb {
-  background: #C08A7229;
+  background: #C08A7220;
   border-radius: 6px;
 }
 
 .alnua-scroll::-webkit-scrollbar-thumb:hover {
-  background: #C08A724d;
+  background: #C08A7240;
 }

@@ -10,7 +10,7 @@ function RawCooAccordion({ data }: { data: CooDailyBriefing["raw_data"] }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/[0.02]">
+    <div className="rounded-xl border border-copper/15 bg-obsidian-deep/40">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
@@ -20,7 +20,7 @@ function RawCooAccordion({ data }: { data: CooDailyBriefing["raw_data"] }) {
         {open ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
       </button>
       {open && (
-        <pre className="max-h-80 overflow-auto border-t border-white/10 px-4 py-4 font-mono text-xs text-titanium/80">
+        <pre className="max-h-80 overflow-auto border-t border-copper/15 px-4 py-4 font-mono text-xs text-titanium/80">
           {JSON.stringify(data, null, 2)}
         </pre>
       )}
@@ -108,7 +108,7 @@ export function BriefingCooPanel({
                 {priorities.map((p, i) => (
                   <li
                     key={`priority-${i}`}
-                    className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-ivory/90"
+                    className="rounded-lg border border-copper/15 bg-obsidian-deep/50 px-4 py-3 text-sm text-ivory/90"
                   >
                     <span className="mr-2 font-semibold text-copper">{i + 1}.</span>
                     {p}

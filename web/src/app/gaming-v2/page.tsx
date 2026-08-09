@@ -104,7 +104,7 @@ const VACANT_ROLES: string[] = [];
 
 function SectionBox({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-[10px] border p-2" style={{ borderColor: "rgba(200,127,78,.14)", background: "rgba(16,13,11,.5)" }}>
+    <div className="rounded-[10px] border p-2" style={{ borderColor: "rgba(192,138,114,.14)", background: "rgba(16,13,11,.5)" }}>
       <p className="mb-2 ml-2 mt-0.5 text-[8.5px] tracking-[0.2em]" style={{ color: C.faint }}>
         {title}
       </p>
@@ -157,7 +157,7 @@ function GamingDepartmentView() {
       className="alnua-scroll flex h-full w-full flex-col overflow-x-auto overflow-y-auto"
       style={{
         background:
-          "radial-gradient(1100px 600px at 15% -10%, rgba(200,127,78,.09), transparent 55%), radial-gradient(900px 700px at 90% 110%, rgba(120,110,150,.05), transparent 60%), #06070A",
+          "radial-gradient(1100px 600px at 15% -10%, rgba(192,138,114,.09), transparent 55%), radial-gradient(900px 700px at 90% 110%, rgba(120,110,150,.05), transparent 60%), #06070A",
         color: C.ivory,
       }}
     >
@@ -166,7 +166,7 @@ function GamingDepartmentView() {
         className="pointer-events-none fixed inset-0 z-0 opacity-[0.03]"
         style={{
           backgroundImage:
-            "linear-gradient(rgba(200,127,78,.6) 1px, transparent 1px), linear-gradient(90deg, rgba(200,127,78,.6) 1px, transparent 1px)",
+            "linear-gradient(rgba(192,138,114,.6) 1px, transparent 1px), linear-gradient(90deg, rgba(192,138,114,.6) 1px, transparent 1px)",
           backgroundSize: "48px 48px",
         }}
       />
@@ -176,7 +176,7 @@ function GamingDepartmentView() {
         <Link href={ROUTES.home} className="flex w-[clamp(178px,13.7vw,210px)] shrink-0 items-center gap-[11px] border-r pl-[18px]" style={{ borderColor: C.line }}>
           <span
             className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full border"
-            style={{ borderColor: "rgba(200,127,78,.45)", background: "radial-gradient(circle,rgba(200,127,78,.28),transparent 70%)", boxShadow: "0 0 18px rgba(200,127,78,.25)" }}
+            style={{ borderColor: "rgba(192,138,114,.45)", background: "radial-gradient(circle,rgba(192,138,114,.28),transparent 70%)", boxShadow: "0 0 18px rgba(192,138,114,.25)" }}
           >
             <AlnuaStar size={24} animated={false} sparkMid="#E8A87C" sparkOuter="#C87F4E" glowColorRgb="200,127,78" />
           </span>
@@ -214,7 +214,7 @@ function GamingDepartmentView() {
                 key={t.label}
                 href={t.href}
                 className={cn("flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] transition-colors", t.active ? "border" : "border border-transparent hover:opacity-80")}
-                style={t.active ? { borderColor: "rgba(200,127,78,.4)", background: "rgba(200,127,78,.12)", color: C.copperLight } : { color: C.warm }}
+                style={t.active ? { borderColor: "rgba(192,138,114,.4)", background: "rgba(192,138,114,.12)", color: C.copperLight } : { color: C.warm }}
               >
                 <span className="text-[12px] opacity-90">{t.icon}</span>
                 <span className="hidden xl:inline">{t.label}</span>
@@ -223,7 +223,7 @@ function GamingDepartmentView() {
           </nav>
 
           <div className="flex shrink-0 items-center gap-[18px]">
-            <span className="relative flex h-[34px] w-[34px] items-center justify-center rounded-full border text-[13px]" style={{ borderColor: "rgba(200,127,78,.22)" }}>
+            <span className="relative flex h-[34px] w-[34px] items-center justify-center rounded-full border text-[13px]" style={{ borderColor: "rgba(192,138,114,.22)" }}>
               🔔
               {stats.ceoNotifications > 0 ? <span className="absolute right-[3px] top-[2px] h-[6px] w-[6px] rounded-full" style={{ background: C.copper, boxShadow: `0 0 6px ${C.copper}` }} /> : null}
             </span>
@@ -248,7 +248,7 @@ function GamingDepartmentView() {
         <aside className="flex w-[clamp(178px,13.7vw,210px)] shrink-0 flex-col gap-3 overflow-y-auto border-r px-3 py-4" style={{ borderColor: C.line }}>
           <SectionBox title="TABLEAU DE BORD">
             {DASHBOARD_NAV.map((it) => (
-              <Link key={it.label} href={it.href} className="flex items-center justify-between gap-1 whitespace-nowrap rounded-[7px] px-2 py-[7px] text-[12px] transition-colors hover:bg-white/[0.03]" style={{ color: C.warm }}>
+              <Link key={it.label} href={it.href} className="flex items-center justify-between gap-1 whitespace-nowrap rounded-[7px] px-2 py-[7px] text-[12px] transition-colors hover:bg-obsidian-deep/50" style={{ color: C.warm }}>
                 <span className="flex min-w-0 items-center gap-2">
                   <span className="w-[15px] shrink-0 text-center text-[12px]" style={{ color: C.copper }}>
                     {it.icon}
@@ -256,7 +256,7 @@ function GamingDepartmentView() {
                   {it.label}
                 </span>
                 {it.badge && stats.ceoNotifications > 0 ? (
-                  <span className="rounded-lg border px-1.5 text-[9px]" style={{ borderColor: "rgba(200,127,78,.5)", color: C.copperLight }}>
+                  <span className="rounded-lg border px-1.5 text-[9px]" style={{ borderColor: "rgba(192,138,114,.5)", color: C.copperLight }}>
                     {stats.ceoNotifications}
                   </span>
                 ) : null}
@@ -272,8 +272,8 @@ function GamingDepartmentView() {
                 <Link
                   key={pole.id}
                   href={pole.href}
-                  className="flex items-center justify-between rounded-[7px] px-2 py-[7px] transition-colors hover:bg-white/[0.03]"
-                  style={active ? { background: "rgba(200,127,78,.12)", color: C.copperLight } : { color: C.warm }}
+                  className="flex items-center justify-between rounded-[7px] px-2 py-[7px] transition-colors hover:bg-obsidian-deep/50"
+                  style={active ? { background: "rgba(192,138,114,.12)", color: C.copperLight } : { color: C.warm }}
                 >
                   <span className="flex min-w-0 items-center gap-2">
                     <span className="w-[16px] shrink-0 text-center text-[11px]" style={{ color: C.copper }}>
@@ -294,7 +294,7 @@ function GamingDepartmentView() {
 
           <SectionBox title="OUTILS">
             {TOOLS_NAV.map((t) => (
-              <Link key={t.label} href={t.href} className="flex items-center justify-between gap-1 whitespace-nowrap rounded-[7px] px-2 py-[7px] text-[12px] transition-colors hover:bg-white/[0.03]" style={{ color: C.warm }}>
+              <Link key={t.label} href={t.href} className="flex items-center justify-between gap-1 whitespace-nowrap rounded-[7px] px-2 py-[7px] text-[12px] transition-colors hover:bg-obsidian-deep/50" style={{ color: C.warm }}>
                 <span className="flex min-w-0 items-center gap-2">
                   <span className="w-[15px] shrink-0 text-center text-[11px]" style={{ color: C.copper }}>
                     {t.icon}
@@ -310,14 +310,14 @@ function GamingDepartmentView() {
 
           <div
             className="relative mt-auto overflow-hidden rounded-xl border p-3 pb-3.5"
-            style={{ borderColor: "rgba(200,127,78,.2)", background: "radial-gradient(120% 90% at 50% 45%, rgba(200,127,78,.13), rgba(8,7,9,.92) 70%)" }}
+            style={{ borderColor: "rgba(192,138,114,.2)", background: "radial-gradient(120% 90% at 50% 45%, rgba(192,138,114,.13), rgba(8,7,9,.92) 70%)" }}
           >
             <div className="flex items-center justify-center gap-2">
-              <span className="h-px w-4" style={{ background: "linear-gradient(90deg,transparent,rgba(200,127,78,.6))" }} />
+              <span className="h-px w-4" style={{ background: "linear-gradient(90deg,transparent,rgba(192,138,114,.6))" }} />
               <span className="text-[10px] tracking-[2.4px]" style={{ color: C.copperLight }}>
                 ALNUA CORE
               </span>
-              <span className="h-px w-4" style={{ background: "linear-gradient(90deg,rgba(200,127,78,.6),transparent)" }} />
+              <span className="h-px w-4" style={{ background: "linear-gradient(90deg,rgba(192,138,114,.6),transparent)" }} />
             </div>
             <p className="mt-[3px] text-center text-[9.5px]" style={{ color: C.dim }}>
               Studio opérationnel
@@ -342,7 +342,7 @@ function GamingDepartmentView() {
             <div className="flex min-w-0 items-center gap-3">
               <span
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border text-[15px]"
-                style={{ borderColor: "rgba(200,127,78,.4)", background: "radial-gradient(circle at 30% 20%, rgba(200,127,78,.25), rgba(10,9,10,.9))", color: C.copperLight }}
+                style={{ borderColor: "rgba(192,138,114,.4)", background: "radial-gradient(circle at 30% 20%, rgba(192,138,114,.25), rgba(10,9,10,.9))", color: C.copperLight }}
               >
                 🎮
               </span>
@@ -361,7 +361,7 @@ function GamingDepartmentView() {
             <div className="flex shrink-0 items-center gap-[9px]">
               <span
                 className="hidden items-center gap-[7px] rounded-[18px] border px-[13px] py-1.5 text-[11.5px] sm:flex"
-                style={{ borderColor: "rgba(200,127,78,.22)", background: "rgba(16,13,11,.6)", color: C.warm }}
+                style={{ borderColor: "rgba(192,138,114,.22)", background: "rgba(16,13,11,.6)", color: C.warm }}
               >
                 <span className="h-1.5 w-1.5 rounded-full" style={{ background: C.online, boxShadow: `0 0 6px ${C.online}` }} />
                 {activeCount} agent{activeCount !== 1 ? "s" : ""} actif{activeCount !== 1 ? "s" : ""}
@@ -370,14 +370,14 @@ function GamingDepartmentView() {
                 type="button"
                 onClick={() => requestRole()}
                 className="flex items-center gap-1.5 rounded-[18px] border px-[13px] py-1.5 text-[11.5px]"
-                style={{ borderColor: "rgba(200,127,78,.45)", background: "rgba(200,127,78,.08)", color: C.copperLight }}
+                style={{ borderColor: "rgba(192,138,114,.45)", background: "rgba(192,138,114,.08)", color: C.copperLight }}
               >
                 ＋ <span className="hidden sm:inline">Ajouter un agent</span>
               </button>
             </div>
           </div>
 
-          <div className="flex gap-5 overflow-x-auto border-b" style={{ borderColor: "rgba(200,127,78,.15)" }}>
+          <div className="flex gap-5 overflow-x-auto border-b" style={{ borderColor: "rgba(192,138,114,.15)" }}>
             {TABS.map((t) => (
               <button
                 key={t}
@@ -423,7 +423,7 @@ function GamingDepartmentView() {
           <div className="relative flex h-[clamp(54px,7vh,62px)] shrink-0 items-center">
             <span
               className="absolute inset-0 rounded-[34px] border"
-              style={{ borderColor: "rgba(200,127,78,.28)", background: "radial-gradient(60% 220% at 50% 50%, rgba(200,127,78,.14), rgba(14,11,9,.7) 70%)" }}
+              style={{ borderColor: "rgba(192,138,114,.28)", background: "radial-gradient(60% 220% at 50% 50%, rgba(192,138,114,.14), rgba(14,11,9,.7) 70%)" }}
             />
             <div className="relative flex flex-1 items-center justify-between px-7">
               <span className="hidden text-[12px] sm:inline" style={{ color: C.muted }}>
@@ -432,7 +432,7 @@ function GamingDepartmentView() {
               <div className="ml-auto flex items-center gap-3 text-[11.5px]" style={{ color: C.warm }}>
                 {QUICK_ACTIONS.map((qa) => (
                   <span key={qa.label} className="flex items-center gap-[7px]">
-                    <span className="flex h-[22px] w-[22px] items-center justify-center rounded-md border text-[10px]" style={{ borderColor: "rgba(200,127,78,.28)", color: C.copperLight }}>
+                    <span className="flex h-[22px] w-[22px] items-center justify-center rounded-md border text-[10px]" style={{ borderColor: "rgba(192,138,114,.28)", color: C.copperLight }}>
                       {qa.icon}
                     </span>
                     <span className="hidden xl:inline">{qa.label}</span>
@@ -442,9 +442,9 @@ function GamingDepartmentView() {
             </div>
             <span
               className="absolute left-1/2 top-1/2 flex h-[88px] w-[88px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full"
-              style={{ background: "radial-gradient(circle, rgba(200,127,78,.30) 0%, rgba(200,127,78,.10) 45%, transparent 70%)" }}
+              style={{ background: "radial-gradient(circle, rgba(192,138,114,.30) 0%, rgba(192,138,114,.10) 45%, transparent 70%)" }}
             >
-              <span className="absolute h-[76px] w-[76px] rounded-full border" style={{ borderColor: "rgba(200,127,78,.35)" }} />
+              <span className="absolute h-[76px] w-[76px] rounded-full border" style={{ borderColor: "rgba(192,138,114,.35)" }} />
               <AlnuaStar size={60} glow sparkMid="#E8A87C" sparkOuter="#C87F4E" glowColorRgb="200,127,78" />
             </span>
           </div>
@@ -543,9 +543,9 @@ function EquipeTab({
               style={{
                 borderColor: active ? C.copper : C.line,
                 background: active
-                  ? "radial-gradient(120% 120% at 0% 0%, rgba(200,127,78,.12), rgba(16,13,11,.6) 60%)"
+                  ? "radial-gradient(120% 120% at 0% 0%, rgba(192,138,114,.12), rgba(16,13,11,.6) 60%)"
                   : "rgba(16,13,11,.55)",
-                boxShadow: active ? "0 0 22px rgba(200,127,78,.12)" : undefined,
+                boxShadow: active ? "0 0 22px rgba(192,138,114,.12)" : undefined,
               }}
             >
               <div className="flex items-center gap-2.5">
@@ -573,7 +573,7 @@ function EquipeTab({
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "rgba(200,127,78,.15)" }}>
+                <span className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "rgba(192,138,114,.15)" }}>
                   <span className="block h-full rounded-full" style={{ width: `${load}%`, background: C.copper }} />
                 </span>
                 <span className="text-[9.5px]" style={{ color: C.ivory }}>
@@ -600,9 +600,9 @@ function EquipeTab({
           type="button"
           onClick={() => onRequestRole(role)}
           className="flex w-[230px] shrink-0 flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed p-3 text-center transition-colors hover:opacity-80"
-          style={{ borderColor: "rgba(200,127,78,.28)", background: "rgba(16,13,11,.3)", minHeight: 150 }}
+          style={{ borderColor: "rgba(192,138,114,.28)", background: "rgba(16,13,11,.3)", minHeight: 150 }}
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded-full border text-[13px]" style={{ borderColor: "rgba(200,127,78,.35)", color: C.copperLight }}>
+          <span className="flex h-8 w-8 items-center justify-center rounded-full border text-[13px]" style={{ borderColor: "rgba(192,138,114,.35)", color: C.copperLight }}>
             ＋
           </span>
           <span className="text-[10.5px] font-medium" style={{ color: C.warm }}>
@@ -656,7 +656,7 @@ function EquipeTab({
             ))
           )}
         </div>
-        <Link href={ROUTES.activity} className="rounded-lg border py-[7px] text-center text-[10.5px]" style={{ borderColor: "rgba(200,127,78,.22)", color: C.warm }}>
+        <Link href={ROUTES.activity} className="rounded-lg border py-[7px] text-center text-[10.5px]" style={{ borderColor: "rgba(192,138,114,.22)", color: C.warm }}>
           Voir toute l&apos;activité
         </Link>
       </div>
@@ -688,7 +688,7 @@ function EquipeTab({
                     type="button"
                     onClick={() => setSelectedId(agent.id)}
                     className="flex w-full items-center gap-2 rounded-lg px-1.5 py-1.5 text-left transition-colors"
-                    style={active ? { background: "rgba(200,127,78,.12)" } : undefined}
+                    style={active ? { background: "rgba(192,138,114,.12)" } : undefined}
                   >
                     <AgentAvatar agentId={agent.id} name={agent.name} size={32} />
                     <span className="min-w-0 flex-1">
@@ -709,7 +709,7 @@ function EquipeTab({
                 );
               })}
             </div>
-            <Link href={ROUTES.agents} className="rounded-lg border py-[6px] text-center text-[10px]" style={{ borderColor: "rgba(200,127,78,.22)", color: C.warm }}>
+            <Link href={ROUTES.agents} className="rounded-lg border py-[6px] text-center text-[10px]" style={{ borderColor: "rgba(192,138,114,.22)", color: C.warm }}>
               Voir toute l&apos;équipe
             </Link>
           </div>
@@ -719,8 +719,8 @@ function EquipeTab({
             className="flex min-w-0 flex-1 flex-col gap-[11px] rounded-xl border px-[13px] py-3"
             style={{
               borderColor: C.lineStrong,
-              background: "radial-gradient(120% 120% at 0% 0%, rgba(200,127,78,.08), rgba(16,13,11,.6) 55%)",
-              boxShadow: "0 0 24px rgba(200,127,78,.07)",
+              background: "radial-gradient(120% 120% at 0% 0%, rgba(192,138,114,.08), rgba(16,13,11,.6) 55%)",
+              boxShadow: "0 0 24px rgba(192,138,114,.07)",
             }}
           >
             <div className="flex items-start justify-between gap-3">

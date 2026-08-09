@@ -50,14 +50,14 @@ export function RoadmapKanban({
           return (
             <div
               key={col.id}
-              className="flex min-h-[420px] flex-col rounded-2xl border border-copper/10 bg-obsidian/40 ring-1 ring-white/[0.04]"
+              className="flex min-h-[420px] flex-col rounded-2xl border border-copper/10 bg-obsidian/40 ring-1 ring-copper/10"
             >
-              <div className="flex items-center justify-between border-b border-white/[0.06] px-3 py-2.5">
+              <div className="flex items-center justify-between border-b border-copper/10 px-3 py-2.5">
                 <h3 className="text-sm font-medium text-ivory">
                   <span className="mr-1.5">{col.emoji}</span>
                   {col.label}
                 </h3>
-                <span className="rounded-full bg-white/[0.06] px-2 py-0.5 text-[11px] text-titanium">
+                <span className="rounded-full bg-obsidian-deep/50 px-2 py-0.5 text-[11px] text-titanium">
                   {columnItems.length}
                 </span>
               </div>
@@ -103,7 +103,7 @@ export function RoadmapKanban({
               <button
                 type="button"
                 onClick={() => onAddInColumn(col.id)}
-                className="m-2 flex items-center justify-center gap-1 rounded-lg border border-dashed border-white/10 py-2 text-xs text-titanium transition hover:border-copper/30 hover:text-copper-glow"
+                className="m-2 flex items-center justify-center gap-1 rounded-lg border border-dashed border-copper/15 py-2 text-xs text-titanium transition hover:border-copper/30 hover:text-copper-glow"
               >
                 <Plus className="h-3.5 w-3.5" />
                 Ajouter

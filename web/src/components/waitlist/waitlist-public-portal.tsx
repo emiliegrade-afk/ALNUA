@@ -209,9 +209,9 @@ export function WaitlistPublicPortal({ projectSlug }: WaitlistPublicPortalProps)
             </section>
 
             {count > 0 ? (
-              <div className="mb-8 rounded-xl border border-copper/20 bg-white/[0.03] px-4 py-3 text-center text-sm text-titanium">
+              <div className="mb-8 rounded-xl border border-copper/20 bg-obsidian-deep/50 px-4 py-3 text-center text-sm text-titanium">
                 Rejoins{" "}
-                <span className="font-semibold text-copper-glow">
+                <span className="font-semibold text-copper-light">
                   <AnimatedCounter value={count} />
                 </span>{" "}
                 personnes sur la liste d&apos;attente
@@ -220,7 +220,7 @@ export function WaitlistPublicPortal({ projectSlug }: WaitlistPublicPortalProps)
 
             <form
               onSubmit={handleSubmit}
-              className="space-y-4 rounded-2xl border border-white/10 bg-surface/60 p-5 backdrop-blur-sm sm:p-6"
+              className="space-y-4 rounded-2xl border border-copper/15 bg-obsidian/60 p-5 backdrop-blur-sm sm:p-6"
             >
               <div>
                 <label htmlFor="email" className="mb-1.5 block text-xs text-titanium">
@@ -233,7 +233,7 @@ export function WaitlistPublicPortal({ projectSlug }: WaitlistPublicPortalProps)
                   placeholder="ton@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="border-white/10 bg-obsidian/50"
+                  className="border-copper/15 bg-obsidian/50"
                 />
               </div>
 
@@ -246,7 +246,7 @@ export function WaitlistPublicPortal({ projectSlug }: WaitlistPublicPortalProps)
                   placeholder="Emilie"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
-                  className="border-white/10 bg-obsidian/50"
+                  className="border-copper/15 bg-obsidian/50"
                 />
               </div>
 
@@ -255,7 +255,7 @@ export function WaitlistPublicPortal({ projectSlug }: WaitlistPublicPortalProps)
                   Comment tu as découvert ALNUA ?
                 </label>
                 <Select value={source} onValueChange={setSource}>
-                  <SelectTrigger id="source" className="border-white/10 bg-obsidian/50">
+                  <SelectTrigger id="source" className="border-copper/15 bg-obsidian/50">
                     <SelectValue placeholder="Choisis une option" />
                   </SelectTrigger>
                   <SelectContent>
@@ -278,7 +278,7 @@ export function WaitlistPublicPortal({ projectSlug }: WaitlistPublicPortalProps)
                   rows={3}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  className="border-white/10 bg-obsidian/50 resize-none"
+                  className="border-copper/15 bg-obsidian/50 resize-none"
                 />
               </div>
 

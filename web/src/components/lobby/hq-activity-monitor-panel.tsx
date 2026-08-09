@@ -66,7 +66,7 @@ const HUB_PHASE_COPY: Record<
   { label: string; className: string }
 > = {
   ok: { label: "Hub OK", className: "text-emerald-400 bg-emerald-500/10" },
-  checking: { label: "Sync…", className: "text-titanium/70 bg-white/5" },
+  checking: { label: "Sync…", className: "text-titanium/70 bg-obsidian/50" },
   key: { label: "Clé API", className: "text-amber-300 bg-amber-500/15" },
   down: { label: "Offline", className: "text-red-300 bg-red-500/15" },
 };

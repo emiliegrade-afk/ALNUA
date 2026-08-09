@@ -33,7 +33,7 @@ export function SessionSidebar({
 }: SessionSidebarProps) {
   if (collapsed) {
     return (
-      <div className="flex shrink-0 flex-col border-l border-white/[0.06] bg-sidebar/60">
+      <div className="flex shrink-0 flex-col border-l border-copper/10 bg-sidebar/60">
         <button
           type="button"
           onClick={onToggle}
@@ -50,8 +50,8 @@ export function SessionSidebar({
   }
 
   return (
-    <aside className="flex min-h-0 w-72 shrink-0 flex-col border-l border-white/[0.06] bg-sidebar/60">
-      <div className="flex shrink-0 items-center justify-between border-b border-white/[0.06] px-4 py-3">
+    <aside className="flex min-h-0 w-72 shrink-0 flex-col border-l border-copper/10 bg-sidebar/60">
+      <div className="flex shrink-0 items-center justify-between border-b border-copper/10 px-4 py-3">
         <div className="flex items-center gap-2 text-sm text-ivory/75">
           <History className="h-4 w-4 text-copper" />
           Sessions
@@ -59,7 +59,7 @@ export function SessionSidebar({
         <button
           type="button"
           onClick={onToggle}
-          className="rounded p-1 text-titanium hover:bg-white/[0.04] hover:text-ivory/75"
+          className="rounded p-1 text-titanium hover:bg-obsidian-deep/50 hover:text-ivory/75"
           aria-label="Replier l'historique"
         >
           <ChevronRight className="h-4 w-4" />
@@ -104,7 +104,7 @@ export function SessionSidebar({
                       "w-full rounded-lg px-3 py-2.5 text-left transition",
                       activeSessionId === s.session_id
                         ? "bg-copper/15 ring-1 ring-copper/25"
-                        : "hover:bg-white/[0.03]"
+                        : "hover:bg-obsidian-deep/50"
                     )}
                   >
                     {s.has_summary && s.summary_title ? (
@@ -155,7 +155,7 @@ export function SessionSidebar({
                       }}
                       disabled={isSummarizing}
                       className={cn(
-                        "absolute right-2 top-2 rounded-md border border-white/[0.08] bg-obsidian/90 px-1.5 py-0.5 text-[10px] text-titanium opacity-0 transition group-hover:opacity-100 hover:border-copper/30 hover:text-copper-glow",
+                        "absolute right-2 top-2 rounded-md border border-copper/15 bg-obsidian/90 px-1.5 py-0.5 text-[10px] text-titanium opacity-0 transition group-hover:opacity-100 hover:border-copper/30 hover:text-copper-glow",
                         isSummarizing && "opacity-100"
                       )}
                       title="Générer ou voir le compte-rendu"

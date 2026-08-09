@@ -21,11 +21,25 @@ from skills.skill_error_journal import (
     mark_resolved,
     search_similar_errors,
 )
+from config.llm_runtime import (
+    RETRY_LOOP_DELAYS_S,
+    RETRY_LOOP_MAX_ATTEMPTS,
+    RETRY_LOOP_TOOL_MAX_ATTEMPTS,
+)
 
 logger = logging.getLogger(__name__)
 
-MAX_ATTEMPTS_DEFAULT = 3
-RETRY_DELAY_SECONDS = [0, 30, 60]
+MAX_ATTEMPTS_DEFAULT = RETRY_LOOP_MAX_ATTEMPTS
+RETRY_DELAY_SECONDS = list(RETRY_LOOP_DELAYS_S)
+
+# Errors where retrying the same LLM+tool path just burns tokens (auth / bad schema)
+_NON_RETRYABLE_TYPES = frozenset({
+    "PermissionError",
+    "AuthError",
+    "ToolSchemaError",
+    "MCPError",
+    "ComposioAuthError",
+})
 
 
 def classify_error(exception: Exception) -> str:
@@ -37,21 +51,34 @@ def classify_error(exception: Exception) -> str:
         return "TimeoutError"
     if "import" in msg or "ModuleNotFoundError" in name or "ImportError" in name:
         return "ImportError"
-    if "permission" in msg or "PermissionError" in name:
+    if "permission" in msg or "PermissionError" in name or "403" in msg or "401" in msg:
         return "PermissionError"
+    if "composio" in msg and ("auth" in msg or "oauth" in msg or "401" in msg):
+        return "ComposioAuthError"
+    if "mcp" in msg and ("tool" in msg or "schema" in msg or "unavailable" in msg):
+        return "MCPError"
+    if "tool" in msg and ("schema" in msg or "not found" in msg or "unknown tool" in msg):
+        return "ToolSchemaError"
     if "connection" in msg or "ConnectionError" in name:
         return "ConnectionError"
     if "git" in msg or "worktree" in msg:
         return "GitError"
     if "syntax" in msg or "SyntaxError" in name:
         return "SyntaxError"
-    if "api" in msg or "http" in msg or "401" in msg or "403" in msg:
+    if "api" in msg or "http" in msg:
         return "APIError"
     if "supabase" in msg or "database" in msg or "postgresql" in msg:
         return "DatabaseError"
     if "playwright" in msg or "browser" in msg:
         return "PlaywrightError"
     return name or "UnknownError"
+
+
+def _effective_max_attempts(error_type: str | None, max_attempts: int) -> int:
+    """Cap retries for tool/MCP auth failures — one shot, then escalate."""
+    if error_type and error_type in _NON_RETRYABLE_TYPES:
+        return min(max_attempts, RETRY_LOOP_TOOL_MAX_ATTEMPTS)
+    return max_attempts
 
 
 def retry_with_learning(
@@ -81,12 +108,15 @@ def retry_with_learning(
         canonical_agent, task_context or task_id or agent_name
     )
 
+    effective_max = max_attempts
     for attempt in range(1, max_attempts + 1):
+        if attempt > effective_max:
+            break
         logger.info(
             "[RetryLoop] %s — attempt %s/%s (task: %s)",
             agent_name,
             attempt,
-            max_attempts,
+            effective_max,
             task_id,
         )
 
@@ -134,6 +164,7 @@ def retry_with_learning(
         except Exception as exc:
             last_exception = exc
             error_type = classify_error(exc)
+            effective_max = _effective_max_attempts(error_type, max_attempts)
             error_message = str(exc)
             full_traceback = traceback.format_exc()
 
@@ -144,6 +175,12 @@ def retry_with_learning(
                 error_type,
                 error_message[:200],
             )
+            if error_type in _NON_RETRYABLE_TYPES:
+                logger.warning(
+                    "[RetryLoop] %s — non-retryable %s — skip further LLM burns",
+                    agent_name,
+                    error_type,
+                )
 
             similar = search_similar_errors(agent_name, error_message, error_type)
 
@@ -185,14 +222,14 @@ def retry_with_learning(
                 error=f"{error_type}: {error_message[:400]}",
             )
 
-            if telegram_notify_fn and attempt < max_attempts:
+            if telegram_notify_fn and attempt < effective_max:
                 next_delay = (
                     RETRY_DELAY_SECONDS[attempt]
                     if attempt < len(RETRY_DELAY_SECONDS)
-                    else 60
+                    else 40
                 )
                 telegram_notify_fn(
-                    f"⚠️ **{agent_name}** — Tentative {attempt}/{max_attempts} échouée\n"
+                    f"⚠️ **{agent_name}** — Tentative {attempt}/{effective_max} échouée\n"
                     f"`{error_type}` : {error_message[:150]}\n"
                     f"🔄 Retry dans {next_delay}s..."
                 )
@@ -201,7 +238,7 @@ def retry_with_learning(
         "[RetryLoop] %s — task %s abandoned after %s attempts",
         agent_name,
         task_id,
-        max_attempts,
+        effective_max,
     )
 
     if last_error_id:
@@ -209,7 +246,7 @@ def retry_with_learning(
 
     escalation_msg = (
         f"🚨 **Escalade COO — {agent_name}**\n"
-        f"Tâche `{task_id}` a échoué après **{max_attempts} tentatives**.\n"
+        f"Tâche `{task_id}` a échoué après **{effective_max} tentatives**.\n"
         f"Dernière erreur : `{classify_error(last_exception)}`: "
         f"{str(last_exception)[:200]}\n"
         f"⚙️ Intervention humaine requise."
@@ -229,7 +266,7 @@ def retry_with_learning(
     return {
         "success": False,
         "result": None,
-        "attempts": max_attempts,
+        "attempts": effective_max,
         "error": str(last_exception),
         "escalated": True,
     }

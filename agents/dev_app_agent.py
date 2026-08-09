@@ -24,6 +24,7 @@ from crewai.tools import tool
 
 from skills.skill_coding_agent import execute_coding_task
 from skills.skill_composio import get_composio_tools
+from config.llm_runtime import CREWAI_MAX_ITER_DEFAULT
 from config.agent_operating_spec import crew_backstory
 from skills.skill_gh_issues import comment_on_issue, get_issue, get_open_issues, list_ready_issues, process_issue
 from skills.skill_langfuse import trace_agent
@@ -140,7 +141,7 @@ class DevAppAgent:
                 comment_on_issue,
             ],
             llm=_build_llm(),
-            max_iter=10,
+            max_iter=CREWAI_MAX_ITER_DEFAULT,
             verbose=True,
         )
 

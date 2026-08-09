@@ -85,7 +85,7 @@ export function PostsApprovalPanel({
                 "rounded-lg border px-3 py-1.5 text-xs transition",
                 statusTab === id
                   ? "border-copper/45 bg-copper/10 text-copper-glow"
-                  : "border-transparent text-titanium hover:border-copper/20 hover:bg-white/[0.03]"
+                  : "border-transparent text-titanium hover:border-copper/20 hover:bg-obsidian-deep/50"
               )}
             >
               {label}
@@ -95,7 +95,7 @@ export function PostsApprovalPanel({
 
         <div className="flex flex-wrap items-center gap-2">
           <Select value={projectFilter} onValueChange={onProjectFilterChange}>
-            <SelectTrigger className="h-8 w-[160px] border-copper/20 bg-white/[0.03] text-xs">
+            <SelectTrigger className="h-8 w-[160px] border-copper/20 bg-obsidian-deep/50 text-xs">
               <SelectValue placeholder="Projet" />
             </SelectTrigger>
             <SelectContent className="border-copper/20 bg-surface-raised">
@@ -124,7 +124,7 @@ export function PostsApprovalPanel({
                     "rounded-md px-2 py-1 text-[10px] ring-1 transition",
                     active
                       ? style.badge
-                      : "bg-white/[0.03] text-titanium ring-white/[0.06] hover:ring-copper/20"
+                      : "bg-obsidian-deep/50 text-titanium ring-copper/15 hover:ring-copper/20"
                   )}
                 >
                   {style.label}
@@ -146,7 +146,7 @@ export function PostsApprovalPanel({
                     "rounded-md px-2 py-1 text-[10px] ring-1 transition",
                     active
                       ? SECTOR_STYLES[id]
-                      : "bg-white/[0.03] text-titanium ring-white/[0.06] hover:ring-copper/20"
+                      : "bg-obsidian-deep/50 text-titanium ring-copper/15 hover:ring-copper/20"
                   )}
                 >
                   {label}

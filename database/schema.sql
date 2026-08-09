@@ -101,6 +101,7 @@ CREATE TABLE IF NOT EXISTS public.roadmap (
   phase             TEXT,
   due_date          DATE,
   linked_ticket_id  UUID REFERENCES public.tickets (id) ON DELETE SET NULL,
+  rnd_dossier_id    UUID REFERENCES public.rnd_dossiers (id) ON DELETE SET NULL,
   created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at        TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -250,6 +251,287 @@ CREATE INDEX IF NOT EXISTS idx_robo_telemetry_project_id ON public.robo_telemetr
 CREATE INDEX IF NOT EXISTS idx_robo_telemetry_created_at ON public.robo_telemetry (created_at DESC);
 
 -- ---------------------------------------------------------------------------
+-- 4f. rnd_ideas / rnd_dossiers / rnd_dossier_sections / rnd_dossier_assets /
+-- rnd_dossier_events / rnd_committee_sessions / rnd_committee_messages /
+-- rnd_social_calendar / rnd_product_pages — R&D Dossier Hub (2026-06-13,
+-- jamais mirroré ici avant Phase 22, ROADMAP.md, 2026-07-31). Définition
+-- consolidée (base + colonnes ajoutées ensuite) ; voir
+-- supabase/migrations/20260613120000_rnd_dossiers.sql (DDL + RLS anon/
+-- authenticated d'origine) et 20260613150000_rnd_ceo_phase6.sql
+-- (ceo_package_json/committee_report_md/dispatch_json/dispatch_status) et
+-- 20260617120000_rnd_hub_branch.sql (branche 'hub' ajoutée au CHECK).
+-- Colonnes rnd_dossier_id ajoutées par la même migration sur roadmap/
+-- posts_queue/brainstorm_summaries (mirrorées ci-dessus/dessous) et sur
+-- lore_entries/bom_eve — ces deux dernières tables ne sont pas encore
+-- mirrorées dans ce fichier (gap préexistant, hors périmètre de cette phase).
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.rnd_ideas (
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  legacy_id         TEXT UNIQUE,
+  title             TEXT NOT NULL,
+  description       TEXT NOT NULL DEFAULT '',
+  domain            TEXT,
+  effort            TEXT,
+  why_now           TEXT,
+  source            TEXT NOT NULL DEFAULT 'rnd_agent',
+  status            TEXT NOT NULL DEFAULT 'pending_evaluation',
+  score             INT,
+  market_score      INT,
+  feasibility_score INT,
+  vision_score      INT,
+  agent_verdict     TEXT,
+  agent_reasoning   TEXT,
+  next_step         TEXT,
+  spec_file         TEXT,
+  lifecycle_status  TEXT NOT NULL DEFAULT 'raw'
+    CHECK (lifecycle_status IN (
+      'raw', 'dossier_draft', 'in_committee', 'sections_review',
+      'ceo_review', 'approved', 'rejected', 'in_conception', 'shipped', 'archived'
+    )),
+  project_id        UUID REFERENCES public.projects (id) ON DELETE SET NULL,
+  dossier_id        UUID REFERENCES public.rnd_dossiers (id) ON DELETE SET NULL,
+  incubator_stage   TEXT NOT NULL DEFAULT 'idee'
+    CHECK (incubator_stage IN ('idee', 'prototype', 'validation', 'mvp', 'projet', 'departement')),
+  incubator_stage_updated_at TIMESTAMPTZ,
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+  evaluated_at      TIMESTAMPTZ
+);
+
+CREATE INDEX IF NOT EXISTS idx_rnd_ideas_legacy_id ON public.rnd_ideas (legacy_id);
+CREATE INDEX IF NOT EXISTS idx_rnd_ideas_verdict ON public.rnd_ideas (agent_verdict);
+CREATE INDEX IF NOT EXISTS idx_rnd_ideas_lifecycle ON public.rnd_ideas (lifecycle_status);
+CREATE INDEX IF NOT EXISTS idx_rnd_ideas_score ON public.rnd_ideas (score DESC NULLS LAST);
+CREATE INDEX IF NOT EXISTS idx_rnd_ideas_incubator_stage ON public.rnd_ideas (incubator_stage);
+-- incubator_stage/incubator_stage_updated_at : Phase 24, ROADMAP.md — voir
+-- supabase/migrations/20260731100000_rnd_incubator_stage.sql.
+
+DROP TRIGGER IF EXISTS trg_rnd_ideas_updated_at ON public.rnd_ideas;
+CREATE TRIGGER trg_rnd_ideas_updated_at
+  BEFORE UPDATE ON public.rnd_ideas
+  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+CREATE TABLE IF NOT EXISTS public.rnd_dossiers (
+  id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  idea_id             UUID NOT NULL UNIQUE REFERENCES public.rnd_ideas (id) ON DELETE CASCADE,
+  slug                TEXT NOT NULL UNIQUE,
+  title               TEXT NOT NULL,
+  tagline             TEXT,
+  domain              TEXT NOT NULL,
+  branch              TEXT CHECK (branch IN ('app', 'gaming', 'robotics', 'hub', 'other')),
+  status              TEXT NOT NULL DEFAULT 'draft'
+    CHECK (status IN (
+      'draft', 'committee_active', 'partial_validated', 'ready_for_ceo',
+      'ceo_approved', 'ceo_rejected', 'in_conception', 'published', 'archived'
+    )),
+  ceo_status          TEXT NOT NULL DEFAULT 'pending'
+    CHECK (ceo_status IN ('pending', 'approved', 'rejected', 'pivot_requested')),
+  ceo_note            TEXT,
+  ceo_decided_at      TIMESTAMPTZ,
+  committee_team      JSONB NOT NULL DEFAULT '[]'::jsonb,
+  vision_snapshot     TEXT,
+  competitive_context TEXT,
+  deck_html_path      TEXT,
+  deck_pdf_path       TEXT,
+  one_pager_md        TEXT,
+  finance_json        JSONB,
+  ceo_package_json    JSONB,
+  committee_report_md TEXT,
+  dispatch_json       JSONB,
+  dispatch_status     TEXT NOT NULL DEFAULT 'pending'
+    CHECK (dispatch_status IN ('pending', 'ready', 'dispatched')),
+  brand_kit_id        UUID REFERENCES public.brand_kits (id) ON DELETE SET NULL,
+  project_id          UUID REFERENCES public.projects (id) ON DELETE SET NULL,
+  local_path          TEXT,
+  created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at          TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_rnd_dossiers_status ON public.rnd_dossiers (status);
+CREATE INDEX IF NOT EXISTS idx_rnd_dossiers_slug ON public.rnd_dossiers (slug);
+CREATE INDEX IF NOT EXISTS idx_rnd_dossiers_domain ON public.rnd_dossiers (domain);
+CREATE INDEX IF NOT EXISTS idx_rnd_dossiers_ceo_status ON public.rnd_dossiers (ceo_status, status);
+
+DROP TRIGGER IF EXISTS trg_rnd_dossiers_updated_at ON public.rnd_dossiers;
+CREATE TRIGGER trg_rnd_dossiers_updated_at
+  BEFORE UPDATE ON public.rnd_dossiers
+  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+CREATE TABLE IF NOT EXISTS public.rnd_dossier_sections (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  dossier_id      UUID NOT NULL REFERENCES public.rnd_dossiers (id) ON DELETE CASCADE,
+  section_key     TEXT NOT NULL,
+  title           TEXT NOT NULL,
+  content_md      TEXT NOT NULL DEFAULT '',
+  content_html    TEXT,
+  status          TEXT NOT NULL DEFAULT 'draft'
+    CHECK (status IN ('draft', 'under_review', 'validated', 'needs_revision', 'skipped')),
+  validated_by    TEXT,
+  validated_at    TIMESTAMPTZ,
+  revision_note   TEXT,
+  sort_order      INT NOT NULL DEFAULT 0,
+  hero_asset_id   UUID REFERENCES public.rnd_dossier_assets (id) ON DELETE SET NULL,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (dossier_id, section_key)
+);
+
+CREATE INDEX IF NOT EXISTS idx_rnd_dossier_sections_dossier
+  ON public.rnd_dossier_sections (dossier_id, sort_order);
+
+DROP TRIGGER IF EXISTS trg_rnd_dossier_sections_updated_at ON public.rnd_dossier_sections;
+CREATE TRIGGER trg_rnd_dossier_sections_updated_at
+  BEFORE UPDATE ON public.rnd_dossier_sections
+  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+CREATE TABLE IF NOT EXISTS public.rnd_dossier_assets (
+  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  dossier_id       UUID NOT NULL REFERENCES public.rnd_dossiers (id) ON DELETE CASCADE,
+  section_key      TEXT,
+  asset_type       TEXT NOT NULL
+    CHECK (asset_type IN (
+      'hero', 'illustration', 'mockup', 'diagram', 'chart',
+      'moodboard', 'social_teaser', 'logo_concept'
+    )),
+  file_path        TEXT NOT NULL,
+  public_url       TEXT,
+  image_prompt     TEXT,
+  generation_model TEXT,
+  width            INT,
+  height           INT,
+  metadata         JSONB,
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_rnd_dossier_assets_dossier
+  ON public.rnd_dossier_assets (dossier_id);
+
+CREATE TABLE IF NOT EXISTS public.rnd_dossier_events (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  dossier_id  UUID NOT NULL REFERENCES public.rnd_dossiers (id) ON DELETE CASCADE,
+  event_type  TEXT NOT NULL,
+  actor       TEXT NOT NULL,
+  payload     JSONB,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_rnd_dossier_events_dossier
+  ON public.rnd_dossier_events (dossier_id, created_at DESC);
+
+-- dossier_id nullable + session_kind/idea_id/structured_input/topic : Phase 25
+-- (ROADMAP.md, 2026-07-31) — voir supabase/migrations/20260731110000_rnd_council_votes.sql.
+-- session_kind='dossier' par défaut = rétrocompatible avec le comité dossier
+-- ci-dessous ; 'strategic'/'evaluation' n'ont pas de dossier (Conseil).
+CREATE TABLE IF NOT EXISTS public.rnd_committee_sessions (
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  dossier_id        UUID REFERENCES public.rnd_dossiers (id) ON DELETE CASCADE,
+  session_id        TEXT NOT NULL UNIQUE,
+  title             TEXT,
+  mode              TEXT NOT NULL DEFAULT 'free'
+    CHECK (mode IN ('free', 'round_robin', 'targeted')),
+  active_section    TEXT,
+  team              JSONB NOT NULL DEFAULT '[]'::jsonb,
+  status            TEXT NOT NULL DEFAULT 'active'
+    CHECK (status IN ('active', 'paused', 'closed')),
+  session_kind      TEXT NOT NULL DEFAULT 'dossier'
+    CHECK (session_kind IN ('dossier', 'strategic', 'evaluation')),
+  idea_id           UUID REFERENCES public.rnd_ideas (id) ON DELETE SET NULL,
+  structured_input  JSONB,
+  topic             TEXT,
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+  closed_at         TIMESTAMPTZ
+);
+
+CREATE INDEX IF NOT EXISTS idx_rnd_committee_sessions_dossier
+  ON public.rnd_committee_sessions (dossier_id);
+
+-- dossier_id nullable : Phase 25, même migration que ci-dessus.
+CREATE TABLE IF NOT EXISTS public.rnd_committee_messages (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id   TEXT NOT NULL REFERENCES public.rnd_committee_sessions (session_id) ON DELETE CASCADE,
+  dossier_id   UUID REFERENCES public.rnd_dossiers (id) ON DELETE CASCADE,
+  speaker      TEXT NOT NULL,
+  role         TEXT NOT NULL CHECK (role IN ('user', 'assistant', 'system')),
+  content      TEXT NOT NULL,
+  section_key  TEXT,
+  metadata     JSONB,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_rnd_committee_messages_session
+  ON public.rnd_committee_messages (session_id, created_at);
+
+-- ---------------------------------------------------------------------------
+-- rnd_committee_votes — Phase 25 (ROADMAP.md, 2026-07-31). Verdict individuel
+-- par membre du Conseil, live (dernière ligne par agent_id) + final
+-- (is_final=true) — sert à la fois les jauges live et la bannière
+-- "Décision Collective". Voir agents/rnd_council_agent.py.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.rnd_committee_votes (
+  id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id     TEXT NOT NULL REFERENCES public.rnd_committee_sessions (session_id) ON DELETE CASCADE,
+  agent_id       TEXT NOT NULL,
+  agent_name     TEXT NOT NULL,
+  verdict        TEXT NOT NULL CHECK (verdict IN ('GO', 'MAYBE', 'NO')),
+  confidence_pct SMALLINT NOT NULL CHECK (confidence_pct BETWEEN 0 AND 100),
+  axis_scores    JSONB,
+  stance_text    TEXT NOT NULL,
+  round_index    INT NOT NULL DEFAULT 0,
+  is_final       BOOLEAN NOT NULL DEFAULT false,
+  created_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_rnd_committee_votes_session
+  ON public.rnd_committee_votes (session_id, agent_id, round_index DESC);
+
+CREATE TABLE IF NOT EXISTS public.rnd_social_calendar (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  dossier_id   UUID NOT NULL REFERENCES public.rnd_dossiers (id) ON DELETE CASCADE,
+  phase        TEXT NOT NULL
+    CHECK (phase IN ('internal', 'behind_scenes', 'teaser', 'pre_launch', 'launch', 'post_launch')),
+  milestone    TEXT,
+  planned_at   TIMESTAMPTZ,
+  post_id      UUID REFERENCES public.posts_queue (id) ON DELETE SET NULL,
+  status       TEXT NOT NULL DEFAULT 'planned'
+    CHECK (status IN ('planned', 'generated', 'approved', 'published', 'cancelled')),
+  notes        TEXT,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS public.rnd_product_pages (
+  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  dossier_id       UUID NOT NULL UNIQUE REFERENCES public.rnd_dossiers (id) ON DELETE CASCADE,
+  project_id       UUID REFERENCES public.projects (id) ON DELETE SET NULL,
+  slug             TEXT NOT NULL UNIQUE,
+  title            TEXT NOT NULL,
+  tagline          TEXT,
+  description_html TEXT,
+  hero_asset_id    UUID REFERENCES public.rnd_dossier_assets (id) ON DELETE SET NULL,
+  features         JSONB NOT NULL DEFAULT '[]'::jsonb,
+  pricing_model    TEXT,
+  faq              JSONB NOT NULL DEFAULT '[]'::jsonb,
+  seo_title        TEXT,
+  seo_description  TEXT,
+  waitlist_enabled BOOLEAN NOT NULL DEFAULT false,
+  published        BOOLEAN NOT NULL DEFAULT false,
+  published_at     TIMESTAMPTZ,
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+DROP TRIGGER IF EXISTS trg_rnd_product_pages_updated_at ON public.rnd_product_pages;
+CREATE TRIGGER trg_rnd_product_pages_updated_at
+  BEFORE UPDATE ON public.rnd_product_pages
+  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+-- RLS (anon + authenticated, même pattern que brainstorm_summaries) posée
+-- directement dans 20260613120000_rnd_dossiers.sql sur les 9 tables
+-- ci-dessus — non reproduite ici (cette section documente le DDL, pas les
+-- policies ; voir la boucle RLS en fin de fichier pour le pattern standard
+-- des tables plus anciennes).
+
+-- ---------------------------------------------------------------------------
 -- 5. feedback
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.feedback (
@@ -288,7 +570,7 @@ CREATE TABLE IF NOT EXISTS public.posts_queue (
                     )),
   content_type      TEXT NOT NULL
                     CHECK (content_type IN (
-                      'announcement', 'teaser', 'tutorial', 'behind_scenes', 'short_video'
+                      'announcement', 'teaser', 'tutorial', 'behind_scenes', 'short_video', 'lore'
                     )),
   text_content      TEXT NOT NULL,
   layout            JSONB,
@@ -303,9 +585,21 @@ CREATE TABLE IF NOT EXISTS public.posts_queue (
                     CHECK (status IN (
                       'draft', 'pending_approval', 'approved', 'published', 'failed', 'rejected'
                     )),
+  rnd_dossier_id          UUID REFERENCES public.rnd_dossiers (id) ON DELETE SET NULL,
+  rnd_social_calendar_id  UUID REFERENCES public.rnd_social_calendar (id) ON DELETE SET NULL,
+  image_asset_path        TEXT,
+  -- Stats de performance réelle (Phase 37) — saisie manuelle après publication
+  -- (copiée depuis les insights natifs Instagram/TikTok/etc.), NULL tant que
+  -- personne ne l'a renseignée, jamais 0 par défaut.
+  reach                   INTEGER CHECK (reach IS NULL OR reach >= 0),
+  engagement_count        INTEGER CHECK (engagement_count IS NULL OR engagement_count >= 0),
+  stats_updated_at        TIMESTAMPTZ,
   created_at        TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- content_type inclut 'lore' depuis la migration 20260731120000_marketing_campaigns.sql
+-- (bug corrigé : le type TS PostContentType le déclarait depuis la Phase 26,
+-- jamais reflété ici — un POST /posts avec content_type "lore" échouait).
 CREATE INDEX IF NOT EXISTS idx_posts_queue_project_id ON public.posts_queue (project_id);
 CREATE INDEX IF NOT EXISTS idx_posts_queue_status ON public.posts_queue (status);
 CREATE INDEX IF NOT EXISTS idx_posts_queue_scheduled_at ON public.posts_queue (scheduled_at);
@@ -388,6 +682,86 @@ CREATE INDEX IF NOT EXISTS idx_financial_summaries_month
   ON public.financial_summaries (month DESC);
 
 -- ---------------------------------------------------------------------------
+-- 8c. campaigns (Phase 33, ROADMAP.md — 20260731120000_marketing_campaigns.sql)
+-- Aucune persistance n'existait avant cette phase : skills/skill_ads.py ne
+-- retournait que des dict en mémoire. campaign_roi_report (ROI/reach/
+-- impressions) reste un stub explicite côté backend, jamais exposé comme un
+-- chiffre réel — seul "dépensé" (somme des transactions.campaign_id liées)
+-- est réel.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.campaigns (
+  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id            UUID REFERENCES public.projects (id) ON DELETE SET NULL,
+  name                  TEXT NOT NULL,
+  objective             TEXT NOT NULL
+                        CHECK (objective IN ('awareness', 'traffic', 'conversions', 'engagement', 'video_views')),
+  platform              TEXT NOT NULL CHECK (platform IN ('meta', 'google', 'tiktok')),
+  status                TEXT NOT NULL DEFAULT 'draft'
+                        CHECK (status IN ('draft', 'active', 'paused', 'completed')),
+  budget_allocated_usd  NUMERIC(10, 2) NOT NULL DEFAULT 0 CHECK (budget_allocated_usd >= 0),
+  audience              TEXT,
+  brief                 TEXT,
+  start_date            DATE,
+  end_date              DATE,
+  created_by_agent_id   TEXT,
+  -- Stats de performance réelle (Phase 37, 20260731130000_marketing_performance_tracking.sql)
+  -- — saisie manuelle depuis les dashboards natifs des plateformes ad
+  -- (Meta/Google/TikTok Ads Manager). NULL tant que rien n'a été saisi —
+  -- roi_pct n'est calculé côté API que si spent_usd (réel, transactions
+  -- liées) ET revenue_generated_usd (saisi) sont tous les deux disponibles.
+  reach                 INTEGER CHECK (reach IS NULL OR reach >= 0),
+  engagements           INTEGER CHECK (engagements IS NULL OR engagements >= 0),
+  conversions           INTEGER CHECK (conversions IS NULL OR conversions >= 0),
+  revenue_generated_usd NUMERIC(10, 2) CHECK (revenue_generated_usd IS NULL OR revenue_generated_usd >= 0),
+  stats_updated_at      TIMESTAMPTZ,
+  created_at            TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at            TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_campaigns_project_id ON public.campaigns (project_id);
+CREATE INDEX IF NOT EXISTS idx_campaigns_status ON public.campaigns (status);
+
+CREATE TRIGGER trg_campaigns_updated_at
+  BEFORE UPDATE ON public.campaigns
+  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+-- transactions.campaign_id (ajouté par la même migration) — rattache une
+-- dépense réelle à sa campagne.
+ALTER TABLE public.transactions
+  ADD COLUMN IF NOT EXISTS campaign_id UUID REFERENCES public.campaigns (id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS idx_transactions_campaign_id ON public.transactions (campaign_id);
+
+-- ---------------------------------------------------------------------------
+-- 8d. funnel_snapshots (Phase 37 — 20260731130000_marketing_performance_tracking.sql)
+-- Entonnoir de conversion réel : saisie mensuelle par produit (Visiteurs →
+-- Intéressés → Engagés → Abonnés → Clients), source = analytics propre à
+-- chaque produit (App Store Connect / Play Console / Plausible / GA4 /
+-- signups Supabase). `source_note` documente d'où vient le chiffre.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.funnel_snapshots (
+  id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id          UUID NOT NULL REFERENCES public.projects (id) ON DELETE CASCADE,
+  period_month        DATE NOT NULL,
+  visitors            INTEGER NOT NULL DEFAULT 0 CHECK (visitors >= 0),
+  interested          INTEGER NOT NULL DEFAULT 0 CHECK (interested >= 0),
+  engaged             INTEGER NOT NULL DEFAULT 0 CHECK (engaged >= 0),
+  subscribers         INTEGER NOT NULL DEFAULT 0 CHECK (subscribers >= 0),
+  customers           INTEGER NOT NULL DEFAULT 0 CHECK (customers >= 0),
+  source_note         TEXT,
+  entered_by_agent_id TEXT,
+  created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (project_id, period_month)
+);
+
+CREATE INDEX IF NOT EXISTS idx_funnel_snapshots_project_id ON public.funnel_snapshots (project_id);
+CREATE INDEX IF NOT EXISTS idx_funnel_snapshots_period ON public.funnel_snapshots (period_month);
+
+CREATE TRIGGER trg_funnel_snapshots_updated_at
+  BEFORE UPDATE ON public.funnel_snapshots
+  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+-- ---------------------------------------------------------------------------
 -- 9. faq
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.faq (
@@ -437,6 +811,8 @@ CREATE TABLE IF NOT EXISTS public.brainstorm_summaries (
   next_steps      TEXT[] NOT NULL DEFAULT '{}',
   open_questions  TEXT[] NOT NULL DEFAULT '{}',
   file_path       TEXT,
+  rnd_dossier_id  UUID REFERENCES public.rnd_dossiers (id) ON DELETE SET NULL,
+  session_type    TEXT NOT NULL DEFAULT 'brainstorm',
   created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 

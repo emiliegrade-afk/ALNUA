@@ -56,7 +56,7 @@ export function FormatGrid({ assets }: FormatGridProps) {
                 return (
                   <article
                     key={formatName}
-                    className="overflow-hidden rounded-xl border border-copper/10 bg-obsidian/60 ring-1 ring-white/[0.04]"
+                    className="overflow-hidden rounded-xl border border-copper/10 bg-obsidian/60 ring-1 ring-copper/10"
                   >
                     <div
                       className={`relative flex items-center justify-center p-3 ${

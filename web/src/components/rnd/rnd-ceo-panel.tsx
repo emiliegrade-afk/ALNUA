@@ -217,13 +217,13 @@ export function RndCeoPanel({
       ) : (
         <>
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="rounded-full border border-white/10 px-2 py-0.5 text-titanium/60">
+            <span className="rounded-full border border-copper/15 px-2 py-0.5 text-titanium/60">
               Dossier : {dossierStatus}
             </span>
-            <span className="rounded-full border border-white/10 px-2 py-0.5 text-titanium/60">
+            <span className="rounded-full border border-copper/15 px-2 py-0.5 text-titanium/60">
               CEO : {data?.ceo_status ?? "pending"}
             </span>
-            <span className="rounded-full border border-white/10 px-2 py-0.5 text-titanium/60">
+            <span className="rounded-full border border-copper/15 px-2 py-0.5 text-titanium/60">
               Dispatch : {STATUS_LABELS[data?.dispatch_status ?? "pending"] ?? data?.dispatch_status}
             </span>
             {recommendation ? (
@@ -290,10 +290,10 @@ export function RndCeoPanel({
                   )}
                   {executionStatus === "running" ? "Agents en cours…" : "Lancer les agents"}
                 </Button>
-                <Button type="button" variant="outline" className="border-white/10" asChild>
+                <Button type="button" variant="outline" className="border-copper/15" asChild>
                   <Link href={ROUTES.openroom}>OpenRoom</Link>
                 </Button>
-                <Button type="button" variant="outline" className="border-white/10" asChild>
+                <Button type="button" variant="outline" className="border-copper/15" asChild>
                   <Link href={ROUTES.roadmap}>Roadmap</Link>
                 </Button>
               </div>
@@ -308,7 +308,7 @@ export function RndCeoPanel({
                   PRD Engineering (Phase 3)
                 </span>
                 {taskCount > 0 ? (
-                  <span className="rounded-full border border-white/10 px-2 py-0.5 text-[10px] text-titanium/60">
+                  <span className="rounded-full border border-copper/15 px-2 py-0.5 text-[10px] text-titanium/60">
                     {taskCount} tâches
                   </span>
                 ) : null}
@@ -337,7 +337,7 @@ export function RndCeoPanel({
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="border-white/10"
+                      className="border-copper/15"
                       onClick={() => handleDecomposePrd(true)}
                       disabled={decomposing || taskCount === 0}
                     >
@@ -369,20 +369,20 @@ export function RndCeoPanel({
 
           {/* Item 6 — Workspace path + bouton Ouvrir dossier */}
           {data?.dispatch_status === "dispatched" && workspacePath ? (
-            <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
+            <div className="rounded-xl border border-copper/15 bg-obsidian-deep/40 p-4">
               <div className="mb-2 flex items-center gap-2">
                 <FolderOpen className="h-4 w-4 text-copper/70" />
                 <span className="text-xs font-medium text-ivory/80">Workspace disque</span>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <code className="flex-1 rounded bg-white/[0.04] px-3 py-1.5 font-mono text-[11px] text-titanium/70 break-all">
+                <code className="flex-1 rounded bg-obsidian-deep/50 px-3 py-1.5 font-mono text-[11px] text-titanium/70 break-all">
                   {workspacePath}
                 </code>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="shrink-0 border-white/10 text-xs"
+                  className="shrink-0 border-copper/15 text-xs"
                   onClick={() => {
                     void navigator.clipboard.writeText(workspacePath);
                     toast.success("Chemin copié");
@@ -419,7 +419,7 @@ export function RndCeoPanel({
           ) : null}
 
           {data?.can_decide ? (
-            <div className="rounded-xl border border-copper/20 bg-white/[0.02] p-4">
+            <div className="rounded-xl border border-copper/20 bg-obsidian-deep/40 p-4">
               <p className="mb-3 text-sm font-medium text-ivory/90">Validation CEO</p>
               {showNote ? (
                 <Textarea
@@ -427,7 +427,7 @@ export function RndCeoPanel({
                   onChange={(e) => setCeoNote(e.target.value)}
                   placeholder="Note optionnelle (pivot, conditions, next steps)…"
                   rows={3}
-                  className="mb-3 border-copper/15 bg-white/[0.02] text-sm"
+                  className="mb-3 border-copper/15 bg-obsidian-deep/40 text-sm"
                 />
               ) : (
                 <button
@@ -502,7 +502,7 @@ export function RndCeoPanel({
                 {matrix.map((row) => (
                   <li
                     key={`${row.agent_id}-${row.pole}`}
-                    className="rounded-lg border border-white/8 bg-white/[0.02] px-3 py-2 text-xs"
+                    className="rounded-lg border border-copper/10 bg-obsidian-deep/40 px-3 py-2 text-xs"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <span className="font-medium text-ivory/90">{row.pole}</span>
@@ -518,7 +518,7 @@ export function RndCeoPanel({
           ) : null}
 
           {markdown ? (
-            <div className="rounded-xl border border-copper/15 bg-white/[0.02] p-5">
+            <div className="rounded-xl border border-copper/15 bg-obsidian-deep/40 p-5">
               <h3 className="mb-3 text-sm font-medium text-ivory/85">Package CEO (aperçu)</h3>
               <MarkdownContent className="prose-sm max-w-none text-titanium/85">
                 {markdown.length > 12000
@@ -527,7 +527,7 @@ export function RndCeoPanel({
               </MarkdownContent>
             </div>
           ) : (
-            <div className="rounded-xl border border-copper/15 bg-white/[0.02] p-8 text-center text-sm text-titanium/60">
+            <div className="rounded-xl border border-copper/15 bg-obsidian-deep/40 p-8 text-center text-sm text-titanium/60">
               Aucun dossier CEO — génère le package après clôture du comité.
             </div>
           )}

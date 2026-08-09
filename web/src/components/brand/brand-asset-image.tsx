@@ -51,7 +51,7 @@ export function BrandAssetImage({
   if (!src) {
     return (
       <div
-        className={cn("animate-pulse rounded bg-white/5", className)}
+        className={cn("animate-pulse rounded bg-obsidian/50", className)}
         aria-hidden
       />
     );

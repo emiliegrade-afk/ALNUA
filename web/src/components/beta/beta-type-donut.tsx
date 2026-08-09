@@ -19,7 +19,7 @@ export function BetaTypeDonut({ byType, compact }: BetaTypeDonutProps) {
 
   if (data.length === 0) {
     return (
-      <Card className="border-white/10 bg-surface/80">
+      <Card className="border-copper/15 bg-surface/80">
         <CardHeader className={compact ? "pb-2" : undefined}>
           <CardTitle className="text-sm font-medium text-ivory">
             Par type
@@ -31,7 +31,7 @@ export function BetaTypeDonut({ byType, compact }: BetaTypeDonutProps) {
   }
 
   return (
-    <Card className="border-white/10 bg-surface/80">
+    <Card className="border-copper/15 bg-surface/80">
       <CardHeader className={compact ? "pb-0" : undefined}>
         <CardTitle className="text-sm font-medium text-ivory">Par type</CardTitle>
       </CardHeader>

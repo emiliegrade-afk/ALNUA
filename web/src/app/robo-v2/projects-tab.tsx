@@ -24,7 +24,7 @@ function ProjectCard({ project, agents, realBomCount, latestBuild }: { project: 
         <span className="truncate text-[13.5px] font-semibold" style={{ color: C.ivory }}>
           {project.name}
         </span>
-        <span className="shrink-0 rounded-full border px-2 py-0.5 text-[8.5px]" style={{ borderColor: "rgba(200,127,78,.25)", color: PROJECT_COLOR[project.status] }}>
+        <span className="shrink-0 rounded-full border px-2 py-0.5 text-[8.5px]" style={{ borderColor: "rgba(192,138,114,.25)", color: PROJECT_COLOR[project.status] }}>
           {PROJECT_LABEL[project.status]}
         </span>
       </div>
@@ -33,7 +33,7 @@ function ProjectCard({ project, agents, realBomCount, latestBuild }: { project: 
       </p>
 
       <div className="flex items-center gap-2">
-        <span className="h-1.5 flex-1 overflow-hidden rounded-full" style={{ background: "rgba(200,127,78,.15)" }}>
+        <span className="h-1.5 flex-1 overflow-hidden rounded-full" style={{ background: "rgba(192,138,114,.15)" }}>
           <span className="block h-full rounded-full" style={{ width: `${prog}%`, background: `linear-gradient(90deg,#8A5230,${C.copperLight})` }} />
         </span>
         <span className="text-[11px] font-semibold" style={{ color: C.ivory }}>
@@ -100,7 +100,7 @@ function ProjectCard({ project, agents, realBomCount, latestBuild }: { project: 
         {agents.length > 0 ? <span>{agents.length} agents</span> : null}
       </div>
 
-      <Link href={`/projects/${encodeURIComponent(project.id)}`} className="rounded-lg border py-1.5 text-center text-[10.5px]" style={{ borderColor: "rgba(200,127,78,.22)", color: C.warm }}>
+      <Link href={`/projects/${encodeURIComponent(project.id)}`} className="rounded-lg border py-1.5 text-center text-[10.5px]" style={{ borderColor: "rgba(192,138,114,.22)", color: C.warm }}>
         Ouvrir le projet ›
       </Link>
     </div>
@@ -148,7 +148,7 @@ export function ProjetsTab({ projects, agents, onProjectCreated }: { projects: P
           type="button"
           onClick={() => setCreateOpen(true)}
           className="rounded-[18px] border px-3.5 py-1.5 text-[11px]"
-          style={{ borderColor: "rgba(200,127,78,.45)", background: "rgba(200,127,78,.12)", color: C.copperLight }}
+          style={{ borderColor: "rgba(192,138,114,.45)", background: "rgba(192,138,114,.12)", color: C.copperLight }}
         >
           ＋ Nouveau projet
         </button>

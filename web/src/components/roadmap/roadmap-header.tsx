@@ -51,7 +51,7 @@ function FilterChip({
         "rounded-lg border px-2.5 py-1 text-[11px] transition",
         active
           ? "border-copper/40 bg-copper/15 text-copper-glow"
-          : "border-white/[0.08] text-titanium hover:border-copper/20"
+          : "border-copper/15 text-titanium hover:border-copper/20"
       )}
     >
       {label}
@@ -104,7 +104,7 @@ export function RoadmapHeader({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex rounded-lg border border-white/[0.08] p-0.5">
+          <div className="flex rounded-lg border border-copper/15 p-0.5">
             <button
               type="button"
               onClick={() => onViewModeChange("kanban")}
@@ -153,7 +153,7 @@ export function RoadmapHeader({
         </div>
       </div>
 
-      <div className="rounded-2xl border border-copper/10 bg-obsidian/50 p-4 ring-1 ring-white/[0.04]">
+      <div className="rounded-2xl border border-copper/10 bg-obsidian/50 p-4 ring-1 ring-copper/10">
         <div className="flex flex-col gap-4">
           <div className="flex flex-wrap items-center gap-2">
             <span className="mr-1 text-[10px] uppercase tracking-wider text-titanium/60">
@@ -171,7 +171,7 @@ export function RoadmapHeader({
                     "flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] transition",
                     active
                       ? cn(accent.border, accent.bg, accent.color)
-                      : "border-white/[0.08] text-titanium hover:border-copper/20"
+                      : "border-copper/15 text-titanium hover:border-copper/20"
                   )}
                 >
                   <span className={cn("h-1.5 w-1.5 rounded-full", accent.dot)} />

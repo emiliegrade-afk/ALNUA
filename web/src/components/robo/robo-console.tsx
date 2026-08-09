@@ -230,7 +230,7 @@ export function RoboConsole() {
                 placeholder="Composant *"
                 value={newItem.component}
                 onChange={(e) => setNewItem((n) => ({ ...n, component: e.target.value }))}
-                className="border-copper/15 bg-white/[0.02]"
+                className="border-copper/15 bg-obsidian-deep/40"
               />
               <Select
                 value={newItem.category}
@@ -252,14 +252,14 @@ export function RoboConsole() {
                 placeholder="Qté"
                 value={newItem.quantity}
                 onChange={(e) => setNewItem((n) => ({ ...n, quantity: e.target.value }))}
-                className="border-copper/15 bg-white/[0.02]"
+                className="border-copper/15 bg-obsidian-deep/40"
               />
               <Input
                 type="number"
                 placeholder="Prix unit. €"
                 value={newItem.unit_price}
                 onChange={(e) => setNewItem((n) => ({ ...n, unit_price: e.target.value }))}
-                className="border-copper/15 bg-white/[0.02]"
+                className="border-copper/15 bg-obsidian-deep/40"
               />
               <Button size="sm" onClick={handleAdd} className="bg-copper/20 hover:bg-copper/30">
                 Enregistrer

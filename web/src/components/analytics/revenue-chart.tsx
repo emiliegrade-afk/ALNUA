@@ -40,7 +40,7 @@ export function RevenueChart({ months, onAddMetric }: RevenueChartProps) {
     months.every((m) => m.revenue === 0 && m.expense === 0 && m.mrr === 0);
 
   return (
-    <Card className="border-white/[0.06] bg-surface/80">
+    <Card className="border-copper/10 bg-surface/80">
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-medium text-ivory">
           Revenus &amp; Dépenses

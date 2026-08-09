@@ -97,6 +97,7 @@ class RndIdeaOut(BaseModel):
     spec_file: str | None = None
     lifecycle_status: str = "raw"
     dossier_id: str | None = None
+    incubator_stage: str = "idee"
     created_at: str | None = None
     evaluated_at: str | None = None
 
@@ -337,6 +338,17 @@ class RndCeoDecisionBody(BaseModel):
     ceo_note: str | None = None
 
 
+IncubatorStage = Literal["idee", "prototype", "validation", "mvp", "projet", "departement"]
+
+
+class RndIncubatorStageBody(BaseModel):
+    """Incubateur (Phase 24, ROADMAP.md) — glisser une carte Kanban vers une
+    colonne intermédiaire. `departement` est refusé ici : ce passage a de
+    vraies conséquences (dispatch), voir POST .../incubator/promote-to-department."""
+
+    stage: IncubatorStage
+
+
 SocialPhase = Literal[
     "internal", "behind_scenes", "teaser", "pre_launch", "launch", "post_launch",
 ]
@@ -379,3 +391,33 @@ class RndSocialPatchCalendarBody(BaseModel):
     planned_at: str | None = None
     status: SocialCalendarStatus | None = None
     notes: str | None = None
+
+
+# ---------------------------------------------------------------------------
+# Moteur Conseil — Phase 25, ROADMAP.md
+# ---------------------------------------------------------------------------
+
+CouncilSessionKind = Literal["strategic", "evaluation"]
+
+
+class RndCouncilStartBody(BaseModel):
+    kind: CouncilSessionKind = "strategic"
+    topic: str = ""
+    idea_id: str | None = None
+
+
+class RndCouncilMessageBody(BaseModel):
+    message: str
+
+
+class RndCouncilStructuredInput(BaseModel):
+    budget_eur: float | None = None
+    team_size: int | None = None
+    timeframe_weeks: int | None = None
+    product_type: str = ""
+
+
+class RndCouncilEvaluateBody(BaseModel):
+    topic: str
+    structured_input: RndCouncilStructuredInput
+    idea_id: str | None = None

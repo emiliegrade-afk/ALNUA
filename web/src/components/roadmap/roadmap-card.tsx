@@ -42,7 +42,7 @@ export function RoadmapCard({
         }
       }}
       className={cn(
-        "w-full cursor-pointer rounded-xl border border-white/[0.08] bg-obsidian/80 p-3 text-left shadow-sm transition",
+        "w-full cursor-pointer rounded-xl border border-copper/15 bg-obsidian/80 p-3 text-left shadow-sm transition",
         "hover:border-copper/25 hover:bg-obsidian",
         isDragging && "rotate-1 border-copper/40 shadow-lg ring-1 ring-copper/30"
       )}
@@ -74,7 +74,7 @@ export function RoadmapCard({
         {item.phase && (
           <Badge
             variant="outline"
-            className="border-white/10 text-[10px] text-titanium"
+            className="border-copper/15 text-[10px] text-titanium"
           >
             {item.phase}
           </Badge>

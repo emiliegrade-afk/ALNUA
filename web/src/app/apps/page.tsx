@@ -121,7 +121,7 @@ export default function AppsPage() {
                 {apps.map((app) => (
                   <li
                     key={app.slug}
-                    className="rounded-lg border border-white/10 bg-obsidian/60 p-4"
+                    className="rounded-lg border border-copper/15 bg-obsidian/60 p-4"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
@@ -206,7 +206,7 @@ export default function AppsPage() {
                   onChange={(e) =>
                     setForm({ ...form, branch: e.target.value as AppBranch })
                   }
-                  className="mt-1 w-full rounded-md border border-white/10 bg-obsidian px-3 py-2 text-sm text-ivory"
+                  className="mt-1 w-full rounded-md border border-copper/15 bg-obsidian px-3 py-2 text-sm text-ivory"
                 >
                   {BRANCHES.map((b) => (
                     <option key={b} value={b}>

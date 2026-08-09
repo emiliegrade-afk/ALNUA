@@ -47,7 +47,7 @@ export function PartnerCard({
         "w-full rounded-xl border p-3 text-left transition",
         selected
           ? "border-copper/40 bg-copper/5"
-          : "border-white/10 bg-surface/40 hover:border-white/20"
+          : "border-copper/15 bg-surface/40 hover:border-copper/30"
       )}
     >
       <div className="flex gap-3">
@@ -70,7 +70,7 @@ export function PartnerCard({
             </Badge>
           </div>
           <div className="mt-1 flex flex-wrap gap-1">
-            <Badge variant="outline" className="text-[10px] border-white/10">
+            <Badge variant="outline" className="text-[10px] border-copper/15">
               {partner.direction === "outbound" ? "→ Sortant" : "← Entrant"}
             </Badge>
             <Badge
@@ -85,7 +85,7 @@ export function PartnerCard({
               {partner.project_ids.slice(0, 3).map((id) => (
                 <span
                   key={id}
-                  className="rounded bg-white/5 px-1.5 py-0.5 text-[10px] text-titanium"
+                  className="rounded bg-obsidian/50 px-1.5 py-0.5 text-[10px] text-titanium"
                 >
                   {projects[id]?.name ?? "Projet"}
                 </span>

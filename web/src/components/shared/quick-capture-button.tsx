@@ -245,7 +245,7 @@ export function QuickCaptureButton() {
                         "flex items-center gap-2 rounded-lg border px-3 py-2.5 text-left text-sm transition-colors",
                         selected
                           ? "border-copper bg-copper/15 text-ivory"
-                          : "border-white/10 bg-white/[0.02] text-ivory/80 hover:border-copper/30 hover:bg-white/[0.04]"
+                          : "border-copper/15 bg-obsidian-deep/40 text-ivory/80 hover:border-copper/30 hover:bg-obsidian-deep/50"
                       )}
                     >
                       <span className="text-base" aria-hidden>
@@ -288,7 +288,7 @@ export function QuickCaptureButton() {
                           "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
                           selected
                             ? "border-copper bg-copper/20 text-copper-glow"
-                            : "border-white/10 text-titanium hover:border-copper/30 hover:text-ivory"
+                            : "border-copper/15 text-titanium hover:border-copper/30 hover:text-ivory"
                         )}
                       >
                         {p.label}
@@ -304,7 +304,7 @@ export function QuickCaptureButton() {
                 type="button"
                 variant="outline"
                 onClick={() => setOpen(false)}
-                className="border-white/10"
+                className="border-copper/15"
               >
                 Annuler
               </Button>

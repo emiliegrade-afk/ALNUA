@@ -87,7 +87,7 @@ function VerdictBadge({ verdict }: { verdict?: string | null }) {
 function ScorePill({ label, value, max = 10 }: { label: string; value?: number; max?: number }) {
   if (value == null) return null;
   return (
-    <div className="rounded-lg border border-white/8 bg-white/[0.03] px-3 py-2">
+    <div className="rounded-lg border border-copper/10 bg-obsidian-deep/50 px-3 py-2">
       <p className="text-[10px] uppercase tracking-wider text-titanium/50">{label}</p>
       <p className="text-lg font-semibold text-copper">
         {value}
@@ -414,8 +414,9 @@ export function RndPitchModal({
   if (!idea && loading) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="flex h-48 items-center justify-center border-copper/25 bg-obsidian-2">
+        <DialogContent className="flex h-48 flex-col items-center justify-center gap-3 border-copper/25 bg-obsidian-2">
           <Loader2 className="h-8 w-8 animate-spin text-copper/50" />
+          <p className="text-xs text-titanium/60">Chargement du dossier… (peut prendre quelques secondes)</p>
         </DialogContent>
       </Dialog>
     );
@@ -444,12 +445,12 @@ export function RndPitchModal({
               <div className="mb-3 flex flex-wrap items-center gap-2">
                 <VerdictBadge verdict={idea.verdict} />
                 {idea.domain ? (
-                  <span className="rounded-full border border-white/10 px-2.5 py-1 text-xs text-titanium/70">
+                  <span className="rounded-full border border-copper/15 px-2.5 py-1 text-xs text-titanium/70">
                     {idea.domain}
                   </span>
                 ) : null}
                 {idea.effort ? (
-                  <span className="rounded-full border border-white/10 px-2.5 py-1 text-xs text-titanium/70">
+                  <span className="rounded-full border border-copper/15 px-2.5 py-1 text-xs text-titanium/70">
                     Effort {idea.effort}
                   </span>
                 ) : null}
@@ -600,7 +601,7 @@ export function RndPitchModal({
                             "w-full rounded-lg px-2 py-1.5 text-left text-xs transition",
                             activeBlock === b.id
                               ? "bg-copper/15 text-copper"
-                              : "text-titanium/70 hover:bg-white/[0.04] hover:text-ivory"
+                              : "text-titanium/70 hover:bg-obsidian-deep/50 hover:text-ivory"
                           )}
                         >
                           {b.title}
@@ -620,7 +621,7 @@ export function RndPitchModal({
                   <Loader2 className="h-8 w-8 animate-spin text-copper/50" />
                 </div>
               ) : blocks.length === 0 ? (
-                <div className="rounded-xl border border-copper/15 bg-white/[0.02] p-8 text-center">
+                <div className="rounded-xl border border-copper/15 bg-obsidian-deep/40 p-8 text-center">
                   <Lightbulb className="mx-auto mb-3 h-10 w-10 text-copper/30" />
                   <p className="text-sm text-titanium/70">
                     Crée le dossier R&D pour générer le pitch complet (pourquoi, comment, business case…).
@@ -631,7 +632,7 @@ export function RndPitchModal({
                   <article
                     key={block.id}
                     id={`pitch-block-${block.id}`}
-                    className="scroll-mt-4 rounded-2xl border border-copper/12 bg-white/[0.02] p-6 sm:p-8"
+                    className="scroll-mt-4 rounded-2xl border border-copper/12 bg-obsidian-deep/40 p-6 sm:p-8"
                   >
                     <div className="mb-4 flex items-start gap-3">
                       {block.group === "Pourquoi" ? (
@@ -687,7 +688,7 @@ export function RndPitchModal({
               )}
 
               {reasoning && !blocks.some((b) => b.id === "decision") ? (
-                <article className="rounded-2xl border border-copper/12 bg-white/[0.02] p-6">
+                <article className="rounded-2xl border border-copper/12 bg-obsidian-deep/40 p-6">
                   <h2 className="font-title text-lg text-ivory">Analyse agents R&D</h2>
                   <p className="mt-3 whitespace-pre-wrap text-sm italic leading-relaxed text-titanium/85">
                     {reasoning}
@@ -729,7 +730,7 @@ export function RndPitchModal({
                 <Button
                   type="button"
                   variant="outline"
-                  className="border-white/10 text-titanium/80 hover:bg-white/[0.04]"
+                  className="border-copper/15 text-titanium/80 hover:bg-obsidian-deep/50"
                   onClick={() => setViewMode("deck")}
                 >
                   <BarChart3 className="mr-2 h-4 w-4" />
@@ -738,7 +739,7 @@ export function RndPitchModal({
                 <Button
                   type="button"
                   variant="outline"
-                  className="border-white/10 text-titanium/80 hover:bg-white/[0.04]"
+                  className="border-copper/15 text-titanium/80 hover:bg-obsidian-deep/50"
                   onClick={() => setViewMode("visuals")}
                 >
                   <Sparkles className="mr-2 h-4 w-4" />
@@ -747,7 +748,7 @@ export function RndPitchModal({
                 <Button
                   type="button"
                   variant="outline"
-                  className="border-white/10 text-titanium/80 hover:bg-white/[0.04]"
+                  className="border-copper/15 text-titanium/80 hover:bg-obsidian-deep/50"
                   onClick={() => setViewMode("ceo")}
                 >
                   <Crown className="mr-2 h-4 w-4" />
@@ -765,7 +766,7 @@ export function RndPitchModal({
                 <Button
                   type="button"
                   variant="outline"
-                  className="border-white/10 text-titanium/80 hover:bg-white/[0.04]"
+                  className="border-copper/15 text-titanium/80 hover:bg-obsidian-deep/50"
                   onClick={() => setViewMode("product")}
                 >
                   <Globe className="mr-2 h-4 w-4" />
@@ -774,7 +775,7 @@ export function RndPitchModal({
                 <Button
                   type="button"
                   variant="outline"
-                  className="border-white/10 text-titanium/80 hover:bg-white/[0.04]"
+                  className="border-copper/15 text-titanium/80 hover:bg-obsidian-deep/50"
                   onClick={() => setViewMode("social")}
                 >
                   <Megaphone className="mr-2 h-4 w-4" />
@@ -824,7 +825,7 @@ export function RndPitchModal({
                 </Button>
               </>
             ) : null}
-            <Button variant="outline" className="border-white/10" onClick={() => onOpenChange(false)}>
+            <Button variant="outline" className="border-copper/15" onClick={() => onOpenChange(false)}>
               Fermer
             </Button>
           </div>
@@ -834,12 +835,12 @@ export function RndPitchModal({
           <Button
             type="button"
             variant="outline"
-            className="border-white/10"
+            className="border-copper/15"
             onClick={() => setViewMode("pitch")}
           >
             Retour au pitch
           </Button>
-          <Button variant="outline" className="border-white/10" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" className="border-copper/15" onClick={() => onOpenChange(false)}>
             Fermer
           </Button>
         </footer>

@@ -1,8 +1,8 @@
 # Catalogue sujets — Bibliothèque ALNUA
 
-_Généré automatiquement — 2026-07-30T22:41:14.267026+00:00_
+_Généré automatiquement — 2026-08-05T10:41:01.061388+00:00_
 
-**191** sujets · **5904** fiches
+**191** sujets · **6553** fiches
 
 Les agents scannent ce catalogue, puis chargent un sujet à la demande (`learn_topic`).
 
@@ -99,54 +99,54 @@ Les agents scannent ce catalogue, puis chargent un sujet à la demande (`learn_t
 | `subventions` | 1 | oui | finances | Structure de financement R&D : 60% privé / 40% public |
 | `validation` | 1 | oui | rd | Robotics for R&D : validation d'innovations et développement accéléré |
 | `vision` | 1 | oui | robo | NVIDIA : plateformes IA pour robotique et sciences |
-| `fastapi` | 135 |  | app | FastAPI latest features 2026 |
-| `crewai-agent-framework` | 134 |  | app | CrewAI agent framework updates |
-| `game-development-best-practices` | 134 |  | gaming | game development best practices 2026 |
-| `python-security-vulnerabilities-patch` | 134 |  | app | Python security vulnerabilities patch |
-| `supabase-changelog` | 134 |  | app | Supabase new features changelog |
-| `unreal-engine` | 134 |  | gaming | Unreal Engine 5 update 2026 |
-| `indie-game-engine-comparison` | 132 |  | gaming | indie game engine comparison 2026 |
-| `embedded-linux-best-practices` | 131 |  | robo | embedded Linux best practices |
-| `esp32-firmware` | 131 |  | robo | ESP32 new firmware 2026 |
-| `iot-security` | 131 |  | robo | IoT security 2026 |
-| `procedural-generation-techniques` | 131 |  | gaming | procedural generation techniques |
-| `risc-microcontroller` | 131 |  | robo | RISC-V microcontroller 2026 |
-| `cpu-architecture` | 130 |  | robo | new CPU architecture 2026 |
-| `gpu-benchmark-comparison` | 130 |  | robo | GPU benchmark comparison 2026 |
-| `instagram-reels-growth-strategy` | 130 |  | marketing | Instagram Reels growth strategy 2026 |
-| `linkedin-b2b-marketing-tactics` | 130 |  | marketing | LinkedIn B2B marketing tactics 2026 |
-| `tiktok-algorithm` | 130 |  | marketing | TikTok algorithm update 2026 |
-| `ai-hardware-accelerator` | 129 |  | robo | AI hardware accelerator 2026 |
-| `growth-hacking-indie-app` | 129 |  | marketing | growth hacking indie app 2026 |
-| `pcb-design-tools` | 129 |  | robo | PCB design tools update |
-| `content-marketing-trends` | 127 |  | marketing | content marketing trends 2026 |
-| `seo-strategy` | 124 |  | marketing | SEO strategy update 2026 |
-| `viral-content-formats` | 124 |  | marketing | viral content formats 2026 |
-| `storytelling-technique-brand` | 123 |  | marketing | storytelling technique brand 2026 |
-| `french-accounting-regulations` | 119 |  | finances | French accounting regulations 2026 |
-| `startup-tax-optimization-france` | 118 |  | finances | startup tax optimization France |
-| `freelance-micro-entrepreneur-tva` | 117 |  | finances | freelance micro-entrepreneur TVA 2026 |
-| `saas-revenue-recognition-rules` | 117 |  | finances | SaaS revenue recognition rules |
-| `game-design-trends` | 116 |  | gaming | game design trends 2026 |
-| `narrative-game-design-techniques` | 115 |  | gaming | narrative game design techniques |
-| `player-engagement-mechanics` | 115 |  | gaming | player engagement mechanics 2026 |
-| `ai-agent-self-improvement-research` | 112 |  | rd | AI agent self-improvement research 2026 |
-| `ai-startup-operations-best-practices` | 112 |  | hub | AI startup operations best practices |
-| `autonomous-ai-systems-research` | 112 |  | rd | autonomous AI systems research |
-| `indie-game-monetization-strategy` | 112 |  | gaming | indie game monetization strategy |
-| `llm-fine-tuning-techniques` | 112 |  | rd | LLM fine-tuning techniques 2026 |
-| `multi-agent-system-architecture` | 112 |  | rd | multi-agent system architecture |
-| `solopreneur-productivity-systems` | 112 |  | hub | solopreneur productivity systems 2026 |
-| `agile-project-management-ai-tools` | 111 |  | hub | agile project management AI tools 2026 |
-| `ai-company-management-automation` | 111 |  | hub | AI company management automation |
-| `indie-startup-sprint-planning` | 111 |  | hub | indie startup sprint planning |
-| `product-roadmap-prioritization-framework` | 111 |  | hub | product roadmap prioritization framework |
-| `python-testing-best-practices` | 111 |  | hub | Python testing best practices 2026 |
-| `automated-qa-ai-tools` | 110 |  | hub | automated QA AI tools |
-| `software-quality-metrics` | 110 |  | hub | software quality metrics 2026 |
-| `api-design-best-practices` | 109 |  | hub | API design best practices |
-| `software-architecture-patterns` | 109 |  | hub | software architecture patterns 2026 |
-| `technical-specification-writing-ai` | 109 |  | hub | technical specification writing AI |
+| `fastapi` | 149 |  | app | FastAPI latest features 2026 |
+| `crewai-agent-framework` | 148 |  | app | CrewAI agent framework updates |
+| `game-development-best-practices` | 148 |  | gaming | game development best practices 2026 |
+| `python-security-vulnerabilities-patch` | 148 |  | app | Python security vulnerabilities patch |
+| `supabase-changelog` | 148 |  | app | Supabase new features changelog |
+| `unreal-engine` | 148 |  | gaming | Unreal Engine 5 update 2026 |
+| `indie-game-engine-comparison` | 146 |  | gaming | indie game engine comparison 2026 |
+| `embedded-linux-best-practices` | 145 |  | robo | embedded Linux best practices |
+| `esp32-firmware` | 145 |  | robo | ESP32 new firmware 2026 |
+| `iot-security` | 145 |  | robo | IoT security 2026 |
+| `procedural-generation-techniques` | 145 |  | gaming | procedural generation techniques |
+| `risc-microcontroller` | 145 |  | robo | RISC-V microcontroller 2026 |
+| `cpu-architecture` | 144 |  | robo | new CPU architecture 2026 |
+| `gpu-benchmark-comparison` | 144 |  | robo | GPU benchmark comparison 2026 |
+| `instagram-reels-growth-strategy` | 144 |  | marketing | Instagram Reels growth strategy 2026 |
+| `linkedin-b2b-marketing-tactics` | 144 |  | marketing | LinkedIn B2B marketing tactics 2026 |
+| `tiktok-algorithm` | 144 |  | marketing | TikTok algorithm update 2026 |
+| `ai-hardware-accelerator` | 143 |  | robo | AI hardware accelerator 2026 |
+| `growth-hacking-indie-app` | 143 |  | marketing | growth hacking indie app 2026 |
+| `pcb-design-tools` | 143 |  | robo | PCB design tools update |
+| `content-marketing-trends` | 141 |  | marketing | content marketing trends 2026 |
+| `seo-strategy` | 138 |  | marketing | SEO strategy update 2026 |
+| `viral-content-formats` | 138 |  | marketing | viral content formats 2026 |
+| `storytelling-technique-brand` | 137 |  | marketing | storytelling technique brand 2026 |
+| `french-accounting-regulations` | 133 |  | finances | French accounting regulations 2026 |
+| `startup-tax-optimization-france` | 132 |  | finances | startup tax optimization France |
+| `freelance-micro-entrepreneur-tva` | 131 |  | finances | freelance micro-entrepreneur TVA 2026 |
+| `saas-revenue-recognition-rules` | 131 |  | finances | SaaS revenue recognition rules |
+| `game-design-trends` | 130 |  | gaming | game design trends 2026 |
+| `narrative-game-design-techniques` | 129 |  | gaming | narrative game design techniques |
+| `player-engagement-mechanics` | 129 |  | gaming | player engagement mechanics 2026 |
+| `ai-agent-self-improvement-research` | 125 |  | rd | AI agent self-improvement research 2026 |
+| `ai-startup-operations-best-practices` | 125 |  | hub | AI startup operations best practices |
+| `autonomous-ai-systems-research` | 125 |  | rd | autonomous AI systems research |
+| `indie-game-monetization-strategy` | 125 |  | gaming | indie game monetization strategy |
+| `llm-fine-tuning-techniques` | 125 |  | rd | LLM fine-tuning techniques 2026 |
+| `multi-agent-system-architecture` | 125 |  | rd | multi-agent system architecture |
+| `solopreneur-productivity-systems` | 125 |  | hub | solopreneur productivity systems 2026 |
+| `agile-project-management-ai-tools` | 124 |  | hub | agile project management AI tools 2026 |
+| `ai-company-management-automation` | 124 |  | hub | AI company management automation |
+| `indie-startup-sprint-planning` | 124 |  | hub | indie startup sprint planning |
+| `product-roadmap-prioritization-framework` | 124 |  | hub | product roadmap prioritization framework |
+| `python-testing-best-practices` | 123 |  | hub | Python testing best practices 2026 |
+| `automated-qa-ai-tools` | 122 |  | hub | automated QA AI tools |
+| `software-quality-metrics` | 122 |  | hub | software quality metrics 2026 |
+| `api-design-best-practices` | 121 |  | hub | API design best practices |
+| `software-architecture-patterns` | 121 |  | hub | software architecture patterns 2026 |
+| `technical-specification-writing-ai` | 121 |  | hub | technical specification writing AI |
 | `formation` | 5 |  | academy | Formation agents IA; Agent Skills : ressource pédagogique pour former aux agents IA |
 | `lanche-recherche` | 4 |  | rd | R. Lanche — Chercheur au Regeneron Genetics Center; Étude pan-ancestrale COVID-19 — co-auteur R. Lanche (AstraZeneca / FRQS) |
 | `covid-19` | 2 |  | rd | R. Lanche — Chercheur au Regeneron Genetics Center; Étude pan-ancestrale COVID-19 — co-auteur R. Lanche (AstraZeneca / FRQS) |

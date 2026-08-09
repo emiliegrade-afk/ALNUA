@@ -18,7 +18,7 @@ export function MarkdownContent({ children, className }: MarkdownContentProps) {
     <article
       className={
         className ??
-        "prose prose-invert prose-sm max-w-none prose-headings:text-ivory prose-p:text-titanium prose-li:text-titanium prose-strong:text-ivory prose-hr:border-white/10"
+        "prose prose-invert prose-sm max-w-none prose-headings:text-ivory prose-p:text-titanium prose-li:text-titanium prose-strong:text-ivory prose-hr:border-copper/15"
       }
     >
       <ReactMarkdown>{children}</ReactMarkdown>

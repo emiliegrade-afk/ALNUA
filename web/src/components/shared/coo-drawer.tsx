@@ -41,7 +41,7 @@ export function CooDrawer() {
       <div
         className={cn(
           "fixed right-0 top-0 bottom-0 z-50 w-full max-w-md",
-          "bg-[#0E1014] border-l border-[#C08A72]/20",
+          "bg-obsidian border-l border-copper/20",
           "shadow-[-8px_0_40px_rgba(0,0,0,0.5)]",
           "transition-transform duration-300",
           isOpen ? "translate-x-0" : "translate-x-full"

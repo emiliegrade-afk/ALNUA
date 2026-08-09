@@ -58,7 +58,7 @@ export function consolePathTitle(pathname: string): {
     return { crumb: "ALNUA", title: "Activité", sub: "Flux temps réel" };
   }
   if (pathname === CONSOLE_HQ) {
-    return { crumb: "ALNUA", title: "Vue HQ", sub: "Plan interactif des bureaux" };
+    return { crumb: "ALNUA", title: "Départements", sub: "Annuaire des 11 pôles" };
   }
   if (pathname === CONSOLE_IDE) {
     return { crumb: "ALNUA / Outils", title: "IDE Hub", sub: "Code · Bac à sable · Agent live" };
@@ -89,6 +89,6 @@ export function consolePathTitle(pathname: string): {
 
 export function isConsoleChromeRoute(pathname: string | null): boolean {
   if (!pathname) return false;
-  if (pathname === CONSOLE_HQ || pathname === CONSOLE_IDE) return false;
+  if (pathname === CONSOLE_IDE) return false;
   return true;
 }

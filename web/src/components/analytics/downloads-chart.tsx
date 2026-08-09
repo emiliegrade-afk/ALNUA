@@ -123,7 +123,7 @@ export function DownloadsChart({
     : CHART_COLORS.copper;
 
   return (
-    <Card className="border-white/[0.06] bg-surface/80">
+    <Card className="border-copper/10 bg-surface/80">
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-medium text-ivory">
           Téléchargements &amp; Abonnements

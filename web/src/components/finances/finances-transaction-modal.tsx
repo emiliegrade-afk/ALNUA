@@ -150,7 +150,7 @@ export function FinancesTransactionModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto border-white/10 bg-surface sm:max-w-md">
+      <DialogContent className="max-h-[90vh] overflow-y-auto border-copper/15 bg-surface sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-ivory">
             {isEdit ? "Modifier la transaction" : "Ajouter une transaction"}
@@ -158,7 +158,7 @@ export function FinancesTransactionModal({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex rounded-lg border border-white/10 p-1">
+          <div className="flex rounded-lg border border-copper/15 p-1">
             <button
               type="button"
               className={cn(
@@ -196,13 +196,13 @@ export function FinancesTransactionModal({
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="49.00"
                 required
-                className="border-white/10 bg-obsidian-deep/50"
+                className="border-copper/15 bg-obsidian-deep/50"
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="currency">Devise</Label>
               <Select value={currency} onValueChange={setCurrency}>
-                <SelectTrigger id="currency" className="border-white/10 bg-obsidian-deep/50">
+                <SelectTrigger id="currency" className="border-copper/15 bg-obsidian-deep/50">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -222,14 +222,14 @@ export function FinancesTransactionModal({
               value={txDate}
               onChange={(e) => setTxDate(e.target.value)}
               required
-              className="border-white/10 bg-obsidian-deep/50"
+              className="border-copper/15 bg-obsidian-deep/50"
             />
           </div>
 
           <div className="space-y-2">
             <Label>Catégorie</Label>
             <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger className="border-white/10 bg-obsidian-deep/50">
+              <SelectTrigger className="border-copper/15 bg-obsidian-deep/50">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -245,7 +245,7 @@ export function FinancesTransactionModal({
           <div className="space-y-2">
             <Label>Projet (optionnel)</Label>
             <Select value={projectId} onValueChange={setProjectId}>
-              <SelectTrigger className="border-white/10 bg-obsidian-deep/50">
+              <SelectTrigger className="border-copper/15 bg-obsidian-deep/50">
                 <SelectValue placeholder="ALNUA global" />
               </SelectTrigger>
               <SelectContent>
@@ -267,17 +267,17 @@ export function FinancesTransactionModal({
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Ex. Abonnement Figma"
               rows={2}
-              className="border-white/10 bg-obsidian-deep/50"
+              className="border-copper/15 bg-obsidian-deep/50"
             />
           </div>
 
-          <div className="space-y-3 rounded-lg border border-white/10 p-3">
+          <div className="space-y-3 rounded-lg border border-copper/15 p-3">
             <label className="flex cursor-pointer items-center gap-2 text-sm text-ivory">
               <input
                 type="checkbox"
                 checked={isRecurring}
                 onChange={(e) => setIsRecurring(e.target.checked)}
-                className="rounded border-white/20"
+                className="rounded border-copper/25"
               />
               Transaction récurrente
             </label>
@@ -286,7 +286,7 @@ export function FinancesTransactionModal({
                 value={recurrence}
                 onValueChange={(v) => setRecurrence(v as Recurrence)}
               >
-                <SelectTrigger className="border-white/10 bg-obsidian-deep/50">
+                <SelectTrigger className="border-copper/15 bg-obsidian-deep/50">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

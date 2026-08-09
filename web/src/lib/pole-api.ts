@@ -233,6 +233,33 @@ export function marketingCreateContent(body: {
 }
 
 // ---------------------------------------------------------------------------
+// Ads (Léo) — Phase 33, ROADMAP.md
+// ---------------------------------------------------------------------------
+export interface AdsCreateCampaignResponse {
+  ok: boolean;
+  status: string;
+  creative_variations: { variant: string; hook: string; cta: string }[];
+  campaign?: import("./marketing-api").Campaign;
+  error?: string;
+}
+
+export function adsCreateCampaign(body: {
+  brief: string;
+  platform?: string;
+  budget_usd?: number;
+  objective?: string;
+  audience?: string;
+  project_id?: string;
+  name?: string;
+}): Promise<AdsCreateCampaignResponse> {
+  return hubFetch("/agents/ads/create-campaign", {
+    method: "POST",
+    body: JSON.stringify(body),
+    timeoutMs: 120_000,
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Hardware / Embedded (Robo)
 // ---------------------------------------------------------------------------
 export function hardwareInstruction(instruction: string): Promise<AgentInstructionResponse> {

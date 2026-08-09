@@ -112,9 +112,24 @@ class CallRecord:
 # Core
 # ---------------------------------------------------------------------------
 
-def _compute_cost(model: str, prompt_tokens: int, completion_tokens: int) -> float:
+# Conservative cache-read multiplier when OpenRouter does not return native cost
+_CACHE_READ_MULTIPLIER = 0.1
+
+
+def _compute_cost(
+    model: str,
+    prompt_tokens: int,
+    completion_tokens: int,
+    *,
+    cached_tokens: int = 0,
+) -> float:
     pricing = MODEL_PRICING.get(model, MODEL_PRICING["default"])
-    return (prompt_tokens * pricing["input"] + completion_tokens * pricing["output"]) / 1_000_000
+    cached = max(0, min(int(cached_tokens), int(prompt_tokens)))
+    uncached = max(0, int(prompt_tokens) - cached)
+    input_cost = (
+        uncached * pricing["input"] + cached * pricing["input"] * _CACHE_READ_MULTIPLIER
+    )
+    return (input_cost + completion_tokens * pricing["output"]) / 1_000_000
 
 
 def record_call(
@@ -124,13 +139,24 @@ def record_call(
     completion_tokens: int,
     method: str = "",
     note: str = "",
+    *,
+    cached_tokens: int = 0,
+    native_cost_usd: float | None = None,
 ) -> float:
     """
     Enregistre un appel LLM et retourne le coût USD.
     Appelable depuis LLMClient après chaque appel.
+    Prefer OpenRouter native `usage.cost` when present; else estimate with cache discount.
     """
     _ensure_loaded()
-    cost = _compute_cost(model, prompt_tokens, completion_tokens)
+    if native_cost_usd is not None:
+        cost = float(native_cost_usd)
+    else:
+        cost = _compute_cost(
+            model, prompt_tokens, completion_tokens, cached_tokens=cached_tokens
+        )
+    if cached_tokens and not note:
+        note = f"cached_tokens={cached_tokens}"
     record = CallRecord(
         agent_id=agent_id, model=model,
         prompt_tokens=prompt_tokens, completion_tokens=completion_tokens,

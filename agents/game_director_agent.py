@@ -30,6 +30,7 @@ from skills.skill_discord_wyrdheim import (
     get_recent_messages,
     post_to_discord,
 )
+from config.llm_runtime import CREWAI_MAX_ITER_DEFAULT
 from config.agent_operating_spec import crew_backstory
 from skills.skill_langfuse import trace_agent
 from skills.skill_lore_database import add_lore_entry, search_lore
@@ -165,7 +166,7 @@ class GameDirectorAgent:
                 discord_read_tool,
             ],
             llm=_build_llm(),
-            max_iter=8,
+            max_iter=CREWAI_MAX_ITER_DEFAULT,
             verbose=True,
         )
 

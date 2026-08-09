@@ -82,7 +82,7 @@ export function RndDeckPanel({
         </p>
       </div>
 
-      <div className="rounded-xl border border-copper/15 bg-white/[0.02] p-5">
+      <div className="rounded-xl border border-copper/15 bg-obsidian-deep/40 p-5">
         <Button
           type="button"
           onClick={handleGenerate}
@@ -134,7 +134,7 @@ export function RndDeckPanel({
               <Button
                 type="button"
                 variant="outline"
-                className="border-white/10 text-ivory/90 hover:bg-white/[0.04]"
+                className="border-copper/15 text-ivory/90 hover:bg-obsidian-deep/50"
                 asChild
               >
                 <a href={pdfUrl} target="_blank" rel="noopener noreferrer" download>
@@ -146,7 +146,7 @@ export function RndDeckPanel({
               <Button
                 type="button"
                 variant="outline"
-                className="border-white/10 text-titanium/80"
+                className="border-copper/15 text-titanium/80"
                 asChild
               >
                 <a href={htmlUrl} target="_blank" rel="noopener noreferrer">

@@ -86,7 +86,7 @@ export function PartnershipsPublicForm() {
 
         <form
           onSubmit={handleSubmit}
-          className="space-y-6 rounded-2xl border border-white/10 bg-surface/60 p-5 sm:p-7"
+          className="space-y-6 rounded-2xl border border-copper/15 bg-obsidian/60 p-5 sm:p-7"
         >
           <div className="space-y-2">
             <label className="text-sm text-ivory/90">Nom *</label>
@@ -94,7 +94,7 @@ export function PartnershipsPublicForm() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="border-white/10 bg-obsidian/50"
+              className="border-copper/15 bg-obsidian/50"
             />
           </div>
 
@@ -105,7 +105,7 @@ export function PartnershipsPublicForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="border-white/10 bg-obsidian/50"
+              className="border-copper/15 bg-obsidian/50"
             />
           </div>
 
@@ -121,7 +121,7 @@ export function PartnershipsPublicForm() {
                     "rounded-xl border px-3 py-3 text-left text-sm transition",
                     type === t.id
                       ? "border-copper/50 bg-copper/10 text-ivory"
-                      : "border-white/10 bg-obsidian/30 text-titanium hover:border-white/20"
+                      : "border-copper/15 bg-obsidian-deep/50 text-titanium hover:border-copper/30"
                   )}
                 >
                   <span className="mr-1.5">{t.emoji}</span>
@@ -144,8 +144,8 @@ export function PartnershipsPublicForm() {
                   className={cn(
                     "rounded-full border px-3 py-1 text-xs transition",
                     projects.includes(p)
-                      ? "border-copper/50 bg-copper/15 text-copper-glow"
-                      : "border-white/10 text-titanium hover:border-white/20"
+                      ? "border-copper/50 bg-copper/15 text-copper-light"
+                      : "border-copper/15 text-titanium hover:border-copper/30"
                   )}
                 >
                   {p}
@@ -161,7 +161,7 @@ export function PartnershipsPublicForm() {
                 value={instagram}
                 onChange={(e) => setInstagram(e.target.value)}
                 placeholder="@..."
-                className="border-white/10 bg-obsidian/50"
+                className="border-copper/15 bg-obsidian/50"
               />
             </div>
             <div className="space-y-2">
@@ -170,7 +170,7 @@ export function PartnershipsPublicForm() {
                 value={tiktok}
                 onChange={(e) => setTiktok(e.target.value)}
                 placeholder="@..."
-                className="border-white/10 bg-obsidian/50"
+                className="border-copper/15 bg-obsidian/50"
               />
             </div>
           </div>
@@ -181,7 +181,7 @@ export function PartnershipsPublicForm() {
               value={website}
               onChange={(e) => setWebsite(e.target.value)}
               placeholder="https://"
-              className="border-white/10 bg-obsidian/50"
+              className="border-copper/15 bg-obsidian/50"
             />
           </div>
 
@@ -196,8 +196,8 @@ export function PartnershipsPublicForm() {
                   className={cn(
                     "rounded-full border px-3 py-1 text-xs transition",
                     audience === b
-                      ? "border-copper/50 bg-copper/15 text-copper-glow"
-                      : "border-white/10 text-titanium hover:border-white/20"
+                      ? "border-copper/50 bg-copper/15 text-copper-light"
+                      : "border-copper/15 text-titanium hover:border-copper/30"
                   )}
                 >
                   {b}
@@ -213,7 +213,7 @@ export function PartnershipsPublicForm() {
               onChange={(e) => setMessage(e.target.value)}
               rows={4}
               placeholder="Décris ta proposition en quelques lignes..."
-              className="border-white/10 bg-obsidian/50"
+              className="border-copper/15 bg-obsidian/50"
             />
           </div>
 

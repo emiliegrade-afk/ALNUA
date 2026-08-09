@@ -27,7 +27,7 @@ export function AgentFocusPanel({
         onClick={onClose}
         aria-hidden
       />
-      <div className="fixed bottom-0 right-0 top-0 z-50 w-96 border-l border-[#C08A72]/20 bg-[#0E1014] shadow-[-8px_0_40px_rgba(0,0,0,0.6)]">
+      <div className="fixed bottom-0 right-0 top-0 z-50 w-96 border-l border-copper/20 bg-obsidian shadow-[-8px_0_40px_rgba(0,0,0,0.6)]">
         <div className="flex items-center justify-between border-b border-copper/15 px-5 py-4">
           <div className="flex items-center gap-3">
             <span className="text-2xl">{agent.emoji}</span>
@@ -91,7 +91,7 @@ export function AgentFocusPanel({
           ) : null}
 
           {status.currentTask ? (
-            <div className="rounded-lg border border-copper/10 bg-[#14171C] p-3">
+            <div className="rounded-lg border border-copper/10 bg-surface p-3">
               <p className="mb-1 text-[10px] uppercase tracking-widest text-titanium/50">
                 Tâche
               </p>
@@ -100,7 +100,7 @@ export function AgentFocusPanel({
           ) : null}
 
           {status.currentFile ? (
-            <div className="rounded-lg border border-copper/10 bg-[#14171C] p-3 font-mono text-xs text-copper">
+            <div className="rounded-lg border border-copper/10 bg-surface p-3 font-mono text-xs text-copper">
               📄 {status.currentFile}
             </div>
           ) : null}
@@ -125,7 +125,7 @@ export function AgentFocusPanel({
             <p className="mb-2 text-[10px] uppercase tracking-widest text-titanium/50">
               Log récent
             </p>
-            <div className="max-h-48 space-y-1 overflow-y-auto rounded bg-[#14171C] p-3 font-mono text-[10px] text-titanium/60">
+            <div className="max-h-48 space-y-1 overflow-y-auto rounded bg-surface p-3 font-mono text-[10px] text-titanium/60">
               {(status.log ?? []).slice(-10).map((line, i) => (
                 <div key={i}>{line}</div>
               ))}

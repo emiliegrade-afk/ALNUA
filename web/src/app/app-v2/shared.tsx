@@ -1,14 +1,15 @@
 "use client";
 
 import type { AgentStatus } from "@/lib/openroom-api";
+import { Sparkline } from "@/components/console/charts";
 
 /* Palette et primitives visuelles partagées entre page.tsx, tabs.tsx et
    team.tsx — un seul endroit à modifier si la charte change, pas trois. */
 
 export const C = {
-  line: "rgba(200,127,78,.16)",
-  lineSoft: "rgba(200,127,78,.13)",
-  lineStrong: "rgba(200,127,78,.3)",
+  line: "rgba(192,138,114,.16)",
+  lineSoft: "rgba(192,138,114,.13)",
+  lineStrong: "rgba(192,138,114,.3)",
   copper: "#C87F4E",
   copperLight: "#E8A87C",
   ivory: "#F5F2EA",
@@ -86,7 +87,7 @@ export function Ring({ value, size, stroke }: { value: number; size: number; str
         cy={size / 2}
         r={r}
         fill="none"
-        stroke="rgba(200,127,78,.15)"
+        stroke="rgba(192,138,114,.15)"
         strokeWidth={stroke}
       />
       <circle
@@ -105,11 +106,64 @@ export function Ring({ value, size, stroke }: { value: number; size: number; str
   );
 }
 
+/** Tuile chiffre — cockpits Marketing/Finances (Phase 29, ROADMAP.md). Reprend
+ * le visuel du `Tile` local de gaming-v2/analytics-tab.tsx (seule variante
+ * jusqu'ici) ; extrait ici dès le 2e usage concret plutôt que dupliqué une
+ * 3e fois. `tone` ne fait qu'accentuer une valeur positive/négative (ex.
+ * balance) — n'invente jamais un sens qu'une donnée neutre n'a pas. */
+export function KpiTile({
+  label,
+  value,
+  sublabel,
+  tone = "default",
+  trend,
+  trendColor,
+}: {
+  label: string;
+  value: string | number;
+  sublabel?: string;
+  tone?: "default" | "positive" | "negative";
+  /** Historique réel (ex. `last_6_months`) pour une vraie sparkline — sinon
+   * une ligne plate honnête (`flatTrend`, voir web/src/lib/console/
+   * rich-data.ts) plutôt qu'une série inventée. Omettre entièrement si même
+   * une ligne plate n'a pas de sens (valeur inconnue/non renseignée). */
+  trend?: number[];
+  trendColor?: string;
+}) {
+  const color = tone === "positive" ? C.online : tone === "negative" ? "#f87171" : C.ivory;
+  return (
+    <div className="flex-1 rounded-xl border p-3 text-center" style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}>
+      <p className="text-[19px] font-semibold" style={{ color }}>
+        {value}
+      </p>
+      <p className="text-[8.5px]" style={{ color: C.faint }}>
+        {label}
+      </p>
+      {sublabel ? (
+        <p className="mt-0.5 text-[9px]" style={{ color: C.dim }}>
+          {sublabel}
+        </p>
+      ) : null}
+      {trend && trend.length > 1 ? (
+        <Sparkline
+          data={trend}
+          width={72}
+          height={20}
+          stroke={trendColor ?? color}
+          strokeWidth={1.25}
+          className="mx-auto mt-1.5"
+          idSeed={label}
+        />
+      ) : null}
+    </div>
+  );
+}
+
 export function Bar({ value, thick = 3 }: { value: number; thick?: number }) {
   return (
     <span
       className="block min-w-0 flex-1 overflow-hidden rounded-full"
-      style={{ height: thick, background: "rgba(200,127,78,.16)" }}
+      style={{ height: thick, background: "rgba(192,138,114,.16)" }}
     >
       <span
         className="block h-full rounded-full"

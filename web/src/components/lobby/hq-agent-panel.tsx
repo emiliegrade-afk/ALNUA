@@ -186,7 +186,7 @@ export function HqAgentPanel({
                   "inline-block rounded px-1.5 py-0.5 font-body text-[9px]",
                   badge.highlight
                     ? "bg-copper/20 text-copper"
-                    : "bg-white/5 text-titanium",
+                    : "bg-obsidian/50 text-titanium",
                 )}
               >
                 {badge.label}

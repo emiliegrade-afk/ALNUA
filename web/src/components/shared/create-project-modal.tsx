@@ -95,7 +95,7 @@ export function CreateProjectModal({
               onChange={(e) => setName(e.target.value)}
               placeholder="Mon nouveau projet"
               disabled={submitting}
-              className="border-copper/20 bg-white/[0.03] text-ivory"
+              className="border-copper/20 bg-obsidian-deep/50 text-ivory"
             />
           </div>
 
@@ -109,7 +109,7 @@ export function CreateProjectModal({
                     "flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm transition",
                     branch === opt.id
                       ? "border-copper/40 bg-copper/10 text-ivory"
-                      : "border-white/[0.08] text-titanium hover:border-copper/20"
+                      : "border-copper/15 text-titanium hover:border-copper/20"
                   )}
                 >
                   <input
@@ -138,7 +138,7 @@ export function CreateProjectModal({
               rows={2}
               disabled={submitting}
               placeholder="En une phrase, de quoi il s'agit…"
-              className="border-copper/20 bg-white/[0.03] text-ivory resize-none"
+              className="border-copper/20 bg-obsidian-deep/50 text-ivory resize-none"
             />
           </div>
 
@@ -148,7 +148,7 @@ export function CreateProjectModal({
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={submitting}
-              className="border-white/10 text-titanium"
+              className="border-copper/15 text-titanium"
             >
               Annuler
             </Button>

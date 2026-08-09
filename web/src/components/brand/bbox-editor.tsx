@@ -226,7 +226,7 @@ export function BboxEditor({
               className={`flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-xs ${
                 index === selectedIndex
                   ? "bg-copper/15 text-ivory"
-                  : "text-titanium hover:bg-white/5"
+                  : "text-titanium hover:bg-obsidian/50"
               }`}
             >
               <span className="truncate">{element.label}</span>

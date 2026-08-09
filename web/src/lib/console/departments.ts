@@ -136,7 +136,7 @@ const POLES: PoleDef[] = [
     id: "finances",
     code: "09",
     name: "Comptabilité",
-    tagline: "Finance · Coûts LLM · Contrôle",
+    tagline: "Finance · Budget · Reporting · Conformité",
     description: "Comptabilité et contrôle de gestion ALNUA.",
     href: "/finances",
     icon: Calculator,

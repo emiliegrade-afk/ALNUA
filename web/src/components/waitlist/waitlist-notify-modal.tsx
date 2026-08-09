@@ -100,7 +100,7 @@ export function WaitlistNotifyModal({
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto border-white/10 bg-surface sm:max-w-2xl">
+      <DialogContent className="max-h-[90vh] overflow-y-auto border-copper/15 bg-surface sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle className="text-ivory">Préparer une notification</DialogTitle>
           <DialogDescription className="text-titanium">
@@ -114,7 +114,7 @@ export function WaitlistNotifyModal({
             <div>
               <label className="mb-1.5 block text-xs text-titanium">Projet</label>
               <Select value={projectId} onValueChange={setProjectId}>
-                <SelectTrigger className="border-white/10">
+                <SelectTrigger className="border-copper/15">
                   <SelectValue placeholder="Choisir un projet" />
                 </SelectTrigger>
                 <SelectContent>
@@ -134,7 +134,7 @@ export function WaitlistNotifyModal({
                 value={statusFilter}
                 onValueChange={(v) => setStatusFilter(v as WaitlistStatus)}
               >
-                <SelectTrigger className="border-white/10">
+                <SelectTrigger className="border-copper/15">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -154,7 +154,7 @@ export function WaitlistNotifyModal({
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               placeholder="Bientôt : Naïa est presque prête ✨"
-              className="border-white/10"
+              className="border-copper/15"
             />
           </div>
 
@@ -182,12 +182,12 @@ export function WaitlistNotifyModal({
               onChange={(e) => setMessageMd(e.target.value)}
               rows={6}
               placeholder="## Bonne nouvelle !&#10;&#10;On approche du lancement..."
-              className="border-white/10 font-mono text-sm"
+              className="border-copper/15 font-mono text-sm"
             />
           </div>
 
           {messageMd.trim() ? (
-            <div className="rounded-lg border border-white/10 bg-obsidian/50 p-4">
+            <div className="rounded-lg border border-copper/15 bg-obsidian/50 p-4">
               <p className="mb-2 text-xs font-medium uppercase tracking-wide text-titanium">
                 Aperçu
               </p>

@@ -71,7 +71,7 @@ export function ReleaseNotesEditor({
               type="button"
               variant="outline"
               size="sm"
-              className="border-white/15 text-xs text-titanium"
+              className="border-copper/20 text-xs text-titanium"
               onClick={() =>
                 toast.info(`Limite App Store : ${APP_STORE_CHAR_LIMIT} caractères`)
               }
@@ -100,7 +100,7 @@ export function ReleaseNotesEditor({
       <Textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="min-h-[320px] flex-1 resize-y border-white/15 bg-obsidian-deep/50 font-mono text-sm leading-relaxed text-ivory"
+        className="min-h-[320px] flex-1 resize-y border-copper/20 bg-obsidian-deep/50 font-mono text-sm leading-relaxed text-ivory"
       />
 
       {config.limit !== null && (
@@ -129,7 +129,7 @@ export function ReleaseNotesTabs({
   const tabs: ReleaseNotesTab[] = ["app_store", "google_play", "changelog"];
 
   return (
-    <div className="flex gap-1 rounded-lg border border-white/10 bg-obsidian-deep/50 p-1">
+    <div className="flex gap-1 rounded-lg border border-copper/15 bg-obsidian-deep/50 p-1">
       {tabs.map((tab) => (
         <button
           key={tab}

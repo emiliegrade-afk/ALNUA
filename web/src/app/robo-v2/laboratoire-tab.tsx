@@ -90,8 +90,8 @@ export function LaboratoireTab({ projects }: { projects: Project[] }) {
                 onClick={() => setFilter(c)}
                 className="shrink-0 rounded-full border px-3 py-1 text-[10px]"
                 style={{
-                  borderColor: filter === c ? C.copper : "rgba(200,127,78,.2)",
-                  background: filter === c ? "rgba(200,127,78,.15)" : "transparent",
+                  borderColor: filter === c ? C.copper : "rgba(192,138,114,.2)",
+                  background: filter === c ? "rgba(192,138,114,.15)" : "transparent",
                   color: filter === c ? C.copperLight : C.warm,
                 }}
               >
@@ -104,10 +104,10 @@ export function LaboratoireTab({ projects }: { projects: Project[] }) {
             {visible.map((e) => (
               <div key={e.id} className="flex flex-col gap-1.5 rounded-xl border p-3" style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="rounded-full border px-1.5 py-px text-[8px]" style={{ borderColor: "rgba(200,127,78,.22)", color: C.faint }}>
+                  <span className="rounded-full border px-1.5 py-px text-[8px]" style={{ borderColor: "rgba(192,138,114,.22)", color: C.faint }}>
                     {e.category}
                   </span>
-                  <span className="rounded-full border px-1.5 py-px text-[8px]" style={{ borderColor: "rgba(200,127,78,.22)", color: STATUS_COLOR[e.status] }}>
+                  <span className="rounded-full border px-1.5 py-px text-[8px]" style={{ borderColor: "rgba(192,138,114,.22)", color: STATUS_COLOR[e.status] }}>
                     {STATUS_LABEL[e.status]}
                   </span>
                 </div>

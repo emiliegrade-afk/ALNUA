@@ -50,6 +50,7 @@ data/rnd_watch_topics.json
 data/sentry_ingest.json
 data/supervisor_debug.txt
 data/workflow_runs/
+data/invoices.json
 brand_kits/
 logs/
 
@@ -73,3 +74,9 @@ models/
 
 .coverage
 .gstack/
+.ruff_cache/
+
+# Local scratch screenshots / visual diffs — never commit
+tmp-*.png
+tmp-compare/
+tmp_*/

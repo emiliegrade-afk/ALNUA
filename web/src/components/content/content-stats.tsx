@@ -30,7 +30,7 @@ export function ContentStats({
         {items.map(({ label, value, accent }) => (
           <Card
             key={label}
-            className="border-white/[0.06] bg-surface/60 ring-1 ring-copper/10"
+            className="border-copper/10 bg-surface/60 ring-1 ring-copper/10"
           >
             <CardContent className="p-4">
               <p className={`text-2xl font-semibold tabular-nums ${accent}`}>

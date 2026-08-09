@@ -55,7 +55,7 @@ function DossierRow({
     <li>
       <Link
         href={ceoDossierHref(dossier, "ceo")}
-        className="group flex flex-col gap-1.5 rounded-lg border border-copper/15 bg-white/[0.02] px-3 py-2.5 transition hover:border-copper/35 hover:bg-copper/[0.04]"
+        className="group flex flex-col gap-1.5 rounded-lg border border-copper/15 bg-obsidian-deep/40 px-3 py-2.5 transition hover:border-copper/35 hover:bg-copper/[0.04]"
       >
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="font-body text-sm font-medium text-ivory/90 group-hover:text-ivory">
@@ -64,11 +64,11 @@ function DossierRow({
           <RecommendationBadge value={dossier.recommendation} />
         </div>
         <div className="flex flex-wrap items-center gap-2 text-[10px] text-titanium/55">
-          <span className="rounded border border-white/10 px-1.5 py-0.5">
+          <span className="rounded border border-copper/15 px-1.5 py-0.5">
             {dossier.domain}
           </span>
           {dossier.slug ? (
-            <span className="rounded border border-white/10 px-1.5 py-0.5">
+            <span className="rounded border border-copper/15 px-1.5 py-0.5">
               {dossier.slug}
             </span>
           ) : null}

@@ -79,6 +79,6 @@ export const BETA_TYPE_LABELS: Record<string, string> = {
 export function severityStyle(severity: string | null | undefined): string {
   return (
     BETA_SEVERITIES.find((s) => s.id === severity)?.className ??
-    "border-white/10 bg-white/5 text-titanium"
+    "border-copper/15 bg-obsidian/50 text-titanium"
   );
 }

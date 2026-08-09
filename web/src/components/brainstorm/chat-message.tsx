@@ -35,7 +35,7 @@ export function ChatMessageBubble({
         className={cn(
           "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
           isUser
-            ? "bg-white/[0.08]"
+            ? "bg-obsidian-deep/60"
             : "bg-copper/15 ring-1 ring-copper/25"
         )}
       >
@@ -52,7 +52,7 @@ export function ChatMessageBubble({
             "relative rounded-2xl px-4 py-3 text-sm leading-relaxed",
             isUser
               ? "bg-copper/25 text-ivory"
-              : "bg-white/[0.03] text-ivory/75 ring-1 ring-white/[0.06]"
+              : "bg-obsidian-deep/50 text-ivory/75 ring-1 ring-copper/15"
           )}
         >
           <p className="whitespace-pre-line">{text}</p>

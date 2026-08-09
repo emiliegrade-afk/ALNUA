@@ -65,7 +65,7 @@ function ChatInput({
             onSend();
           }
         }}
-        className="min-h-[52px] resize-none border-copper/15 bg-white/[0.02] text-ivory/90 placeholder:text-titanium/60 focus-visible:ring-copper/30"
+        className="min-h-[52px] resize-none border-copper/15 bg-obsidian-deep/40 text-ivory/90 placeholder:text-titanium/60 focus-visible:ring-copper/30"
       />
       <Button
         type="submit"
@@ -331,7 +331,7 @@ export function BrainstormView() {
         />
       </div>
 
-      <div className="flex min-h-0 flex-1 overflow-hidden rounded-2xl border border-copper/10 bg-obsidian/80 ring-1 ring-white/[0.04]">
+      <div className="flex min-h-0 flex-1 overflow-hidden rounded-2xl border border-copper/10 bg-obsidian/80 ring-1 ring-copper/10">
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
           <div className="min-h-0 flex-1 overflow-hidden">
             {showEmpty ? (
@@ -369,7 +369,7 @@ export function BrainstormView() {
             )}
           </div>
 
-          <div className="relative z-10 shrink-0 border-t border-white/[0.06] bg-sidebar p-3 shadow-[0_-8px_24px_rgba(0,0,0,0.35)] sm:p-4">
+          <div className="relative z-10 shrink-0 border-t border-copper/10 bg-sidebar p-3 shadow-[0_-8px_24px_rgba(0,0,0,0.35)] sm:p-4">
             {canSummarize && (
               <div className="mx-auto mb-3 flex max-w-2xl justify-center">
                 <Button

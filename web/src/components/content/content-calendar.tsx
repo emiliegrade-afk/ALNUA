@@ -69,7 +69,7 @@ export function ContentCalendar({ onPostUpdated }: ContentCalendarProps) {
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8 border-copper/20 bg-white/[0.03]"
+            className="h-8 w-8 border-copper/20 bg-obsidian-deep/50"
             onClick={() => setWeekStart((d) => addDays(d, -7))}
           >
             <ChevronLeft className="h-4 w-4" />
@@ -81,7 +81,7 @@ export function ContentCalendar({ onPostUpdated }: ContentCalendarProps) {
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8 border-copper/20 bg-white/[0.03]"
+            className="h-8 w-8 border-copper/20 bg-obsidian-deep/50"
             onClick={() => setWeekStart((d) => addDays(d, 7))}
           >
             <ChevronRight className="h-4 w-4" />
@@ -108,7 +108,7 @@ export function ContentCalendar({ onPostUpdated }: ContentCalendarProps) {
                   "rounded-md px-2 py-1 text-[10px] ring-1 transition",
                   active
                     ? SECTOR_STYLES[id]
-                    : "bg-white/[0.03] text-titanium ring-white/[0.06] hover:ring-copper/20"
+                    : "bg-obsidian-deep/50 text-titanium ring-copper/15 hover:ring-copper/20"
                 )}
               >
                 {label}
@@ -133,7 +133,7 @@ export function ContentCalendar({ onPostUpdated }: ContentCalendarProps) {
                   "flex min-h-[140px] flex-col gap-1.5 rounded-xl border p-2",
                   isToday
                     ? "border-copper/40 bg-copper/5"
-                    : "border-white/[0.06] bg-white/[0.015]"
+                    : "border-copper/10 bg-obsidian-deep/40"
                 )}
               >
                 <p
@@ -157,7 +157,7 @@ export function ContentCalendar({ onPostUpdated }: ContentCalendarProps) {
                           onClick={() => setEditingPost(post)}
                           className={cn(
                             "rounded-lg px-2 py-1.5 text-left text-[11px] ring-1 transition hover:brightness-110",
-                            platformStyle?.badge ?? "bg-white/[0.05] text-titanium ring-white/[0.08]"
+                            platformStyle?.badge ?? "bg-obsidian-deep/50 text-titanium ring-copper/15"
                           )}
                         >
                           <p className="line-clamp-2 leading-snug">{post.text_content}</p>

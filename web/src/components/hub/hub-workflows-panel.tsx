@@ -128,7 +128,7 @@ export function HubWorkflowsPanel() {
           </Button>
         </div>
 
-        <div className="rounded-lg border border-white/5 bg-white/[0.02] p-3">
+        <div className="rounded-lg border border-copper/10 bg-obsidian-deep/40 p-3">
           <p className="mb-2 text-[10px] font-medium uppercase tracking-wide text-titanium/45">
             Releases P2 — gaming & robotique
           </p>
@@ -186,7 +186,7 @@ export function HubWorkflowsPanel() {
               .map((r) => (
               <div
                 key={r.id}
-                className="rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2"
+                className="rounded-lg border border-copper/10 bg-obsidian-deep/40 px-3 py-2"
               >
                 <p className="text-xs font-medium text-ivory/90">{r.name}</p>
                 <p className="text-[10px] text-titanium/50">
@@ -211,7 +211,7 @@ export function HubWorkflowsPanel() {
               {runs.slice(0, 8).map((run) => (
                 <li
                   key={run.run_id}
-                  className="flex items-start gap-2 rounded-md border border-white/5 px-2 py-1.5 text-xs"
+                  className="flex items-start gap-2 rounded-md border border-copper/10 px-2 py-1.5 text-xs"
                 >
                   {statusIcon(run.status)}
                   <div className="min-w-0 flex-1">

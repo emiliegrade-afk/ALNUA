@@ -81,11 +81,11 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export function typeBadgeStyle(type: string): string {
-  return TYPE_COLORS[type] ?? "bg-white/10 text-ivory/80 border-white/10";
+  return TYPE_COLORS[type] ?? "bg-obsidian/60 text-ivory/80 border-copper/15";
 }
 
 export function statusBadgeStyle(status: string): string {
-  return STATUS_COLORS[status] ?? "bg-white/10 text-ivory/80 border-white/10";
+  return STATUS_COLORS[status] ?? "bg-obsidian/60 text-ivory/80 border-copper/15";
 }
 
 export function partnerTypeLabel(type: string): string {

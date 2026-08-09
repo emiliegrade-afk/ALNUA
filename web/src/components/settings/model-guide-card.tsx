@@ -43,11 +43,11 @@ export function ModelGuideCard() {
   const [open, setOpen] = useState(true);
 
   return (
-    <div className="rounded-xl border border-copper/20 bg-white/[0.02]">
+    <div className="rounded-xl border border-copper/20 bg-obsidian-deep/40">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition hover:bg-white/[0.03]"
+        className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition hover:bg-obsidian-deep/50"
       >
         <div className="flex items-center gap-2.5">
           <BookOpen className="h-4 w-4 text-copper" />
@@ -66,13 +66,13 @@ export function ModelGuideCard() {
       </button>
 
       {open && (
-        <div className="space-y-5 border-t border-white/5 px-4 py-4">
+        <div className="space-y-5 border-t border-copper/10 px-4 py-4">
           {/* Budget rules */}
           <div className="grid gap-2 sm:grid-cols-3">
             {BUDGET_RULES.map((r) => (
               <div
                 key={r.label}
-                className="rounded-lg border border-white/8 bg-white/[0.02] px-3 py-2.5"
+                className="rounded-lg border border-copper/10 bg-obsidian-deep/40 px-3 py-2.5"
               >
                 <p className="text-xs font-semibold text-ivory/80">
                   {r.emoji} {r.label}
@@ -87,10 +87,10 @@ export function ModelGuideCard() {
             <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-titanium/40">
               Par type de travail
             </p>
-            <div className="overflow-hidden rounded-lg border border-white/8">
+            <div className="overflow-hidden rounded-lg border border-copper/10">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-white/5 bg-white/[0.02]">
+                  <tr className="border-b border-copper/10 bg-obsidian-deep/40">
                     <th className="px-3 py-2 font-medium text-titanium/60">Tâche</th>
                     <th className="px-3 py-2 font-medium text-copper/80">Modèles recommandés</th>
                     <th className="hidden px-3 py-2 font-medium text-titanium/60 sm:table-cell">Pourquoi</th>
@@ -101,8 +101,8 @@ export function ModelGuideCard() {
                     <tr
                       key={row.task}
                       className={cn(
-                        "border-b border-white/5 last:border-0",
-                        i % 2 === 0 ? "bg-transparent" : "bg-white/[0.01]"
+                        "border-b border-copper/10 last:border-0",
+                        i % 2 === 0 ? "bg-transparent" : "bg-obsidian-deep/30"
                       )}
                     >
                       <td className="px-3 py-2 text-ivory/80">{row.task}</td>
@@ -124,7 +124,7 @@ export function ModelGuideCard() {
               {AGENT_RECS.map((row) => (
                 <div
                   key={row.agent}
-                  className="flex items-baseline justify-between gap-2 rounded-lg border border-white/5 px-3 py-2"
+                  className="flex items-baseline justify-between gap-2 rounded-lg border border-copper/10 px-3 py-2"
                 >
                   <span className="text-xs font-medium text-ivory/75">{row.agent}</span>
                   <span className="text-right text-[11px] text-titanium/55">

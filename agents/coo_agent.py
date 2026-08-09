@@ -12,6 +12,7 @@ from crewai.tools import tool
 
 from agents.tools.hub_tools import HUB_TOOLS
 from config.agent_operating_spec import get_system_prompt
+from config.llm_runtime import CREWAI_MAX_ITER_COO
 from database.supabase_client import SupabaseClient, get_supabase
 from config.github_repos import get_target_by_slug
 from skills.skill_chroma import search_knowledge as _search
@@ -423,7 +424,7 @@ class COOAgent:
             llm=self._llm,
             verbose=self.verbose,
             allow_delegation=False,
-            max_iter=12,
+            max_iter=CREWAI_MAX_ITER_COO,
         )
 
     def _build_tools(self) -> list:

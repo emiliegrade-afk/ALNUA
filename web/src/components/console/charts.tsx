@@ -11,6 +11,7 @@ export function Sparkline({
   fill = true,
   strokeWidth = 1.5,
   className,
+  idSeed,
 }: {
   data: number[];
   width?: number;
@@ -19,6 +20,12 @@ export function Sparkline({
   fill?: boolean;
   strokeWidth?: number;
   className?: string;
+  /** Désambiguïse l'id du gradient SVG quand plusieurs sparklines de même
+   * couleur/première valeur coexistent sur une page (sinon ids dupliqués,
+   * invalides en HTML et pouvant faire pointer un `url(#id)` vers le
+   * mauvais gradient) — passer un identifiant stable (ex. le label de la
+   * tuile) quand on affiche plusieurs sparklines ensemble. */
+  idSeed?: string;
 }) {
   if (data.length === 0) return null;
   const min = Math.min(...data);
@@ -32,7 +39,8 @@ export function Sparkline({
   });
   const linePath = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p[0]} ${p[1]}`).join(" ");
   const areaPath = `${linePath} L ${width} ${height} L 0 ${height} Z`;
-  const gid = `spark-${Math.round(stroke.charCodeAt(1) * 31 + data[0])}`;
+  const seed = idSeed ?? `${stroke}-${data[0]}`;
+  const gid = `spark-${seed.split("").reduce((h, c) => h * 31 + c.charCodeAt(0), 7)}`;
   return (
     <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className={className} preserveAspectRatio="none">
       {fill && (

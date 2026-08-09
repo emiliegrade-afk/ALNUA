@@ -114,8 +114,8 @@ export function ReleasesView() {
           </h2>
           {listLoading ? (
             <div className="space-y-2">
-              <Skeleton className="h-16 w-full bg-white/5" />
-              <Skeleton className="h-16 w-full bg-white/5" />
+              <Skeleton className="h-16 w-full bg-obsidian/50" />
+              <Skeleton className="h-16 w-full bg-obsidian/50" />
             </div>
           ) : (
             <ReleasesList

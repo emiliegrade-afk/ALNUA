@@ -86,7 +86,7 @@ function RawDataAccordion({ briefing }: { briefing: DailyBriefing }) {
   const roadmap = raw.roadmap ?? [];
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/[0.02]">
+    <div className="rounded-xl border border-copper/15 bg-obsidian-deep/40">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
@@ -100,7 +100,7 @@ function RawDataAccordion({ briefing }: { briefing: DailyBriefing }) {
         )}
       </button>
       {open && (
-        <div className="space-y-4 border-t border-white/10 px-4 py-4 text-sm">
+        <div className="space-y-4 border-t border-copper/15 px-4 py-4 text-sm">
           <section>
             <div className="mb-2 flex items-center justify-between">
               <h4 className="font-medium text-ivory">Tickets urgents</h4>
@@ -118,7 +118,7 @@ function RawDataAccordion({ briefing }: { briefing: DailyBriefing }) {
                 {tickets.slice(0, 5).map((t) => (
                   <li
                     key={t.id}
-                    className="rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2 text-xs text-ivory/80"
+                    className="rounded-lg border border-copper/10 bg-obsidian-deep/40 px-3 py-2 text-xs text-ivory/80"
                   >
                     <span className="text-copper-glow">{t.priority}</span>
                     {" · "}
@@ -149,7 +149,7 @@ function RawDataAccordion({ briefing }: { briefing: DailyBriefing }) {
                 {posts.slice(0, 5).map((p) => (
                   <li
                     key={p.id}
-                    className="rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2 text-xs text-ivory/80"
+                    className="rounded-lg border border-copper/10 bg-obsidian-deep/40 px-3 py-2 text-xs text-ivory/80"
                   >
                     <span className="text-copper-glow">{p.platform}</span>
                     {" · "}
@@ -180,7 +180,7 @@ function RawDataAccordion({ briefing }: { briefing: DailyBriefing }) {
                 {roadmap.slice(0, 5).map((r) => (
                   <li
                     key={r.id}
-                    className="rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2 text-xs text-ivory/80"
+                    className="rounded-lg border border-copper/10 bg-obsidian-deep/40 px-3 py-2 text-xs text-ivory/80"
                   >
                     {r.title}
                     {r.due_date ? (
@@ -212,7 +212,7 @@ function CounterPill({
   accent: string;
 }) {
   return (
-    <div className="flex flex-1 flex-col items-center gap-1 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
+    <div className="flex flex-1 flex-col items-center gap-1 rounded-xl border border-copper/15 bg-obsidian-deep/50 px-4 py-3">
       <div className={cn("flex items-center gap-1.5 text-lg font-semibold", accent)}>
         {icon}
         {value}
@@ -364,7 +364,7 @@ export function BriefingView() {
       </header>
 
       {cooTabEnabled && (
-        <div className="flex gap-1 rounded-lg border border-white/10 bg-white/[0.02] p-1">
+        <div className="flex gap-1 rounded-lg border border-copper/15 bg-obsidian-deep/40 p-1">
           <button
             type="button"
             onClick={() => setActiveTab("operational")}
@@ -402,8 +402,8 @@ export function BriefingView() {
         />
       ) : loading ? (
         <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
-          <Skeleton className="h-96 rounded-xl bg-white/5" />
-          <Skeleton className="h-96 rounded-xl bg-white/5" />
+          <Skeleton className="h-96 rounded-xl bg-obsidian/50" />
+          <Skeleton className="h-96 rounded-xl bg-obsidian/50" />
         </div>
       ) : isEmpty ? (
         <Card className="border-copper/20 bg-surface/60">
@@ -443,7 +443,7 @@ export function BriefingView() {
                       "flex w-full items-center gap-2 rounded-lg border px-3 py-2.5 text-left text-sm transition",
                       active
                         ? "border-copper/40 bg-copper/10 text-ivory"
-                        : "border-transparent text-titanium hover:border-white/10 hover:bg-white/[0.03]"
+                        : "border-transparent text-titanium hover:border-copper/20 hover:bg-obsidian-deep/50"
                     )}
                   >
                     <Calendar className="h-3.5 w-3.5 shrink-0 opacity-60" />

@@ -51,7 +51,7 @@ export function AgentFeed({ logs, loading }: AgentFeedProps) {
             <p className="text-xs text-titanium">Feed temps réel · Supabase</p>
           </div>
         </div>
-        <Badge variant="outline" className="border-white/10 text-titanium/80">
+        <Badge variant="outline" className="border-copper/15 text-titanium/80">
           {logs.length} events
         </Badge>
       </CardHeader>
@@ -71,14 +71,14 @@ export function AgentFeed({ logs, loading }: AgentFeedProps) {
               {logs.map((log, i) => (
                 <li
                   key={log.id}
-                  className="animate-fade-in px-4 py-3 transition hover:bg-white/[0.02]"
+                  className="animate-fade-in px-4 py-3 transition hover:bg-obsidian-deep/40"
                   style={{ animationDelay: `${i * 40}ms` }}
                 >
                   <div className="flex items-start gap-3">
                     <div
                       className={cn(
                         "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg",
-                        AGENT_COLORS[log.agent_name] ?? "bg-white/5 text-titanium/80"
+                        AGENT_COLORS[log.agent_name] ?? "bg-obsidian/50 text-titanium/80"
                       )}
                     >
                       <Bot className="h-3.5 w-3.5" />

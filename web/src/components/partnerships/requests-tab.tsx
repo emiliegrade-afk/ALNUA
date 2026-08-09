@@ -85,7 +85,7 @@ export function RequestsTab({ onConverted }: RequestsTabProps) {
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-white/10 text-xs text-titanium">
+            <tr className="border-b border-copper/15 text-xs text-titanium">
               <th className="pb-2 pr-3">Nom</th>
               <th className="pb-2 pr-3">Email</th>
               <th className="pb-2 pr-3">Type</th>
@@ -98,7 +98,7 @@ export function RequestsTab({ onConverted }: RequestsTabProps) {
           </thead>
           <tbody>
             {requests.map((r) => (
-              <tr key={r.id} className="border-b border-white/5">
+              <tr key={r.id} className="border-b border-copper/10">
                 <td className="py-2 pr-3 text-ivory">{r.name}</td>
                 <td className="py-2 pr-3 text-titanium">{r.email}</td>
                 <td className="py-2 pr-3 text-titanium">{r.type ?? "—"}</td>
@@ -167,7 +167,7 @@ export function RequestsTab({ onConverted }: RequestsTabProps) {
       </div>
 
       <Dialog open={drawerOpen} onOpenChange={setDrawerOpen}>
-        <DialogContent className="border-white/10 bg-surface sm:max-w-md">
+        <DialogContent className="border-copper/15 bg-surface sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-ivory">
               {selected?.name}

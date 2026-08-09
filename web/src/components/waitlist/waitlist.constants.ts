@@ -33,7 +33,7 @@ export function sourceBadgeStyle(source: string | null): string {
     tiktok: "border-cyan-500/30 bg-cyan-500/10 text-cyan-300",
     bouche_a_oreille: "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
     reddit: "border-orange-500/30 bg-orange-500/10 text-orange-300",
-    autre: "border-white/15 bg-white/5 text-titanium",
+    autre: "border-copper/20 bg-obsidian/50 text-titanium",
     direct: "border-copper/30 bg-copper/10 text-copper-glow",
   };
   return map[source ?? "direct"] ?? map.autre;

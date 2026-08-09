@@ -27,18 +27,42 @@ class AdsAgent(AgentBase):
         budget_usd: float = 50.0,
         objective: str = "awareness",
         audience: str = "lookalike",
+        project_id: str | None = None,
+        name: str | None = None,
     ) -> dict[str, Any]:
-        """Structure une campagne payante avant lancement (A/B creative variants)."""
+        """Structure une campagne payante (A/B creative variants) et la persiste
+        réellement dans `campaigns` — avant Phase 33 (ROADMAP.md) ce dict était
+        volatile, aucune campagne n'existait après l'appel."""
         result = draft_campaign(
             brief, platform=platform, budget_usd=budget_usd, objective=objective, audience=audience,
         )
+        if not result.get("ok", True):
+            log_agent_action(
+                self.db, self.AGENT_NAME, "create_campaign",
+                input_summary=f"{platform} | {objective} | ${budget_usd}",
+                output_summary=str(result.get("error", ""))[:200],
+                status="error",
+            )
+            return result
+
+        campaign = self.db.insert("campaigns", {
+            "name": name or brief[:80],
+            "objective": objective,
+            "platform": platform,
+            "status": "draft",
+            "budget_allocated_usd": budget_usd,
+            "project_id": project_id,
+            "audience": audience,
+            "brief": brief,
+            "created_by_agent_id": self.AGENT_NAME,
+        })
         log_agent_action(
             self.db, self.AGENT_NAME, "create_campaign",
             input_summary=f"{platform} | {objective} | ${budget_usd}",
-            output_summary=str(result.get("status") or result.get("error", ""))[:200],
-            status="success" if result.get("ok", True) else "error",
+            output_summary=f"campaign {campaign['id']} created",
+            status="success",
         )
-        return result
+        return {**result, "campaign": campaign}
 
     def amplify_post(
         self,

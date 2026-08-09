@@ -68,7 +68,7 @@ export function ImageUploader({
           "relative flex min-h-[220px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-6 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-copper/50",
           dragOver
             ? "border-copper bg-copper/10"
-            : "border-copper/25 bg-white/[0.02] hover:border-copper/45 hover:bg-copper/5",
+            : "border-copper/25 bg-obsidian-deep/40 hover:border-copper/45 hover:bg-copper/5",
           disabled && "pointer-events-none opacity-50"
         )}
       >

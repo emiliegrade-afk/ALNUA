@@ -74,11 +74,11 @@ const KPI_CONFIG = [
 
 function KpiSkeleton() {
   return (
-    <Card className="border-white/[0.06] bg-surface/80">
+    <Card className="border-copper/10 bg-surface/80">
       <CardContent className="p-4">
-        <div className="h-4 w-24 animate-pulse rounded bg-white/10" />
-        <div className="mt-3 h-8 w-20 animate-pulse rounded bg-white/10" />
-        <div className="mt-2 h-3 w-16 animate-pulse rounded bg-white/5" />
+        <div className="h-4 w-24 animate-pulse rounded bg-obsidian/60" />
+        <div className="mt-3 h-8 w-20 animate-pulse rounded bg-obsidian/60" />
+        <div className="mt-2 h-3 w-16 animate-pulse rounded bg-obsidian/50" />
       </CardContent>
     </Card>
   );
@@ -112,7 +112,7 @@ export function AnalyticsKpiCards({ summary, loading }: AnalyticsKpiCardsProps) 
         return (
           <Card
             key={key}
-            className="border-white/[0.06] bg-surface/80 transition hover:border-copper/20"
+            className="border-copper/10 bg-surface/80 transition hover:border-copper/20"
           >
             <CardContent className="p-4">
               <div className="flex items-center gap-2 text-titanium">

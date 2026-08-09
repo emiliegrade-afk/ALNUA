@@ -42,7 +42,7 @@ export function BetaFeedbackDetailPanel({
           "animate-fade-in"
         )}
       >
-        <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+        <div className="flex items-center justify-between border-b border-copper/15 px-5 py-4">
           <h2 className="text-sm font-semibold text-ivory">Détail feedback</h2>
           <Button variant="ghost" size="icon" onClick={onClose} aria-label="Fermer">
             <X className="h-4 w-4" />
@@ -55,7 +55,7 @@ export function BetaFeedbackDetailPanel({
               <Badge variant="outline" className={severityStyle(feedback.severity)}>
                 {feedback.severity ?? "—"}
               </Badge>
-              <Badge variant="outline" className="border-white/10 text-titanium">
+              <Badge variant="outline" className="border-copper/15 text-titanium">
                 {BETA_TYPE_LABELS[feedback.type ?? "autre"]}
               </Badge>
             </div>
@@ -80,7 +80,7 @@ export function BetaFeedbackDetailPanel({
               <img
                 src={feedback.screenshot_url}
                 alt="Screenshot"
-                className="w-full rounded-lg border border-white/10"
+                className="w-full rounded-lg border border-copper/15"
               />
             ) : null}
 

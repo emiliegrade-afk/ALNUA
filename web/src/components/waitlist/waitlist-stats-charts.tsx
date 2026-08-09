@@ -27,7 +27,7 @@ export function WaitlistStatsCharts({ stats }: WaitlistStatsChartsProps) {
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
-      <Card className="border-white/10 bg-surface/80">
+      <Card className="border-copper/15 bg-surface/80">
         <CardHeader>
           <CardTitle className="text-sm font-medium text-ivory">
             Inscriptions — 7 derniers jours

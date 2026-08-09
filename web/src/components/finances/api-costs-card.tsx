@@ -87,7 +87,7 @@ export function ApiCostsCard() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <div className="rounded-lg border border-white/5 bg-white/[0.02] p-3">
+        <div className="rounded-lg border border-copper/10 bg-obsidian-deep/40 p-3">
           <p className="text-[10px] uppercase tracking-wider text-titanium/50">LLM (OpenRouter)</p>
           <p className="mt-1 font-mono text-lg text-ivory/90">
             ${report.llm.total_cost_usd.toFixed(2)}
@@ -95,7 +95,7 @@ export function ApiCostsCard() {
           <p className="text-[11px] text-titanium/45">{report.llm.total_calls} appels</p>
         </div>
 
-        <div className="rounded-lg border border-white/5 bg-white/[0.02] p-3">
+        <div className="rounded-lg border border-copper/10 bg-obsidian-deep/40 p-3">
           <p className="text-[10px] uppercase tracking-wider text-titanium/50">ElevenLabs</p>
           {!eleven.configured ? (
             <p className="mt-1 text-xs text-titanium/50">Clé API non configurée</p>
@@ -118,7 +118,7 @@ export function ApiCostsCard() {
           )}
         </div>
 
-        <div className="rounded-lg border border-white/5 bg-white/[0.02] p-3">
+        <div className="rounded-lg border border-copper/10 bg-obsidian-deep/40 p-3">
           <p className="text-[10px] uppercase tracking-wider text-titanium/50">
             Hébergeur / manuel
           </p>
@@ -136,7 +136,7 @@ export function ApiCostsCard() {
           {report.manual.entries.map((e) => (
             <li
               key={e.id}
-              className="flex items-center justify-between gap-2 rounded-lg bg-white/[0.02] px-3 py-1.5 text-xs"
+              className="flex items-center justify-between gap-2 rounded-lg bg-obsidian-deep/40 px-3 py-1.5 text-xs"
             >
               <span className="text-ivory/80">
                 {e.source} <span className="text-titanium/40">· {e.period}</span>

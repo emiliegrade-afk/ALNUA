@@ -26,6 +26,7 @@ from crewai import Agent, Crew, LLM, Task
 from crewai.tools import tool
 
 from skills.skill_coding_agent import execute_coding_task
+from config.llm_runtime import CREWAI_MAX_ITER_DEFAULT
 from config.agent_operating_spec import crew_backstory
 from skills.skill_langfuse import trace_agent
 from skills.skill_pi_ssh import PI_NOT_CONFIGURED, pi_is_configured, run_pi_command
@@ -223,7 +224,7 @@ class EmbeddedDevAgent:
                 eve_code_tool,
             ],
             llm=_build_llm(),
-            max_iter=8,
+            max_iter=CREWAI_MAX_ITER_DEFAULT,
             verbose=True,
         )
 

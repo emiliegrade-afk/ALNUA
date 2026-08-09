@@ -104,12 +104,12 @@ export function COOChat({ variant = "default", embedded = false }: COOChatProps)
   return (
     <Card
       className={cn(
-        "flex h-full flex-col border-white/[0.08] bg-surface/80 backdrop-blur-sm",
+        "flex h-full flex-col border-copper/15 bg-surface/80 backdrop-blur-sm",
         !embedded && "min-h-[480px]"
       )}
     >
       {!embedded ? (
-        <CardHeader className="border-b border-white/[0.06] pb-3">
+        <CardHeader className="border-b border-copper/10 pb-3">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-copper/20 ring-1 ring-copper/30">
               <Bot className="h-4 w-4 text-copper" />
@@ -137,7 +137,7 @@ export function COOChat({ variant = "default", embedded = false }: COOChatProps)
                   className={cn(
                     "flex h-7 w-7 shrink-0 items-center justify-center rounded-full",
                     msg.role === "user"
-                      ? "bg-white/10"
+                      ? "bg-obsidian/60"
                       : "bg-copper/20 ring-1 ring-copper/30"
                   )}
                 >
@@ -152,7 +152,7 @@ export function COOChat({ variant = "default", embedded = false }: COOChatProps)
                     "max-w-[85%] rounded-xl px-3.5 py-2.5 text-sm leading-relaxed",
                     msg.role === "user"
                       ? "bg-copper/20 text-ivory"
-                      : "bg-white/[0.04] text-ivory/75 ring-1 ring-white/[0.06]"
+                      : "bg-obsidian-deep/50 text-ivory/75 ring-1 ring-copper/15"
                   )}
                 >
                   <p className="whitespace-pre-line">{msg.content}</p>
@@ -185,7 +185,7 @@ export function COOChat({ variant = "default", embedded = false }: COOChatProps)
           </div>
         </ScrollArea>
 
-        <div className="shrink-0 space-y-2 border-t border-white/[0.06] p-4">
+        <div className="shrink-0 space-y-2 border-t border-copper/10 p-4">
           <div className="flex flex-wrap gap-1.5">
             {suggestions.map((s) => (
               <button
@@ -193,7 +193,7 @@ export function COOChat({ variant = "default", embedded = false }: COOChatProps)
                 type="button"
                 onClick={() => handleSend(s)}
                 disabled={loading}
-                className="rounded-full bg-white/[0.04] px-2.5 py-1 text-[11px] text-titanium/80 ring-1 ring-white/[0.06] transition hover:bg-copper/10 hover:text-copper-glow disabled:opacity-50"
+                className="rounded-full bg-obsidian-deep/50 px-2.5 py-1 text-[11px] text-titanium/80 ring-1 ring-copper/15 transition hover:bg-copper/10 hover:text-copper-glow disabled:opacity-50"
               >
                 {s}
               </button>
@@ -211,7 +211,7 @@ export function COOChat({ variant = "default", embedded = false }: COOChatProps)
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ex: Triage les tickets Wyrdheim…"
               disabled={loading}
-              className="border-white/[0.08] bg-white/[0.03] text-ivory placeholder:text-titanium/60 focus-visible:ring-copper/40"
+              className="border-copper/15 bg-obsidian-deep/50 text-ivory placeholder:text-titanium/60 focus-visible:ring-copper/40"
             />
             <Button
               type="submit"

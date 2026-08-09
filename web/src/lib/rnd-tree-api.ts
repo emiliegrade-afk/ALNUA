@@ -19,7 +19,7 @@ export interface HypothesisNode {
   verdict: string | null;
   insight: string;
   evidence: {
-    key_findings?: string[];
+    key_findings?: { finding: string; confidence?: string; source?: string }[];
     recommended_actions?: string[];
   };
   report_markdown?: string | null;
@@ -197,6 +197,20 @@ export async function promoteRndNode(
   return hubFetch(
     `/rnd/trees/${encodeURIComponent(slug)}/nodes/${encodeURIComponent(nodeId)}/promote?enrich=true`,
     { method: "POST", timeoutMs: 90_000 }
+  );
+}
+
+export async function reparentRndNode(
+  slug: string,
+  nodeId: string,
+  newParentId: string
+): Promise<{ success: boolean; node_id: string; new_parent_id: string }> {
+  return hubFetch(
+    `/rnd/trees/${encodeURIComponent(slug)}/nodes/${encodeURIComponent(nodeId)}/reparent`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({ new_parent_id: newParentId }),
+    }
   );
 }
 

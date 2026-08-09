@@ -41,7 +41,7 @@ function BranchBadge({ domain, branch }: { domain: string; branch?: string | nul
     );
   }
   return (
-    <span className="rounded-full border border-white/10 px-2 py-0.5 text-[10px] text-titanium/60">
+    <span className="rounded-full border border-copper/15 px-2 py-0.5 text-[10px] text-titanium/60">
       {domain}
     </span>
   );
@@ -55,7 +55,7 @@ function StatusBadge({ status }: { status: string }) {
         ? "border-red-500/25 bg-red-500/10 text-red-400"
         : status === "committee_active"
           ? "border-copper/30 bg-copper/10 text-copper"
-          : "border-white/10 bg-white/5 text-titanium/70";
+          : "border-copper/15 bg-obsidian/50 text-titanium/70";
   return (
     <span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-medium", cls)}>
       {STATUS_LABELS[status] ?? status}
@@ -116,7 +116,7 @@ export function RndDossierList({
           Vérifie que l&apos;API tourne :{" "}
           <code className="text-copper/80">uvicorn api.main:app --port 8000</code>
         </p>
-        <Button size="sm" variant="outline" onClick={load} className="border-white/10">
+        <Button size="sm" variant="outline" onClick={load} className="border-copper/15">
           <RefreshCw className="mr-2 h-3.5 w-3.5" />
           Réessayer
         </Button>
@@ -133,7 +133,7 @@ export function RndDossierList({
           Promouvez une idée depuis le Centre R&D — le dossier sera enrichi
           (sections + business case).
         </p>
-        <Button size="sm" variant="outline" onClick={load} className="border-white/10">
+        <Button size="sm" variant="outline" onClick={load} className="border-copper/15">
           <RefreshCw className="mr-2 h-3.5 w-3.5" />
           Actualiser
         </Button>
@@ -151,7 +151,7 @@ export function RndDossierList({
           size="sm"
           variant="outline"
           onClick={load}
-          className="border-white/10 text-titanium/70"
+          className="border-copper/15 text-titanium/70"
         >
           <RefreshCw className="h-3.5 w-3.5" />
         </Button>
@@ -166,7 +166,7 @@ export function RndDossierList({
               "w-full rounded-xl border p-4 text-left transition",
               selectedId === d.id
                 ? "border-copper/40 bg-copper/10"
-                : "border-copper/10 bg-white/[0.02] hover:border-copper/25 hover:bg-white/[0.04]"
+                : "border-copper/10 bg-obsidian-deep/40 hover:border-copper/25 hover:bg-obsidian-deep/50"
             )}
           >
             <div className="mb-2 flex flex-wrap items-center gap-2">

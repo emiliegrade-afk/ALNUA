@@ -91,8 +91,8 @@ export function ContentView() {
           />
         </div>
 
-        <div className="flex min-h-[520px] flex-col rounded-2xl border border-copper/10 bg-obsidian/50 p-4 ring-1 ring-white/[0.04] lg:col-span-3 lg:min-h-[640px]">
-          <div className="mb-4 flex flex-wrap gap-1.5 border-b border-white/[0.06] pb-3">
+        <div className="flex min-h-[520px] flex-col rounded-2xl border border-copper/10 bg-obsidian/50 p-4 ring-1 ring-copper/10 lg:col-span-3 lg:min-h-[640px]">
+          <div className="mb-4 flex flex-wrap gap-1.5 border-b border-copper/10 pb-3">
             {STUDIO_TABS.map(({ id, label }) => (
               <button
                 key={id}
@@ -102,7 +102,7 @@ export function ContentView() {
                   "rounded-lg border px-3 py-1.5 text-xs transition",
                   studioTab === id
                     ? "border-copper/45 bg-copper/10 text-copper-glow"
-                    : "border-transparent text-titanium hover:border-copper/20 hover:bg-white/[0.03]"
+                    : "border-transparent text-titanium hover:border-copper/20 hover:bg-obsidian-deep/50"
                 )}
               >
                 {label}

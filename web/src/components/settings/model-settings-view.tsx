@@ -43,7 +43,7 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
 const TIER_COLORS: Record<string, string> = {
   premium: "border-amber-500/30 bg-amber-500/8 text-amber-400",
   standard: "border-copper/30 bg-copper/8 text-copper",
-  fast: "border-white/15 bg-white/5 text-titanium/70",
+  fast: "border-copper/20 bg-obsidian/50 text-titanium/70",
 };
 
 const TIER_LABELS: Record<string, string> = {
@@ -94,7 +94,7 @@ function ModelSelector({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-ivory/80 transition hover:border-white/20"
+        className="flex w-full items-center justify-between gap-2 rounded-lg border border-copper/15 bg-obsidian-deep/50 px-3 py-2 text-sm text-ivory/80 transition hover:border-copper/30"
       >
         <span className="truncate">
           {current === "auto"
@@ -111,16 +111,16 @@ function ModelSelector({
       {open && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 z-20 mt-1 max-h-[28rem] w-80 overflow-y-auto rounded-xl border border-white/10 bg-obsidian shadow-xl">
+          <div className="absolute right-0 z-20 mt-1 max-h-[28rem] w-80 overflow-y-auto rounded-xl border border-copper/15 bg-obsidian shadow-xl">
             <button
               type="button"
               onClick={() => select("auto")}
-              className="flex w-full items-center justify-between px-3 py-2.5 text-sm text-titanium/80 transition hover:bg-white/5"
+              className="flex w-full items-center justify-between px-3 py-2.5 text-sm text-titanium/80 transition hover:bg-obsidian/50"
             >
               <span>Auto (tier agent)</span>
               {current === "auto" && <Check className="h-3.5 w-3.5 text-copper" />}
             </button>
-            <div className="border-t border-white/5" />
+            <div className="border-t border-copper/10" />
 
             {categoryOrder.map((catId) => {
               const models = Object.entries(availableModels).filter(
@@ -142,7 +142,7 @@ function ModelSelector({
                       key={id}
                       type="button"
                       onClick={() => select(id)}
-                      className="flex w-full items-center justify-between px-3 py-2 text-sm text-ivory/80 transition hover:bg-white/5"
+                      className="flex w-full items-center justify-between px-3 py-2 text-sm text-ivory/80 transition hover:bg-obsidian/50"
                     >
                       <span className="truncate pr-2">{info.label}</span>
                       {current === id && (
@@ -279,7 +279,7 @@ export function ModelSettingsView() {
             size="sm"
             variant="outline"
             onClick={() => void load()}
-            className="border-white/10 text-titanium/70"
+            className="border-copper/15 text-titanium/70"
           >
             <RefreshCw className="h-3.5 w-3.5" />
           </Button>
@@ -288,7 +288,7 @@ export function ModelSettingsView() {
             variant="outline"
             onClick={() => void handleResetAll()}
             disabled={resetting}
-            className="border-white/10 text-titanium/70 hover:text-ivory/80"
+            className="border-copper/15 text-titanium/70 hover:text-ivory/80"
           >
             {resetting ? (
               <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
@@ -306,7 +306,7 @@ export function ModelSettingsView() {
         {categoryOrder.map((catId) => (
           <span
             key={catId}
-            className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-titanium/60"
+            className="rounded-full border border-copper/15 bg-obsidian-deep/50 px-3 py-1 text-titanium/60"
           >
             <span className="font-semibold text-ivory/75">
               {categories[catId] ?? catId}
@@ -325,7 +325,7 @@ export function ModelSettingsView() {
             {deptAgents.map((agent) => (
               <div
                 key={agent.agent_id}
-                className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/[0.02] p-3"
+                className="flex items-center gap-3 rounded-xl border border-copper/10 bg-obsidian-deep/40 p-3"
               >
                 <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-ivory/90">

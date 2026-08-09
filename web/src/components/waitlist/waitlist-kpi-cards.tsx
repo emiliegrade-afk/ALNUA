@@ -25,7 +25,7 @@ export function WaitlistKpiCards({
           <Card
             key={p.project_id}
             className={cn(
-              "cursor-pointer border-white/10 bg-surface/80 transition hover:border-copper/30",
+              "cursor-pointer border-copper/15 bg-surface/80 transition hover:border-copper/30",
               selectedProjectId === p.project_id && "border-copper/45 ring-1 ring-copper/20"
             )}
             onClick={() => onSelectProject(p.project_id)}
@@ -47,7 +47,7 @@ export function WaitlistKpiCards({
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       <Card
         className={cn(
-          "cursor-pointer border-white/10 bg-surface/80 transition hover:border-copper/30",
+          "cursor-pointer border-copper/15 bg-surface/80 transition hover:border-copper/30",
           selectedProjectId === "all" && "border-copper/45 ring-1 ring-copper/20"
         )}
         onClick={() => onSelectProject("all")}
@@ -71,7 +71,7 @@ export function WaitlistKpiCards({
         <Card
           key={p.project_id}
           className={cn(
-            "cursor-pointer border-white/10 bg-surface/80 transition hover:border-copper/30",
+            "cursor-pointer border-copper/15 bg-surface/80 transition hover:border-copper/30",
             selectedProjectId === p.project_id && "border-copper/45 ring-1 ring-copper/20"
           )}
           onClick={() => onSelectProject(p.project_id)}

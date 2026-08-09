@@ -5,6 +5,7 @@ import { AgentActionConsole } from "@/components/shared/agent-action-console";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
+  adsCreateCampaign,
   marketingCreateContent,
   marketingInstruction,
   marketingSeoAudit,
@@ -106,6 +107,58 @@ export function MarketingConsole() {
               project: v.project,
               topic: v.topic,
               tone: v.tone,
+            })
+          }
+        />
+        <AgentActionConsole
+          title="Léo — créer une campagne (brief)"
+          description="Rédige 2 variantes créatives A/B et persiste la campagne (Phase 33)"
+          fields={[
+            {
+              name: "brief",
+              label: "Brief",
+              type: "textarea",
+              required: true,
+              rows: 3,
+              placeholder: "Lancer NUAWAY auprès des vanlifers européens, ton aventurier…",
+            },
+            {
+              name: "platform",
+              label: "Plateforme",
+              type: "select",
+              defaultValue: "meta",
+              options: [
+                { value: "meta", label: "Meta" },
+                { value: "google", label: "Google Ads" },
+                { value: "tiktok", label: "TikTok" },
+              ],
+            },
+            {
+              name: "objective",
+              label: "Objectif",
+              type: "select",
+              defaultValue: "awareness",
+              options: [
+                { value: "awareness", label: "Notoriété" },
+                { value: "traffic", label: "Trafic" },
+                { value: "conversions", label: "Conversions" },
+                { value: "engagement", label: "Engagement" },
+                { value: "video_views", label: "Vues vidéo" },
+              ],
+            },
+            {
+              name: "budget_usd",
+              label: "Budget ($)",
+              type: "number",
+              defaultValue: "50",
+            },
+          ]}
+          onSubmit={(v) =>
+            adsCreateCampaign({
+              brief: v.brief,
+              platform: v.platform,
+              objective: v.objective,
+              budget_usd: parseFloat(v.budget_usd) || 50,
             })
           }
         />

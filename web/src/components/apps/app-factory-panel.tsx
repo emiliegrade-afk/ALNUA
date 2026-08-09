@@ -157,7 +157,7 @@ export function AppFactoryPanel({ onRegistered }: AppFactoryPanelProps) {
                 onChange={(e) => setForm({ ...form, brief: e.target.value })}
                 rows={4}
                 placeholder="Décris l'app, les écrans P0, la cible utilisateur…"
-                className="mt-1 w-full rounded-md border border-white/10 bg-obsidian px-3 py-2 text-sm text-ivory"
+                className="mt-1 w-full rounded-md border border-copper/15 bg-obsidian px-3 py-2 text-sm text-ivory"
               />
             </div>
           </div>
@@ -169,7 +169,7 @@ export function AppFactoryPanel({ onRegistered }: AppFactoryPanelProps) {
               onChange={(e) =>
                 setForm({ ...form, stack: e.target.value as FactoryStack })
               }
-              className="mt-1 w-full rounded-md border border-white/10 bg-obsidian px-3 py-2 text-sm text-ivory"
+              className="mt-1 w-full rounded-md border border-copper/15 bg-obsidian px-3 py-2 text-sm text-ivory"
             >
               <option value="nextjs">Next.js (web)</option>
               <option value="expo">Expo (mobile)</option>
@@ -183,7 +183,7 @@ export function AppFactoryPanel({ onRegistered }: AppFactoryPanelProps) {
               onChange={(e) =>
                 setForm({ ...form, branch: e.target.value as AppBranch })
               }
-              className="mt-1 w-full rounded-md border border-white/10 bg-obsidian px-3 py-2 text-sm text-ivory"
+              className="mt-1 w-full rounded-md border border-copper/15 bg-obsidian px-3 py-2 text-sm text-ivory"
             >
               {BRANCHES.map((b) => (
                 <option key={b} value={b}>
@@ -234,7 +234,7 @@ export function AppFactoryPanel({ onRegistered }: AppFactoryPanelProps) {
         </form>
 
         {run ? (
-          <div className="rounded-lg border border-white/10 bg-obsidian/60 p-4">
+          <div className="rounded-lg border border-copper/15 bg-obsidian/60 p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="font-mono text-xs text-copper">
                 {run.slug} · {run.status} · {run.progress}%

@@ -19,7 +19,25 @@ const MARK_SRC = "/brand/alnua-mark.png";
 const LOCKUP_SRC = "/brand/alnua-lockup.png";
 
 /**
- * Logo ALNUA — assets DA officiels (mark circulaire + lockup PNG).
+ * Logo ALNUA — assets DA officiels. Deux variantes distinctes dans la charte
+ * (voir référence `assets/brand/reference-logo-principal-icone.png`,
+ * panneau « 01. LOGO PRINCIPAL » / « 02. LOGO ICÔNE », et
+ * `assets/brand/aluna-brand-board.png` pour la planche complète) :
+ * - `alnua-mark.png` (variant icon/symbol/ring) = « logo icône » : badge
+ *   circulaire, anneau cuivré, X fin. Utilisé pour tout usage petit format /
+ *   avatar (Instagram, sidebar, favicon-like) — voir
+ *   `assets/brand/reference-avatar-instagram.png`. NE PAS remplacer par le X
+ *   seul sans le cercle : déjà tenté par erreur, corrigé (cf. historique git
+ *   de ce fichier et de `web/public/brand/alnua-mark.png`).
+ * - `alnua-lockup.png` (variant lockup) = « logo principal » : X « habillé »
+ *   (avec chevrons additionnels) + wordmark ALNUA, réservé au grand format
+ *   (bannières, headers).
+ *
+ * Favicons/app icon (`icon-192.png`, `icon-512.png`, `apple-touch-icon.png`,
+ * `assets/alnua-hub.ico`) suivent une 3e déclinaison définie dans la planche
+ * (section UTILISATIONS, icône carré à coins arrondis) : le X « habillé »
+ * sur fond dégradé anthracite (pas noir pur), régénérés depuis
+ * `alnua-lockup.png` — voir `scripts/` historique git pour la génération.
  */
 export function AlnuaLogo({
   variant = "icon",

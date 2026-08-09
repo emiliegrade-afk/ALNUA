@@ -69,7 +69,7 @@ export function RndSectionActions({
         <Button
           size="sm"
           variant="outline"
-          className="border-white/10"
+          className="border-copper/15"
           disabled={!!loading}
           onClick={() => setShowRevision((v) => !v)}
         >
@@ -114,7 +114,7 @@ export function RndSectionActions({
                 : "Note pour les agents : précisions, coupes scope, objections…"
             }
             rows={2}
-            className="min-h-[60px] resize-none border-copper/15 bg-white/[0.02] text-sm"
+            className="min-h-[60px] resize-none border-copper/15 bg-obsidian-deep/40 text-sm"
           />
           <Button
             size="sm"

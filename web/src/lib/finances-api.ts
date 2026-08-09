@@ -32,6 +32,9 @@ export interface FinanceTransaction {
   category: TransactionCategory | string;
   project_id: string | null;
   project_name?: string;
+  // Rattache une dépense à une campagne (Phase 33, ROADMAP.md) — permet de
+  // calculer un "dépensé réel" par campagne côté GET /campaigns.
+  campaign_id: string | null;
   description: string | null;
   is_recurring: boolean;
   recurrence: Recurrence | null;
@@ -74,6 +77,7 @@ export interface FinanceTransactionInput {
   currency?: string;
   category: string;
   project_id?: string | null;
+  campaign_id?: string | null;
   description?: string | null;
   is_recurring?: boolean;
   recurrence?: Recurrence | null;

@@ -115,7 +115,7 @@ export function ReleaseGenerateForm({
   }
 
   return (
-    <div className="rounded-xl border border-copper/20 bg-white/[0.02] p-6">
+    <div className="rounded-xl border border-copper/20 bg-obsidian-deep/40 p-6">
       <div className="mb-6 flex items-center gap-2">
         <Sparkles className="h-5 w-5 text-copper" />
         <h2 className="text-lg font-semibold text-ivory">
@@ -144,7 +144,7 @@ export function ReleaseGenerateForm({
             placeholder="1.2.0"
             value={version}
             onChange={(e) => setVersion(e.target.value)}
-            className="border-copper/25 bg-white/[0.03] font-mono text-ivory"
+            className="border-copper/25 bg-obsidian-deep/50 font-mono text-ivory"
           />
         </div>
 
@@ -153,7 +153,7 @@ export function ReleaseGenerateForm({
             Source des entrées dev_log
           </legend>
 
-          <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-white/10 p-3 hover:bg-white/[0.02]">
+          <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-copper/15 p-3 hover:bg-obsidian-deep/40">
             <input
               type="radio"
               name="sourceMode"
@@ -171,7 +171,7 @@ export function ReleaseGenerateForm({
             </span>
           </label>
 
-          <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-white/10 p-3 hover:bg-white/[0.02]">
+          <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-copper/15 p-3 hover:bg-obsidian-deep/40">
             <input
               type="radio"
               name="sourceMode"
@@ -186,13 +186,13 @@ export function ReleaseGenerateForm({
                   type="date"
                   value={sinceDate}
                   onChange={(e) => setSinceDate(e.target.value)}
-                  className="mt-2 border-copper/25 bg-white/[0.03] text-ivory"
+                  className="mt-2 border-copper/25 bg-obsidian-deep/50 text-ivory"
                 />
               )}
             </span>
           </label>
 
-          <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-white/10 p-3 hover:bg-white/[0.02]">
+          <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-copper/15 p-3 hover:bg-obsidian-deep/40">
             <input
               type="radio"
               name="sourceMode"
@@ -212,7 +212,7 @@ export function ReleaseGenerateForm({
         </fieldset>
 
         {sourceMode === "pick_entries" && (
-          <div className="rounded-lg border border-white/10 bg-obsidian-deep/50">
+          <div className="rounded-lg border border-copper/15 bg-obsidian-deep/50">
             {loadingLogs ? (
               <div className="flex items-center justify-center py-8 text-sm text-titanium">
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -229,7 +229,7 @@ export function ReleaseGenerateForm({
                     <li key={entry.id}>
                       <label
                         className={cn(
-                          "flex cursor-pointer gap-3 px-4 py-3 hover:bg-white/[0.02]",
+                          "flex cursor-pointer gap-3 px-4 py-3 hover:bg-obsidian-deep/40",
                           selectedLogIds.has(entry.id) && "bg-copper/5"
                         )}
                       >

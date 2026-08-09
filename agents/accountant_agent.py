@@ -113,11 +113,33 @@ class AccountantAgent(AgentBase):
         question: str,
     ) -> dict[str, Any]:
         """Conseil comptable sur la période (transactions, trésorerie, charges)."""
+        from services.saas_spend import build_saas_spend_report, catalog_for_agents
+
+        spend = build_saas_spend_report(days=30)
+        catalog_block = catalog_for_agents()
+        invoices_block = ""
+        try:
+            from services.finance_invoices import invoice_summary
+
+            inv = invoice_summary()
+            invoices_block = (
+                f"\nFactures: {inv.get('count')} · "
+                f"à payer: {inv.get('to_pay_count')} ({inv.get('to_pay_total')} EUR)\n"
+                f"Politique: {inv.get('payment_policy')}"
+            )
+        except Exception:
+            pass
+
         prompt = inject_learning_context(
             f"""Période : {month}
 
-Résumé financier :
+Résumé financier (ledger transactions) :
 {financial_summary}
+
+Dépenses outils / SaaS (live + catalogue) :
+total_tracked≈{spend.get('total_tracked_usd')}$ / {spend.get('days')}j
+{catalog_block}
+{invoices_block}
 
 Question d'Emilie :
 {question}
@@ -127,13 +149,21 @@ Réponds en JSON :
   "synthese": "2-3 phrases sur la situation",
   "alertes": ["point d'attention"],
   "recommandations": ["action concrète"],
-  "prochaine_etape": "une seule action prioritaire"
+  "prochaine_etape": "une seule action prioritaire",
+  "saas_note": "1 phrase sur les abonnements / OpenRouter / factures"
 }}""",
             self.AGENT_NAME,
             month,
         )
         raw = self._complete(prompt, temperature=0.3, max_tokens=800)
         result = parse_json_response(raw)
+        result["_saas_spend_snapshot"] = {
+            "total_tracked_usd": spend.get("total_tracked_usd"),
+            "sources": [
+                {"id": s.get("id"), "amount_usd": s.get("amount_usd"), "sync": s.get("sync")}
+                for s in spend.get("sources") or []
+            ],
+        }
         log_agent_action(
             self.db,
             self.AGENT_NAME,
@@ -151,6 +181,22 @@ Réponds en JSON :
         except Exception:
             pass
         return result
+
+    @trace_agent("accountant_agent")
+    def list_open_invoices(self, status: str = "to_pay") -> dict[str, Any]:
+        """Liste les factures suivies (sans paiement — Emilie paie hors Hub)."""
+        from services.finance_invoices import invoice_summary, list_invoices
+
+        rows = list_invoices(status=status or None)
+        summary = invoice_summary()
+        log_agent_action(
+            self.db,
+            self.AGENT_NAME,
+            "list_invoices",
+            input_summary=status or "all",
+            output_summary=f"{len(rows)} factures",
+        )
+        return {"invoices": rows, "summary": summary}
 
 
 def _dossier_section_text(dossier: dict[str, Any]) -> str:

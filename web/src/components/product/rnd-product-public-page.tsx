@@ -88,7 +88,7 @@ export function RndProductPublicPage({ slug }: RndProductPublicPageProps) {
         <p className="max-w-md text-sm text-titanium/60">
           {error ?? "Cette fiche n&apos;est pas publiée ou n&apos;existe pas."}
         </p>
-        <Button asChild variant="outline" className="border-white/10">
+        <Button asChild variant="outline" className="border-copper/20">
           <Link href="/">Retour au Hub</Link>
         </Button>
       </div>
@@ -99,7 +99,7 @@ export function RndProductPublicPage({ slug }: RndProductPublicPageProps) {
 
   return (
     <div className="min-h-screen bg-obsidian text-ivory">
-      <header className="border-b border-white/8 bg-obsidian-2/80 backdrop-blur">
+      <header className="border-b border-copper/10 bg-obsidian-2/80 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <Link href="/" className="opacity-80 transition hover:opacity-100">
             <AlnuaLogo className="h-7" />
@@ -143,12 +143,12 @@ export function RndProductPublicPage({ slug }: RndProductPublicPageProps) {
         </section>
 
         {page.features.length > 0 ? (
-          <section className="border-y border-white/8 bg-white/[0.02] py-12">
+          <section className="border-y border-copper/10 bg-obsidian-deep/40 py-12">
             <div className="mx-auto grid max-w-5xl gap-4 px-6 sm:grid-cols-2">
               {page.features.map((f) => (
                 <article
                   key={f.title}
-                  className="rounded-2xl border border-copper/12 bg-obsidian-2/50 p-6"
+                  className="rounded-2xl border border-copper/15 bg-obsidian-2/50 p-6"
                 >
                   <h3 className="font-title text-lg text-ivory">{f.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-titanium/75">
@@ -185,7 +185,7 @@ export function RndProductPublicPage({ slug }: RndProductPublicPageProps) {
                     placeholder="Prénom (optionnel)"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    className="border-white/10 bg-obsidian/60"
+                    className="border-copper/15 bg-obsidian/60"
                   />
                   <Input
                     type="email"
@@ -193,7 +193,7 @@ export function RndProductPublicPage({ slug }: RndProductPublicPageProps) {
                     placeholder="Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="border-white/10 bg-obsidian/60"
+                    className="border-copper/15 bg-obsidian/60"
                   />
                   <Button
                     type="submit"
@@ -220,8 +220,8 @@ export function RndProductPublicPage({ slug }: RndProductPublicPageProps) {
                 <details
                   key={item.question}
                   className={cn(
-                    "group rounded-xl border border-white/10 bg-white/[0.02] p-4",
-                    "open:border-copper/20"
+                    "group rounded-xl border border-copper/15 bg-obsidian-deep/40 p-4",
+                    "open:border-copper/25"
                   )}
                 >
                   <summary className="cursor-pointer text-sm font-medium text-ivory/90">
@@ -237,7 +237,7 @@ export function RndProductPublicPage({ slug }: RndProductPublicPageProps) {
         ) : null}
       </main>
 
-      <footer className="border-t border-white/8 py-8 text-center text-xs text-titanium/45">
+      <footer className="border-t border-copper/10 py-8 text-center text-xs text-titanium/45">
         © ALNUA — {page.title}
       </footer>
     </div>

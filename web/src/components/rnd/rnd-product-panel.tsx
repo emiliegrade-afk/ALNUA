@@ -177,7 +177,7 @@ export function RndProductPanel({
               variant="outline"
               disabled={publishing}
               onClick={() => void handleUnpublish()}
-              className="border-white/10 text-titanium/80"
+              className="border-copper/15 text-titanium/80"
             >
               Retirer du site
             </Button>
@@ -206,14 +206,14 @@ export function RndProductPanel({
 
 function ProductPreview({ page }: { page: RndProductPage }) {
   return (
-    <article className="overflow-hidden rounded-xl border border-copper/15 bg-white/[0.02]">
+    <article className="overflow-hidden rounded-xl border border-copper/15 bg-obsidian-deep/40">
       <div className="border-b border-copper/10 px-4 py-3">
         <div className="flex flex-wrap items-center gap-2">
           <span
             className={
               page.published
                 ? "rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] text-emerald-300"
-                : "rounded-full bg-white/10 px-2 py-0.5 text-[10px] text-titanium/60"
+                : "rounded-full bg-obsidian/60 px-2 py-0.5 text-[10px] text-titanium/60"
             }
           >
             {page.published ? "Publiée" : "Brouillon"}
@@ -267,7 +267,7 @@ function ProductPreview({ page }: { page: RndProductPage }) {
             <p className="label-caps mb-2 text-titanium/50">Features</p>
             <ul className="space-y-2">
               {page.features.map((f) => (
-                <li key={f.title} className="rounded-lg border border-white/8 bg-white/[0.02] p-3">
+                <li key={f.title} className="rounded-lg border border-copper/10 bg-obsidian-deep/40 p-3">
                   <p className="text-sm font-medium text-ivory/90">{f.title}</p>
                   <p className="mt-1 text-xs text-titanium/65">{f.description}</p>
                 </li>
@@ -281,7 +281,7 @@ function ProductPreview({ page }: { page: RndProductPage }) {
             <p className="label-caps mb-2 text-titanium/50">FAQ</p>
             <div className="space-y-2">
               {page.faq.map((item) => (
-                <div key={item.question} className="rounded-lg border border-white/8 p-3">
+                <div key={item.question} className="rounded-lg border border-copper/10 p-3">
                   <p className="text-xs font-medium text-ivory/85">{item.question}</p>
                   <MarkdownContent className="mt-1 text-xs text-titanium/65">
                     {item.answer}

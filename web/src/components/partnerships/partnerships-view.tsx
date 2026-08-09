@@ -124,7 +124,7 @@ export function PartnershipsView() {
   return (
     <div className="-mx-6 -my-8 flex h-[calc(100vh)] min-h-[600px]">
       {/* Sidebar stats + filters */}
-      <aside className="flex w-60 shrink-0 flex-col border-r border-white/10 bg-sidebar/50 p-4">
+      <aside className="flex w-60 shrink-0 flex-col border-r border-copper/15 bg-sidebar/50 p-4">
         <div className="mb-4 flex items-center gap-2">
           <Handshake className="h-5 w-5 text-copper" />
           <h1 className="text-sm font-semibold text-ivory">Partenariats</h1>
@@ -169,7 +169,7 @@ export function PartnershipsView() {
                 "rounded-md px-2 py-1 text-xs transition",
                 mainTab === t.id
                   ? "bg-copper/15 text-copper-glow"
-                  : "text-titanium hover:bg-white/5"
+                  : "text-titanium hover:bg-obsidian/50"
               )}
             >
               {t.label}
@@ -185,7 +185,7 @@ export function PartnershipsView() {
         {mainTab !== "requests" ? (
           <>
             <Select value={directionFilter} onValueChange={setDirectionFilter}>
-              <SelectTrigger className="mb-2 h-8 border-white/10 text-xs">
+              <SelectTrigger className="mb-2 h-8 border-copper/15 text-xs">
                 <SelectValue placeholder="Direction" />
               </SelectTrigger>
               <SelectContent>
@@ -205,7 +205,7 @@ export function PartnershipsView() {
                     "rounded-full border px-2 py-0.5 text-[10px]",
                     typeFilters.includes(t.id)
                       ? "border-copper/50 bg-copper/10 text-copper-glow"
-                      : "border-white/10 text-titanium"
+                      : "border-copper/15 text-titanium"
                   )}
                 >
                   {partnerTypeLabel(t.id)}
@@ -214,7 +214,7 @@ export function PartnershipsView() {
             </div>
 
             <Select value={projectFilter} onValueChange={setProjectFilter}>
-              <SelectTrigger className="mb-4 h-8 border-white/10 text-xs">
+              <SelectTrigger className="mb-4 h-8 border-copper/15 text-xs">
                 <SelectValue placeholder="Projet" />
               </SelectTrigger>
               <SelectContent>
@@ -240,7 +240,7 @@ export function PartnershipsView() {
       </aside>
 
       {/* Main list */}
-      <div className="flex w-80 shrink-0 flex-col border-r border-white/10">
+      <div className="flex w-80 shrink-0 flex-col border-r border-copper/15">
         {mainTab === "requests" ? (
           <div className="flex-1 overflow-auto p-4">
             <RequestsTab

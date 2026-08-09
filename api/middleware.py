@@ -106,7 +106,21 @@ async def tenant_middleware(request: Request, call_next):
 
 
 async def rate_limit_middleware(request: Request, call_next):
-    """Rate-limit assistant chat and general API by client IP."""
+    """Rate-limit assistant chat and general API by client IP.
+
+    Le limiteur général (`api_limiter`) protège contre un abus non
+    authentifié — pas contre l'usage normal d'Emilie elle-même. Le Hub est
+    un outil interne mono-utilisateur, pas une API publique multi-tenant :
+    une requête porteuse d'un `X-Hub-Key` valide est déjà, par définition,
+    du trafic légitime (une seule page comme `/rd` déclenche des dizaines
+    d'appels authentifiés en parallèle — largement de quoi épuiser
+    120/min sans qu'il y ait le moindre abus). Cette exemption tourne
+    AVANT `hub_api_key_middleware` (ordre d'enregistrement dans
+    `register_middleware` : ce middleware s'exécute avant celui-ci), donc
+    la clé est revérifiée ici plutôt que de supposer qu'elle l'a déjà été.
+    `assistant_limiter` reste inchangé : il limite le coût réel LLM/OpenRouter
+    par message, pas la charge backend — un vrai frein à garder même pour
+    du trafic authentifié."""
     settings = get_settings()
     if not settings.rate_limit_enabled:
         return await call_next(request)
@@ -121,7 +135,11 @@ async def rate_limit_middleware(request: Request, call_next):
                 status_code=429,
                 content={"detail": "Trop de requêtes — réessaie dans 1 minute."},
             )
-    elif not _is_hub_api_key_exempt(path, request.method) and request.method != "OPTIONS":
+    elif (
+        not _is_hub_api_key_exempt(path, request.method)
+        and request.method != "OPTIONS"
+        and not hub_api_key_valid(request.headers.get("X-Hub-Key"))
+    ):
         if not api_limiter.is_allowed(f"api:{client_ip}", API_LIMIT):
             return JSONResponse(
                 status_code=429,

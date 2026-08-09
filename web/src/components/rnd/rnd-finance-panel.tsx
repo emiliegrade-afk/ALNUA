@@ -51,7 +51,7 @@ export function RndFinancePanel({ finance, stale: staleProp }: RndFinancePanelPr
 
   if (!normalized) {
     return (
-      <div className="rounded-xl border border-copper/10 bg-white/[0.02] p-4 text-sm text-titanium/50">
+      <div className="rounded-xl border border-copper/10 bg-obsidian-deep/40 p-4 text-sm text-titanium/50">
         Business case non généré — ouvre le dossier pour recalculer.
       </div>
     );
@@ -168,7 +168,7 @@ export function RndFinancePanel({ finance, stale: staleProp }: RndFinancePanelPr
             {pricing.tiers.map((tier) => (
               <div
                 key={tier.name}
-                className="flex items-center justify-between rounded-md border border-white/6 bg-white/[0.02] px-2 py-1.5 text-xs"
+                className="flex items-center justify-between rounded-md border border-copper/10 bg-obsidian-deep/40 px-2 py-1.5 text-xs"
               >
                 <span className="text-ivory/85">{tier.name}</span>
                 <span className="font-medium text-copper">
@@ -338,15 +338,15 @@ export function RndFinancePanel({ finance, stale: staleProp }: RndFinancePanelPr
 
       {hasRevenue ? (
         <div className="grid grid-cols-3 gap-2 text-center text-[10px]">
-          <div className="rounded-lg border border-white/8 bg-white/[0.02] p-2">
+          <div className="rounded-lg border border-copper/10 bg-obsidian-deep/40 p-2">
             <p className="text-titanium/50">Cumul 6 mois</p>
             <p className="text-sm font-medium text-ivory/90">{rev.cumulative_6m_eur?.toFixed(0) ?? "—"} €</p>
           </div>
-          <div className="rounded-lg border border-white/8 bg-white/[0.02] p-2">
+          <div className="rounded-lg border border-copper/10 bg-obsidian-deep/40 p-2">
             <p className="text-titanium/50">Cumul 12 mois</p>
             <p className="text-sm font-medium text-ivory/90">{rev.cumulative_12m_eur?.toFixed(0) ?? "—"} €</p>
           </div>
-          <div className="rounded-lg border border-white/8 bg-white/[0.02] p-2">
+          <div className="rounded-lg border border-copper/10 bg-obsidian-deep/40 p-2">
             <p className="text-titanium/50">Prudent / Optimiste M12</p>
             <p className="text-sm font-medium text-ivory/90">
               {rev.conservative_m12_monthly_eur?.toFixed(0) ?? Math.round(m12 * 0.35)} /{" "}

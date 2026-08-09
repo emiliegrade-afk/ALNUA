@@ -72,7 +72,7 @@ function ProjectSection({
   }, [downloadRows]);
 
   return (
-    <Card className={cn("border-white/[0.06] bg-surface/60", accent.border)}>
+    <Card className={cn("border-copper/10 bg-surface/60", accent.border)}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -95,7 +95,7 @@ function ProjectSection({
       </button>
 
       {open && (
-        <CardContent className="border-t border-white/[0.06] pt-4">
+        <CardContent className="border-t border-copper/10 pt-4">
           <div className="grid gap-4 lg:grid-cols-2">
             <div>
               <p className="mb-2 text-[11px] uppercase tracking-wider text-titanium/60">
@@ -154,7 +154,7 @@ function ProjectSection({
                   {criticalTickets.map((t) => (
                     <li
                       key={t.id}
-                      className="flex items-start gap-2 rounded-lg border border-white/[0.06] bg-obsidian/40 px-3 py-2"
+                      className="flex items-start gap-2 rounded-lg border border-copper/10 bg-obsidian/40 px-3 py-2"
                     >
                       <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-red-400" />
                       <span className="line-clamp-2 text-sm text-ivory/90">

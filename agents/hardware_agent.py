@@ -26,6 +26,7 @@ from crewai import Agent, Crew, LLM, Task
 from crewai.tools import tool
 
 from database.supabase_client import get_supabase
+from config.llm_runtime import CREWAI_MAX_ITER_LIGHT
 from config.agent_operating_spec import crew_backstory
 from skills.skill_langfuse import trace_agent
 
@@ -217,7 +218,7 @@ class HardwareAgent:
                 hardware_arch_tool,
             ],
             llm=_build_llm(),
-            max_iter=6,
+            max_iter=CREWAI_MAX_ITER_LIGHT,
             verbose=True,
         )
 

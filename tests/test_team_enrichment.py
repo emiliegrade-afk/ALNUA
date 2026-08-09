@@ -59,6 +59,10 @@ def test_get_library_context_injects_bureau(monkeypatch: pytest.MonkeyPatch) -> 
     from skills.skill_agent_learning import get_library_context
 
     monkeypatch.setattr(
+        "services.topic_catalog.search_topics_for_task",
+        lambda *_a, **_k: [],
+    )
+    monkeypatch.setattr(
         "services.bureau_library.list_entries",
         lambda **kwargs: {
             "entries": [
@@ -66,6 +70,7 @@ def test_get_library_context_injects_bureau(monkeypatch: pytest.MonkeyPatch) -> 
                     "timing": "now",
                     "title": "Test IA",
                     "summary": "Résumé test",
+                    "topics": ["ia"],
                 }
             ]
         },

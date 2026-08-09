@@ -49,6 +49,8 @@ def test_llm_client_records_usage() -> None:
         prompt_tokens=100,
         completion_tokens=50,
         method="test_method",
+        cached_tokens=0,
+        native_cost_usd=None,
     )
 
 

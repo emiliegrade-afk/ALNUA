@@ -79,7 +79,7 @@ export function HubStatusMonitor() {
             className={cn(
               "w-[min(92vw,20rem)] rounded-xl border p-4 shadow-2xl backdrop-blur-md",
               phase === "ok" && "border-emerald-500/30 bg-obsidian-2/95",
-              phase === "checking" && "border-white/15 bg-obsidian-2/95",
+              phase === "checking" && "border-copper/20 bg-obsidian-2/95",
               phase === "key" && "border-amber-500/35 bg-amber-950/40",
               phase === "down" && "border-red-500/40 bg-red-950/50"
             )}
@@ -92,7 +92,7 @@ export function HubStatusMonitor() {
               <button
                 type="button"
                 onClick={() => setExpanded(false)}
-                className="rounded p-1 text-titanium/60 hover:bg-white/5 hover:text-ivory"
+                className="rounded p-1 text-titanium/60 hover:bg-obsidian/50 hover:text-ivory"
                 aria-label="Fermer"
               >
                 <X className="h-4 w-4" />
@@ -111,7 +111,7 @@ export function HubStatusMonitor() {
             <button
               type="button"
               onClick={() => refresh()}
-              className="mt-3 flex items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1.5 text-xs text-titanium hover:bg-white/5 hover:text-ivory"
+              className="mt-3 flex items-center gap-1.5 rounded-lg border border-copper/15 px-2.5 py-1.5 text-xs text-titanium hover:bg-obsidian/50 hover:text-ivory"
             >
               <RefreshCw className="h-3.5 w-3.5" />
               Revérifier
@@ -128,7 +128,7 @@ export function HubStatusMonitor() {
             phase === "ok" &&
               "border-emerald-500/35 bg-obsidian-2/90 hover:border-emerald-500/55",
             phase === "checking" &&
-              "border-white/15 bg-obsidian-2/90 hover:border-white/25",
+              "border-copper/20 bg-obsidian-2/90 hover:border-copper/40",
             phase === "key" &&
               "border-amber-500/45 bg-amber-950/60 hover:border-amber-400/60 animate-pulse",
             phase === "down" &&

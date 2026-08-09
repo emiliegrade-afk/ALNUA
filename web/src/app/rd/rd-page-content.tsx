@@ -5,7 +5,8 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { BureauAgentsSection } from "@/components/shared/bureau-agents-section";
 import { BureauPage } from "@/components/shared/bureau-page";
-import { ChevronDown, ChevronUp, Lightbulb, Beaker, FolderOpen, TreePine } from "lucide-react";
+import { PoleOverview } from "@/components/shared/pole-overview";
+import { ChevronDown, ChevronUp, Lightbulb, Beaker, FolderOpen, TreePine, LayoutDashboard } from "lucide-react";
 
 const BrainstormView = dynamic(
   () =>
@@ -47,7 +48,7 @@ function TabSkeleton() {
   );
 }
 
-type Tab = "brainstorm" | "rnd" | "trees" | "dossiers";
+type Tab = "overview" | "brainstorm" | "rnd" | "trees" | "dossiers";
 
 const CEO_VIEWS = new Set(["ceo", "committee", "deck", "visuals", "social", "product", "pipeline"]);
 
@@ -65,7 +66,7 @@ export function RdPageContent() {
     if (tabFromUrl === "rnd") return "rnd";
     if (tabFromUrl === "dossiers") return "dossiers";
     if (tabFromUrl === "brainstorm") return "brainstorm";
-    return "brainstorm";
+    return "overview";
   };
 
   const [tab, setTab] = useState<Tab>(resolveInitialTab);
@@ -118,6 +119,17 @@ export function RdPageContent() {
 
       <div className="mb-4 flex w-fit flex-wrap gap-1 rounded-2xl border border-bronze-faint bg-obsidian/70 p-1">
         <button
+          onClick={() => setTab("overview")}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition ${
+            tab === "overview"
+              ? "bg-bronze text-obsidian shadow-glow"
+              : "text-titane/70 hover:text-ivoire"
+          }`}
+        >
+          <LayoutDashboard className="h-4 w-4" />
+          Vue d'ensemble
+        </button>
+        <button
           onClick={() => setTab("brainstorm")}
           className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition ${
             tab === "brainstorm"
@@ -167,7 +179,9 @@ export function RdPageContent() {
       </div>
 
       <div>
-        {tab === "brainstorm" ? (
+        {tab === "overview" ? (
+          <PoleOverview bureau="rd" dept="rd" />
+        ) : tab === "brainstorm" ? (
           <BrainstormView />
         ) : tab === "rnd" ? (
           <RndCenterView onDossierCreated={handleDossierCreated} />
