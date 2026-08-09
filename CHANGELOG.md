@@ -7,6 +7,17 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-10 — Debt paydown + bible docs (refactor + docs)
+
+- **Type :** refactor + docs
+- **Details :**
+  - Docs : racine → 8 fichiers vivants ; specs/guides/plans → `docs/` (bible
+    `docs/README.md` + classeur).
+  - `api/schemas.py` → façade + modules ≤300.
+  - `api/routers/rnd.py` éclaté (`rnd_dossiers`, committee, assets, social, ceo,
+    product) — tous ≤300.
+  - Liens AGENTS / CLAUDE / rules / audit script mis à jour.
+
 ## 2026-08-10 — Vague F : hygiène anti-drift post A–E (docs)
 
 - **Type :** docs / chore

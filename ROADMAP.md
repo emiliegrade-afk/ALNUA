@@ -64,9 +64,10 @@ MissionsTab+COO split → Finance/skills/MVP honesty → **durabilité** (purge 
 dumps, orphan `coding_facade`, checklist `AGENTS.md`, tests HTTP budgets).
 **`budget_transfer` :** explicitement **reporté** (pas dans le moteur ; enveloppes
 budgets manuelles seulement — DEC-016 inchangé, pas de paiement/transfert auto).
-**Prochain audit santé :** ≤ **2026-08-30** (Audit 005). **P0 + Vagues A–F :**
-produit A–E + **Vague F anti-drift** (44 routers, 433 tests collectés,
-docs resync, npm audit 0). Suite : config `UE_PROJECT_PATH` / Pi / Audit 005.
+**Prochain audit santé :** ≤ **2026-08-30** (Audit 005). **P0 + Vagues A–F +
+debt paydown :** produit A–E, hygiène F, **bible `docs/`**, schemas + rnd
+routers éclatés. Suite : `UE_PROJECT_PATH` / Pi / Audit 005 ; residual >300
+seulement si on touche le fichier.
 
 ## Points tranchés le 2026-07-25 (anciennement ouverts)
 

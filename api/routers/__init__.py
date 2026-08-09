@@ -21,6 +21,12 @@ from api.routers.finances import router as finances_router
 from api.routers.campaigns import router as campaigns_router
 from api.routers.marketing_funnel import router as marketing_funnel_router
 from api.routers.rnd import router as rnd_router
+from api.routers.rnd_dossiers import router as rnd_dossiers_router
+from api.routers.rnd_committee import router as rnd_committee_router
+from api.routers.rnd_assets import router as rnd_assets_router
+from api.routers.rnd_social import router as rnd_social_router
+from api.routers.rnd_ceo import router as rnd_ceo_router
+from api.routers.rnd_product import router as rnd_product_router
 from api.routers.rnd_trees import router as rnd_trees_router
 from api.routers.rnd_council import router as rnd_council_router
 from api.routers.rnd_explorer import router as rnd_explorer_router
@@ -69,6 +75,12 @@ ALL_ROUTERS = [
     campaigns_router,
     marketing_funnel_router,
     rnd_router,
+    rnd_dossiers_router,
+    rnd_committee_router,
+    rnd_assets_router,
+    rnd_social_router,
+    rnd_ceo_router,
+    rnd_product_router,
     rnd_trees_router,
     rnd_council_router,
     rnd_explorer_router,

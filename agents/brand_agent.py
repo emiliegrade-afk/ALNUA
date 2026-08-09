@@ -1,7 +1,7 @@
 """
 Brand Agent — orchestrateur CrewAI pour le pipeline Brand Kit ALNUA.
 
-Wraps vision_llm, palette, segmentation, kit_generator — same rules as SPEC_BRANDKIT_HUB.md.
+Wraps vision_llm, palette, segmentation, kit_generator — same rules as docs/specs/SPEC_BRANDKIT_HUB.md.
 """
 
 from __future__ import annotations

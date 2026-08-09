@@ -223,10 +223,10 @@ def main() -> int:
     # --- Files checklist ---
     print("\n## Files")
     files = [
-        "PROMPT_VERIFICATION_AUDIT.md",
+        "docs/guides/PROMPT_VERIFICATION_AUDIT.md",
         ".github/ISSUE_TEMPLATE/agent_task.md",
         ".github/ISSUE_TEMPLATE/academy_exercise.md",
-        "MCP_CURSOR_SETUP.md",
+        "docs/guides/MCP_CURSOR_SETUP.md",
     ]
     for rel in files:
         p = ROOT / rel

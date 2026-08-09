@@ -53,7 +53,7 @@ const EMPTY_STATE_COPY: Partial<Record<DeptKey, string>> = {
 
 /** Heuristic status→progress mapping (frontend `ProjectStatus`, not the
  * backend's `_branch_progress` on `status: str` — different vocabulary,
- * see PLAN_DEPARTMENTS_UI_REDESIGN.md "GATE HUMAIN" for why). Always
+ * see docs/archive/plans/PLAN_DEPARTMENTS_UI_REDESIGN.md "GATE HUMAIN"). Always
  * returns a number — this bureau's projects never have an "unavailable"
  * progress the way the review anticipated, only a real percentage. */
 const STATUS_PROGRESS: Record<ProjectStatus, number> = {

@@ -44,7 +44,7 @@ api/
     competition.py    ← GET/POST /agents/scores, /agents/leaderboard
     advanced_services.py ← endpoints LLM router, adversarial spec, parallel runner
     core.py           ← endpoints principaux (COO, PM, QA, spec...)
-    [+ routers supplémentaires (**44** au total dans ALL_ROUTERS + `gdd.py` conditionnel, dont `ue58_bridge` / `robo_phase21` / `brand_system` / `rnd_explorer`) — cf. `api/routers/__init__.py::ALL_ROUTERS`]
+    [+ routers supplémentaires — compte exact dans `api/routers/__init__.py::ALL_ROUTERS` (+ `gdd.py` conditionnel). R&D éclaté : `rnd_*` (dossiers, committee, assets, social, ceo, product, trees, council, explorer)]
 ```
 
 **Règle invariante :** chaque router commence par `from api.route_common import *` — ne jamais dupliquer les imports.
@@ -306,7 +306,7 @@ Milestones : 100=coffee_break | 200=tier_upgrade_7d | 500=tier_upgrade_30d
 ```
 
 Variables d'env requises : `GITHUB_TOKEN`, `HUB_API_KEY` (obligatoire dans tous les environnements depuis SEC-002, voir `BUGS.md`/`DECISIONS.md` — plus de mode dev ouvert), `GODOT_PROJECT_PATH` (optionnel).
-Guide de setup complet : `MCP_CURSOR_SETUP.md`
+Guide de setup complet : `docs/guides/MCP_CURSOR_SETUP.md`
 
 Cursor peut alors appeler directement `POST /agents/analyst-data/sql` etc. comme outils MCP sans passer par HTTP manuellement.
 

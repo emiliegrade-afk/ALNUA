@@ -1,7 +1,7 @@
 # Bugs — ALNUA Hub
 
 > Créé le 2026-07-25 lors du bootstrap de gouvernance, alimenté par un audit sécurité
-> + un audit qualité de code menés en parallèle (voir `DOC_AUDIT.md` pour le détail de
+> + un audit qualité de code menés en parallèle (voir `docs/classeur/doc-audit.md` pour le détail de
 > la méthode). Convention : `SEC-XXX` pour la sécurité, `BUG-XXX` pour le reste.
 
 ## Corrigés (2026-07-25)
@@ -90,4 +90,4 @@ y compris `tests/test_devex_phase6.py` réécrit pour le nouveau comportement.
 
 Secrets en dur, `.env` commité, injection SQL, CORS wildcard+credentials, path
 traversal, logs qui fuient des secrets, contrôle d'accès sur `/mcp` et endpoints de
-mutation — voir le détail dans `DOC_AUDIT.md`, audit 001.
+mutation — voir le détail dans `docs/classeur/doc-audit.md`, audit 001.

@@ -38,7 +38,7 @@ d'une entreprise et travaillent au service de 3 branches produit :
 
 | Module | Emplacement | Taille approx. | Status |
 |--------|-------------|-----------------|--------|
-| Routers API | `api/routers/` | **44** routers montés (+ `gdd.py` conditionnel) | Active |
+| Routers API | `api/routers/` | Voir `ALL_ROUTERS` (+ `gdd.py` conditionnel) ; R&D éclaté en `rnd_*` | Active |
 | Agents personas | `agents/*_agent.py` | **49** agents personas (34 + 15 rôles Gaming/Robo, Phase 13) + orchestrateurs infra | Active |
 | Services métier | `services/` | ~128 modules (compétition, coûts, R&D dossier, academy, telegram, brand, coding pipeline...) | Active |
 | Config | `config/` | Personas, tiers, specs opérationnelles 9-couches, settings pydantic | Active |

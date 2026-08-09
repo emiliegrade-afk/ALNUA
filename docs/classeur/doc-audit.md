@@ -192,6 +192,15 @@ Historique des audits de gouvernance effectués.
 
 ---
 
+## Debt paydown + bible docs (2026-08-10)
+
+- **Scope :** consolidation docs racine → `docs/` (bible) ; split `api/schemas.py`
+  façade ; peel `api/routers/rnd.py` → `rnd_dossiers/committee/assets/social/ceo/product`.
+- **Racine doc :** 8 fichiers (AGENTS, CLAUDE, README, OVERVIEW, ROADMAP, DECISIONS,
+  BUGS, CHANGELOG) + `docs/README.md` comme index.
+- **Next :** Audit 005 ≤ 2026-08-30 ; residual >300 (`core.py`, `rnd_repository`, …)
+  seulement si on y touche.
+
 ## Vague F — Hygiène anti-drift (post P0 / Vagues A–E)
 
 - **Date :** 2026-08-10
