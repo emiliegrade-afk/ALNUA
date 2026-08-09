@@ -38,14 +38,14 @@
 | 25 | Redesign R&D v2 — Moteur Conseil (stratégique + IA) | ✅ Complete (réceptacle) |
 | 26 | Redesign R&D v2 — Arbres (canvas mindmap) | ✅ Complete |
 | 27 | Redesign R&D v2 — Dossiers (vue table) | ✅ Complete |
-| 28 | Redesign R&D v2 — Explorer (veille externe autonome) | ⏸️ Not started |
+| 28 | Redesign R&D v2 — Explorer (veille externe autonome) | ✅ Complete (Vague E) |
 | 29 | Marketing/Finances — Command Center visuel (chrome immersif + cockpits) | ✅ Complete |
 | 30 | Workflow engine généralisé — recettes de validation configurables + niveaux d'autonomie | 🔄 MVP Complete |
 | 31 | Agent Trust System — indice de confiance par agent, distinct de la compétition | 🔄 MVP Complete |
 | 32 | Review Board générique + Quality Gates par département | 🔄 MVP Complete |
 | 33 | Marketing Command Center — profondeur (campagnes, calendrier éditorial unifié) | ✅ Complete (Campagnes + Content Studio) |
 | 34 | Finance Cockpit — profondeur (budgets, factures, fiscalité) | 🔄 In progress |
-| 35 | Brand Design — design system transversal + reviewer cross-département | ⏸️ Not started |
+| 35 | Brand Design — design system transversal + reviewer cross-département | 🔄 MVP Slice (Vague D) |
 | 36 | Orchestration inter-départements — event bus cross-département + briefing COO étendu | 🔄 MVP Complete |
 | 37 | Marketing Command Center : mesure de performance réelle (Reach/Engagement/ROI/Funnel) | ✅ Complete |
 | 38 | Harmonisation visuelle globale du Hub sur les maquettes ChatGPT (rendu visuel, branchement à reconnecter) | ✅ Complete |
@@ -64,9 +64,9 @@ MissionsTab+COO split → Finance/skills/MVP honesty → **durabilité** (purge 
 dumps, orphan `coding_facade`, checklist `AGENTS.md`, tests HTTP budgets).
 **`budget_transfer` :** explicitement **reporté** (pas dans le moteur ; enveloppes
 budgets manuelles seulement — DEC-016 inchangé, pas de paiement/transfert auto).
-**Prochain audit santé :** ≤ **2026-08-30**. **P0 + Vagues A–D + DEC-020 :**
-UE5.8, agency Claude Code, probes robo, forecast Finance, **Brand design system**.
-Suite : config `UE_PROJECT_PATH` / Pi ; Phase 28 Explorer.
+**Prochain audit santé :** ≤ **2026-08-30**. **P0 + Vagues A–E + DEC-020 :**
+UE5.8, agency, robo, Finance forecast, Brand, **R&D Explorer**.
+Suite : config `UE_PROJECT_PATH` / Pi ; Vague F hygiène / Audit 005.
 
 ## Points tranchés le 2026-07-25 (anciennement ouverts)
 
@@ -1050,6 +1050,17 @@ disponible) ; la logique est cependant strictement la même fonction
 préexistant, inchangé). Reskin visuel des 8 panneaux toujours différé
 (Décision ci-dessus) — périmètre assumé, pas une lacune.
 **Statut :** ✅ Correctif complet (checkpoints A-E), 2026-07-31.
+
+### Phase 28 — Redesign R&D v2 : Explorer (veille externe)
+**Objectif :** onglet Explorer sur `/rnd-v2` — signaux externes réels
+(HN / Reddit / GitHub) + brief labo (Idris), sans inventer de métriques
+si les sources sont down. Pipeline dossier / comité / dispatch inchangés.
+**Livré Vague E (2026-08-10) :**
+- `services/rnd_explorer.py` — scan + brief R&D (pas angles marketing Camille)
+- Router `rnd_explorer` : `GET /rnd/explorer/signals`, `POST /rnd/explorer/brief`
+- UI `explorer-tab.tsx` — topics, scan, brief, seed → Pipeline
+- Tests `test_rnd_explorer.py`
+**Statut :** ✅ Complete (Vague E), 2026-08-10.
 
 ### Phase 29 — Marketing/Finances : Command Center visuel
 **Objectif :** transformer `/marketing` et `/finances` en cockpits immersifs

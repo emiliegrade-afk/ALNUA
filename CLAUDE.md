@@ -44,7 +44,7 @@ api/
     competition.py    ← GET/POST /agents/scores, /agents/leaderboard
     advanced_services.py ← endpoints LLM router, adversarial spec, parallel runner
     core.py           ← endpoints principaux (COO, PM, QA, spec...)
-    [+ routers supplémentaires (**42** au total dans ALL_ROUTERS + `gdd.py` conditionnel, dont `ue58_bridge` / `robo_phase21`) — cf. `api/routers/__init__.py::ALL_ROUTERS`]
+    [+ routers supplémentaires (**44** au total dans ALL_ROUTERS + `gdd.py` conditionnel, dont `ue58_bridge` / `robo_phase21` / `brand_system` / `rnd_explorer`) — cf. `api/routers/__init__.py::ALL_ROUTERS`]
 ```
 
 **Règle invariante :** chaque router commence par `from api.route_common import *` — ne jamais dupliquer les imports.

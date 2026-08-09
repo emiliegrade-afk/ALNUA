@@ -7,6 +7,15 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-10 — Vague E : R&D Explorer veille externe (feat)
+
+- **Type :** feat
+- **Details :**
+  - `rnd_explorer` — scan HN/Reddit/GitHub + brief labo (Idris).
+  - `GET /rnd/explorer/signals`, `POST /rnd/explorer/brief`.
+  - Onglet Explorer sur `/rnd-v2` (seed → Pipeline).
+  - Tests `test_rnd_explorer.py`.
+
 ## 2026-08-10 — Vague D : Brand design system (feat)
 
 - **Type :** feat

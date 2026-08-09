@@ -23,6 +23,7 @@ from api.routers.marketing_funnel import router as marketing_funnel_router
 from api.routers.rnd import router as rnd_router
 from api.routers.rnd_trees import router as rnd_trees_router
 from api.routers.rnd_council import router as rnd_council_router
+from api.routers.rnd_explorer import router as rnd_explorer_router
 from api.routers.composio import router as composio_router
 from api.routers.scanner import router as scanner_router
 from api.routers.settings import router as settings_router
@@ -70,6 +71,7 @@ ALL_ROUTERS = [
     rnd_router,
     rnd_trees_router,
     rnd_council_router,
+    rnd_explorer_router,
     composio_router,
     scanner_router,
     settings_router,

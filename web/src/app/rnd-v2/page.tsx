@@ -20,6 +20,7 @@ import { IncubateurTab } from "./incubateur-tab";
 import { ConseilTab } from "./conseil-tab";
 import { ArbresTab } from "./arbres-tab";
 import { DossiersTab } from "./dossiers-tab";
+import { ExplorerTab } from "./explorer-tab";
 import { NewIdeaModal } from "./new-idea-modal";
 
 /* ────────────────────────────────────────────────────────────────────────────
@@ -33,7 +34,7 @@ import { NewIdeaModal } from "./new-idea-modal";
    + dossier-detail-view.tsx) — cartes idées scorées + vue détail dossier.
    Incubateur, Conseil (Phases 24-25), Arbres (Phase 26 — canvas mindmap
    glissable, arbres-tab.tsx), Dossiers (Phase 27 — vue table,
-   dossiers-tab.tsx) livrés. Explorer reste à venir (Phase 28). /rd reste
+   dossiers-tab.tsx) + Explorer (Phase 28 — veille externe) livrés. /rd reste
    la page de référence pour l'édition complète d'un dossier (sections,
    comité, finance, deck...) — la table Dossiers y renvoie via "Ouvrir ↗"
    plutôt que de porter toute cette UI en v2 (hors périmètre Phase 27), et
@@ -42,7 +43,7 @@ import { NewIdeaModal } from "./new-idea-modal";
    toujours vers /rd), accessible seulement en URL directe pour l'instant.
    ──────────────────────────────────────────────────────────────────────────── */
 
-const TABS = ["Équipe", "Pipeline", "Incubateur", "Conseil", "Arbres", "Dossiers"] as const;
+const TABS = ["Équipe", "Pipeline", "Incubateur", "Conseil", "Arbres", "Dossiers", "Explorer"] as const;
 type Tab = (typeof TABS)[number];
 
 const TAB_ICON: Record<Tab, string> = {
@@ -52,6 +53,7 @@ const TAB_ICON: Record<Tab, string> = {
   Conseil: "🏛",
   Arbres: "🌳",
   Dossiers: "📚",
+  Explorer: "📡",
 };
 
 const QUICK_ACTIONS = [
@@ -165,8 +167,6 @@ function RndDepartmentView() {
                 {t.toUpperCase()}
               </button>
             ))}
-            {/* Explorer arrive Phase 28 — pas d'onglet désactivé fantôme
-                ici, juste absent tant que le contenu réel n'existe pas. */}
           </div>
 
           <div className="flex min-h-0 flex-1 flex-col">
@@ -192,8 +192,10 @@ function RndDepartmentView() {
               <ConseilTab />
             ) : tab === "Arbres" ? (
               <ArbresTab />
-            ) : (
+            ) : tab === "Dossiers" ? (
               <DossiersTab />
+            ) : (
+              <ExplorerTab />
             )}
           </div>
 
