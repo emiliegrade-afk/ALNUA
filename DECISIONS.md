@@ -97,8 +97,9 @@ pipeline complet.
 **Addendum Phase D (2026-08-09) :** les modules standalone `skills/skill_openhands.py`
 et `skills/skill_aider.py` (jamais branchés runtime) ont été **retirés**. Aider reste
 disponible comme backend de `skills/skill_coding_agent.py` (`CODING_BACKEND=aider`).
-Le chemin watchdog utilise `skills/skill_code_agent.py`. Entrypoint documenté :
-`skills/coding_facade.py`.
+Le chemin watchdog utilise `skills/skill_code_agent.py`.
+**Addendum Vague 4 (2026-08-09) :** `skills/coding_facade.py` (wrapper non appelé)
+retiré — appeler directement `skill_coding_agent` / `skill_code_agent`.
 
 ### DEC-009 — Nwiro/UE5 coexiste avec Godot — assumé, `CLAUDE.md` corrigé
 **Constat initial (2026-07-25) :** `CLAUDE.md` listait "Pas d'UE5 — aucune intégration

@@ -59,13 +59,13 @@ Phases 29-36 définies le 2026-07-31 (brief Emilie). **Phase 29 + 33** complét�
 Audit 002). Audits 002–004 + Sprint REM-002 + **Vague 0 code sain = 100 %** le
 même jour (checklist AGENTS, OVERVIEW, prune branches, BUG-019 fermé, arbre
 propre). Next **16.3.0**.
-**Vagues code sain 0–3 = 100 %** (2026-08-09) : garde-fous → Next 16/trust →
-MissionsTab+COO split → Finance budgets/fiscal + 3 skills Phase 21 + briefing
-cross-dept + Review Board LLM optionnel (`REVIEW_BOARD_LLM`).
+**Vagues code sain 0–4 = 100 %** (2026-08-09) : garde-fous → Next 16/trust →
+MissionsTab+COO split → Finance/skills/MVP honesty → **durabilité** (purge vault
+dumps, orphan `coding_facade`, checklist `AGENTS.md`, tests HTTP budgets).
 **`budget_transfer` :** explicitement **reporté** (pas dans le moteur ; enveloppes
 budgets manuelles seulement — DEC-016 inchangé, pas de paiement/transfert auto).
-**En cours / suite :** reste Phase 21 (12/15 agents encore LLM-only) ; BUG-004
-(specs_registry / personas / rnd_center) ; profondeur Finance Supabase si besoin.
+**Prochain audit santé :** ≤ **2026-08-30**. Suite produit : Phase 21 (12/15) ;
+BUG-004 (specs_registry / personas / rnd_center).
 
 ## Points tranchés le 2026-07-25 (anciennement ouverts)
 

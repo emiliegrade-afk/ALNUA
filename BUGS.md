@@ -52,7 +52,7 @@ y compris `tests/test_devex_phase6.py` réécrit pour le nouveau comportement.
 | BUG-012 | Moyenne | `npm audit` : 21 vulns dont 1 critical vitest | Phase C : critical fermée (vitest 4.1.10) ; postcss 8.5.26 + overrides ; **reste 8** (5 high Next 14 — accepté jusqu’à upgrade majeur documenté) |
 | BUG-016 | Info | Explosion vault library (~988 notes) | Phase C : RETENTION.md + gitignore `vault/obsidian/library/**` sauf `_index/` |
 | BUG-014 | Info | Modules morts : `skill_aider` / `skill_openhands` / `brand_agent` | Phase D : skills orphans **supprimés** ; `brand_agent` **gardé** (Phase 35 / SPEC / `test_pole_services`) |
-| BUG-015 | Info | Dual coding + triple briefing | Phase D : `coding_facade.py` + doc `briefing_facade` (3 chemins) — pas de fusion forcée |
+| BUG-015 | Info | Dual coding + triple briefing | Phase D : dual engines documentés ; Vague 4 : `coding_facade.py` orphelin **supprimé** — appeler `skill_coding_agent` / `skill_code_agent` ; `briefing_facade` (3 chemins) inchangé |
 | BUG-005 | Info | `AGENT_NAME` suffixe `_agent` vs IDs courts | Phase D : aliases `rnd_*_agent` ajoutés ; `coo_agent`→`coo` existait déjà |
 | BUG-013 | Moyenne | Routes mockup restantes | Suite clean : `/hub` `/analytics` live (DeptV2 shells) — **plus de MockupDepartmentPage** sur routes primaires |
 | BUG-018 | Faible | Micro-drift docs post-Audit 003 (même jour) : README/ARCHITECTURE/TESTING/IMPLEMENTATION_STATUS encore « Next.js 14 » et « ~381 tests » alors que `web/package.json` = Next **15.5.23** et `pytest --collect-only` = **392** ; ROADMAP « Current phase » proposait encore Audit 003 ; DOC_AUDIT 003 listait des mockups déjà reconnectés | Audit 004 : resync Next 15 + comptes tests + ROADMAP blurb + stats ; règle anti-drift rappelée |

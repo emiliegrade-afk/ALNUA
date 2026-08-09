@@ -59,6 +59,18 @@ Rappel historique : BUG-011 (CHANGELOG figé) puis BUG-018 (Next 14 encore affic
 après Next 15 le même jour) — la règle existe pour ça. Détail CHANGELOG aussi en
 en-tête de `CHANGELOG.md`.
 
+## Habitudes durabilité (Vague 4 — continu)
+
+À faire en fin de vague / sprint, pas seulement quand « ça casse » :
+
+| Habitude | Fréquence | Comment |
+|----------|-----------|---------|
+| Audit santé 10 dimensions | ≤ toutes les **3 semaines** | Canvas + entrée `DOC_AUDIT.md` (dernier : Audit 004, 2026-08-09 → prochain ≤ ~2026-08-30) |
+| Purge orphans | Chaque fin de vague | `rg` skills/services non importés ; `git rm --cached` dumps déjà gitignorés (vault library, brand_kits tests) |
+| Ratio tests ↔ surface | Obligatoire Finance / trust / workflows | Nouveau endpoint ou ledger → pytest (et Vitest si helper FE) le même lot |
+| Vault library | Continu | Corps des notes **jamais** re-commités — seul `_index/` tracké ; regen via `export_library_to_vault.py` |
+| Worktrees pour splits | Quand fan-out | Voir `agent-orchestration.mdc` — un agent intégrateur séquentiel pour le merge |
+
 ## Skills disponibles
 
 Voir la table `## Skills Cursor disponibles` dans `CLAUDE.md` — `/alnua-hub` en début

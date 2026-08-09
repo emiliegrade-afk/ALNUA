@@ -7,6 +7,18 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-09 — Vague 4 durabilité : purge orphans + habitudes (chore + docs)
+
+- **Type :** chore + docs + test
+- **Details :**
+  - Untrack **338** notes vault library (hors `_index/`) + `brand_kits/migration-test`
+    déjà gitignorés — plus de dumps dans git.
+  - Supprime `skills/coding_facade.py` orphelin ; DEC-008 / BUG-015 mis à jour.
+  - Checklist **Habitudes durabilité** dans `AGENTS.md` (audit ≤3 sem., purge,
+    ratio tests, vault, worktrees).
+  - Tests HTTP budgets/fiscal (`test_finance_budgets_api.py`) — ratio surface Vague 3.
+  - Prochain audit santé planifié ≤ **2026-08-30** (après Audit 004).
+
 ## 2026-08-09 — Vague 3 produit derrière l'UI : Finance + Phase 21 + MVP honesty (feat)
 
 - **Type :** feat + docs

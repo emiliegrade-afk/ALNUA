@@ -233,6 +233,19 @@ Historique des audits de gouvernance effectués.
 
 ---
 
+## Vague 4 — Durabilité (clôture 100 % du DoD Vague 4)
+
+- **Date :** 2026-08-09 (soir)
+- **Scope :** habitudes continues — purge, ratio tests, vault, checklist.
+- **Done :**
+  - [x] Purge : vault library dumps untracked (338) ; brand_kits/migration-test ;
+        `coding_facade.py` supprimé
+  - [x] Ratio tests : `test_finance_budgets_api.py` (HTTP budgets/fiscal)
+  - [x] Vault : seuls `_index/` restent trackés ; rule `.gitignore` déjà OK
+  - [x] `AGENTS.md` section Habitudes durabilité
+  - [x] Prochain audit santé ≤ **2026-08-30** (Audit 004 = 2026-08-09)
+- **Suite :** Audit 005 quand échéance ; Phase 21 suite / BUG-004 selon priorité
+
 ## Vague 3 — Produit derrière l'UI (clôture 100 % du DoD Vague 3)
 
 - **Date :** 2026-08-09 (soir)
