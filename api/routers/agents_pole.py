@@ -225,6 +225,21 @@ def electronics_bom_context(body: ElectronicsBomContextRequest) -> dict[str, Any
     return ElectronicsAgent().bom_context(category=body.category, limit=body.limit)
 
 
+@router.post("/agents/electronics/alternatives")
+def electronics_alternatives(body: EveAlternativesRequest) -> dict[str, Any]:
+    """Sourcing expert — pro vs budget options (estimates, no auto-buy)."""
+    from services.input_sanitizer import sanitize_user_input
+
+    try:
+        return ElectronicsAgent().suggest_alternatives(
+            sanitize_user_input(body.need, max_length=400),
+            category=sanitize_user_input(body.category or "", max_length=40) or None,
+            max_options=body.max_options,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
 @router.post("/agents/firmware/driver")
 def firmware_driver(body: FirmwareDriverRequest) -> dict[str, Any]:
     return FirmwareAgent().design_driver(
@@ -245,6 +260,16 @@ def firmware_pi_probe(body: FirmwarePiProbeRequest) -> dict[str, Any]:
 def mechanical_part(body: MechanicalPartRequest) -> dict[str, Any]:
     return MechanicalAgent().design_part(
         body.part_name, body.function, _clean(body.load_requirements)
+    )
+
+
+@router.post("/agents/mechanical/assembly-plan")
+def mechanical_assembly_plan(body: EveAssemblyPlanRequest) -> dict[str, Any]:
+    """Plan de montage Eve — basé sur le BOM courant."""
+    from services.input_sanitizer import sanitize_user_input
+
+    return MechanicalAgent().assembly_plan(
+        sanitize_user_input(body.goal or "", max_length=500)
     )
 
 
@@ -336,6 +361,40 @@ def ads_create_campaign(body: AdsCreateCampaignRequest) -> dict[str, Any]:
 def hardware_instruction(body: AgentInstructionRequest) -> dict[str, str]:
     result = HardwareAgent().handle_instruction(_clean(body.instruction))
     return {"result": result}
+
+
+@router.post("/agents/hardware/infra-blueprint")
+def hardware_infra_blueprint(body: EveInfraBlueprintRequest) -> dict[str, Any]:
+    """Qui build le robot vs l'app compagnon (comme Naïa) — Yuki."""
+    from services.input_sanitizer import sanitize_user_input
+
+    return HardwareAgent().infra_blueprint(
+        sanitize_user_input(body.focus or "full", max_length=80)
+    )
+
+
+@router.get("/robo/pi-bridge")
+def robo_pi_bridge_status() -> dict[str, Any]:
+    """SSH bridge status — Hub replaces WinSCP for agent commands when PI_HOST set."""
+    import os
+
+    from skills.skill_pi_ssh import PI_NOT_CONFIGURED, pi_is_configured
+
+    configured = pi_is_configured()
+    return {
+        "configured": configured,
+        "host": (os.getenv("PI_HOST") or "").strip() or None,
+        "tooling": {
+            "agents": "POST /agents/embedded/pi-command (denylist + SSH)",
+            "human_files": "WinSCP optional for manual file copy; not used by agents",
+        },
+        "message": (
+            "Pi prêt pour commandes agents via Hub."
+            if configured
+            else PI_NOT_CONFIGURED
+        ),
+        "pi_deferred_ok": True,
+    }
 
 
 @router.post("/agents/embedded/instruction")

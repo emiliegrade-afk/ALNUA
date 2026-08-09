@@ -50,3 +50,15 @@ Réponds en JSON :
         from skills.skill_bom import get_bom_context
 
         return get_bom_context(category=category, limit=limit)
+
+    @trace_agent("electronics")
+    def suggest_alternatives(
+        self,
+        need: str,
+        category: str | None = None,
+        max_options: int = 4,
+    ) -> dict[str, Any]:
+        """Latest/cheaper component options grounded on Eve BOM (estimates only)."""
+        from services.eve_sourcing import suggest_alternatives
+
+        return suggest_alternatives(need, category=category, max_options=max_options)

@@ -238,3 +238,10 @@ class HardwareAgent:
         except Exception:
             pass
         return _result
+
+    @trace_agent("hardware_agent")
+    def infra_blueprint(self, focus: str = "full") -> dict[str, Any]:
+        """Physical Eve vs companion-app ownership (dev_app ≠ soudeur)."""
+        from services.eve_sourcing import infra_roles_blueprint
+
+        return infra_roles_blueprint(focus=focus)

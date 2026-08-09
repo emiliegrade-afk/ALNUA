@@ -57,6 +57,7 @@
 | Finance profondeur — invoices / SaaS / Revolut (Phase 34 / DEC-016) | ✅ Backend + UI | API + `SaasInvoicesPanel` + KPI à payer |
 | Budgets / obligations fiscales (Phase 34 / Vague 3) | ✅ JSON + UI | `/finances/budgets` + `/finances/fiscal-obligations` + onglet « Budgets & Fiscal » ; pas de paiement/transfert auto ; `budget_transfer` reporté |
 | Phase 21 skills (3 premiers) | 🔄 3/15 | Nwiro probe / Pi probe / BOM context — tests `test_phase21_skills.py` |
+| Eve sourcing / montage BOM | ✅ | alternatives + assembly-plan + infra-blueprint + UI `/robo` ; Pi différable |
 | Review Board LLM (flag) | ✅ Optionnel | `REVIEW_BOARD_LLM` → `review_board_llm.py` ; défaut = structural |
 | Daily briefing cross-dept | ✅ Branché | `_collect_cross_dept` dans `daily_briefing.py` |
 

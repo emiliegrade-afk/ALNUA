@@ -348,6 +348,43 @@ export function deleteBomItem(id: string): Promise<{ ok: boolean }> {
   return hubFetch(`/bom/eve/${id}`, { method: "DELETE" });
 }
 
+export function eveAlternatives(
+  need: string,
+  category?: string,
+  maxOptions = 4,
+): Promise<Record<string, unknown>> {
+  return hubFetch("/agents/electronics/alternatives", {
+    method: "POST",
+    body: JSON.stringify({ need, category, max_options: maxOptions }),
+    timeoutMs: 90_000,
+  });
+}
+
+export function eveAssemblyPlan(goal = ""): Promise<Record<string, unknown>> {
+  return hubFetch("/agents/mechanical/assembly-plan", {
+    method: "POST",
+    body: JSON.stringify({ goal }),
+    timeoutMs: 90_000,
+  });
+}
+
+export function eveInfraBlueprint(focus = "full"): Promise<Record<string, unknown>> {
+  return hubFetch("/agents/hardware/infra-blueprint", {
+    method: "POST",
+    body: JSON.stringify({ focus }),
+    timeoutMs: 90_000,
+  });
+}
+
+export function fetchPiBridgeStatus(): Promise<{
+  configured: boolean;
+  host: string | null;
+  message: string;
+  tooling: { agents: string; human_files: string };
+}> {
+  return hubFetch("/robo/pi-bridge");
+}
+
 export interface LookingGlassStatus {
   connected: boolean;
   holoplay_running: boolean;

@@ -43,3 +43,10 @@ Réponds en JSON :
             temperature=0.3,
             max_tokens=2048,
         )
+
+    @trace_agent("mechanical")
+    def assembly_plan(self, goal: str = "") -> dict[str, Any]:
+        """Plan de montage Eve à partir du BOM courant (+ objectif)."""
+        from services.eve_sourcing import assembly_plan
+
+        return assembly_plan(goal=goal)

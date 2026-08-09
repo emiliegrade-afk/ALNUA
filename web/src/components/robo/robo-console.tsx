@@ -1,65 +1,39 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Loader2, Plus, Trash2 } from "lucide-react";
-import { toast } from "sonner";
 import { AgentActionConsole } from "@/components/shared/agent-action-console";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { EveBomPanel } from "@/components/robo/eve-bom-panel";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  createBomItem,
-  deleteBomItem,
   embeddedInstruction,
   embeddedPiCommand,
   fetchBomItems,
   fetchEveStatus,
   fetchLookingGlassStatus,
+  fetchPiBridgeStatus,
   hardwareInstruction,
   type BomItem,
 } from "@/lib/pole-api";
 import { cn } from "@/lib/utils";
 
-const CATEGORIES = [
-  "vision",
-  "audio",
-  "moteur",
-  "alimentation",
-  "microcontroleur",
-  "chassis",
-  "compute",
-  "autre",
-];
-
 export function RoboConsole() {
   const [items, setItems] = useState<BomItem[]>([]);
-  const [totals, setTotals] = useState({ total_eur: 0, count: 0 });
+  const [totals, setTotals] = useState({ total_eur: 0, count: 0, by_category: {} as Record<string, number> });
   const [loading, setLoading] = useState(true);
   const [eveStatus, setEveStatus] = useState({ connected: false, battery: null as number | null });
+  const [piBridge, setPiBridge] = useState<{ configured: boolean; message: string }>({
+    configured: false,
+    message: "",
+  });
   const [lgStatus, setLgStatus] = useState({
     connected: false,
     holoplay_running: false,
     message: "",
   });
-  const [showAdd, setShowAdd] = useState(false);
-  const [newItem, setNewItem] = useState({
-    component: "",
-    category: "autre",
-    quantity: "1",
-    unit_price: "",
-    status: "a_commander",
-  });
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [bom, eve, lg] = await Promise.all([
+    const [bom, eve, lg, bridge] = await Promise.all([
       fetchBomItems().catch(() => ({ items: [], totals: { total_eur: 0, count: 0, by_category: {} } })),
       fetchEveStatus(),
       fetchLookingGlassStatus().catch(() => ({
@@ -67,11 +41,22 @@ export function RoboConsole() {
         holoplay_running: false,
         message: "Indisponible",
       })),
+      fetchPiBridgeStatus().catch(() => ({
+        configured: false,
+        host: null,
+        message: "Statut Pi indisponible",
+        tooling: { agents: "", human_files: "" },
+      })),
     ]);
     setItems(bom.items);
-    setTotals({ total_eur: bom.totals.total_eur, count: bom.totals.count });
+    setTotals({
+      total_eur: bom.totals.total_eur,
+      count: bom.totals.count,
+      by_category: bom.totals.by_category || {},
+    });
     setEveStatus({ connected: eve.connected, battery: eve.battery ?? null });
     setLgStatus(lg);
+    setPiBridge({ configured: bridge.configured, message: bridge.message });
     setLoading(false);
   }, []);
 
@@ -81,40 +66,19 @@ export function RoboConsole() {
     return () => clearInterval(interval);
   }, [load]);
 
-  async function handleAdd() {
-    if (!newItem.component.trim()) {
-      toast.error("Nom du composant requis");
-      return;
-    }
-    try {
-      await createBomItem({
-        component: newItem.component,
-        category: newItem.category,
-        quantity: parseInt(newItem.quantity, 10) || 1,
-        unit_price: newItem.unit_price ? parseFloat(newItem.unit_price) : null,
-        status: newItem.status,
-      });
-      toast.success("Composant ajouté");
-      setShowAdd(false);
-      setNewItem({ component: "", category: "autre", quantity: "1", unit_price: "", status: "a_commander" });
-      load();
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Erreur");
-    }
-  }
-
-  async function handleDelete(id: string) {
-    try {
-      await deleteBomItem(id);
-      toast.success("Supprimé");
-      load();
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Erreur");
-    }
+  if (loading && items.length === 0) {
+    return <p className="text-sm text-titanium/50">Chargement console robotique…</p>;
   }
 
   return (
     <section className="space-y-6">
+      <div className="rounded-lg border border-copper/20 bg-obsidian-2/60 px-3 py-2 text-[11px] text-titanium/70">
+        <strong className="text-ivory">Rôles :</strong> robot physique = Yuki / Marco / Ravi / Petra / Zara.
+        App compagnon Eve (comme Naïa) = Théo (dev_app) — pas le même job.{" "}
+        <strong className="text-ivory">Pi :</strong> {piBridge.message} — brancher plus tard OK ; WinSCP reste
+        optionnel pour copier des fichiers à la main.
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-3">
         <Card className="border-copper/20 bg-obsidian-2/90">
           <CardHeader className="pb-2">
@@ -124,11 +88,20 @@ export function RoboConsole() {
             <span
               className={cn(
                 "inline-flex items-center gap-2 text-sm",
-                eveStatus.connected ? "text-copper-light" : "text-red-400"
+                eveStatus.connected || piBridge.configured ? "text-copper-light" : "text-red-400",
               )}
             >
-              <span className={cn("h-2 w-2 rounded-full", eveStatus.connected ? "bg-copper-light" : "bg-red-500")} />
-              {eveStatus.connected ? "Online" : "Offline"}
+              <span
+                className={cn(
+                  "h-2 w-2 rounded-full",
+                  eveStatus.connected ? "bg-copper-light" : piBridge.configured ? "bg-amber-400" : "bg-red-500",
+                )}
+              />
+              {eveStatus.connected
+                ? "Online"
+                : piBridge.configured
+                  ? "SSH configuré (pas encore online)"
+                  : "Pas encore branché"}
               {eveStatus.battery != null ? ` · ${eveStatus.battery}%` : ""}
             </span>
           </CardContent>
@@ -138,13 +111,7 @@ export function RoboConsole() {
             <CardTitle className="font-title text-base text-ivory">Looking Glass</CardTitle>
           </CardHeader>
           <CardContent className="space-y-1">
-            <span
-              className={
-                lgStatus.connected
-                  ? "badge-copper px-2 py-0.5 text-xs"
-                  : "badge-titanium px-2 py-0.5 text-xs"
-              }
-            >
+            <span className={lgStatus.connected ? "badge-copper px-2 py-0.5 text-xs" : "badge-titanium px-2 py-0.5 text-xs"}>
               {lgStatus.connected
                 ? lgStatus.holoplay_running
                   ? "HoloPlay actif"
@@ -165,10 +132,12 @@ export function RoboConsole() {
         </Card>
       </div>
 
+      <EveBomPanel items={items} totals={totals} onChanged={() => void load()} />
+
       <div className="grid gap-4 lg:grid-cols-2">
         <AgentActionConsole
-          title="Viktor — Hardware"
-          description="BOM, sourcing, architecture matérielle Eve"
+          title="Yuki — Hardware"
+          description="Architecture, BOM, sourcing"
           fields={[
             {
               name: "instruction",
@@ -182,7 +151,7 @@ export function RoboConsole() {
           onSubmit={(v) => hardwareInstruction(v.instruction)}
         />
         <AgentActionConsole
-          title="Rin — Embedded Dev"
+          title="Zara — Embedded"
           fields={[
             {
               name: "instruction",
@@ -190,137 +159,24 @@ export function RoboConsole() {
               type: "textarea",
               required: true,
               rows: 3,
-              placeholder: "Déploie le script status.py sur le Pi…",
+              placeholder: "Prépare le script status.py pour le Pi…",
             },
           ]}
           onSubmit={(v) => embeddedInstruction(v.instruction)}
         />
         <AgentActionConsole
-          title="Rin — Commande SSH Pi"
+          title="Zara — Commande SSH Pi"
+          description={piBridge.configured ? "PI_HOST configuré" : "Indisponible tant que PI_HOST n'est pas dans .env"}
           fields={[
             {
               name: "command",
               label: "Commande",
               required: true,
-              placeholder: "python3 /home/pi/eve/status.py",
+              placeholder: "uname -a",
             },
           ]}
           onSubmit={(v) => embeddedPiCommand(v.command)}
         />
-      </div>
-
-      <div>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="label-caps">BOM Eve</h2>
-          <Button
-            size="sm"
-            variant="outline"
-            className="border-copper/30"
-            onClick={() => setShowAdd((s) => !s)}
-          >
-            <Plus className="mr-1 h-3.5 w-3.5" />
-            Ajouter composant
-          </Button>
-        </div>
-
-        {showAdd ? (
-          <Card className="mb-4 border-copper/20 bg-obsidian-2/90">
-            <CardContent className="grid gap-3 pt-4 sm:grid-cols-2 lg:grid-cols-5">
-              <Input
-                placeholder="Composant *"
-                value={newItem.component}
-                onChange={(e) => setNewItem((n) => ({ ...n, component: e.target.value }))}
-                className="border-copper/15 bg-obsidian-deep/40"
-              />
-              <Select
-                value={newItem.category}
-                onValueChange={(v) => setNewItem((n) => ({ ...n, category: v }))}
-              >
-                <SelectTrigger className="border-copper/15">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {CATEGORIES.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Input
-                type="number"
-                placeholder="Qté"
-                value={newItem.quantity}
-                onChange={(e) => setNewItem((n) => ({ ...n, quantity: e.target.value }))}
-                className="border-copper/15 bg-obsidian-deep/40"
-              />
-              <Input
-                type="number"
-                placeholder="Prix unit. €"
-                value={newItem.unit_price}
-                onChange={(e) => setNewItem((n) => ({ ...n, unit_price: e.target.value }))}
-                className="border-copper/15 bg-obsidian-deep/40"
-              />
-              <Button size="sm" onClick={handleAdd} className="bg-copper/20 hover:bg-copper/30">
-                Enregistrer
-              </Button>
-            </CardContent>
-          </Card>
-        ) : null}
-
-        <div className="overflow-x-auto rounded-xl border border-copper/10">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-copper/10 text-left text-xs text-titanium/60">
-                <th className="px-4 py-3">Composant</th>
-                <th className="px-4 py-3">Catégorie</th>
-                <th className="px-4 py-3">Qté</th>
-                <th className="px-4 py-3">Coût unit.</th>
-                <th className="px-4 py-3">Statut</th>
-                <th className="px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center">
-                    <Loader2 className="mx-auto h-5 w-5 animate-spin text-copper" />
-                  </td>
-                </tr>
-              ) : items.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-4 py-6 text-center text-titanium/60">
-                    Aucun composant — ajoute le premier.
-                  </td>
-                </tr>
-              ) : (
-                items.map((row) => (
-                  <tr key={row.id} className="border-b border-copper/10 text-ivory/80">
-                    <td className="px-4 py-3">{row.component}</td>
-                    <td className="px-4 py-3 text-titanium">{row.category}</td>
-                    <td className="px-4 py-3">{row.quantity}</td>
-                    <td className="px-4 py-3">
-                      {row.unit_price != null ? `${row.unit_price.toFixed(2)} €` : "—"}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="badge-copper px-2 py-0.5 text-xs">{row.status}</span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-red-400 hover:text-red-300"
-                        onClick={() => handleDelete(row.id)}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
       </div>
     </section>
   );

@@ -428,7 +428,13 @@ l'infra sous-jacente existe.
 - `ai_programmer` → `POST /agents/ai-programmer/nwiro-probe` (Nwiro BT tools / `UE5_NOT_CONNECTED`)
 - `firmware` → `POST /agents/firmware/pi-probe` (`skill_pi_ssh` + denylist)
 - `electronics` → `POST /agents/electronics/bom-context` (`skills/skill_bom.py`)
-**Statut :** 🔄 In progress (3/15 branchés ; 12 encore LLM-only).
+**2026-08-09 soir — Eve sourcing / montage :**
+- `POST /agents/electronics/alternatives` — options pro/budget (estimations)
+- `POST /agents/mechanical/assembly-plan` — plan de montage depuis BOM
+- `POST /agents/hardware/infra-blueprint` — robot physique vs app compagnon
+  (`dev_app`, comme Naïa) ; `GET /robo/pi-bridge` (SSH Hub, Pi différable)
+- UI `/robo` console : panneau BOM + boutons IA
+**Statut :** 🔄 In progress (skills robotique BOM/montage branchés ; Pi optionnel).
 
 ### Phase 22 — Redesign R&D v2 : socle & coquille (`/rnd-v2`)
 **Objectif :** premier étage d'une refonte en 7 phases (22-28) du département

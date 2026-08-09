@@ -7,6 +7,16 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-09 — Eve robotics : BOM IA (alternatives, montage, rôles) (feat)
+
+- **Type :** feat
+- **Details :**
+  - `services/eve_sourcing.py` + endpoints electronics/mechanical/hardware ;
+    `GET /robo/pi-bridge` (SSH agents, Pi plus tard OK ; WinSCP = fichiers manuels).
+  - UI `/robo` : panneau BOM clair + Alternatives / Plan montage / Qui build quoi.
+  - Clarifie : robot physique ≠ app compagnon (`dev_app` comme Naïa).
+  - Tests `test_eve_sourcing.py`.
+
 ## 2026-08-09 — Vague 4 durabilité : purge orphans + habitudes (chore + docs)
 
 - **Type :** chore + docs + test

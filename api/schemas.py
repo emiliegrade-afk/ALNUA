@@ -283,6 +283,20 @@ class BomUpdateRequest(BaseModel):
     notes: str | None = None
 
 
+class EveAlternativesRequest(BaseModel):
+    need: str = Field(min_length=3, max_length=400)
+    category: str | None = None
+    max_options: int = Field(default=4, ge=2, le=6)
+
+
+class EveAssemblyPlanRequest(BaseModel):
+    goal: str = Field(default="", max_length=500)
+
+
+class EveInfraBlueprintRequest(BaseModel):
+    focus: str = Field(default="full", max_length=80)
+
+
 class ReviewsSyncRequest(BaseModel):
     project_id: str | None = None
 
