@@ -7,6 +7,17 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-09 — Sprint REM-002 close-out analysis (docs)
+
+- **Type :** docs
+- **Sprint commit produit :** `7dfad6f` (Next 15 + workflow split + hub/analytics).
+- **Details :** analyse 14 sections (code review + intégrité + gouvernance) —
+  remédiation Audit 002 A–E + clean suite. Integrity : `tsc`/`eslint`/`build:safe`
+  OK ; Vitest **33**/33 ; pytest **386** passed / 6 skipped (**392** collected) ;
+  ruff OK. DoD remédiation ~**90%** (MVP Phases 30/31/32/36 assumé). Ouverture
+  **BUG-019** (WIP local mockup `/finances`/`/marketing`). Voir `DOC_AUDIT.md`
+  Sprint REM-002. Ouverts : BUG-004, BUG-017, BUG-019.
+
 ## 2026-08-09 — Audit 004 health check (docs)
 
 - **Type :** docs

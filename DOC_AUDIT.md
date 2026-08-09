@@ -229,3 +229,36 @@ Historique des audits de gouvernance effectués.
   Review Board LLM / trust UI
 - **Next audit planned :** après Phase 34 depth ou Next 16, **≤ 3 semaines**
   (ne pas retomber dans le trou 001→002 de ~2 semaines)
+
+---
+
+## Sprint REM-002 — Close-out analysis (remédiation A–E + clean Next 15)
+
+- **Date :** 2026-08-09 (soir)
+- **Sprint ID :** REM-002 — Remédiation Audit 002 (Phases A–E) + Clean suite
+- **Sprint commit produit :** `7dfad6f` (`fix(web): Next 15 upgrade, safe build,
+  workflow split, live hub/analytics`)
+- **Health check associé :** Audit 004 (`0ad3f9b`) — déjà passé ; ce close-out
+  ajoute l’analyse 14 sections + BUG-019 (WIP).
+- **Scope :** code review + intégrité (tsc / lint / vitest / pytest / ruff /
+  `build:safe`) + sync gouvernance. **Aucun code produit** dans ce close-out.
+- **Verdict global :** ⚠️ **Corrections needed** avant le prochain sprint produit
+  — pas un blocker build/tests (tout vert), mais **BUG-019** (WIP local qui
+  remonte mockups `/finances`/`/marketing`) doit être tranché (discard ou DEC)
+  avant tout commit FE.
+- **DoD remédiation :** ~**90%** (MVP A–E + clean livrés ; suites hors MVP
+  assumées : trust UI, Review Board LLM, `budget_transfer`, briefing cross-dept).
+- **Integrity (rejoué 2026-08-09 soir) :**
+  - `npx tsc --noEmit` (web) ✅
+  - `npm run lint` ✅ (0 warnings)
+  - `npm test` ✅ **33**/33
+  - `npm run build:safe` ✅ Next 15.5.23
+  - `ruff check agents/ services/ api/ config/ database/ bots/ skills/` ✅
+  - `pytest tests/ -q` ✅ **386** passed / **6** skipped (**392** collected)
+  - `npm audit` (web) : **6** vulns (3 high sharp → BUG-017 / Next 16)
+- **Finding nouveau :** BUG-019 — working tree dirty réintroduit
+  `MockupDepartmentPage` sur `/finances` + `/marketing` et adapte les tests
+  Vitest pour l’accepter. HEAD reste live (ré-exports `*-v2`).
+- **Ouverts après close-out :** BUG-004, BUG-017, BUG-019
+- **Next step ordonné :** (1) trancher BUG-019 ; (2) Phase 34 budgets/fiscalité
+  **ou** 1 split BUG-004 ; (3) profondeur 31/32 ; (4) Next 16.

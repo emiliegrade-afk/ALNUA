@@ -37,11 +37,13 @@ complète.
 
 ## Suite frontend (`web/`)
 
-- **Unitaire** : Vitest (`npm run test`) — encore mince face à la surface UI (constat
-  Audit 002 : quelques fichiers `*.test.ts(x)` seulement).
+- **Unitaire** : Vitest (`npm run test`) — **33** tests / 6 fichiers verts au
+  close-out Sprint REM-002 (2026-08-09) ; encore mince face à la surface UI.
 - **E2E** : Playwright (`web/e2e/`), Chromium seul en CI, flags admin forcés à `1` pour
   couvrir les pages derrière feature flag.
-- **Typecheck** : `tsc --noEmit` bloquant, séparé du lint.
+- **Typecheck** : `tsc --noEmit` bloquant, séparé du lint (Next **15.5.23**).
+- **Build prod :** préférer `npm run build:safe` si `next dev` tourne (cache
+  `.next` corrompu sinon — documenté BUG-017 / CHANGELOG).
 
 ## Ce qui manque (constat, pas un audit exhaustif)
 
@@ -52,5 +54,5 @@ complète.
   sont nommés par feature. Cohérent avec un projet solo à itération rapide ; à
   reconsidérer seulement si la confusion devient un problème réel.
 - Couverture UI Finance profondeur (budgets / fiscalité) et suites MVP Phases
-  31/32 (trust UI, Review Board LLM) encore mince — routes `*-v2` primaires sont
-  live (BUG-013 fermé).
+  31/32 (trust UI, Review Board LLM) encore mince — routes primaires live au HEAD
+  (BUG-013 fermé) ; **ne pas committer** le WIP mockup VAE sans traiter BUG-019.

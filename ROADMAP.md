@@ -59,7 +59,9 @@ Phases 29-36 définies le 2026-07-31 (brief Emilie). **Phase 29 + 33** complét�
 Audit 002 — recettes validation, trust, quality gates structurelles, queue
 cross-dept). Audits 002–004 le même jour ; routes primaires live ; Next 15.5.23.
 Suites hors MVP : débat LLM Review Board, jauge UI trust, `budget_transfer`,
-daily_briefing cross-dept. **En cours :** Phase 34 (Finance — budgets/fiscalité).
+daily_briefing cross-dept. **Sprint REM-002 clos** (voir `DOC_AUDIT.md`) — remédiation A–E + clean Next 15.
+**Avant tout commit FE :** trancher **BUG-019** (WIP mockup finances/marketing).
+**En cours :** Phase 34 (Finance — budgets/fiscalité).
 **Prochaines options :** profondeur Phase 34, Phase 21 (skills Gaming/Robo),
 Phase 35 (Brand), Next 16 (BUG-017), ou splits BUG-004.
 
@@ -1453,9 +1455,11 @@ Ivoire #F5F2EA, Titane #A7ADB5, Cuivre Rosé #C08A72 en accent uniquement) pour
   (anciennement dans `hub/page.tsx`).
 
 **Hors scope / prochaines étapes :**
-- Reconnecter `/analytics`, `/brand`, `/secretary`, `/ceo`, `/hub` (encore MockupShell
-  si basculés en Phase 38).
+- ~~Reconnecter `/analytics`, `/brand`, `/secretary`, `/ceo`, `/hub`~~ — **live**
+  (suite clean 2026-08-09, DeptV2 shells).
 - Bascule visuelle optionnelle des `*-v2` sur un `MockupShell` unifié (chrome only).
 - Remplacement des données mockées résiduelles dans les maquettes design.
-**Statut :** ✅ Complete (rendu) + **Phase B** reconnecte les départements listés
-ci-dessus (BUG-013 fermé). Reste analytics/brand/secretary/ceo/hub.
+- **Attention WIP local (BUG-019) :** working tree non commité peut remonter
+  `/finances`/`/marketing` en maquette VAE — ne pas merger sans décision produit.
+**Statut :** ✅ Complete (rendu + routes primaires live au HEAD `7dfad6f` /
+  Audit 004). Voir Sprint REM-002 close-out dans `DOC_AUDIT.md`.

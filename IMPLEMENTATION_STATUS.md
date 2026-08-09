@@ -115,5 +115,7 @@
   Steam / robot Eve physique.
 - **Academy** : pipeline corrigé (BUG-008) ; risque OpenRouter 402 (crédits) toujours
   possible.
-- **Suite remédiation Audit 002 :** Phases A–E + clean livrés 2026-08-09 ;
-  résiduels BUG-004 (file size), BUG-017 (3 high sharp → Next 16). Voir Audit 004.
+- **Suite remédiation Audit 002 (Sprint REM-002) :** Phases A–E + clean livrés
+  2026-08-09 ; close-out analysis dans `DOC_AUDIT.md` ; résiduels BUG-004,
+  BUG-017, **BUG-019** (WIP local mockup finances/marketing — ne pas merger
+  sans DEC). Voir aussi Audit 004.

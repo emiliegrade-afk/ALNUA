@@ -61,16 +61,18 @@ y compris `tests/test_devex_phase6.py` réécrit pour le nouveau comportement.
 
 | ID | Gravité | Description | Constat |
 |----|---------|-------------|-----------|
-| BUG-004 | Info | Fichiers Python >300 lignes — mitigé encore | Audit 004 : `workflow_engine` ~387 ; encore **4** fichiers >1000 (`agent_specs_registry` 1411, `coo_agent` 1289, `agent_personas` 1110, `rnd_center` 1042) + MissionsTab ×3 (~600) |
+| BUG-004 | Info | Fichiers Python >300 lignes — mitigé encore | Audit 004 / Sprint REM-002 : `workflow_engine` ~387 + handlers ≤300 ; encore **4** fichiers >1000 (`agent_specs_registry` 1411, `coo_agent` 1289, `agent_personas` 1110, `rnd_center` 1042) + MissionsTab ×3 (~600) |
 | BUG-017 | Info | Next / sharp vulns — mitigé partiel | Next **15.5.23** : npm **6** vulns (0 critical, **3 high** sharp/libvips). Fermeture = Next 16 (`npm audit fix --force`). Build : `npm run build:safe` si `next dev` tourne |
+| BUG-019 | Moyenne | WIP local non commité remonte `/finances` + `/marketing` en `MockupDepartmentPage` (maquette VAE) alors que HEAD (`7dfad6f`/`0ad3f9b`) les ré-exporte vers `*-v2` et que le guard Vitest commité exige 0 mockup primaire | Trouvé au close-out Sprint REM-002 (2026-08-09). Working tree modifie aussi `department-routes-live.test.ts` pour *attendre* les mockups — un commit WIP sans décision produit rouvrirait BUG-013 silencieusement. **Action :** soit discard WIP + garder live, soit DEC explicite « VAE primary + cockpit `*-v2` » + resync BUGS/ROADMAP/Audit |
 
-## Statistiques (mises à jour Audit 004 — 2026-08-09 soir)
+## Statistiques (mises à jour Sprint REM-002 close-out — 2026-08-09 soir)
 
 | Bucket | Count |
 |--------|------:|
-| Ouverts | 2 (`BUG-004`, `BUG-017`) — tous deux **mitigés**, pas fermés |
+| Ouverts | 3 (`BUG-004`, `BUG-017`, `BUG-019`) — 004/017 mitigés ; 019 WIP non commité |
 | Fermés remédiation A–E + clean | 12 (`BUG-002`/`003`/`005`/`011`–`016`, `BUG-018`) |
-| Residual mockup routes | **0** (hub/analytics/ceo/secretary/brand live) |
+| Residual mockup routes (HEAD) | **0** (ré-exports / DeptV2 live) |
+| Residual mockup routes (WIP local) | **2** (`/finances`, `/marketing`) — voir BUG-019 |
 | Corrigés (SEC) | 6 (`SEC-001`–`006`) |
 | Corrigés (BUG) | 16 (`BUG-001`–`003`, `BUG-005`–`016`, `BUG-018`) |
 | Décision fermée | 1 (`DEC-009`) |
