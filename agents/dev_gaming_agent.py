@@ -216,13 +216,24 @@ def ue5_docs_tool(query: str) -> str:
 @tool("gaming_coding_agent")
 def gaming_code_tool(spec_json: str) -> str:
     """
-    Lance le pipeline de codage pour un repo UE5/gaming.
-    Input JSON : même format que skill_coding_agent.
+    Lance Claude Code / coding pipeline sur le projet UE local (DEC-020).
+    Input JSON : format skill_coding_agent. repo_path défaut = UE_PROJECT_PATH.
     """
     try:
+        from skills.skill_gaming_agency import get_ue_project_path
+
         spec = json.loads(spec_json)
+        ue_path = get_ue_project_path()
+        if not spec.get("repo_path") and ue_path is not None:
+            spec["repo_path"] = str(ue_path)
+        if not spec.get("repo_path"):
+            return (
+                "[ERREUR] Projet UE non configuré — définir UE_PROJECT_PATH "
+                "ou passer repo_path dans le JSON."
+            )
+        spec["agent_id"] = spec.get("agent_id") or "dev_gaming"
         spec["description"] = (
-            f"[UE5/Gaming] {spec['description']}\n\n"
+            f"[UE5.8/Gaming agency] {spec['description']}\n\n"
             "IMPORTANT : Précise toujours Blueprint vs C++. "
             "Respecte les conventions UE5 (préfixes U/A/F/E)."
         )
@@ -243,9 +254,9 @@ class DevGamingAgent:
         self.agent = Agent(
             role="Dev Gaming — UE5 Specialist & Tuteur",
             goal=(
-                "Implémenter les features UE5 de Wyrdheim et Naïa World via Nwiro. "
-                "Guider Emilie dans son apprentissage UE5 en langage naturel. "
-                "Toujours préciser Blueprint vs C++. Pouvoir exécuter directement dans UE5 via Nwiro."
+                "Implémenter les features UE5.8 de Wyrdheim/Naïa World. "
+                "Agency PC : gaming_coding_agent (Claude Code sur UE_PROJECT_PATH). "
+                "Éditeur : Nwiro legacy ou serveur UE5.8. Toujours Blueprint vs C++."
             ),
             backstory=crew_backstory("dev_gaming"),
             tools=[

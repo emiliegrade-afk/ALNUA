@@ -73,6 +73,22 @@ def get_repo_targets() -> tuple[GitHubRepoTarget, ...]:
             )
         )
 
+    # DEC-020 — UE5.8 / Gaming studio project (Claude Code agency)
+    gaming_repo = os.getenv("GITHUB_REPO_GAMING", "").strip()
+    gaming_path = (
+        os.getenv("UE_PROJECT_PATH", "").strip()
+        or os.getenv("REPO_PATH_GAMING", "").strip()
+    )
+    if gaming_repo and gaming_path:
+        targets.append(
+            GitHubRepoTarget(
+                slug="gaming",
+                name="ALNUA Gaming UE5.8",
+                github_repo=gaming_repo,
+                local_path=Path(gaming_path).expanduser().resolve(),
+            )
+        )
+
     return tuple(targets)
 
 

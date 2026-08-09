@@ -244,3 +244,28 @@ def gdd_sync(
     except Exception as exc:
         logger.warning("[UE58] gdd_sync failed: %s", exc)
         return {"ok": False, "direction": direction, "error": str(exc)[:300]}
+
+
+def call_tool(tool_id: str, arguments: dict[str, Any] | None = None) -> dict[str, Any]:
+    """POST /v1/tools/call — editor-side action on the UE5.8 server."""
+    tool_id = (tool_id or "").strip()
+    if not tool_id:
+        return {"ok": False, "error": "tool_id required"}
+    health = ue58_health()
+    if not health.get("connected"):
+        return {
+            "ok": False,
+            "configured": health.get("configured", False),
+            "connected": False,
+            "error": health.get("error", UE58_NOT_CONNECTED),
+        }
+    try:
+        data = _post(
+            "/v1/tools/call",
+            {"name": tool_id, "arguments": arguments or {}},
+            timeout=120.0,
+        )
+        return {"ok": True, "connected": True, "tool_id": tool_id, "result": data}
+    except Exception as exc:
+        logger.warning("[UE58] tools/call failed: %s", exc)
+        return {"ok": False, "connected": True, "tool_id": tool_id, "error": str(exc)[:300]}

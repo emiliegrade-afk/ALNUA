@@ -56,6 +56,15 @@ Réponds en JSON :
         return probe_for_agent(self.AGENT_NAME)
 
     @trace_agent("ai_programmer")
+    def run_studio_task(self, title: str, description: str) -> dict[str, Any]:
+        """DEC-020 — Claude Code agency on local UE project."""
+        from skills.skill_gaming_agency import run_studio_task
+
+        return run_studio_task(
+            agent_id=self.AGENT_NAME, title=title, description=description
+        )
+
+    @trace_agent("ai_programmer")
     def probe_nwiro_tools(self) -> dict[str, Any]:
         """LEGACY Nwiro BT probe (DEC-017) — prefer probe_ue58."""
         from skills.skill_nwiro import UE5_NOT_CONNECTED, nwiro_is_available, nwiro_list_tools

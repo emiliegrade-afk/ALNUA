@@ -339,7 +339,7 @@ Cursor peut alors appeler directement `POST /agents/analyst-data/sql` etc. comme
 
 ## Règles invariantes — NE JAMAIS VIOLER
 
-- **UE5.8 serveur (pas Nwiro)** — pont Gaming cible = serveur UE5.8 (chat + GDD + outils agents) ; Godot reste optionnel en parallèle (voir `DECISIONS.md` DEC-017, remplace DEC-009). `skills/skill_nwiro.py` est legacy jusqu’au skill de remplacement — ne pas y brancher de nouveaux flux.
+- **UE5.8 serveur + agency PC** — pont éditeur = serveur UE5.8 (DEC-017) ; agents Gaming agissent sur le PC via Claude Code / coding pipeline sur `UE_PROJECT_PATH` (DEC-020, `skill_gaming_agency`). Godot optionnel. `skill_nwiro` = legacy. Pas de computer-use GUI Windows total sans nouvelle DEC.
 - `parse_json_response()` sur **tout** output LLM — gère les markdown fences
 - `log_agent_action()` obligatoire sur chaque méthode principale
 - `@trace_agent("agent_name")` sur chaque méthode publique

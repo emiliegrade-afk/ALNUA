@@ -65,6 +65,21 @@ Réponse : `{ "reply": "…", "session_id": "…" }`.
 Pull / push de sections GDD (JSON). Auth : `Authorization: Bearer <UE58_API_KEY>`
 si la clé est configurée côté serveur.
 
+### `POST /v1/tools/call`
+
+```json
+{ "name": "bt_create_tree", "arguments": { "...": "..." } }
+```
+
+Réponse : `{ "ok": true, "result": ... }`. Actions éditeur (Blueprint, Niagara, PIE…)
+côté serveur — complément de l’agency **Claude Code sur le projet disque** (DEC-020).
+
+## Agency PC (DEC-020) — hors ce serveur
+
+Les agents Gaming agissent aussi sur le **PC hôte** via Claude Code / coding
+pipeline Hub dans un worktree de `UE_PROJECT_PATH` (`skills/skill_gaming_agency.py`).
+Ce n’est pas du computer-use GUI Windows.
+
 ## Endpoints Hub (client)
 
 | Méthode | Path | Rôle |
@@ -73,6 +88,9 @@ si la clé est configurée côté serveur.
 | POST | `/agents/{ai-programmer\|technical-artist\|vfx-artist}/ue58-probe` | Capacités filtrées |
 | POST | `/gaming/ue58/chat` | Relais chat (input sanitizé) |
 | POST | `/gaming/ue58/gdd/sync` | `direction=pull\|push` + `project_id` |
+| POST | `/gaming/ue58/tools/call` | Outil éditeur serveur |
+| GET | `/gaming/studio/agency/status` | Projet UE + Claude Code + UE58 |
+| POST | `/gaming/studio/agency/run` | Claude Code sur le projet UE (worktree) |
 
 ## Règles
 

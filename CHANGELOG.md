@@ -7,6 +7,17 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-10 — DEC-020 : agency Gaming = Claude Code sur le PC (feat)
+
+- **Type :** feat
+- **Details :**
+  - `skills/skill_gaming_agency.py` — Claude Code / coding pipeline sur
+    `UE_PROJECT_PATH` (worktree) pour les agents studio.
+  - Endpoints `GET/POST /gaming/studio/agency/*` + `POST /gaming/ue58/tools/call`.
+  - Console Gaming : statut agency + formulaire « Lancer sur le PC ».
+  - `CODING_AGENT_IDS` : + ai_programmer / technical_artist / vfx_artist.
+  - DEC-020 : pas de computer-use GUI Windows total.
+
 ## 2026-08-09 — Vague A : pont Hub ↔ UE5.8 (feat)
 
 - **Type :** feat

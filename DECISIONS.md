@@ -28,6 +28,7 @@
 | DEC-017 | Pont Gaming = serveur UE5.8 (chat + GDD + outils agents) ; Nwiro abandonné | 2026-08-09 | Active |
 | DEC-018 | Eve Pi différé ; agents via Hub SSH (`PI_HOST`) ; WinSCP = humain seulement | 2026-08-09 | Active |
 | DEC-019 | UI Finance/Marketing = `*-v2` live ; stash pole-dashboard BUG-019 jeté | 2026-08-09 | Active |
+| DEC-020 | Agency Gaming PC = Claude Code sur `UE_PROJECT_PATH` (+ outils UE5.8) | 2026-08-10 | Active |
 
 ---
 
@@ -298,3 +299,23 @@ reprise de ce draft sans nouvelle DEC + plan de remplacement explicite.
 **Alternative rejetée :** `git stash pop` et fusionner pole-dashboard maintenant.
 **Pourquoi rejetée :** `*-v2` est la UI live validée ; réintroduire le draft
 sans DEC recrée le risque BUG-019.
+
+### DEC-020 — Agency Gaming PC = Claude Code sur le projet UE
+**Contexte :** Emilie veut que les agents Gaming (Nova, Kenji, Otto, Diego…)
+puissent **agir sur son PC** comme Claude Code / Cowork pour travailler dans
+UE5.8 — pas seulement bavarder via HTTP.
+**Décision :**
+1. **Code sur le PC** : `skills/skill_gaming_agency.py` lance le même pipeline
+   que l’Academy (`skill_coding_agent` / Claude Code CLI ou `CODING_BACKEND=hub`)
+   dans un **worktree git isolé** de `UE_PROJECT_PATH` (alias `REPO_PATH_GAMING`).
+   Endpoints : `GET /gaming/studio/agency/status`, `POST /gaming/studio/agency/run`.
+2. **Éditeur Unreal** : actions PIE/Blueprint/Niagara via
+   `POST /gaming/ue58/tools/call` quand le serveur UE5.8 est up (DEC-017).
+3. **Agents autorisés** : roster studio (`dev_gaming`, `ai_programmer`,
+   `technical_artist`, `vfx_artist`, …) ; ajoutés à `CODING_AGENT_IDS` pour
+   Kenji/Otto/Diego.
+4. **Hors scope** : contrôle GUI Windows total (souris, fenêtres) type computer-use
+   Anthropic — trop large / trop risqué ; réouvrir une DEC si besoin.
+**Alternative rejetée :** élargir `/ide/run` ou donner un shell Windows non jailed.
+**Pourquoi rejetée :** SEC-001 / allowlist IDE existent pour une raison ; l’agency
+Gaming réutilise le modèle worktree déjà éprouvé.

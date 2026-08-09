@@ -9,11 +9,18 @@ import {
   levelDesignerLore,
   levelDesignerQuest,
 } from "@/lib/pole-api";
-import { fetchUe58Status, type Ue58Status } from "@/lib/gaming-ue58";
+import {
+  fetchStudioAgencyStatus,
+  fetchUe58Status,
+  runStudioAgency,
+  type StudioAgencyStatus,
+  type Ue58Status,
+} from "@/lib/gaming-ue58";
 import { useEffect, useState } from "react";
 
 export function GamingConsole() {
   const [ue58, setUe58] = useState<Ue58Status | null>(null);
+  const [agency, setAgency] = useState<StudioAgencyStatus | null>(null);
 
   useEffect(() => {
     fetchUe58Status()
@@ -26,6 +33,15 @@ export function GamingConsole() {
           error: "Statut UE5.8 indisponible",
         }),
       );
+    fetchStudioAgencyStatus()
+      .then(setAgency)
+      .catch(() =>
+        setAgency({
+          ok: false,
+          configured: false,
+          error: "Agency studio indisponible",
+        }),
+      );
   }, []);
 
   const statusLabel = !ue58
@@ -35,6 +51,12 @@ export function GamingConsole() {
       : !ue58.configured
         ? "Hors ligne — définir UE5_SERVER_URL (ou UE58_HOST)"
         : ue58.error || "Serveur UE5.8 injoignable";
+
+  const agencyLabel = !agency
+    ? "…"
+    : agency.ok
+      ? `Prêt — ${agency.project_path}${agency.claude_code_cli ? " · Claude Code CLI OK" : " · CLI Claude absente (hub backend OK)"}`
+      : agency.error || "Configurer UE_PROJECT_PATH (repo git du projet UE)";
 
   return (
     <section className="space-y-6">
@@ -46,7 +68,7 @@ export function GamingConsole() {
             Pont UE5.8 (DEC-017)
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-2">
           <span
             className={
               ue58?.connected
@@ -56,8 +78,50 @@ export function GamingConsole() {
           >
             {statusLabel}
           </span>
+          <p className="text-xs text-ivory/70">
+            Agency PC (DEC-020) :{" "}
+            <span className={agency?.ok ? "text-copper" : "text-ivory/50"}>
+              {agencyLabel}
+            </span>
+          </p>
         </CardContent>
       </Card>
+
+      <AgentActionConsole
+        title="Agency studio — Claude Code sur le projet UE"
+        description="Lance un agent (Nova/Kenji…) qui agit sur ton PC dans UE_PROJECT_PATH, comme Claude Code."
+        fields={[
+          {
+            name: "agent_id",
+            label: "Agent",
+            type: "select",
+            defaultValue: "dev_gaming",
+            options: [
+              { value: "dev_gaming", label: "Nova — Dev Gaming" },
+              { value: "ai_programmer", label: "Kenji — AI Programmer" },
+              { value: "technical_artist", label: "Otto — Technical Artist" },
+              { value: "vfx_artist", label: "Diego — VFX" },
+            ],
+          },
+          { name: "title", label: "Titre tâche", required: true },
+          {
+            name: "description",
+            label: "Brief",
+            type: "textarea",
+            required: true,
+            rows: 4,
+            placeholder: "Ex. Ajouter un behavior tree hostile pour le loup…",
+          },
+        ]}
+        submitLabel="Lancer sur le PC"
+        onSubmit={(v) =>
+          runStudioAgency({
+            agent_id: v.agent_id || "dev_gaming",
+            title: v.title,
+            description: v.description,
+          })
+        }
+      />
 
       <div className="grid gap-4 lg:grid-cols-2">
         <AgentActionConsole

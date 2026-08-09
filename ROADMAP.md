@@ -64,9 +64,9 @@ MissionsTab+COO split → Finance/skills/MVP honesty → **durabilité** (purge 
 dumps, orphan `coding_facade`, checklist `AGENTS.md`, tests HTTP budgets).
 **`budget_transfer` :** explicitement **reporté** (pas dans le moteur ; enveloppes
 budgets manuelles seulement — DEC-016 inchangé, pas de paiement/transfert auto).
-**Prochain audit santé :** ≤ **2026-08-30**. **BUG-004 fermé**. **P0 + Vague A
-2026-08-09 :** DEC-017–019 + pont Hub UE5.8 (`skill_ue58`, probes, chat/GDD).
-Suite : serveur UE5.8 studio réel ; Vague B robotique ; Phase 34/35/28.
+**Prochain audit santé :** ≤ **2026-08-30**. **P0 + Vague A + DEC-020 :**
+pont UE5.8 + **agency Claude Code** sur `UE_PROJECT_PATH`. Suite : configurer
+le chemin projet chez Emilie + serveur UE5.8 ; Vague B robotique.
 
 ## Points tranchés le 2026-07-25 (anciennement ouverts)
 
@@ -445,14 +445,17 @@ pont Nwiro **abandonné** (DEC-017) — ne plus étendre `skill_nwiro`.
 - UI `/robo` console : panneau BOM + boutons IA
 **P0 (2026-08-09) :** DEC-017/018 — Pi reste différé.
 **Vague A (2026-08-09) — pont UE5.8 (DEC-017) :**
-- Spec : `SPEC_UE58_BRIDGE.md` (health / capabilities / chat / GDD)
+- Spec : `SPEC_UE58_BRIDGE.md` (health / capabilities / chat / GDD / tools/call)
 - Skill : `skills/skill_ue58.py` + router `api/routers/ue58_bridge.py`
 - Probes : `POST /agents/{ai-programmer|technical-artist|vfx-artist}/ue58-probe`
 - Status / chat / GDD : `GET /gaming/ue58/status`, `POST /gaming/ue58/chat`,
   `POST /gaming/ue58/gdd/sync` ; UI console Gaming affiche le statut UE5.8
 - Nwiro probes = legacy (conservés, non étendus)
-**Statut :** 🔄 In progress (pont Hub prêt ; serveur UE5.8 studio à brancher ;
-skills robotique BOM OK ; Pi optionnel).
+**DEC-020 (2026-08-10) — agency PC type Claude Code :**
+- `skill_gaming_agency` + `POST /gaming/studio/agency/run` sur `UE_PROJECT_PATH`
+- UI : lancer Nova/Kenji/Otto/Diego sur le projet UE local (worktree)
+**Statut :** 🔄 In progress (pont + agency Hub prêts ; serveur UE5.8 studio +
+`UE_PROJECT_PATH` à configurer chez Emilie ; Pi optionnel).
 
 ### Phase 22 — Redesign R&D v2 : socle & coquille (`/rnd-v2`)
 **Objectif :** premier étage d'une refonte en 7 phases (22-28) du département

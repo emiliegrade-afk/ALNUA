@@ -7,7 +7,17 @@ from typing import Any
 from config.agent_models import normalize_agent_id
 
 CODING_AGENT_IDS: frozenset[str] = frozenset(
-    {"dev_app", "dev_backend", "dev_gaming", "embedded_dev", "dev_frontend", "dev_integrator"}
+    {
+        "dev_app",
+        "dev_backend",
+        "dev_gaming",
+        "embedded_dev",
+        "dev_frontend",
+        "dev_integrator",
+        "ai_programmer",
+        "technical_artist",
+        "vfx_artist",
+    }
 )
 
 

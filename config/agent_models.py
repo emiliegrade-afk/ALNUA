@@ -366,7 +366,19 @@ AGENT_TIERS: dict[str, str] = {
 
 # Agents whose Paramètres model also drives the autonomous coding pipeline (Hub Agent / Aider).
 CODING_AGENT_IDS: frozenset[str] = frozenset(
-    {"dev_app", "dev_backend", "dev_gaming", "embedded_dev", "dev_frontend", "dev_integrator", "ads"}
+    {
+        "dev_app",
+        "dev_backend",
+        "dev_gaming",
+        "embedded_dev",
+        "dev_frontend",
+        "dev_integrator",
+        "ads",
+        # DEC-020 — Gaming specialists may run Claude Code on UE_PROJECT_PATH
+        "ai_programmer",
+        "technical_artist",
+        "vfx_artist",
+    }
 )
 
 # Modèle par défaut par tier

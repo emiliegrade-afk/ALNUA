@@ -26,3 +26,30 @@ export function ue58Chat(body: {
     timeoutMs: 60_000,
   });
 }
+
+export interface StudioAgencyStatus {
+  ok: boolean;
+  configured: boolean;
+  project_path?: string | null;
+  error?: string | null;
+  claude_code_cli?: boolean;
+  coding_backend?: string;
+  ue58?: { configured?: boolean; connected?: boolean; error?: string };
+  mode?: Record<string, string>;
+}
+
+export function fetchStudioAgencyStatus(): Promise<StudioAgencyStatus> {
+  return hubFetch<StudioAgencyStatus>("/gaming/studio/agency/status");
+}
+
+export function runStudioAgency(body: {
+  agent_id: string;
+  title: string;
+  description: string;
+}): Promise<Record<string, unknown>> {
+  return hubFetch("/gaming/studio/agency/run", {
+    method: "POST",
+    body: JSON.stringify(body),
+    timeoutMs: 3_600_000,
+  });
+}
