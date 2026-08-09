@@ -1,24 +1,12 @@
 """
-skill_nwiro.py — Client MCP pour le plugin Nwiro (UE5)
+skill_nwiro.py — Client MCP pour le plugin Nwiro (UE5) — LEGACY (DEC-017).
+
+Do not add new Gaming flows here. Target bridge = UE5.8 server + Hub skill.
+This module remains until probes/callers migrate.
 
 Nwiro expose un serveur MCP natif à http://localhost:5353/mcp
-Il démarre automatiquement quand UE5 est ouvert avec le plugin installé.
-
-Prérequis :
-- UE5.7 ouvert sur le PC
-- Plugin "Nwiro Integration Kit" installé depuis Fab marketplace
-- Port 5353 accessible (local uniquement — pas de VPS)
-
-Variables d'env :
-- NWIRO_HOST : host du serveur Nwiro (défaut: localhost)
-- NWIRO_PORT : port MCP Nwiro (défaut: 5353)
-
-209 outils disponibles — catégories principales :
-Blueprints (18), Materials (12), World/Actors (17), PIE Runtime (14),
-Animation (9), Sequencer (6), Blueprint Debugger (10), Behaviour Trees (7),
-Widget/UMG (4), Niagara VFX (4), GAS (6), PCG (4), Landscape (3)...
-
-Documentation Nwiro : https://docs.nwiro.ai
+(UE5 + plugin Fab). Variables : NWIRO_HOST, NWIRO_PORT (défaut 5353).
+Doc : https://docs.nwiro.ai
 """
 
 from __future__ import annotations

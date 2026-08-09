@@ -64,17 +64,24 @@ MissionsTab+COO split → Finance/skills/MVP honesty → **durabilité** (purge 
 dumps, orphan `coding_facade`, checklist `AGENTS.md`, tests HTTP budgets).
 **`budget_transfer` :** explicitement **reporté** (pas dans le moteur ; enveloppes
 budgets manuelles seulement — DEC-016 inchangé, pas de paiement/transfert auto).
-**Prochain audit santé :** ≤ **2026-08-30**. **BUG-004 fermé** (specs / personas /
-rnd_center split). Suite produit priorisée : Phase 21 (skills Gaming UE5.8 +
-reste robotique), Phase 34 (finance profondeur sans `budget_transfer`),
-Phase 35 Brand, Phase 28 Explorer R&D — voir plan de travail session.
+**Prochain audit santé :** ≤ **2026-08-30**. **BUG-004 fermé**. **P0 décisions
+2026-08-09 :** DEC-017 (UE5.8, Nwiro abandonné), DEC-018 (Pi différé), DEC-019
+(stash BUG-019 jeté), `budget_transfer` toujours reporté. Suite : Vague A Phase 21
+(skill UE5.8), Vague B robotique, Phase 34/35/28 selon besoin.
 
 ## Points tranchés le 2026-07-25 (anciennement ouverts)
 
-- **Nwiro/UE5 vs Godot** — tranché : les deux coexistent intentionnellement. `CLAUDE.md`
-  corrigé, voir `DECISIONS.md` DEC-009.
+- **Nwiro/UE5 vs Godot** — historique DEC-009 ; **remplacé 2026-08-09 par DEC-017**
+  (serveur UE5.8 + Godot optionnel ; Nwiro abandonné).
 - **Mode dev ouvert par défaut** — tranché : `HUB_API_KEY` obligatoire dans tous les
   environnements, plus de bypass. Voir `DECISIONS.md` DEC-010, `BUGS.md` SEC-002.
+
+## Points tranchés le 2026-08-09 (P0)
+
+- **Pont Gaming** — serveur UE5.8 (chat + GDD + outils agents), pas Nwiro (DEC-017).
+- **Eve Pi** — différé jusqu’à `PI_HOST` ; agents = Hub SSH ; WinSCP = humain (DEC-018).
+- **UI Finances/Marketing** — `*-v2` live ; stash pole-dashboard jeté (DEC-019).
+- **`budget_transfer`** — toujours reporté (note DEC-016).
 
 ## Détail des phases
 
@@ -418,17 +425,18 @@ IoT réels sur Eve pour recevoir des données en continu.
 ### Phase 21 — Outils réels pour les 15 agents spécialisés Gaming/Robotique
 **Objectif :** les 15 agents créés en Phase 13 n'ont aujourd'hui qu'une méthode LLM
 texte → JSON chacun (aucun outil `tool()`, aucune connexion réelle) — contrairement
-à leurs voisins `dev_gaming` (Nwiro/UE5), `embedded_dev` (SSH Pi/GPIO) ou `hardware`
-(BOM Supabase). Leur brancher de vrais outils : Nwiro/UE5 pour `ai_programmer` /
-`technical_artist` / `vfx_artist` ; accès SSH Pi / GPIO pour `vision_ai` / `firmware`
-/ `electronics` ; lecture/écriture BOM Supabase pour `mechanical` / `electronics` /
-`industrial_design` ; bancs de test connectés pour `qa_robot` / `safety`.
-**Dépendances :** s'appuie sur l'infra des phases 16 (build/télémétrie UE5) et 19
-(BOM étendu + Laboratoire connecté) — pas de sens de brancher un outil avant que
-l'infra sous-jacente existe.
+à leurs voisins `dev_gaming` (ex-Nwiro / futur UE5.8), `embedded_dev` (SSH Pi/GPIO)
+ou `hardware` (BOM Supabase). Leur brancher de vrais outils : **serveur UE5.8**
+(DEC-017) pour `ai_programmer` / `technical_artist` / `vfx_artist` ; accès SSH Pi /
+GPIO pour `vision_ai` / `firmware` / `electronics` ; lecture/écriture BOM pour
+`mechanical` / `electronics` / `industrial_design` ; bancs pour `qa_robot` / `safety`.
+**Dépendances :** phases 16 (build/télémétrie UE5) et 19 (BOM + Laboratoire) ;
+pont Nwiro **abandonné** (DEC-017) — ne plus étendre `skill_nwiro`.
 **Vague 3 (2026-08-09) — premier sprint « 3 skills utiles » :**
-- `ai_programmer` → `POST /agents/ai-programmer/nwiro-probe` (Nwiro BT tools / `UE5_NOT_CONNECTED`)
-- `firmware` → `POST /agents/firmware/pi-probe` (`skill_pi_ssh` + denylist)
+- `ai_programmer` → `POST /agents/ai-programmer/nwiro-probe` (**legacy** jusqu’au
+  skill UE5.8)
+- `firmware` → `POST /agents/firmware/pi-probe` (`skill_pi_ssh` + denylist ; Pi
+  optionnel — DEC-018)
 - `electronics` → `POST /agents/electronics/bom-context` (`skills/skill_bom.py`)
 **2026-08-09 soir — Eve sourcing / montage :**
 - `POST /agents/electronics/alternatives` — options pro/budget (estimations)
@@ -436,7 +444,9 @@ l'infra sous-jacente existe.
 - `POST /agents/hardware/infra-blueprint` — robot physique vs app compagnon
   (`dev_app`, comme Naïa) ; `GET /robo/pi-bridge` (SSH Hub, Pi différable)
 - UI `/robo` console : panneau BOM + boutons IA
-**Statut :** 🔄 In progress (skills robotique BOM/montage branchés ; Pi optionnel).
+**P0 (2026-08-09) :** DEC-017/018 — prochaine sous-vague = skill + probes UE5.8
+(remplace Nwiro) ; Pi reste différé.
+**Statut :** 🔄 In progress (BOM/montage OK ; pont Gaming → UE5.8 à construire).
 
 ### Phase 22 — Redesign R&D v2 : socle & coquille (`/rnd-v2`)
 **Objectif :** premier étage d'une refonte en 7 phases (22-28) du département

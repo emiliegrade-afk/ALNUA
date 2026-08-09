@@ -339,7 +339,7 @@ Cursor peut alors appeler directement `POST /agents/analyst-data/sql` etc. comme
 
 ## Règles invariantes — NE JAMAIS VIOLER
 
-- **UE5 via Nwiro assumé** — `skills/skill_nwiro.py` (client MCP pour le plugin Unreal Engine 5 "Nwiro") coexiste intentionnellement avec l'intégration Godot ; les deux moteurs sont utilisables selon le projet gaming visé (voir `DECISIONS.md` DEC-009). Ancienne règle "Pas d'UE5" retirée le 2026-07-25 — elle ne reflétait plus le code.
+- **UE5.8 serveur (pas Nwiro)** — pont Gaming cible = serveur UE5.8 (chat + GDD + outils agents) ; Godot reste optionnel en parallèle (voir `DECISIONS.md` DEC-017, remplace DEC-009). `skills/skill_nwiro.py` est legacy jusqu’au skill de remplacement — ne pas y brancher de nouveaux flux.
 - `parse_json_response()` sur **tout** output LLM — gère les markdown fences
 - `log_agent_action()` obligatoire sur chaque méthode principale
 - `@trace_agent("agent_name")` sur chaque méthode publique

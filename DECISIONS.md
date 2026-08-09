@@ -17,7 +17,7 @@
 | DEC-006 | `X-Hub-Key` obligatoire hors développement | 2026-06-12 | Superseded (DEC-010) |
 | DEC-007 | Sanitizing désactivé sur `agents_pole.py` (PII) | — | Active |
 | DEC-008 | OpenHands (pipeline autonome) + Aider (fix ciblés) en parallèle | 2026-06-11 | Active |
-| DEC-009 | Nwiro/UE5 coexiste avec Godot — assumé, `CLAUDE.md` corrigé | 2026-07-25 | Active |
+| DEC-009 | Nwiro/UE5 coexiste avec Godot — assumé, `CLAUDE.md` corrigé | 2026-07-25 | Superseded (DEC-017) |
 | DEC-010 | `HUB_API_KEY` obligatoire dans tous les environnements | 2026-07-25 | Active |
 | DEC-011 | Agent Trust System séparé du système de compétition | 2026-07-31 | Active |
 | DEC-012 | Un seul moteur de workflow générique (extension de `workflow_engine.py`) | 2026-07-31 | Active |
@@ -25,6 +25,9 @@
 | DEC-014 | Saisie manuelle des stats Marketing plutôt qu'intégration API Ads | 2026-08-01 | Active |
 | DEC-015 | OpenRouter prompt caching + retries/timeouts anti-boucle outils | 2026-08-09 | Active |
 | DEC-016 | Comptabilité : catalogue SaaS + factures sans paiement + Revolut lecture | 2026-08-09 | Active |
+| DEC-017 | Pont Gaming = serveur UE5.8 (chat + GDD + outils agents) ; Nwiro abandonné | 2026-08-09 | Active |
+| DEC-018 | Eve Pi différé ; agents via Hub SSH (`PI_HOST`) ; WinSCP = humain seulement | 2026-08-09 | Active |
+| DEC-019 | UI Finance/Marketing = `*-v2` live ; stash pole-dashboard BUG-019 jeté | 2026-08-09 | Active |
 
 ---
 
@@ -102,6 +105,8 @@ Le chemin watchdog utilise `skills/skill_code_agent.py`.
 retiré — appeler directement `skill_coding_agent` / `skill_code_agent`.
 
 ### DEC-009 — Nwiro/UE5 coexiste avec Godot — assumé, `CLAUDE.md` corrigé
+**Statut :** Superseded by DEC-017 (2026-08-09) — Nwiro abandonné au profit d’un
+serveur UE5.8 ; Godot reste optionnel en parallèle.
 **Constat initial (2026-07-25) :** `CLAUDE.md` listait "Pas d'UE5 — aucune intégration
 Unreal Engine dans aucun agent" comme règle invariante. Pourtant `skills/skill_nwiro.py`
 (client MCP pour le plugin Unreal Engine 5 "Nwiro", 209 outils : Blueprints, Materials,
@@ -112,9 +117,8 @@ aussi (skill `.claude/skills/alnua-godot/`, `services/workflow_engine.py`,
 **Décision (2026-07-25, tranchée par Emilie) :** Nwiro/UE5 est un choix assumé, adopté
 après l'écriture de la règle "Pas d'UE5" — la doc était en retard sur le code, pas
 l'inverse. Godot et UE5/Nwiro coexistent intentionnellement selon le projet gaming visé.
-**Action :** `CLAUDE.md` corrigé (ancienne ligne "Pas d'UE5" remplacée par "UE5 via
-Nwiro assumé"). Aucun changement de code — `skill_nwiro.py` et ses références restent
-en l'état, ils étaient déjà conformes à l'intention réelle.
+**Action (historique) :** `CLAUDE.md` corrigé (ancienne ligne "Pas d'UE5" remplacée par
+"UE5 via Nwiro assumé").
 
 ### DEC-010 — `HUB_API_KEY` obligatoire dans tous les environnements
 **Contexte :** `config/settings.py` laissait l'API démarrer sans `HUB_API_KEY` tant que
@@ -240,3 +244,57 @@ Revolut si possible. Nadia doit utiliser `alnua.global@gmail.com`.
 paiement Revolut auto depuis les agents.
 **Pourquoi rejetée :** inventer des coûts fausse la compta ; paiement auto = risque
 sécurité / conformité inacceptable pour une solopreneuse.
+**Note P0 (2026-08-09) :** le workflow `budget_transfer` (Phase 30/34) reste
+**explicitement reporté** — pas de stub, pas de paiement/transfert auto entre
+départements. Les enveloppes budgets manuelles (ledger JSON Vague 3) suffisent
+jusqu’à besoin métier réel.
+
+### DEC-017 — Pont Gaming = serveur UE5.8 ; Nwiro abandonné
+**Contexte :** Emilie abandonne le plugin Nwiro comme pont agents↔éditeur. Besoin
+produit : un **serveur UE5.8** joignable par le Hub / Claude / LLM — chat studio,
+sync GDD, outils d’autonomie pour les agents Gaming (pas seulement un probe MCP
+éditeur).
+**Décision :**
+1. **Cible** : serveur UE5.8 (HTTP/WebSocket ou protocole dédié) exposant au
+   minimum : santé/connexion, chat agents, lecture/écriture GDD contrôlée, outils
+   d’édition/autonomie pour `ai_programmer` / `technical_artist` / `vfx_artist` /
+   `dev_gaming` (étendue Phase 21).
+2. **Nwiro** : **abandonné** comme direction d’intégration. `skills/skill_nwiro.py`
+   et les probes `nwiro-probe` restent en place jusqu’au skill de remplacement
+   (`skill_ue58` ou équivalent) — pas de suppression big-bang ; nouveaux
+   développements Gaming ne doivent **pas** dépendre de Nwiro.
+3. **Godot** : reste utilisable en parallèle (projets Godot / godot-mcp) — pas
+   exclusif avec UE5.8.
+4. Remplace DEC-009 pour la partie « pont UE5 = Nwiro ».
+**Alternative rejetée :** continuer à investir dans Nwiro MCP (209 tools) comme
+chemin principal.
+**Pourquoi rejetée :** Emilie veut un serveur contrôlé (chat + GDD + autonomie),
+pas un plugin éditeur tiers comme contrat durable Hub↔studio.
+**Suite :** Vague A Phase 21 — spec courte API + skill Hub + bascule probes.
+
+### DEC-018 — Eve Pi différé ; agents via Hub SSH
+**Contexte :** le robot Eve n’a pas encore de Raspberry Pi joignable en permanence ;
+les probes `firmware` / `embedded` existent déjà. Emilie préfère que les **agents**
+passent par le Hub (SSH) plutôt que WinSCP.
+**Décision :**
+1. **Pi optionnel** jusqu’à `PI_HOST` (+ `PI_USER` / clé) configuré — les endpoints
+   renvoient un statut honnête (`PI_NOT_CONFIGURED` / probe fail), jamais de fake
+   télémétrie.
+2. Quand le Pi est là : commandes agents uniquement via `skills/skill_pi_ssh.py`
+   (denylist, trust boundary documentée — SEC-003).
+3. **WinSCP** (ou équivalent) : transfert de fichiers **humain** seulement — pas
+   un chemin d’exécution pour les agents.
+4. App compagnon Eve = `dev_app` (pattern Naïa) ; hardware physique =
+   electronics / mechanical / firmware / embedded (déjà clarifié côté BOM IA).
+**Alternative rejetée :** exiger le Pi avant tout skill robotique Phase 21.
+**Pourquoi rejetée :** BOM / montage / alternatives IA sont déjà utiles sans Pi.
+
+### DEC-019 — UI Finance/Marketing = `*-v2` ; stash BUG-019 jeté
+**Contexte :** Vague 0 avait stashé un WIP « pole-dashboard » sur `/finances` /
+`/marketing` (BUG-019) pour ne pas régresser les ré-exports live vers `*-v2`.
+**Décision :** les routes primaires restent les shells `finances-v2` /
+`marketing-v2`. Le stash `WIP BUG-019 pole-dashboard…` est **jeté** — pas de
+reprise de ce draft sans nouvelle DEC + plan de remplacement explicite.
+**Alternative rejetée :** `git stash pop` et fusionner pole-dashboard maintenant.
+**Pourquoi rejetée :** `*-v2` est la UI live validée ; réintroduire le draft
+sans DEC recrée le risque BUG-019.

@@ -1,7 +1,8 @@
 # /alnua-godot — Godot MCP + Nova (Dev Gaming)
 
 Skill pour Nova Fischer (dev_gaming_agent) dans le Gaming Studio.
-Godot 4 + GDScript via godot-mcp. Aucune intégration UE5 — règle invariante ALNUA.
+Godot 4 + GDScript via godot-mcp. UE5.8 (serveur Hub, DEC-017) est un chemin
+parallèle — ce skill couvre **uniquement** Godot ; ne pas mélanger les outils.
 
 ---
 

@@ -7,6 +7,17 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-09 — P0 décisions : UE5.8, Pi, UI *-v2 (docs)
+
+- **Type :** docs
+- **Details :**
+  - **DEC-017** — pont Gaming = serveur UE5.8 (chat + GDD + outils) ; Nwiro
+    abandonné (DEC-009 superseded) ; Godot reste optionnel.
+  - **DEC-018** — Eve Pi différé ; agents via Hub SSH ; WinSCP = humain.
+  - **DEC-019** — Finance/Marketing restent `*-v2` ; stash BUG-019 jeté.
+  - `budget_transfer` toujours reporté (note DEC-016).
+  - `CLAUDE.md` + skill `/alnua-godot` + Phase 21 ROADMAP alignés.
+
 ## 2026-08-09 — BUG-004 : split specs / personas / rnd_center (refactor)
 
 - **Type :** refactor
