@@ -56,6 +56,7 @@ y compris `tests/test_devex_phase6.py` réécrit pour le nouveau comportement.
 | BUG-005 | Info | `AGENT_NAME` suffixe `_agent` vs IDs courts | Phase D : aliases `rnd_*_agent` ajoutés ; `coo_agent`→`coo` existait déjà |
 | BUG-013 | Moyenne | Routes mockup restantes | Suite clean : `/hub` `/analytics` live (DeptV2 shells) — **plus de MockupDepartmentPage** sur routes primaires |
 | BUG-018 | Faible | Micro-drift docs post-Audit 003 (même jour) : README/ARCHITECTURE/TESTING/IMPLEMENTATION_STATUS encore « Next.js 14 » et « ~381 tests » alors que `web/package.json` = Next **15.5.23** et `pytest --collect-only` = **392** ; ROADMAP « Current phase » proposait encore Audit 003 ; DOC_AUDIT 003 listait des mockups déjà reconnectés | Audit 004 : resync Next 15 + comptes tests + ROADMAP blurb + stats ; règle anti-drift rappelée |
+| BUG-019 | Moyenne | WIP local dirty sur /finances + /marketing (mockup puis draft pole-dashboard) risquait une régression vs ré-exports *-v2 live | Vague 0 100 % : arbre restauré sur HEAD live ; WIP en git stash (WIP BUG-019 pole-dashboard…). Reprise = git stash pop + DEC si remplacement des *-v2 |
 
 ## Ouverts — nécessitent une décision produit, non corrigés
 
