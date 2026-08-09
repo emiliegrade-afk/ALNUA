@@ -10,7 +10,7 @@ def test_sensitive_pattern_forces_ceo() -> None:
     from services.sav_lite import _classify_and_draft
 
     with (
-        patch("agents.base.LLMClient") as mock_llm_cls,
+        patch("agents.base.LLMClient"),
         patch("agents.base.parse_json_response") as parse,
     ):
         parse.return_value = {

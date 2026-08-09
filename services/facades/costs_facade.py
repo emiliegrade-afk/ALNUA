@@ -58,3 +58,15 @@ def get_telegram_costs_report(period: str = "day") -> str:
 
 # Back-compat alias used by CrewAI tools / older imports
 format_costs_report = get_telegram_costs_report
+
+
+def is_costs_unified_read_enabled() -> bool:
+    from config.settings import get_settings
+
+    return bool(get_settings().costs_unified_read)
+
+
+def is_costs_shadow_compare_enabled() -> bool:
+    from config.settings import get_settings
+
+    return bool(get_settings().costs_shadow_compare)

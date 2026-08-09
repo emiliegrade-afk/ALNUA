@@ -41,17 +41,6 @@ def test_list_open_merges_sources() -> None:
         ],
         "patterns": {},
     }
-    sb_rows = [
-        {
-            "id": "sb-1",
-            "agent_name": "dev_app",
-            "error_type": "Y",
-            "error_message": "from supabase",
-            "status": "open",
-            "attempts": 0,
-            "created_at": "2026-06-18",
-        }
-    ]
 
     with (
         patch("services.coding_error_journal.load_journal", return_value=journal),

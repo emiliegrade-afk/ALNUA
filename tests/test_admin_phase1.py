@@ -46,32 +46,12 @@ def test_admin_flags_requires_hub_key(client: TestClient) -> None:
     assert res.status_code == 401
 
 
-def test_telegram_costs_report_uses_legacy_when_not_unified(
+def test_telegram_costs_report_unified(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     from config.settings import get_settings
     from services.facades import costs_facade
 
-    monkeypatch.setenv("COSTS_UNIFIED_READ", "0")
-    get_settings.cache_clear()
-
-    with patch(
-        "skills.skill_model_usage.format_costs_report",
-        return_value="legacy report",
-    ) as mock_legacy:
-        out = costs_facade.get_telegram_costs_report("day")
-
-    assert out == "legacy report"
-    mock_legacy.assert_called_once_with("day")
-
-
-def test_telegram_costs_report_unified_when_flag_on(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    from config.settings import get_settings
-    from services.facades import costs_facade
-
-    monkeypatch.setenv("COSTS_UNIFIED_READ", "1")
     get_settings.cache_clear()
 
     fake = {"date": "2026-06-13", "total_usd": 1.5, "by_agent": {"qa": {"total_usd": 1.5, "calls": 2}}}

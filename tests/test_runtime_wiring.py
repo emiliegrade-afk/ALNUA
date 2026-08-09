@@ -31,7 +31,6 @@ def test_llm_client_records_usage() -> None:
         patch("httpx.Client") as mock_client_cls,
         patch("services.cost_monitor.record_call", return_value=0.001) as mock_record,
         patch("services.cost_monitor.check_budget_alert", return_value={"alert": False}),
-        patch("skills.skill_model_usage.log_usage"),
     ):
         mock_client_cls.return_value.__enter__.return_value.post.return_value = fake_response
         out = client.chat(

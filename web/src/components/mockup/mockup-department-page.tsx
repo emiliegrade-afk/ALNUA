@@ -9,15 +9,15 @@ import { MockupCeoView } from "./views/ceo-view";
 import { MockupHubView } from "./views/hub-view";
 import { MockupSecretaryView } from "./views/secretary-view";
 import { MockupAnalyticsView } from "./views/analytics-view";
-import { MockupBrandView } from "./views/brand-view";
 
 export interface MockupDepartmentPageProps {
   deptId: string;
 }
 
 /**
- * Mockup shell for departments that still lack a *-v2 Command Center
- * (hub / ceo / secretary / analytics). Brand uses live BrandView on /brand.
+ * Mockup shell for departments without a live *-v2 Command Center yet
+ * (hub / ceo / secretary / analytics). Brand → BrandView; finances/marketing/app…
+ * → thin re-exports of *-v2.
  */
 export function MockupDepartmentPage({ deptId }: MockupDepartmentPageProps) {
   const { stats, liveAgents } = useConsoleData();
@@ -44,10 +44,6 @@ export function MockupDepartmentPage({ deptId }: MockupDepartmentPageProps) {
       break;
     case "analytics":
       view = <MockupAnalyticsView department={department} />;
-      break;
-    case "brand":
-      // Fallback only — /brand mounts live BrandView.
-      view = <MockupBrandView department={department} />;
       break;
     default:
       view = <MockupDashboardView />;

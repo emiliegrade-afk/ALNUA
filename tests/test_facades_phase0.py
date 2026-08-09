@@ -1,4 +1,4 @@
-"""Phase 0 regression tests — facades, briefing API, orchestration, dual-write."""
+"""Phase 0+ regression tests — facades, briefing API, orchestration, costs unify."""
 
 from __future__ import annotations
 
@@ -64,7 +64,6 @@ def test_costs_facade_returns_legacy_shape(monkeypatch: pytest.MonkeyPatch) -> N
     from config.settings import get_settings
     from services.facades import costs_facade
 
-    monkeypatch.setenv("COSTS_SHADOW_COMPARE", "0")
     get_settings.cache_clear()
 
     fake_monthly = {
@@ -94,33 +93,6 @@ def test_costs_facade_returns_legacy_shape(monkeypatch: pytest.MonkeyPatch) -> N
     assert "date" in daily
     assert weekly == fake_weekly
     assert "by_day" in weekly
-
-
-def test_costs_facade_shadow_compare_logs_without_changing_output(
-    monkeypatch: pytest.MonkeyPatch,
-    caplog: pytest.LogCaptureFixture,
-) -> None:
-    import logging
-
-    from config.settings import get_settings
-    from services.facades import costs_facade
-
-    monkeypatch.setenv("COSTS_SHADOW_COMPARE", "1")
-    monkeypatch.setenv("COSTS_UNIFIED_READ", "0")
-    get_settings.cache_clear()
-
-    primary = {"total_usd": 1.0, "by_agent": {}}
-    legacy = {"total_usd": 0.2, "by_agent": {}}
-
-    with (
-        patch("services.cost_monitor.get_daily_costs", return_value=primary),
-        patch("skills.skill_model_usage.get_daily_costs", return_value=legacy),
-        caplog.at_level(logging.INFO, logger="services.facades.costs_facade"),
-    ):
-        result = costs_facade.get_daily_costs()
-
-    assert result == primary
-    assert any("shadow" in r.message for r in caplog.records)
 
 
 def test_briefing_today_404_without_ensure(client: TestClient) -> None:
@@ -172,8 +144,8 @@ def test_orchestration_morning_still_stores_row() -> None:
     assert stored_row["has_urgent"] is True
 
 
-def test_llm_record_dual_write() -> None:
-    """LLMClient must write cost_monitor and Supabase legacy in parallel."""
+def test_llm_record_cost_monitor_only() -> None:
+    """LLMClient writes cost_monitor only (Supabase dual-write retired)."""
     from agents.base import LLMClient
 
     fake_response = MagicMock()
@@ -190,7 +162,6 @@ def test_llm_record_dual_write() -> None:
         patch("httpx.Client") as mock_client_cls,
         patch("services.cost_monitor.record_call", return_value=0.002) as mock_record,
         patch("services.cost_monitor.check_budget_alert", return_value={"alert": False}),
-        patch("skills.skill_model_usage.log_usage") as mock_log_usage,
     ):
         mock_client_cls.return_value.__enter__.return_value.post.return_value = fake_response
         out = client.chat(
@@ -203,35 +174,26 @@ def test_llm_record_dual_write() -> None:
 
     assert out == "ok"
     mock_record.assert_called_once()
-    mock_log_usage.assert_called_once_with(
-        agent_name="analyst_data",
-        model="google/gemini-flash-1.5",
-        tokens_in=200,
-        tokens_out=80,
-        cost_usd=0.002,
-        task_id="sql_query",
-    )
 
 
-def test_phase0_feature_flags_default_safe(monkeypatch: pytest.MonkeyPatch) -> None:
-    """New surfaces stay off; shadow compare on by default."""
+def test_phase0_feature_flags_defaults(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Costs unified by default; experimental surfaces stay off."""
     from config.settings import get_settings
 
-    # Explicit "0" overrides root .env (pydantic env_file would otherwise win on delenv).
+    monkeypatch.setenv("COSTS_UNIFIED_READ", "1")
+    monkeypatch.setenv("COSTS_SHADOW_COMPARE", "0")
     for key in (
-        "COSTS_UNIFIED_READ",
         "BRIEFING_COO_SECTION_ENABLED",
         "BRIEFING_UNIFIED_GENERATE",
         "ADMIN_COSTS_PAGE_ENABLED",
         "GDD_MANAGER_ENABLED",
     ):
         monkeypatch.setenv(key, "0")
-    monkeypatch.delenv("COSTS_SHADOW_COMPARE", raising=False)
     get_settings.cache_clear()
 
     s = get_settings()
-    assert s.costs_unified_read is False
-    assert s.costs_shadow_compare is True
+    assert s.costs_unified_read is True
+    assert s.costs_shadow_compare is False
     assert s.briefing_coo_section_enabled is False
     assert s.admin_costs_page_enabled is False
     assert s.gdd_manager_enabled is False

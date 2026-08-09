@@ -113,7 +113,12 @@ def test_ship_game_happy_path(workflow_runs_dir, tmp_path: Path) -> None:
 
     assert result["success"] is True
     assert result["status"] == "completed"
-    emit_mock.assert_called_once()
+    shipped = [
+        c
+        for c in emit_mock.call_args_list
+        if c.args and c.args[0] == "feature_shipped"
+    ]
+    assert len(shipped) == 1
 
 
 def test_gaming_playbook_override() -> None:

@@ -36,12 +36,6 @@ DEFAULT_AGENT_ID = "dev_app"
 # LLM call direct (sans dépendance CrewAI)
 # ---------------------------------------------------------------------------
 
-def _default_model(agent_id: str = DEFAULT_AGENT_ID) -> str:
-    from agents.base import resolve_openrouter_model
-
-    return resolve_openrouter_model(agent_id)
-
-
 def _llm(system: str, user: str, model: str | None = None, agent_id: str = DEFAULT_AGENT_ID) -> str:
     """OpenRouter via LLMClient — costs, retries, prompt-cache included."""
     from agents.base import LLMClient
