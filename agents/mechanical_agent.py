@@ -50,3 +50,10 @@ Réponds en JSON :
         from services.eve_sourcing import assembly_plan
 
         return assembly_plan(goal=goal)
+
+    @trace_agent("mechanical")
+    def bom_context(self, category: str | None = None, limit: int = 20) -> dict[str, Any]:
+        """Vague B — live Eve BOM for mechanical / assembly work."""
+        from skills.skill_bom import get_bom_context
+
+        return get_bom_context(category=category, limit=limit)

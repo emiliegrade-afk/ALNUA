@@ -43,3 +43,15 @@ Réponds en JSON :
             temperature=0.4,
             max_tokens=2048,
         )
+
+    @trace_agent("qa_robot")
+    def lab_context(
+        self,
+        project_id: str | None = None,
+        category: str | None = None,
+        limit: int = 20,
+    ) -> dict[str, Any]:
+        """Vague B — real lab-test rows (or honest empty) before writing protocols."""
+        from skills.skill_robo_lab import get_lab_context
+
+        return get_lab_context(project_id=project_id, category=category, limit=limit)

@@ -7,6 +7,15 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-10 — Vague B : probes robotique Phase 21 (feat)
+
+- **Type :** feat
+- **Details :**
+  - `skills/skill_robo_lab.py` — lab tests + builds (vide honnête).
+  - Router `robo_phase21` : BOM mech/industrial, lab QA/safety/sim, Pi vision.
+  - Console `/robo` : probes Vague B.
+  - Tests `test_robo_phase21.py`.
+
 ## 2026-08-10 — DEC-020 : agency Gaming = Claude Code sur le PC (feat)
 
 - **Type :** feat

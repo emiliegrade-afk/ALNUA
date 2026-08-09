@@ -12,6 +12,10 @@ import {
   fetchLookingGlassStatus,
   fetchPiBridgeStatus,
   hardwareInstruction,
+  mechanicalBomContext,
+  qaRobotLabContext,
+  safetyLabContext,
+  visionAiPiProbe,
   type BomItem,
 } from "@/lib/pole-api";
 import { cn } from "@/lib/utils";
@@ -176,6 +180,32 @@ export function RoboConsole() {
             },
           ]}
           onSubmit={(v) => embeddedPiCommand(v.command)}
+        />
+        <AgentActionConsole
+          title="Vague B — Probes lab / BOM / vision"
+          description="Données réelles ou vide honnête — jamais de fake bancs"
+          fields={[
+            {
+              name: "action",
+              label: "Probe",
+              type: "select",
+              defaultValue: "qa_lab",
+              options: [
+                { value: "qa_lab", label: "Bilal — lab tests" },
+                { value: "safety_lab", label: "Clara — lab + builds" },
+                { value: "mech_bom", label: "Ravi — BOM mécanique" },
+                { value: "vision_pi", label: "Sana — Pi probe" },
+              ],
+            },
+          ]}
+          submitLabel="Lancer probe"
+          onSubmit={async (v) => {
+            const a = v.action || "qa_lab";
+            if (a === "safety_lab") return safetyLabContext();
+            if (a === "mech_bom") return mechanicalBomContext();
+            if (a === "vision_pi") return visionAiPiProbe("uname -a");
+            return qaRobotLabContext();
+          }}
         />
       </div>
     </section>

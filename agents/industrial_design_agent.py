@@ -42,3 +42,10 @@ Réponds en JSON :
             temperature=0.6,
             max_tokens=2048,
         )
+
+    @trace_agent("industrial_design")
+    def bom_context(self, category: str | None = None, limit: int = 20) -> dict[str, Any]:
+        """Vague B — BOM snapshot for form-factor / materials choices."""
+        from skills.skill_bom import get_bom_context
+
+        return get_bom_context(category=category, limit=limit)

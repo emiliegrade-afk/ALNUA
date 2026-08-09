@@ -43,3 +43,20 @@ Réponds en JSON :
             temperature=0.3,
             max_tokens=2048,
         )
+
+    @trace_agent("simulation")
+    def lab_context(self, project_id: str | None = None) -> dict[str, Any]:
+        """Vague B — lab/builds + BOM snapshot before sim plans (no fake results)."""
+        from skills.skill_bom import get_bom_context
+        from skills.skill_robo_lab import get_lab_bundle
+
+        bundle = get_lab_bundle(project_id=project_id)
+        bom = get_bom_context(limit=15)
+        return {
+            "ok": bool(bundle.get("ok")) and bool(bom.get("ok")),
+            "lab_bundle": bundle,
+            "bom": bom,
+            "error": None
+            if bundle.get("ok") and bom.get("ok")
+            else (bundle.get("error") or bom.get("error")),
+        }

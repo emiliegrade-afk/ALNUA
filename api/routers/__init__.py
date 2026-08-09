@@ -46,6 +46,7 @@ from api.routers.plugins import router as plugins_router
 from api.routers.personality import router as personality_router
 from api.routers.trust import router as trust_router
 from api.routers.ue58_bridge import router as ue58_bridge_router
+from api.routers.robo_phase21 import router as robo_phase21_router
 
 
 ALL_ROUTERS = [
@@ -90,6 +91,7 @@ ALL_ROUTERS = [
     personality_router,
     trust_router,
     ue58_bridge_router,
+    robo_phase21_router,
 ]
 
 

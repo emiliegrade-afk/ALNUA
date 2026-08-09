@@ -64,9 +64,9 @@ MissionsTab+COO split → Finance/skills/MVP honesty → **durabilité** (purge 
 dumps, orphan `coding_facade`, checklist `AGENTS.md`, tests HTTP budgets).
 **`budget_transfer` :** explicitement **reporté** (pas dans le moteur ; enveloppes
 budgets manuelles seulement — DEC-016 inchangé, pas de paiement/transfert auto).
-**Prochain audit santé :** ≤ **2026-08-30**. **P0 + Vague A + DEC-020 :**
-pont UE5.8 + **agency Claude Code** sur `UE_PROJECT_PATH`. Suite : configurer
-le chemin projet chez Emilie + serveur UE5.8 ; Vague B robotique.
+**Prochain audit santé :** ≤ **2026-08-30**. **P0 + Vague A/B + DEC-020 :**
+pont UE5.8, agency Claude Code, probes robotique lab/BOM/Pi. Suite : config
+`UE_PROJECT_PATH` + Pi ; Phase 34/35/28 selon besoin.
 
 ## Points tranchés le 2026-07-25 (anciennement ouverts)
 
@@ -454,8 +454,13 @@ pont Nwiro **abandonné** (DEC-017) — ne plus étendre `skill_nwiro`.
 **DEC-020 (2026-08-10) — agency PC type Claude Code :**
 - `skill_gaming_agency` + `POST /gaming/studio/agency/run` sur `UE_PROJECT_PATH`
 - UI : lancer Nova/Kenji/Otto/Diego sur le projet UE local (worktree)
-**Statut :** 🔄 In progress (pont + agency Hub prêts ; serveur UE5.8 studio +
-`UE_PROJECT_PATH` à configurer chez Emilie ; Pi optionnel).
+**Vague B (2026-08-10) — robotique probes restants :**
+- `skill_robo_lab` + router `robo_phase21` (pas de croissance `agents_pole`)
+- BOM : mechanical / industrial_design ; lab : qa_robot / safety / simulation ;
+  Pi probe : vision_ai (DEC-018)
+- UI `/robo` : panneau probes Vague B
+**Statut :** 🔄 In progress (skills Gaming+Robo branchés ; UE_PROJECT_PATH + Pi
+à configurer ; serveur UE5.8 studio à brancher).
 
 ### Phase 22 — Redesign R&D v2 : socle & coquille (`/rnd-v2`)
 **Objectif :** premier étage d'une refonte en 7 phases (22-28) du département

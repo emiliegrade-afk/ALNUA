@@ -44,3 +44,25 @@ Réponds en JSON :
             temperature=0.4,
             max_tokens=2048,
         )
+
+    @trace_agent("vision_ai")
+    def probe_pi(self, command: str = "uname -a") -> dict[str, Any]:
+        """Vague B — Pi probe for camera/host readiness (DEC-018; no fake frames)."""
+        from skills.skill_pi_ssh import PI_NOT_CONFIGURED, pi_is_configured, run_pi_command
+
+        cmd = (command or "uname -a").strip() or "uname -a"
+        if not pi_is_configured():
+            return {
+                "ok": False,
+                "configured": False,
+                "error": PI_NOT_CONFIGURED,
+                "command": cmd,
+            }
+        result = run_pi_command(cmd, timeout=20)
+        return {
+            "ok": bool(result.get("success")),
+            "configured": True,
+            "command": result.get("command", cmd),
+            "host": result.get("host", ""),
+            "output": (result.get("output") or "")[:2000],
+        }

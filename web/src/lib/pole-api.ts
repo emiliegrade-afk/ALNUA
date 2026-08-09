@@ -385,6 +385,41 @@ export function fetchPiBridgeStatus(): Promise<{
   return hubFetch("/robo/pi-bridge");
 }
 
+/** Vague B Phase 21 — lab / BOM / Pi probes (honest empty). */
+export function qaRobotLabContext(body?: {
+  project_id?: string;
+  category?: string;
+}): Promise<Record<string, unknown>> {
+  return hubFetch("/agents/qa-robot/lab-context", {
+    method: "POST",
+    body: JSON.stringify(body || {}),
+  });
+}
+
+export function safetyLabContext(body?: {
+  project_id?: string;
+  category?: string;
+}): Promise<Record<string, unknown>> {
+  return hubFetch("/agents/safety/lab-context", {
+    method: "POST",
+    body: JSON.stringify(body || {}),
+  });
+}
+
+export function visionAiPiProbe(command = "uname -a"): Promise<Record<string, unknown>> {
+  return hubFetch("/agents/vision-ai/pi-probe", {
+    method: "POST",
+    body: JSON.stringify({ command }),
+  });
+}
+
+export function mechanicalBomContext(category?: string): Promise<Record<string, unknown>> {
+  return hubFetch("/agents/mechanical/bom-context", {
+    method: "POST",
+    body: JSON.stringify({ category, limit: 20 }),
+  });
+}
+
 export interface LookingGlassStatus {
   connected: boolean;
   holoplay_running: boolean;

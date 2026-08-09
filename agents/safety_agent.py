@@ -42,3 +42,14 @@ Réponds en JSON :
             temperature=0.3,
             max_tokens=2048,
         )
+
+    @trace_agent("safety")
+    def lab_context(
+        self,
+        project_id: str | None = None,
+        category: str | None = None,
+    ) -> dict[str, Any]:
+        """Vague B — lab + builds grounding for risk assessment (no invented fails)."""
+        from skills.skill_robo_lab import get_lab_bundle
+
+        return get_lab_bundle(project_id=project_id, category=category)
