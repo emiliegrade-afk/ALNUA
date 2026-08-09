@@ -76,3 +76,42 @@ Historique des audits de gouvernance effectués.
   code réel plutôt que laissée telle quelle.
 - **Findings deferred :** aucun — tâche de création pure, pas d'audit de code
   supplémentaire mené dans cet addendum.
+
+---
+
+## Audit 002 — Health check 10 dimensions
+
+- **Date :** 2026-08-09
+- **Scope :** audit santé projet complet (gouvernance, structure, deps, types,
+  tests, config/secrets, perf, drift doc, git hygiene, risques forward) —
+  **aucun changement de code produit**, uniquement tracker bugs + ce log.
+- **Méthode :** lecture des 8 fichiers de gouvernance + README ; `git log -30` ;
+  mesures fichiers >300/1000 lignes ; `pytest --collect-only` ; `npm audit` ;
+  grep TypeScript `any`/`@ts-ignore` ; inventaire routers (`ALL_ROUTERS` = 38) ;
+  personas (49) ; spot-check Phase 34 Finance / Phase 36 event bus / orphans.
+- **Verdict :** 🟡 **Concerning** — le produit avance vite et les hard gates
+  sécurité d'Audit 001 tiennent, mais la gouvernance et la dette structurelle
+  ont décroché du code.
+- **Findings majeurs :**
+  - 🔴 CHANGELOG / IMPLEMENTATION_STATUS / chiffres ARCHITECTURE désynchronisés
+    (BUG-011) — CHANGELOG figé au 2026-07-31
+  - 🔴 Routes primaires encore sur MockupShell vs `*-v2` (BUG-013)
+  - 🟠 `npm audit` 21 vulns dont 1 critical (BUG-012)
+  - 🟠 BUG-004 empiré (~10 fichiers Python >1000 lignes, nouveaux monolithes
+    `agent_specs_registry` / `schemas` / `personas`)
+  - 🟠 Phase 34 Finance : backend partiel (DEC-016) sans UI client
+  - 🟡 Orphans `brand_agent` / `skill_aider` / `skill_openhands` (BUG-014)
+  - 🟡 Dual coding + triple briefing (BUG-015)
+  - 🟡 Vault library ~988 notes quasi-doublons (BUG-016)
+  - ✅ TypeScript : 0 `as any` / 0 `: any` / 0 `@ts-ignore`
+  - ✅ SEC-002 toujours tenu ; `.env` non tracké ; pas de `VITE_` secrets
+  - ✅ Suite tests : 381 collected / 66 `test_*.py` (était ~354 / 63 docs)
+- **Ouverts :** BUG-011 … BUG-016 (+ mise à jour BUG-004/005) — voir `BUGS.md`
+- **Vs Audit 001 :** sécurité mieux (SEC-002/003 fermés) ; tests + types OK ;
+  gouvernance et taille de fichiers **pire** ; surface produit beaucoup plus
+  large sans resync docs.
+- **Next sprint suggested :** (1) resync CHANGELOG + IMPLEMENTATION_STATUS +
+  comptes agents/routers ; (2) reconnecter routes mockup → `*-v2` ; (3) npm
+  audit ciblé ; (4) Phase 34 UI Finance ; (5) un découpage BUG-004 (coo/rnd).
+- **Next audit planned :** après resync gouvernance + Phase 34 UI, ou au plus
+  tard dans 4 semaines — ne pas laisser 2 mois sans audit comme entre 001 et 002.

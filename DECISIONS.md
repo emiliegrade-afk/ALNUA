@@ -14,7 +14,7 @@
 | DEC-003 | Prompts système en "9-layer operating spec" | 2026-06-24 | Active |
 | DEC-004 | Star-imports volontaires via `route_common.py` | 2026-07-23 | Active |
 | DEC-005 | RLS Supabase restreinte à `SELECT` sur tables sensibles | 2026-06-12 | Active |
-| DEC-006 | `X-Hub-Key` obligatoire hors développement | 2026-06-12 | Active |
+| DEC-006 | `X-Hub-Key` obligatoire hors développement | 2026-06-12 | Superseded (DEC-010) |
 | DEC-007 | Sanitizing désactivé sur `agents_pole.py` (PII) | — | Active |
 | DEC-008 | OpenHands (pipeline autonome) + Aider (fix ciblés) en parallèle | 2026-06-11 | Active |
 | DEC-009 | Nwiro/UE5 coexiste avec Godot — assumé, `CLAUDE.md` corrigé | 2026-07-25 | Active |
@@ -73,11 +73,13 @@ tables sensibles.
 tables").
 
 ### DEC-006 — `X-Hub-Key` obligatoire hors développement
-**Décision :** les routes Hub API exigent le header `X-Hub-Key` ; seule l'exécution
-avec `ENVIRONMENT=development` permet de démarrer sans clé.
+**Statut :** Superseded by DEC-010 (2026-07-25) — Audit 002 a confirmé que le bypass
+dev n'existe plus ; la table d'index a été alignée le 2026-08-09.
+**Décision (historique) :** les routes Hub API exigent le header `X-Hub-Key` ; seule
+l'exécution avec `ENVIRONMENT=development` permettait de démarrer sans clé.
 **Commit :** `7c86370` ("feat(security): require X-Hub-Key on Hub API routes").
-**Risque résiduel documenté :** si `ENVIRONMENT` est mal positionné en prod, l'API
-démarre quand même sans clé — voir vérification dans `BUGS.md`.
+**Risque résiduel (obsolète) :** si `ENVIRONMENT` est mal positionné en prod, l'API
+démarrait quand même sans clé — **fermé** par DEC-010 / SEC-002.
 
 ### DEC-007 — Sanitizing désactivé sur `agents_pole.py` (PII)
 **Contexte :** `services/input_sanitizer.py::sanitize_user_input` redacte les PII par
