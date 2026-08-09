@@ -3,7 +3,7 @@ import { hubBackendBaseUrl } from "@/lib/hub-api-config";
 import { RndProductPublicPage } from "@/components/product/rnd-product-public-page";
 
 interface ProductPublicPageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 async function fetchProductMeta(slug: string): Promise<{
@@ -34,7 +34,8 @@ async function fetchProductMeta(slug: string): Promise<{
 export async function generateMetadata({
   params,
 }: ProductPublicPageProps): Promise<Metadata> {
-  const page = await fetchProductMeta(params.slug);
+  const { slug } = await params;
+  const page = await fetchProductMeta(slug);
   if (!page) {
     return { title: "Produit — ALNUA" };
   }
@@ -48,6 +49,7 @@ export async function generateMetadata({
   };
 }
 
-export default function ProductPublicPage({ params }: ProductPublicPageProps) {
-  return <RndProductPublicPage slug={params.slug} />;
+export default async function ProductPublicPage({ params }: ProductPublicPageProps) {
+  const { slug } = await params;
+  return <RndProductPublicPage slug={slug} />;
 }

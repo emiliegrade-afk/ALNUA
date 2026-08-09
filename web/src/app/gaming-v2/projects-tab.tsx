@@ -6,7 +6,6 @@ import { CreateProjectModal } from "@/components/shared/create-project-modal";
 import { fetchLatestGamingBuild } from "@/lib/gaming-builds";
 import type { BureauAgentDef } from "@/lib/agent-bureau";
 import type { GamingBuild, Project } from "@/lib/types";
-import { ROUTES } from "@/lib/routes";
 import { C } from "../app-v2/shared";
 import { PROJECT_COLOR, PROJECT_LABEL, PROJECT_PROGRESS } from "../app-v2/tabs";
 import { projectStats, pick } from "./mock-data";

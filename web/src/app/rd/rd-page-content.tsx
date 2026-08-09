@@ -127,7 +127,7 @@ export function RdPageContent() {
           }`}
         >
           <LayoutDashboard className="h-4 w-4" />
-          Vue d'ensemble
+          Vue d&apos;ensemble
         </button>
         <button
           onClick={() => setTab("brainstorm")}

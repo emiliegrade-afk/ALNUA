@@ -23,9 +23,9 @@ import {
   Settings2,
   Sparkles,
   Target,
-  Users,
   Workflow,
   Zap,
+  type LucideIcon,
 } from "lucide-react";
 import { AlnuaStar } from "@/components/brand/alnua-star";
 import {
@@ -34,7 +34,7 @@ import {
   type ProtoDeptName,
 } from "./proto-dept-routes";
 
-const DEPARTMENTS: [string, ProtoDeptName, React.ComponentType<{ size?: number }>][] = [
+const DEPARTMENTS: [string, ProtoDeptName, LucideIcon][] = [
   ["01", "Direction", BriefcaseBusiness],
   ["02", "Secrétariat", ClipboardList],
   ["03", "CEO", Target],

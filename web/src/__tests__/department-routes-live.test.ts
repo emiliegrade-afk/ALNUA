@@ -3,14 +3,24 @@ import { join } from "path";
 import { describe, expect, it } from "vitest";
 
 /**
- * Primary department routes must serve live *-v2 (or RdPageContent deep-links),
- * never MockupDepartmentPage — except hub/analytics residual mockups.
+ * All primary department routes must be live — never MockupDepartmentPage.
  */
-const LIVE_V2_DEPTS = ["finances", "marketing", "rd", "app", "gaming", "robo"] as const;
-const STILL_MOCKUP = ["hub", "analytics"] as const;
+const LIVE_DEPTS = [
+  "finances",
+  "marketing",
+  "rd",
+  "app",
+  "gaming",
+  "robo",
+  "ceo",
+  "secretary",
+  "brand",
+  "hub",
+  "analytics",
+] as const;
 
 describe("department primary routes are live (not MockupShell)", () => {
-  for (const dept of LIVE_V2_DEPTS) {
+  for (const dept of LIVE_DEPTS) {
     it(`/${dept} does not mount MockupDepartmentPage`, () => {
       const src = readFileSync(
         join(process.cwd(), "src", "app", dept, "page.tsx"),
@@ -41,13 +51,20 @@ describe("department primary routes are live (not MockupShell)", () => {
     expect(src).toMatch(/BrandView/);
   });
 
-  for (const dept of STILL_MOCKUP) {
-    it(`/${dept} still uses MockupDepartmentPage`, () => {
-      const src = readFileSync(
-        join(process.cwd(), "src", "app", dept, "page.tsx"),
-        "utf8",
-      );
-      expect(src).toMatch(/MockupDepartmentPage/);
-    });
-  }
+  it("/ceo and /secretary use live panels", () => {
+    const ceo = readFileSync(join(process.cwd(), "src", "app", "ceo", "page.tsx"), "utf8");
+    const sec = readFileSync(join(process.cwd(), "src", "app", "secretary", "page.tsx"), "utf8");
+    expect(ceo).toMatch(/CeoCockpitPanel/);
+    expect(sec).toMatch(/NadiaDesktopPanel|SecretaryConsole/);
+  });
+
+  it("/hub and /analytics are live shells", () => {
+    const hub = readFileSync(join(process.cwd(), "src", "app", "hub", "page.tsx"), "utf8");
+    const analytics = readFileSync(
+      join(process.cwd(), "src", "app", "analytics", "page.tsx"),
+      "utf8",
+    );
+    expect(hub).toMatch(/DeptV2PageShell/);
+    expect(analytics).toMatch(/DeptV2PageShell/);
+  });
 });

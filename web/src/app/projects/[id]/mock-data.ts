@@ -86,7 +86,7 @@ export interface MockFeatureRow {
 export function featuresForModule(moduleId: string, agentNames: string[]): MockFeatureRow[] {
   const rows = ["Scan / capture", "Analyse", "Recommandations", "Historique", "Objectifs", "Intégration externe"];
   const statuses = ["Terminé", "En cours", "À faire", "En test"] as const;
-  return rows.map((r, i) => {
+  return rows.map((r) => {
     const seed = `${moduleId}-feat-${r}`;
     return {
       name: r,

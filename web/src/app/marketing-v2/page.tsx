@@ -74,7 +74,7 @@ const QUICK_ACTIONS = [
 function MarketingDepartmentView() {
   const agents = getAgentsForBureau("marketing");
   const statuses = useAgentStatuses();
-  const { activityFeed, stats } = useConsoleData();
+  const { activityFeed } = useConsoleData();
   const [tab, setTab] = useState<Tab>("Équipe");
   const [selectedId, setSelectedId] = useState(agents[0]?.id ?? "");
 

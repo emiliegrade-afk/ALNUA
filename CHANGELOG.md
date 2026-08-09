@@ -7,6 +7,15 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-09 — Bugs + clean : Next 15, workflow split, FE tooling, hub/analytics live (fix + refactor)
+
+- **BUG-004 :** `workflow_engine` découpé (dossier/ops/ship handlers, fichiers ≤300 sauf engine 447).
+- **BUG-017 :** Next **15.5.23** (mitigation partielle ; reste 3 high → Next 16).
+- FE : `tsc` 0 erreur ; Vitest 33/33 via `@vitejs/plugin-react-swc`.
+- `/hub` + `/analytics` shells live (plus de mockup primary).
+- **Build :** `next build` corrompu si `next dev` écrit `.next` en parallèle →
+  `npm run build:safe` (`NEXT_DIST_DIR=.next-build`) ; lockfile racine vide retiré.
+
 ## 2026-08-09 — Clean suite : DeptV2 chrome + live CEO/Secretary/Brand (refactor + fix)
 
 - Shared `DeptV2PageShell` on all `*-v2` pages (dead local header/sidebar removed).

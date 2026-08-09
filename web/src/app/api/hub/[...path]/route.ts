@@ -131,14 +131,14 @@ async function proxyHubRequest(
   }
 }
 
-type RouteContext = { params: { path: string[] } };
+type RouteContext = { params: Promise<{ path: string[] }> };
 
 async function handle(
   req: NextRequest,
   context: RouteContext
 ): Promise<NextResponse> {
   try {
-    const segments = context.params?.path;
+    const { path: segments } = await context.params;
     if (!segments?.length) {
       return NextResponse.json({ detail: "Chemin API manquant" }, { status: 400 });
     }

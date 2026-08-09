@@ -101,7 +101,7 @@ export function PoleOverview({ bureau, dept, className }: PoleOverviewProps) {
   if (!pole || !cfg) {
     return (
       <div className={cn(CARD, "text-sm text-titane/60", className)}>
-        Vue d'ensemble non configurée pour ce pôle.
+        Vue d&apos;ensemble non configurée pour ce pôle.
       </div>
     );
   }

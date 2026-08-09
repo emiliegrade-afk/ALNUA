@@ -64,7 +64,7 @@ const QUICK_ACTIONS = [
 function RndDepartmentView() {
   const agents = getAgentsForBureau("rd");
   const statuses = useAgentStatuses();
-  const { activityFeed, stats } = useConsoleData();
+  const { activityFeed } = useConsoleData();
   const [tab, setTab] = useState<Tab>("Équipe");
   const [selectedId, setSelectedId] = useState(agents[0]?.id ?? "");
   const [newIdeaOpen, setNewIdeaOpen] = useState(false);

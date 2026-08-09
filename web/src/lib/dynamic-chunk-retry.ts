@@ -1,4 +1,4 @@
-import type { ComponentType } from "react";
+import type { ComponentType, ReactElement } from "react";
 import dynamic, { type DynamicOptionsLoadingProps } from "next/dynamic";
 
 const CHUNK_RETRY_KEY = "alnua-chunk-retry";
@@ -29,15 +29,16 @@ export function importWithChunkRetry<T>(
   });
 }
 
-export function dynamicWithChunkRetry<P = Record<string, never>>(
-  loader: () => Promise<{ default: ComponentType<P> }>,
+export function dynamicWithChunkRetry<P extends object = Record<string, never>>(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- next/dynamic + named exports infer `never` props
+  loader: () => Promise<{ default: ComponentType<any> }>,
   options?: {
-    loading?: (props: DynamicOptionsLoadingProps) => React.ReactNode;
+    loading?: (props: DynamicOptionsLoadingProps) => ReactElement | null;
     ssr?: boolean;
   },
 ) {
-  return dynamic(
-    () => importWithChunkRetry(loader),
+  return dynamic<P>(
+    () => importWithChunkRetry(loader) as Promise<{ default: ComponentType<P> }>,
     { ssr: false, ...options },
   );
 }

@@ -53,9 +53,11 @@ const SELF_CONTAINED_V2_ROUTES = [
   "/ceo",
   "/secretary",
   "/brand",
+  "/hub",
+  "/analytics",
 ];
 
-/** Residual mockup ProtoFullShell — hub + analytics only. */
+/** Residual mockup ProtoFullShell — none for primary dept routes (clean 2026-08-09). */
 const DEPT_SHELL_ROUTES = PROTO_SHELL_PATHS.filter(
   (route) =>
     !(LIVE_V2_CANONICAL as readonly string[]).includes(route) &&

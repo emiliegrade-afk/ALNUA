@@ -54,21 +54,22 @@ y compris `tests/test_devex_phase6.py` réécrit pour le nouveau comportement.
 | BUG-014 | Info | Modules morts : `skill_aider` / `skill_openhands` / `brand_agent` | Phase D : skills orphans **supprimés** ; `brand_agent` **gardé** (Phase 35 / SPEC / `test_pole_services`) |
 | BUG-015 | Info | Dual coding + triple briefing | Phase D : `coding_facade.py` + doc `briefing_facade` (3 chemins) — pas de fusion forcée |
 | BUG-005 | Info | `AGENT_NAME` suffixe `_agent` vs IDs courts | Phase D : aliases `rnd_*_agent` ajoutés ; `coo_agent`→`coo` existait déjà |
+| BUG-013 | Moyenne | Routes mockup restantes | Suite clean : `/hub` `/analytics` live (DeptV2 shells) — **plus de MockupDepartmentPage** sur routes primaires |
 
 ## Ouverts — nécessitent une décision produit, non corrigés
 
 | ID | Gravité | Description | Constat |
-|----|---------|-------------|---------|
-| BUG-004 | Info | Fichiers Python >300/~1000 lignes — en baisse partielle | Phase D : 1er cut `rnd_trees` extrait de `rnd.py`. Reste : `coo_agent`, registries, `schemas`, MissionsTab ×3 (reporté) |
-| BUG-017 | Info | Next 14.2.35 : 5 high restants | Accepté Phase C — migration Next dédiée |
+|----|---------|-------------|-----------|
+| BUG-004 | Info | Fichiers Python >300 lignes — mitigé encore | 2026-08-09 : `workflow_engine` 1059→447 + handlers dossier/ops/ship ≤300. Reste : `coo_agent`, `schemas`, registries, MissionsTab |
+| BUG-017 | Info | Next vulns — mitigé partiel | Upgrade **14.2.35 → 15.5.23** (8→6 vulns, 5→3 high). Reste Next 16 pour fermer. Build local : ne pas lancer `next build` pendant `next dev` (cache `.next` corrompu → `PageNotFoundError`) — utiliser `npm run build:safe` |
 
-## Statistiques (mises à jour Audit 003 — 2026-08-09)
+## Statistiques (mises à jour clean bugs — 2026-08-09)
 
 | Bucket | Count |
 |--------|------:|
-| Ouverts | 2 (`BUG-004`, `BUG-017`) |
+| Ouverts | 2 (`BUG-004`, `BUG-017`) — tous deux **mitigés**, pas fermés |
 | Fermés remédiation A–E | 11 (`BUG-002`/`003`/`005`/`011`–`016`) |
-| Residual Phase B (hors scope) | mockup `/hub` `/analytics` seulement |
+| Residual mockup routes | **0** (hub/analytics live) |
 | Corrigés (SEC) | 6 (`SEC-001`–`006`) |
 | Corrigés (BUG) | 15 (`BUG-001`–`003`, `BUG-005`–`016`) |
 | Décision fermée | 1 (`DEC-009`) |

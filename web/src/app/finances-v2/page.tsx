@@ -58,7 +58,7 @@ const QUICK_ACTIONS = [
 function FinancesDepartmentView() {
   const agents = getAgentsForBureau("finances");
   const statuses = useAgentStatuses();
-  const { activityFeed, stats } = useConsoleData();
+  const { activityFeed } = useConsoleData();
   const [tab, setTab] = useState<Tab>("Équipe");
   const [selectedId, setSelectedId] = useState(agents[0]?.id ?? "");
 

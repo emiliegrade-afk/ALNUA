@@ -61,14 +61,14 @@ export function CreateModuleModal({ open, onOpenChange, projectId, onCreated }: 
     const total = Number(featuresTotal);
     setSubmitting(true);
     try {
-      const module = await createModule({
+      const created = await createModule({
         project_id: projectId,
         name: name.trim(),
         status,
         ...(featuresTotal.trim() && Number.isFinite(total) ? { features_total: total } : {}),
       });
       toast.success("Module créé");
-      onCreated(module);
+      onCreated(created);
       onOpenChange(false);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erreur création");

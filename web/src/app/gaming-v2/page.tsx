@@ -69,7 +69,7 @@ const VACANT_ROLES: string[] = [];
 function GamingDepartmentView() {
   const agents = getAgentsForBureau("gaming");
   const statuses = useAgentStatuses();
-  const { activityFeed, stats } = useConsoleData();
+  const { activityFeed } = useConsoleData();
   const [tab, setTab] = useState<Tab>("Équipe");
   const [projects, setProjects] = useState<Project[]>([]);
   const { tickets } = useBureauTickets(projects);

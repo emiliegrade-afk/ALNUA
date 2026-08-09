@@ -12,11 +12,9 @@ import { useConsoleData } from "@/components/console/console-provider";
 import { ConsoleProvider } from "@/components/console/console-provider";
 import { useAgentStatuses } from "@/hooks/use-agent-statuses";
 import { getAgentsForBureau, type BureauAgentDef } from "@/lib/agent-bureau";
-import { HUB_OWNER } from "@/lib/console/owner";
 import { deleteProject, fetchProjects } from "@/lib/api";
 import { ROUTES } from "@/lib/routes";
 import type { Project } from "@/lib/types";
-import { cn } from "@/lib/utils";
 import { useBureauTickets } from "./tabs";
 import { ProjetsTab } from "./projects-tab";
 import { MissionsTab } from "./missions-tab";
@@ -62,7 +60,7 @@ const QUICK_ACTIONS = [
 function AppDepartmentView() {
   const agents = getAgentsForBureau("app");
   const statuses = useAgentStatuses();
-  const { activityFeed, stats } = useConsoleData();
+  const { activityFeed } = useConsoleData();
   const [selectedId, setSelectedId] = useState(agents[0]?.id ?? "");
   const [subTab, setSubTab] = useState<(typeof SUB_TABS)[number]["label"]>("Projets");
   const [projects, setProjects] = useState<Project[]>([]);

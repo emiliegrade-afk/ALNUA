@@ -12,6 +12,7 @@ brand_kits/uploads/
 *.log
 node_modules/
 web/.next/
+web/.next-build/
 worktrees/
 .cursor/
 supabase/.temp/
