@@ -192,6 +192,24 @@ Historique des audits de gouvernance effectués.
 
 ---
 
+## Vague F — Hygiène anti-drift (post P0 / Vagues A–E)
+
+- **Date :** 2026-08-10
+- **Scope :** hygiène calendaire (plan Vague F) — **pas** un Audit 005 complet
+  (toujours dû ≤ **2026-08-30**). Resync comptes après lots produit A–E.
+- **Méthode :** `pytest --collect-only` (433) ; suite locale 427 passed / 6 skipped ;
+  `ALL_ROUTERS`=44 ; Next **16.3.0** ; `npm audit` 0 vulns ; Vitest 35/35 ;
+  vault `library/` hors `_index` non re-tracké ; `brand_kits/` = `.gitkeep` seul ;
+  orphans `skill_aider` / `coding_facade` déjà absents.
+- **Écarts corrigés :** README / ARCHITECTURE / TESTING / IMPLEMENTATION_STATUS /
+  ALNUA_OVERVIEW / ROADMAP (routers 40→44, tests 392→433, Phase 28/35/21,
+  Nwiro→UE5.8 DEC-017).
+- **Dette notée (pas traitée) :** ~74 fichiers Python >300 lignes — split ciblé
+  seulement si on y touche (règle BUG-004 residual).
+- **Next audit planned :** Audit 005 santé 10 dimensions ≤ **2026-08-30**.
+
+---
+
 ## Audit 004 — Health check 10 dimensions (soirée post-Next 15)
 
 - **Date :** 2026-08-09 (soir)

@@ -31,7 +31,7 @@
 | 18 | Gaming — intégrations Steamworks (Wishlist) + Discord | ✅ Complete (réceptacle) |
 | 19 | Robotique — BOM étendu (PCB/firmware/tests) + bancs connectés (Laboratoire) | ✅ Complete (réceptacle) |
 | 20 | Robotique — télémétrie IoT (Analytics : conso/temp/batterie/cycles) | ✅ Complete (réceptacle) |
-| 21 | Outils réels (skills) pour les 15 agents spécialisés Gaming/Robotique (Phase 13) | ⏸️ Not started |
+| 21 | Outils réels (skills) pour les 15 agents spécialisés Gaming/Robotique (Phase 13) | 🔄 In progress (A/B + DEC-020) |
 | 22 | Redesign R&D v2 — socle & coquille (`/rnd-v2`) | ✅ Complete |
 | 23 | Redesign R&D v2 — Innovation Pipeline (cartes) | ✅ Complete |
 | 24 | Redesign R&D v2 — Incubateur (Kanban) | ✅ Complete |
@@ -64,9 +64,9 @@ MissionsTab+COO split → Finance/skills/MVP honesty → **durabilité** (purge 
 dumps, orphan `coding_facade`, checklist `AGENTS.md`, tests HTTP budgets).
 **`budget_transfer` :** explicitement **reporté** (pas dans le moteur ; enveloppes
 budgets manuelles seulement — DEC-016 inchangé, pas de paiement/transfert auto).
-**Prochain audit santé :** ≤ **2026-08-30**. **P0 + Vagues A–E + DEC-020 :**
-UE5.8, agency, robo, Finance forecast, Brand, **R&D Explorer**.
-Suite : config `UE_PROJECT_PATH` / Pi ; Vague F hygiène / Audit 005.
+**Prochain audit santé :** ≤ **2026-08-30** (Audit 005). **P0 + Vagues A–F :**
+produit A–E + **Vague F anti-drift** (44 routers, 433 tests collectés,
+docs resync, npm audit 0). Suite : config `UE_PROJECT_PATH` / Pi / Audit 005.
 
 ## Points tranchés le 2026-07-25 (anciennement ouverts)
 

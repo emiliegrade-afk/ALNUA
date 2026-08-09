@@ -1,8 +1,8 @@
 # Testing — ALNUA Hub
 
 > Reconstitué le 2026-07-25 depuis `.github/workflows/ci.yml`, `pytest.ini` et
-> l'inventaire de `tests/`. Chiffres resynchronisés le **2026-08-09** (Phase A /
-> Audit 002).
+> l'inventaire de `tests/`. Chiffres resynchronisés le **2026-08-10** (Vague F /
+> anti-drift post A–E).
 
 ## Pipeline CI (3 jobs, tous bloquants sur `main`/PR)
 
@@ -18,9 +18,10 @@ complète.
 
 ## Suite Python (`tests/`)
 
-- **~74 fichiers** `test_*.py` (**392** tests collectés au 2026-08-09 soir, Audit 004),
-  organisés par module/feature, pas par couche architecturale stricte (pas de
-  séparation explicite unit/integration/e2e par dossier).
+- **80 fichiers** `test_*.py` (**433** tests collectés au 2026-08-10, Vague F ;
+  **427** passed / 6 skipped en suite locale), organisés par module/feature,
+  pas par couche architecturale stricte (pas de séparation explicite
+  unit/integration/e2e par dossier).
 - **Markers pytest** (`pytest.ini`) :
   - `integration` — tape un vrai service externe (Supabase, OpenRouter, Composio...),
     nécessite des credentials live, **pas exécuté par défaut en CI**.
@@ -37,11 +38,11 @@ complète.
 
 ## Suite frontend (`web/`)
 
-- **Unitaire** : Vitest (`npm run test`) — **33** tests / 6 fichiers verts au
-  close-out Sprint REM-002 (2026-08-09) ; encore mince face à la surface UI.
+- **Unitaire** : Vitest (`npm run test`) — **35** tests / 7 fichiers verts
+  (2026-08-10, Vague F) ; encore mince face à la surface UI.
 - **E2E** : Playwright (`web/e2e/`), Chromium seul en CI, flags admin forcés à `1` pour
   couvrir les pages derrière feature flag.
-- **Typecheck** : `tsc --noEmit` bloquant, séparé du lint (Next **15.5.23**).
+- **Typecheck** : `tsc --noEmit` bloquant, séparé du lint (Next **16.3.0**).
 - **Build prod :** préférer `npm run build:safe` si `next dev` tourne (cache
   `.next` corrompu sinon — documenté BUG-017 / CHANGELOG).
 

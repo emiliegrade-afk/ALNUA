@@ -7,6 +7,16 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-10 — Vague F : hygiène anti-drift post A–E (docs)
+
+- **Type :** docs / chore
+- **Details :**
+  - Resync comptes : **44** routers, **433** tests collectés, Next 16.3.0,
+    Vitest 35, npm audit 0.
+  - IMPLEMENTATION_STATUS / ROADMAP Phase 21–28–35 alignés sur A–E.
+  - Entrée `DOC_AUDIT.md` Vague F (Audit 005 toujours ≤ 2026-08-30).
+  - Purge check : vault library / brand_kits propres ; pas de split >300.
+
 ## 2026-08-10 — Vague E : R&D Explorer veille externe (feat)
 
 - **Type :** feat

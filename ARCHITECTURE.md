@@ -38,14 +38,14 @@ d'une entreprise et travaillent au service de 3 branches produit :
 
 | Module | Emplacement | Taille approx. | Status |
 |--------|-------------|-----------------|--------|
-| Routers API | `api/routers/` | **40** routers montés (+ `gdd.py` conditionnel) | Active |
+| Routers API | `api/routers/` | **44** routers montés (+ `gdd.py` conditionnel) | Active |
 | Agents personas | `agents/*_agent.py` | **49** agents personas (34 + 15 rôles Gaming/Robo, Phase 13) + orchestrateurs infra | Active |
 | Services métier | `services/` | ~128 modules (compétition, coûts, R&D dossier, academy, telegram, brand, coding pipeline...) | Active |
 | Config | `config/` | Personas, tiers, specs opérationnelles 9-couches, settings pydantic | Active |
 | Bots | `bots/` | 11 bots (Discord/Telegram/Publisher/Reviews/Analytics/SAV/Watchdog) | Active |
 | Frontend dashboard | `web/` | Siège social virtuel (lobby + bureaux + `*-v2` Marketing/Finance/R&D), Next.js 16 | Active |
 | Base de données | `database/schema.sql` + `database/supabase_client.py` | — | Active |
-| Tests | `tests/` | **~74** fichiers `test_*.py` (**392** tests collectés, Audit 004) + `web/e2e` Playwright + Vitest | Active |
+| Tests | `tests/` | **80** fichiers `test_*.py` (**433** tests collectés, Vague F 2026-08-10) + `web/e2e` Playwright + Vitest | Active |
 | Gouvernance + méthode de travail | `AGENTS.md` (entrée universelle), `CLAUDE.md`, `.cursor/rules/*.mdc` (agent-orchestration, ai-agent-survival, async-jobs + règles scopées par feature) | 8 fichiers gouvernance + 3 règles générales + règles scopées | Active |
 
 ## Data flow

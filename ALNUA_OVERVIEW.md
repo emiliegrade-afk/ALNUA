@@ -42,7 +42,7 @@ Humain (Emilie) + Cursor (MCP) + bots Discord/Telegram + n8n
 | Couche | Rôle |
 |--------|------|
 | **Frontend** (`web/`) | Siège virtuel : carte HQ, bureaux par département, outils (IDE, Academy, bibliothèque…) |
-| **API** (`api/`) | ~40 routers REST ; montée aussi en **MCP** (`/mcp`) pour Cursor |
+| **API** (`api/`) | **44** routers REST ; montée aussi en **MCP** (`/mcp`) pour Cursor |
 | **Agents** | COO, PM, QA, devs, marketing, R&D, hardware, finance, analytics… |
 | **Services** | Orchestration (plans COO, parallel runner), coûts LLM, dossiers R&D, brand kit, event bus… |
 | **Automatisation** | n8n (briefing quotidien, workflows externes) |

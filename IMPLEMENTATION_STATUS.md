@@ -43,7 +43,8 @@
 | Estimation finance/pricing | ✅ Implémenté | `services/rnd_finance_estimate.py`, `rnd_pricing_model.py` |
 | Arbre d'hypothèses | ✅ Implémenté | `services/rnd_hypothesis_tree.py` |
 | R&D v2 — coquille `/rnd-v2` (Phases 22-27) | ✅ Implémenté | Pipeline, Incubateur, Conseil (réceptacle), Arbres, Dossiers |
-| R&D v2 — Explorer veille externe (Phase 28) | ⏸️ Non démarré | `ROADMAP.md` |
+| R&D v2 — Explorer veille externe (Phase 28) | ✅ Vague E | `rnd_explorer` + onglet Explorer `/rnd-v2` |
+| Brand design system (Phase 35) | 🔄 MVP Slice Vague D | tokens + Review Board brand + Brand Center |
 | R&D council agent / router | ✅ Implémenté | `agents/rnd_council_agent.py`, `api/routers/rnd_council.py` |
 
 ## Marketing & Finances
@@ -56,8 +57,9 @@
 | Finance Cockpit visuel (Phase 29) | ✅ Implémenté | `/finances-v2` (onglets de base) |
 | Finance profondeur — invoices / SaaS / Revolut (Phase 34 / DEC-016) | ✅ Backend + UI | API + `SaasInvoicesPanel` + KPI à payer |
 | Budgets / obligations fiscales (Phase 34 / Vague 3) | ✅ JSON + UI | `/finances/budgets` + `/finances/fiscal-obligations` + onglet « Budgets & Fiscal » ; pas de paiement/transfert auto ; `budget_transfer` reporté |
-| Phase 21 skills (3 premiers) | 🔄 3/15 | Nwiro probe / Pi probe / BOM context — tests `test_phase21_skills.py` |
-| Eve sourcing / montage BOM | ✅ | alternatives + assembly-plan + infra-blueprint + UI `/robo` ; Pi différable |
+| Phase 21 skills Gaming/Robo | 🔄 In progress | Vague A/B + DEC-020 : UE5.8, agency Claude Code, probes robo ; Nwiro = legacy DEC-017 |
+| Eve sourcing / montage BOM | ✅ | alternatives + assembly-plan + infra-blueprint + UI `/robo` ; Pi différable (DEC-018) |
+| Finance cockpit forecast (Vague C) | ✅ | `GET /finances/cockpit-forecast` + UI Budgets/Fiscal ; `budget_transfer` reporté |
 | Review Board LLM (flag) | ✅ Optionnel | `REVIEW_BOARD_LLM` → `review_board_llm.py` ; défaut = structural |
 | Daily briefing cross-dept | ✅ Branché | `_collect_cross_dept` dans `daily_briefing.py` |
 
@@ -96,30 +98,28 @@
 | Discord / Telegram bots | ✅ Implémenté | Fallback gracieux si token/channel absent |
 | ElevenLabs (voix, coûts) | ✅ Implémenté | |
 | Godot 4 (`godot-mcp`) | ✅ Implémenté | Skill `.claude/skills/alnua-godot/` |
-| Nwiro/UE5 (`skill_nwiro.py`) | ✅ Implémenté, assumé | Coexiste avec Godot — `DECISIONS.md` DEC-009 |
+| Pont Gaming UE5.8 (`skill_ue58` + agency) | ✅ Vague A + DEC-020 | Nwiro = legacy (`skill_nwiro`) ; Godot optionnel (DEC-017) |
 | Sentry / security-ingest (Résonance) | ✅ Implémenté | Ops 2026-08-08 |
 | Revolut Business (lecture) | 🔄 Branché API | DEC-016 — credentials requis |
 
-## Planifié (ROADMAP — Not started / suite MVP)
+## Planifié (ROADMAP — suite MVP / hygiène)
 
 | Phase | Objectif |
 |-------|---------|
-| 21 | Skills réels pour les 15 agents Gaming/Robo |
-| 28 | Explorer R&D (veille externe autonome) |
-| 30 | Suite : `budget_transfer` + UI workflows (MVP recettes validation ✅ 2026-08-09) |
-| 31 | Suite : jauge trust frontend | ✅ `/trust` Vague 1 |
-| 32 | Suite : débat LLM multi-personas Review Board (gates structurelles ✅) |
-| 35 | Brand Design transversal |
-| 36 | Suite : daily_briefing cross-dept (queue handlers ✅ 2026-08-09) |
+| 21 | Suite skills Gaming/Robo (UE_PROJECT_PATH + Pi + serveur UE5.8 studio) |
+| 30 | Suite : `budget_transfer` (reporté DEC-016) + UI workflows |
+| 32 | Suite : débat LLM Review Board multi-personas (flag `REVIEW_BOARD_LLM` ✅) |
+| 35 | Suite Brand : persona multi-room + débat LLM (MVP Vague D ✅) |
+| Audit 005 | Santé 10 dimensions ≤ **2026-08-30** |
 
 ## Gap connu (pas un audit exhaustif)
 
-- **Gouvernance drift** : comblé en Phase A (2026-08-09) pour CHANGELOG /
-  IMPLEMENTATION_STATUS / comptes — voir `DOC_AUDIT.md` Audit 002 + BUG-011.
-- **Real-data Gaming/Robo (Phases 15-20)** : réceptacle honnête sans source UE5 /
-  Steam / robot Eve physique.
+- **Gouvernance drift** : resync Vague F (2026-08-10) — 44 routers, 433 tests
+  collectés, Next 16.3.0 ; Audit 005 toujours dû ≤ 2026-08-30.
+- **Real-data Gaming/Robo (Phases 15-20)** : réceptacle honnête ; pont UE5.8 /
+  agency prêts, dépendent de la config studio / `UE_PROJECT_PATH`.
 - **Academy** : pipeline corrigé (BUG-008) ; risque OpenRouter 402 (crédits) toujours
   possible.
-- **Suite remédiation + Vague 0/1 :** A–E + hygiene + Next **16.3.0** + UI
-  `/trust` ; BUG-017/019 fermés. Résiduel structurel : **BUG-004** (fichiers
-  >1000 lignes). WIP pole-dashboard éventuel : `git stash list`.
+- **Dette structurelle :** ~74 fichiers Python >300 lignes (hotspots
+  `api/schemas.py`, `rnd.py`, `skill_coding_agent.py`…) — split ciblé seulement
+  si on y touche ; BUG-004 façades fermé.

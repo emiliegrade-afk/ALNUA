@@ -9,7 +9,7 @@ solo d'Emilie, couvrant 3 branches :
 | Gaming | Wyrdheim Online | MMORPG fantasy nordique |
 | Robotique | Eve | Robot compagnon domestique |
 
-**49** personas LLM, **40** routers FastAPI, frontend dans `web/` (lobby + bureaux
+**49** personas LLM, **44** routers FastAPI, frontend dans `web/` (lobby + bureaux
 département `*-v2`). Détail : `CLAUDE.md` / `ARCHITECTURE.md`.
 
 ## Architecture
@@ -18,7 +18,7 @@ département `*-v2`). Détail : `CLAUDE.md` / `ARCHITECTURE.md`.
 agents/     → Agents IA (49 personas — COO, PM, QA, Content, R&D, Gaming, Robo…)
 bots/       → Bots automatisés (Discord, Telegram, Publisher, Reviews, Analytics, SAV, Watchdog)
 database/   → Client Supabase + schéma SQL
-api/        → API REST FastAPI (40 routers + gdd conditionnel)
+api/        → API REST FastAPI (44 routers + gdd conditionnel)
 config/     → Configuration pydantic-settings + personas / specs
 services/   → Logique métier (compétition, coûts, R&D, workflows…)
 web/        → Dashboard Next.js 16 (lobby, départements, Marketing/Finance/R&D v2)
