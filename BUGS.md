@@ -55,23 +55,24 @@ y compris `tests/test_devex_phase6.py` réécrit pour le nouveau comportement.
 | BUG-015 | Info | Dual coding + triple briefing | Phase D : `coding_facade.py` + doc `briefing_facade` (3 chemins) — pas de fusion forcée |
 | BUG-005 | Info | `AGENT_NAME` suffixe `_agent` vs IDs courts | Phase D : aliases `rnd_*_agent` ajoutés ; `coo_agent`→`coo` existait déjà |
 | BUG-013 | Moyenne | Routes mockup restantes | Suite clean : `/hub` `/analytics` live (DeptV2 shells) — **plus de MockupDepartmentPage** sur routes primaires |
+| BUG-018 | Faible | Micro-drift docs post-Audit 003 (même jour) : README/ARCHITECTURE/TESTING/IMPLEMENTATION_STATUS encore « Next.js 14 » et « ~381 tests » alors que `web/package.json` = Next **15.5.23** et `pytest --collect-only` = **392** ; ROADMAP « Current phase » proposait encore Audit 003 ; DOC_AUDIT 003 listait des mockups déjà reconnectés | Audit 004 : resync Next 15 + comptes tests + ROADMAP blurb + stats ; règle anti-drift rappelée |
 
 ## Ouverts — nécessitent une décision produit, non corrigés
 
 | ID | Gravité | Description | Constat |
 |----|---------|-------------|-----------|
-| BUG-004 | Info | Fichiers Python >300 lignes — mitigé encore | 2026-08-09 : `workflow_engine` 1059→447 + handlers dossier/ops/ship ≤300. Reste : `coo_agent`, `schemas`, registries, MissionsTab |
-| BUG-017 | Info | Next vulns — mitigé partiel | Upgrade **14.2.35 → 15.5.23** (8→6 vulns, 5→3 high). Reste Next 16 pour fermer. Build local : ne pas lancer `next build` pendant `next dev` (cache `.next` corrompu → `PageNotFoundError`) — utiliser `npm run build:safe` |
+| BUG-004 | Info | Fichiers Python >300 lignes — mitigé encore | Audit 004 : `workflow_engine` ~387 ; encore **4** fichiers >1000 (`agent_specs_registry` 1411, `coo_agent` 1289, `agent_personas` 1110, `rnd_center` 1042) + MissionsTab ×3 (~600) |
+| BUG-017 | Info | Next / sharp vulns — mitigé partiel | Next **15.5.23** : npm **6** vulns (0 critical, **3 high** sharp/libvips). Fermeture = Next 16 (`npm audit fix --force`). Build : `npm run build:safe` si `next dev` tourne |
 
-## Statistiques (mises à jour clean bugs — 2026-08-09)
+## Statistiques (mises à jour Audit 004 — 2026-08-09 soir)
 
 | Bucket | Count |
 |--------|------:|
 | Ouverts | 2 (`BUG-004`, `BUG-017`) — tous deux **mitigés**, pas fermés |
-| Fermés remédiation A–E | 11 (`BUG-002`/`003`/`005`/`011`–`016`) |
-| Residual mockup routes | **0** (hub/analytics live) |
+| Fermés remédiation A–E + clean | 12 (`BUG-002`/`003`/`005`/`011`–`016`, `BUG-018`) |
+| Residual mockup routes | **0** (hub/analytics/ceo/secretary/brand live) |
 | Corrigés (SEC) | 6 (`SEC-001`–`006`) |
-| Corrigés (BUG) | 15 (`BUG-001`–`003`, `BUG-005`–`016`) |
+| Corrigés (BUG) | 16 (`BUG-001`–`003`, `BUG-005`–`016`, `BUG-018`) |
 | Décision fermée | 1 (`DEC-009`) |
 
 ## Vérifié sans anomalie (audit sécurité, pour mémoire)

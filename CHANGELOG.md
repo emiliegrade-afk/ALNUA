@@ -7,6 +7,16 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-09 — Audit 004 health check (docs)
+
+- **Type :** docs
+- **Details :** second health check 10 dimensions le même soir (post Next 15 /
+  remédiation A–E). Verdict 🟢 Good (était 🟡 Concerning en Audit 002).
+  BUG-018 ouvert+fermé (micro-drift Next 14 / comptes tests / ROADMAP).
+  Resync README, ARCHITECTURE, TESTING, IMPLEMENTATION_STATUS, ROADMAP,
+  BUGS stats. Canvas `project-health-audit-004-2026-08-09.canvas.tsx`.
+  Ouverts restants : BUG-004, BUG-017.
+
 ## 2026-08-09 — Bugs + clean : Next 15, workflow split, FE tooling, hub/analytics live (fix + refactor)
 
 - **BUG-004 :** `workflow_engine` découpé (dossier/ops/ship handlers, fichiers ≤300 sauf engine 447).

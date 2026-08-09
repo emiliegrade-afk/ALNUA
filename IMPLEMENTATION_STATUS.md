@@ -61,7 +61,7 @@
 
 | Zone | Status | Notes |
 |------|--------|-------|
-| Dashboard v3 — lobby + bureaux par département | ✅ Implémenté | Next.js 14 |
+| Dashboard v3 — lobby + bureaux par département | ✅ Implémenté | Next.js 15.5.23 |
 | OpenRoom (war room visuelle, avatars live) | ✅ Implémenté | |
 | Page Comptabilité — coûts combinés | ✅ Implémenté | 2026-07-24 |
 | Jalons à venir (Google Calendar) | ✅ Implémenté | 2026-07-24 |
@@ -72,7 +72,7 @@
 | GDD Manager (router + endpoints) | 🔄 Implémenté, **désactivé par défaut** | `GDD_MANAGER_ENABLED=false` — `gdd.py` monté conditionnellement |
 | Redesign UI départements App/Gaming/Robo | ✅ Implémenté | `web/src/app/{app,gaming,robo}-v2/` — `/app`, `/gaming`, `/robo` ré-exportent vers `-v2` |
 | Real-data Gaming/Robo (builds, assets, labo, télémétrie, communauté) | ✅ Implémenté (réceptacle) | Phases 15-20 — pas de pipeline UE5/Steam/robot physique derrière |
-| Harmonisation visuelle MockupShell (Phase 38) | ✅ Rendu + routes reconnectées | Phase B 2026-08-09 : `/finances` `/marketing` `/rd` `/app` `/gaming` `/robo` servent les shells live (`*-v2` / RdPageContent deep-link). Mockups restent sous `components/mockup/` pour preview design. |
+| Harmonisation visuelle MockupShell (Phase 38) | ✅ Rendu + routes reconnectées | Toutes routes primaires live (dont `/hub` `/analytics` `/ceo` `/secretary` `/brand`). Mockups sous `components/mockup/` pour preview design uniquement. |
 
 > Les 5 features admin/GDD/briefing COO sont codées et testées (flags forcés à `1`
 > dans le job e2e CI) mais restent **éteintes par défaut** en prod tant que non
@@ -115,5 +115,5 @@
   Steam / robot Eve physique.
 - **Academy** : pipeline corrigé (BUG-008) ; risque OpenRouter 402 (crédits) toujours
   possible.
-- **Suite remédiation Audit 002 :** Phases A–E livrées 2026-08-09 (MVP) ;
-  résiduels BUG-004 (file size), BUG-017 (Next 14 npm highs).
+- **Suite remédiation Audit 002 :** Phases A–E + clean livrés 2026-08-09 ;
+  résiduels BUG-004 (file size), BUG-017 (3 high sharp → Next 16). Voir Audit 004.

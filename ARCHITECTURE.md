@@ -25,7 +25,7 @@ d'une entreprise et travaillent au service de 3 branches produit :
 | Observabilité | Langfuse (`skills/skill_langfuse.py`, `@trace_agent`) | Active |
 | Automatisation | n8n (workflows externes, briefing quotidien, orchestration) | Active |
 | MCP Server | `fastapi-mcp` monté sur `/mcp` dans `api/app.py`, protégé par `X-Hub-Key` | Active |
-| Frontend | Next.js 14 + React 18 + TypeScript (`web/`), Playwright e2e | Active |
+| Frontend | Next.js 15 + React 18 + TypeScript (`web/`), Playwright e2e | Active |
 | Bots | Discord, Telegram (bot + secretary + presence), Publisher, Reviews, Analytics, SAV, Watchdog (`bots/`) | Active |
 | Files d'attente | Redis (`services/redis_client.py`, `services/rq_queue.py`) | Active |
 | Intégrations tierces | Composio (OAuth gateway 250+ APIs), ElevenLabs (voix), Google Calendar (jalons) | Active |
@@ -40,12 +40,12 @@ d'une entreprise et travaillent au service de 3 branches produit :
 |--------|-------------|-----------------|--------|
 | Routers API | `api/routers/` | **40** routers montés (+ `gdd.py` conditionnel) | Active |
 | Agents personas | `agents/*_agent.py` | **49** agents personas (34 + 15 rôles Gaming/Robo, Phase 13) + orchestrateurs infra | Active |
-| Services métier | `services/` | ~112 modules (compétition, coûts, R&D dossier, academy, telegram, brand, coding pipeline...) | Active |
+| Services métier | `services/` | ~128 modules (compétition, coûts, R&D dossier, academy, telegram, brand, coding pipeline...) | Active |
 | Config | `config/` | Personas, tiers, specs opérationnelles 9-couches, settings pydantic | Active |
 | Bots | `bots/` | 11 bots (Discord/Telegram/Publisher/Reviews/Analytics/SAV/Watchdog) | Active |
-| Frontend dashboard | `web/` | Siège social virtuel (lobby + bureaux + `*-v2` Marketing/Finance/R&D), Next.js 14 | Active |
+| Frontend dashboard | `web/` | Siège social virtuel (lobby + bureaux + `*-v2` Marketing/Finance/R&D), Next.js 15 | Active |
 | Base de données | `database/schema.sql` + `database/supabase_client.py` | — | Active |
-| Tests | `tests/` | **~67** fichiers `test_*.py` (~381 tests collectés, Audit 002) + `web/e2e` Playwright + Vitest | Active |
+| Tests | `tests/` | **~74** fichiers `test_*.py` (**392** tests collectés, Audit 004) + `web/e2e` Playwright + Vitest | Active |
 | Gouvernance + méthode de travail | `AGENTS.md` (entrée universelle), `CLAUDE.md`, `.cursor/rules/*.mdc` (agent-orchestration, ai-agent-survival, async-jobs + règles scopées par feature) | 8 fichiers gouvernance + 3 règles générales + règles scopées | Active |
 
 ## Data flow

@@ -57,9 +57,11 @@ Statut légende : ⏸️ Not started | 🔄 In progress | ✅ Complete | 🔴 Bl
 Phases 29-36 définies le 2026-07-31 (brief Emilie). **Phase 29 + 33** complétées
 2026-07-31 ; **Phases 30/31/32/36 en MVP** le 2026-08-09 (Phase E remédiation
 Audit 002 — recettes validation, trust, quality gates structurelles, queue
-cross-dept). Suites hors MVP : débat LLM Review Board, jauge UI trust,
-`budget_transfer`, daily_briefing cross-dept. **En cours :** Phase 34 (Finance).
-**Prochaines options :** Phase 35 (Brand), profondeur 31/32, ou Audit 003.
+cross-dept). Audits 002–004 le même jour ; routes primaires live ; Next 15.5.23.
+Suites hors MVP : débat LLM Review Board, jauge UI trust, `budget_transfer`,
+daily_briefing cross-dept. **En cours :** Phase 34 (Finance — budgets/fiscalité).
+**Prochaines options :** profondeur Phase 34, Phase 21 (skills Gaming/Robo),
+Phase 35 (Brand), Next 16 (BUG-017), ou splits BUG-004.
 
 ## Points tranchés le 2026-07-25 (anciennement ouverts)
 

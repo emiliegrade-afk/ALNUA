@@ -9,7 +9,7 @@
 | Job | Étapes | Outil |
 |-----|--------|-------|
 | `backend` | ruff lint → smoke import (composio + `api.app`) → pytest + coverage | Python 3.12, pytest, ruff |
-| `frontend` | typecheck (`tsc --noEmit`) → lint → tests unitaires | Next.js 14, Vitest |
+| `frontend` | typecheck (`tsc --noEmit`) → lint → tests unitaires | Next.js 15, Vitest |
 | `e2e` | build + Playwright (Chromium) | Playwright, avec feature flags admin activés (`ADMIN_COSTS_PAGE_ENABLED`, etc.) |
 
 Ordre respecté : lint avant build/tests (le moins cher d'abord), conforme au principe
@@ -18,9 +18,9 @@ complète.
 
 ## Suite Python (`tests/`)
 
-- **~67 fichiers** `test_*.py` (~**381** tests collectés au 2026-08-09), organisés par
-  module/feature, pas par couche architecturale stricte (pas de séparation explicite
-  unit/integration/e2e par dossier).
+- **~74 fichiers** `test_*.py` (**392** tests collectés au 2026-08-09 soir, Audit 004),
+  organisés par module/feature, pas par couche architecturale stricte (pas de
+  séparation explicite unit/integration/e2e par dossier).
 - **Markers pytest** (`pytest.ini`) :
   - `integration` — tape un vrai service externe (Supabase, OpenRouter, Composio...),
     nécessite des credentials live, **pas exécuté par défaut en CI**.
@@ -51,5 +51,6 @@ complète.
 - Pas de séparation dossier par couche (`unit/`, `service/`, `repository/`) — les tests
   sont nommés par feature. Cohérent avec un projet solo à itération rapide ; à
   reconsidérer seulement si la confusion devient un problème réel.
-- Couverture UI Finance profondeur (invoices / SaaS / Revolut) et reconnexion routes
-  mockup → `*-v2` : à renforcer en Phase B du plan de remédiation Audit 002.
+- Couverture UI Finance profondeur (budgets / fiscalité) et suites MVP Phases
+  31/32 (trust UI, Review Board LLM) encore mince — routes `*-v2` primaires sont
+  live (BUG-013 fermé).

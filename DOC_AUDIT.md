@@ -189,3 +189,43 @@ Historique des audits de gouvernance effectués.
   pour 30/36 ; gitignore `tmp-mockup-refs/` ; suppression `tmp-audit-*.png` /
   `tmp-live-*.png` ; stage suppressions `skill_aider` / `skill_openhands`.
 - **Canvas :** `project-health-audit-003-2026-08-09.canvas.tsx`
+
+---
+
+## Audit 004 — Health check 10 dimensions (soirée post-Next 15)
+
+- **Date :** 2026-08-09 (soir)
+- **Scope :** second full health check le même jour, **après** remédiation A–E,
+  Audit 003, DeptV2 chrome, CEO/Secretary/Brand/hub/analytics live, et upgrade
+  Next **15.5.23**. Aucun changement de code produit — tracker + docs only.
+- **Méthode :** relecture gouvernance ; `git log -30` ; line counts ; `pytest
+  --collect-only` (392) ; `npm audit` (6 vulns) ; grep TS `any`/`@ts-ignore` ;
+  `AGENT_PERSONAS`=49 / `ALL_ROUTERS`=40 ; spot-check routes mockup ; branches.
+- **Verdict :** 🟢 **Good** — remédiation tient (routes live, SEC-002, types,
+  tests ↑), mais pas Excellent : dette structurelle BUG-004 + micro-drift docs
+  déjà réapparu en heures (Next 14 encore dans README/ARCHITECTURE avant ce
+  correctif) + 3 high npm (sharp → Next 16).
+- **Findings majeurs :**
+  - 🟡 BUG-018 — micro-drift gouvernance post-003 (Next 14 vs 15.5.23 ; tests
+    381→392 ; ROADMAP « or Audit 003 » ; DOC_AUDIT 003 residual mockup obsolète)
+    — **fermé dans cet audit** (resync docs)
+  - 🟠 BUG-004 — toujours ouvert : 4 fichiers Python >1000 lignes
+    (`agent_specs_registry` 1411, `coo_agent` 1289, `agent_personas` 1110,
+    `rnd_center` 1042) ; MissionsTab tripliqué (~600 lignes ×3)
+  - 🟠 BUG-017 — mitigé Next 15 (8→6 vulns) ; **reste 3 high** (sharp/libvips
+    via Next — fermeture = Next 16)
+  - 🟡 Phase 21 non démarrée — 15 personas Gaming/Robo sans skills réels
+  - 🟡 `ALNUA_OVERVIEW.md` non tracké ; `origin/fix/auto…` (2026-06-12) stale
+  - ✅ TypeScript : toujours 0 `any` / 0 `@ts-ignore`
+  - ✅ Routes primaires : 0 `MockupDepartmentPage` (Vitest guard)
+  - ✅ Secrets : `.env` non tracké ; pas de `VITE_` secrets ; `.env.example` OK
+- **Ouverts après audit :** BUG-004, BUG-017
+- **Vs Audit 002 :** Concerning → Good ; mockup routes et critical npm fermés
+- **Vs Audit 003 :** code MVP confirmé + suite clean (hub/analytics/ceo/…) ;
+  docs avaient déjà redérivé — anti-drift pas encore une habitude
+- **Canvas :** `project-health-audit-004-2026-08-09.canvas.tsx`
+- **Next sprint suggested :** (1) 1–2 splits BUG-004 ; (2) Phase 34 budgets ;
+  (3) Next 16 / BUG-017 ; (4) Phase 21 skills Gaming/Robo ; (5) profondeur
+  Review Board LLM / trust UI
+- **Next audit planned :** après Phase 34 depth ou Next 16, **≤ 3 semaines**
+  (ne pas retomber dans le trou 001→002 de ~2 semaines)
