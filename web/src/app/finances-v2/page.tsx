@@ -11,7 +11,7 @@ import { useAgentStatuses } from "@/hooks/use-agent-statuses";
 import { getAgentsForBureau, type BureauAgentDef } from "@/lib/agent-bureau";
 import { fetchProjects } from "@/lib/api";
 import { ROUTES } from "@/lib/routes";
-import { C, STATUS_LOAD, STATUS_TEXT, STATUS_COLOR } from "../app-v2/shared";
+import { C, STATUS_TEXT, STATUS_COLOR, resolveAgentLoad, agentLoadChip } from "../app-v2/shared";
 import { MissionBox, ChatPanel, RecentTasksPanel, ApercuPanel } from "../app-v2/team";
 import { useCooStore } from "@/store/coo-store";
 import { CooDrawer } from "@/components/shared/coo-drawer";
@@ -125,7 +125,9 @@ function FinancesDepartmentView() {
 
   const selected: BureauAgentDef | undefined = agents.find((a) => a.id === selectedId) ?? agents[0];
   const selStatus = selected ? statuses[selected.id]?.status ?? "idle" : "idle";
-  const selLoad = STATUS_LOAD[selStatus];
+  const selLoad = selected
+    ? resolveAgentLoad(statuses[selected.id] ?? { status: selStatus })
+    : 0;
 
   const activeCount = agents.filter((a) => {
     const s = statuses[a.id]?.status;
@@ -173,7 +175,7 @@ function FinancesDepartmentView() {
               <div className="min-w-0">
                 <h1 className="truncate text-[23px] leading-[1.1] tracking-[1px]">
                   <span className="font-bold">FINANCE</span>{" "}
-                  <span className="font-light tracking-[4px]" style={{ color: "#A7ADB5" }}>
+                  <span className="font-light tracking-[4px]" style={{ color: "#A7AD85" }}>
                     COCKPIT
                   </span>
                 </h1>
@@ -359,7 +361,7 @@ function EquipeTab({
         style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}
       >
         <div className="flex items-center justify-between border-b pb-[9px]" style={{ borderColor: C.lineSoft }}>
-          <span className="text-[9.5px] tracking-[1.5px]" style={{ color: "#A7ADB5" }}>
+          <span className="text-[9.5px] tracking-[1.5px]" style={{ color: "#A7AD85" }}>
             ÉQUIPE FINANCE
           </span>
           <span className="flex items-center gap-1 rounded-[10px] border px-[6px] py-px text-[9px]" style={{ borderColor: "rgba(140,200,150,.3)", color: C.onlineSoft }}>
@@ -390,7 +392,7 @@ function EquipeTab({
                 </span>
                 <span className="flex shrink-0 flex-col items-end gap-[3px]">
                   <span className="text-[9.5px]" style={{ color: C.dim }}>
-                    {STATUS_LOAD[s]}%
+                    {agentLoadChip(statuses[agent.id], s)}
                   </span>
                   <span className="h-[5px] w-[5px] rounded-full" style={{ background: STATUS_COLOR[s] }} />
                 </span>

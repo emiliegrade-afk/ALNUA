@@ -1399,6 +1399,7 @@ le workflow engine de la Phase 30 (ex. Marketing→App validé par Aria).
 - `GET /finances/cockpit-forecast` — projection déterministe (budgets + fiscal + SaaS)
 - `POST /finances/forecast/llm` — Rémi prérempli depuis le cockpit
 - UI : résumé, kind/due_date fiscal, dépensé éditable, panneau forecast
+**Polish UI (2026-08-10) :** vue globale KPI brand + txs récentes + charts.
 Migration Supabase tables optionnelle plus tard — le JSON reste le chemin quotidien.
 **Dépendances :** Phase 29 (cockpit) et Phase 30 (transferts — reportés).
 **Statut :** 🔄 In progress (profondeur cockpit OK ; `budget_transfer` toujours hors scope).

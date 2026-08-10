@@ -18,53 +18,81 @@ import {
 import { Donut } from "@/components/console/charts";
 import { formatCurrency } from "@/lib/finances-api";
 import type { MonthTotals } from "@/lib/finances-api";
-import { C } from "@/app/app-v2/shared";
-
-/* Redesign Vue Globale Finance : chrome cockpit cohérent (C.line, fond
-   rgba(16,13,11,.55)) au lieu du Card shadcn d'origine, pour matcher le
-   reste de la page. "Revenus vs dépenses" devient "Évolution financière" en
-   LineChart 3 séries (Entrées/Sorties/Résultat net) ; le donut remplace le
-   PieChart recharts (Donut a déjà centerLabel/centerValue, pas besoin de
-   réinventer un label central custom). */
 
 const tooltipStyle = {
-  background: "#14171D",
-  border: "1px solid rgba(255,255,255,0.1)",
+  background: "#16181D",
+  border: "1px solid #23262F",
   borderRadius: 8,
   fontSize: 12,
+  color: "#F5F2EA",
 };
 
 export function FinancesEvolutionChart({ months }: { months: MonthTotals[] }) {
   const data = useMemo(
     () => months.map((m) => ({ ...m, label: formatMonthLabel(m.month) })),
-    [months]
+    [months],
   );
 
   return (
-    <div className="rounded-xl border p-3" style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}>
-      <p className="mb-2.5 text-[10.5px]" style={{ color: "#D8CFC4" }}>
-        Évolution financière (6 mois)
-      </p>
+    <div className="rounded-xl border border-alnua-border bg-alnua-surface p-5">
+      <h3 className="mb-4 text-xs font-semibold uppercase tracking-widest text-alnua-titane">
+        Évolution financière
+      </h3>
       {data.length === 0 ? (
-        <p className="text-[10.5px]" style={{ color: C.faint }}>
-          Pas encore de données.
-        </p>
+        <p className="text-sm text-alnua-titane">Pas encore de données.</p>
       ) : (
-        <ResponsiveContainer width="100%" height={240}>
+        <ResponsiveContainer width="100%" height={256}>
           <LineChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-            <CartesianGrid stroke="#ffffff10" strokeDasharray="3 3" />
-            <XAxis dataKey="label" tick={{ fill: "#9ca3af", fontSize: 11 }} axisLine={{ stroke: "#ffffff15" }} tickLine={false} />
+            <CartesianGrid stroke="#23262F80" strokeDasharray="3 3" />
+            <XAxis
+              dataKey="label"
+              tick={{ fill: "#A7AD85", fontSize: 11 }}
+              axisLine={{ stroke: "#23262F" }}
+              tickLine={false}
+            />
             <YAxis
-              tick={{ fill: "#9ca3af", fontSize: 11 }}
-              axisLine={{ stroke: "#ffffff15" }}
+              tick={{ fill: "#A7AD85", fontSize: 11 }}
+              axisLine={{ stroke: "#23262F" }}
               tickLine={false}
               width={52}
-              tickFormatter={(v) => new Intl.NumberFormat("fr-FR", { notation: "compact", maximumFractionDigits: 0 }).format(v)}
+              tickFormatter={(v) =>
+                new Intl.NumberFormat("fr-FR", {
+                  notation: "compact",
+                  maximumFractionDigits: 0,
+                }).format(v)
+              }
             />
-            <Tooltip contentStyle={tooltipStyle} formatter={(value, name) => [formatCurrency(Number(value ?? 0)), String(name)]} />
-            <Line type="monotone" dataKey="total_income" name="Entrées" stroke="#7FC98C" strokeWidth={2} dot={false} />
-            <Line type="monotone" dataKey="total_expenses" name="Sorties" stroke="#f87171" strokeWidth={2} dot={false} />
-            <Line type="monotone" dataKey="balance" name="Résultat net" stroke={C.copperLight} strokeWidth={2} dot={false} />
+            <Tooltip
+              contentStyle={tooltipStyle}
+              formatter={(value, name) => [
+                formatCurrency(Number(value ?? 0)),
+                String(name),
+              ]}
+            />
+            <Line
+              type="monotone"
+              dataKey="total_income"
+              name="Entrées"
+              stroke="#2DD4BF"
+              strokeWidth={2}
+              dot={false}
+            />
+            <Line
+              type="monotone"
+              dataKey="total_expenses"
+              name="Sorties"
+              stroke="#F87171"
+              strokeWidth={2}
+              dot={false}
+            />
+            <Line
+              type="monotone"
+              dataKey="balance"
+              name="Résultat net"
+              stroke="#C08A72"
+              strokeWidth={2}
+              dot={false}
+            />
           </LineChart>
         </ResponsiveContainer>
       )}
@@ -87,37 +115,54 @@ export function FinancesExpenseDonut({
         .map(([category, value]) => ({
           category,
           value,
-          color: EXPENSE_CATEGORY_COLORS[category as keyof typeof EXPENSE_CATEGORY_COLORS] ?? "#94a3b8",
+          color:
+            EXPENSE_CATEGORY_COLORS[
+              category as keyof typeof EXPENSE_CATEGORY_COLORS
+            ] ?? "#A7AD85",
         })),
-    [expenseByCategory]
+    [expenseByCategory],
   );
   const total = segments.reduce((sum, s) => sum + s.value, 0);
 
   return (
-    <div className="rounded-xl border p-3" style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}>
-      <p className="mb-2.5 text-[10.5px]" style={{ color: "#D8CFC4" }}>
-        Dépenses par catégorie{monthLabel ? ` — ${monthLabel}` : ""}
-      </p>
+    <div className="rounded-xl border border-alnua-border bg-alnua-surface p-5">
+      <h3 className="mb-4 text-xs font-semibold uppercase tracking-widest text-alnua-titane">
+        Répartition des dépenses
+        {monthLabel ? ` — ${monthLabel}` : ""}
+      </h3>
       {segments.length === 0 ? (
-        <p className="text-[10.5px]" style={{ color: C.faint }}>
-          Aucune dépense ce mois.
-        </p>
+        <p className="text-sm text-alnua-titane">Aucune dépense ce mois.</p>
       ) : (
-        <div className="flex items-center gap-4">
-          <Donut segments={segments} size={104} thickness={12} centerValue={formatCurrency(total)} centerLabel="Total" />
-          <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-            {segments.map((s) => (
-              <div key={s.category} className="flex items-center gap-1.5 text-[9.5px]">
-                <span className="h-[7px] w-[7px] shrink-0 rounded-full" style={{ background: s.color }} />
-                <span className="min-w-0 flex-1 truncate" style={{ color: C.warm }}>
-                  {CATEGORY_LABELS[s.category] ?? s.category}
-                </span>
-                <span className="shrink-0" style={{ color: C.dim }}>
-                  {formatCurrency(s.value)}
-                </span>
-              </div>
-            ))}
-          </div>
+        <div className="mt-4 flex items-center gap-6">
+          <Donut
+            segments={segments}
+            size={128}
+            thickness={16}
+            centerValue={formatCurrency(total)}
+            centerLabel="Total"
+          />
+          <ul className="flex flex-1 flex-col gap-3 text-xs">
+            {segments.map((s) => {
+              const pct = total > 0 ? Math.round((s.value / total) * 100) : 0;
+              return (
+                <li
+                  key={s.category}
+                  className="flex items-center justify-between gap-2"
+                >
+                  <span className="flex min-w-0 items-center gap-2 text-alnua-ivoire">
+                    <span
+                      className="h-2 w-2 shrink-0 rounded-full"
+                      style={{ background: s.color }}
+                    />
+                    <span className="truncate">
+                      {CATEGORY_LABELS[s.category] ?? s.category}
+                    </span>
+                  </span>
+                  <span className="shrink-0 text-alnua-titane">{pct}%</span>
+                </li>
+              );
+            })}
+          </ul>
         </div>
       )}
     </div>
