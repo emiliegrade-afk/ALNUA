@@ -285,6 +285,10 @@ export interface FinanceBudget {
   label: string;
   notes?: string;
   spent?: number;
+  spent_manual?: number;
+  spent_computed?: number | null;
+  remaining?: number;
+  utilization_pct?: number;
   created_at: string;
   updated_at?: string;
 }
@@ -316,7 +320,33 @@ export interface FiscalSummary {
   open_count: number;
   open_total: number;
   next_due: string | null;
+  next_due_title?: string | null;
   payment_policy: string;
+}
+
+export type BudgetAlertSeverity = "ok" | "warning" | "critical";
+
+export interface BudgetDepartmentAlert {
+  department: string;
+  period: string;
+  allocated: number;
+  spent: number;
+  remaining: number;
+  utilization_pct: number;
+  severity: BudgetAlertSeverity;
+  budget_count: number;
+}
+
+export interface BudgetAlertsResponse {
+  period: string;
+  alerts: BudgetDepartmentAlert[];
+  critical_count: number;
+  warning_count: number;
+  thresholds: { warning_pct: number; critical_pct: number };
+}
+
+export function fetchBudgetAlerts(period?: string): Promise<BudgetAlertsResponse> {
+  return hubFetch(`/finances/budget-alerts${qs({ period })}`);
 }
 
 export function fetchFinanceBudgets(filters?: {

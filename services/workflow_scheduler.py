@@ -50,8 +50,9 @@ def run_scheduled_semaine(*, weekly_plan: bool = True) -> dict[str, Any]:
     return result
 
 
-def run_scheduled_idle_plan(*, autonomy_level: int = 1) -> dict[str, Any]:
+def run_scheduled_idle_plan(*, autonomy_level: int | None = None, agent_id: str = "coo") -> dict[str, Any]:
     """Morning idle file of the day (DEC-021)."""
+    from services.autonomy_resolver import resolve_idle_autonomy_level
     from services.workflow_engine import run_workflow
 
     try:
@@ -61,11 +62,17 @@ def run_scheduled_idle_plan(*, autonomy_level: int = 1) -> dict[str, Any]:
             return {"success": False, "skipped": True, "reason": "IDLE_WORK_ENABLED=0"}
     except Exception:
         pass
-    return run_workflow("idle_plan_day", {"autonomy_level": autonomy_level})
+    level = (
+        autonomy_level
+        if autonomy_level is not None
+        else resolve_idle_autonomy_level(agent_id)
+    )
+    return run_workflow("idle_plan_day", {"autonomy_level": level, "agent_id": agent_id})
 
 
-def run_scheduled_idle_drain() -> dict[str, Any]:
+def run_scheduled_idle_drain(*, agent_id: str = "coo") -> dict[str, Any]:
     """Periodic idle drain — L0–L1 free; L2 needs CEO-validated day file."""
+    from services.autonomy_resolver import resolve_idle_autonomy_level
     from services.workflow_engine import run_workflow
 
     try:
@@ -73,7 +80,7 @@ def run_scheduled_idle_drain() -> dict[str, Any]:
 
         if not getattr(settings, "idle_work_enabled", True):
             return {"success": False, "skipped": True, "reason": "IDLE_WORK_ENABLED=0"}
-        autonomy = int(getattr(settings, "idle_default_autonomy_level", 1) or 1)
     except Exception:
-        autonomy = 1
-    return run_workflow("idle_drain", {"autonomy_level": autonomy})
+        pass
+    autonomy = resolve_idle_autonomy_level(agent_id)
+    return run_workflow("idle_drain", {"autonomy_level": autonomy, "agent_id": agent_id})

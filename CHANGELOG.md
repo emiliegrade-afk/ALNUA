@@ -7,6 +7,19 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-10 — Phases 34 + 35 + autonomie profonde (feat)
+
+- **Type :** feat
+- **Details :**
+  - **Phase 34 :** spent enveloppes (manuel + computed), `GET /finances/budget-alerts`,
+    factures (due_date / filtres / overdue), fiscal `upcoming→due` auto.
+  - **Phase 35 :** persona `brand` (Élise Mercier, comms_hub), Content Studio
+    Review Brand + gate approved/published, design system enrichi kit + layout_tokens.
+  - **Autonomie :** `autonomy_resolver` trust→level 0–3 ; posts → `content_validation` ;
+    `GET /workflows/runs?waiting=a_verifier` + `approve-step` + carte CEO.
+  - `budget_transfer` toujours hors scope (DEC-016).
+  - Tests : **524** passed / 6 skipped.
+
 ## 2026-08-10 — Phase 34 Finance vue globale polish (feat)
 
 - **Type :** feat
@@ -107,6 +120,22 @@
   - Câblé sur coding worktrees, `parallel_runner`, `plan_executor`,
     `fix_pipeline` ; API `/isolation/*` ; settings `ISOLATION_*`.
   - Tests `tests/test_agent_isolation.py` (collision paths, slots, merge deny).
+
+## 2026-08-10 — HTTP dédié game_director / rnd_agent / coding_coach (feat)
+
+- **Type :** feat
+- **Details :**
+  - `POST /agents/game-director/instruction` + lore search (offline-safe).
+  - `POST /agents/rnd-agent/research|prototype|instruction`.
+  - `POST /agents/coding-coach/teach|exercise|instruction` (+ registry pipeline).
+
+## 2026-08-10 — Idle offline + preview livrables + promote tickets (feat)
+
+- **Type :** feat
+- **Details :**
+  - L2 débloqué côté file du jour ; drain offline sans OpenRouter.
+  - `IDLE_OFFLINE_MODE` + fallbacks L1 (templates / triage candidats).
+  - API livrables + `POST /workflows/idle/promote-tickets` ; preview UI `/ceo`.
 
 ## 2026-08-10 — Idle suite : UI CEO + L1 LLM + load réel dept (feat)
 

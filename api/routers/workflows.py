@@ -21,6 +21,11 @@ class WorkflowAbortRequest(BaseModel):
     reason: str = Field(default="", max_length=400)
 
 
+class WorkflowApproveStepRequest(BaseModel):
+    step_id: str = Field(..., min_length=1, max_length=64)
+    approver_agent_id: str = Field(default="ceo", min_length=1, max_length=64)
+
+
 @router.get("/recipes")
 def workflows_list_recipes() -> list[dict[str, Any]]:
     from services.workflow_engine import list_recipes
@@ -32,10 +37,18 @@ def workflows_list_recipes() -> list[dict[str, Any]]:
 def workflows_list_runs(
     limit: int = 30,
     recipe_id: str | None = None,
+    waiting: str | None = None,
 ) -> dict[str, Any]:
     from services.workflow_engine import list_runs
 
-    return {"runs": list_runs(limit=min(limit, 100), recipe_id=recipe_id)}
+    waiting_a_verifier = (waiting or "").strip().lower() == "a_verifier"
+    return {
+        "runs": list_runs(
+            limit=min(limit, 100),
+            recipe_id=recipe_id,
+            waiting_a_verifier=waiting_a_verifier,
+        )
+    }
 
 
 @router.get("/runs/{run_id}")
@@ -60,6 +73,35 @@ def workflows_abort_run(run_id: str, body: WorkflowAbortRequest | None = None) -
     result = abort_workflow_run(run_id, agent_id=req.agent_id, reason=reason)
     if result.get("error") == "capability_denied":
         raise HTTPException(status_code=403, detail=result.get("detail") or "capability denied")
+    return result
+
+
+@router.post("/runs/{run_id}/approve-step")
+def workflows_approve_step(
+    run_id: str,
+    body: WorkflowApproveStepRequest,
+) -> dict[str, Any]:
+    """CEO approves an A_VERIFIER step and continues the workflow run."""
+    from services.workflow_engine import approve_workflow_step, get_run
+
+    if not get_run(run_id):
+        raise HTTPException(status_code=404, detail="Run introuvable")
+    result = approve_workflow_step(
+        run_id,
+        body.step_id,
+        approver_agent_id=body.approver_agent_id,
+    )
+    if result.get("error") == "not_found":
+        raise HTTPException(status_code=404, detail="Run introuvable")
+    if result.get("error") == "step_not_found":
+        raise HTTPException(status_code=404, detail=f"Step introuvable : {body.step_id}")
+    if result.get("error") in {"not_a_verifier", "still_a_verifier", "handler_missing"}:
+        raise HTTPException(
+            status_code=409,
+            detail=result.get("detail") or result.get("error"),
+        )
+    if result.get("error") == "step_ecart":
+        raise HTTPException(status_code=422, detail=result.get("detail") or "Step ECART")
     return result
 
 
@@ -153,3 +195,38 @@ def workflows_idle_drain() -> dict[str, Any]:
     from services.workflow_scheduler import run_scheduled_idle_drain
 
     return run_scheduled_idle_drain()
+
+
+@router.get("/idle/deliverables")
+def workflows_idle_deliverables(limit: int = 30) -> dict[str, Any]:
+    from services.idle_work_deliverables import list_deliverables
+
+    return {"deliverables": list_deliverables(limit=limit)}
+
+
+@router.get("/idle/deliverables/{item_id}")
+def workflows_idle_deliverable(item_id: str) -> dict[str, Any]:
+    from services.idle_work_deliverables import get_deliverable
+
+    data = get_deliverable(item_id)
+    if not data:
+        raise HTTPException(status_code=404, detail="Livrable idle introuvable")
+    return data
+
+
+class IdlePromoteRequest(BaseModel):
+    item_id: str | None = None
+    project_id: str | None = None
+    dry_run: bool = False
+
+
+@router.post("/idle/promote-tickets")
+def workflows_idle_promote_tickets(body: IdlePromoteRequest) -> dict[str, Any]:
+    """Crée des tickets Hub [idle-ok] depuis un triage L1 (sans LLM)."""
+    from services.idle_work_deliverables import promote_triage_to_tickets
+
+    return promote_triage_to_tickets(
+        item_id=body.item_id,
+        project_id=body.project_id,
+        dry_run=body.dry_run,
+    )

@@ -53,7 +53,7 @@ api/
 
 ---
 
-## 49 agents ALNUA (34 existants + 15 rôles spécialisés Gaming/Robotique — Phase 13, ROADMAP.md)
+## 50 agents ALNUA (35 existants + 15 rôles spécialisés Gaming/Robotique — Phase 13, ROADMAP.md)
 
 > Source de vérité pour room/team/tier : `config/agent_personas.py` (`AGENT_PERSONAS`, `ROOMS`, `TEAMS`) + `config/agent_models.py` (`AGENT_TIERS`). Cette table est une vue de lecture — en cas de divergence, ce sont ces deux fichiers qui font foi, pas ce document.
 
@@ -109,6 +109,7 @@ api/
 | `content_gaming` | `agents/content_gaming_agent.py` | Kael Vex — contenu Gaming | standard |
 | `content_robo` | `agents/content_robo_agent.py` | Mira Solberg — contenu Robotique | standard |
 | `content_company` | `agents/content_company_agent.py` | Anouk Gerard — marque ALNUA | standard |
+| `brand` | `agents/brand_agent.py` | Élise Mercier — Design System & Kits | standard |
 | `rnd_social` | `agents/rnd_social_agent.py` | Léa Fontaine — stratégie sociale dossier | standard |
 | `rnd_visual` | `agents/rnd_visual_agent.py` | Max Delacroix — moodboard & brand dossier | standard |
 | `ads` | `agents/ads_agent.py` | Léo Morel — publicité payante (Meta, Google, TikTok) | standard |
@@ -317,7 +318,7 @@ Cursor peut alors appeler directement `POST /agents/analyst-data/sql` etc. comme
 | Skill | Usage |
 |-------|-------|
 | `/alnua-hub` | Architecture complète (à invoquer en début de session) |
-| `/alnua-agents` | Cheat sheet 49 agents + endpoints |
+| `/alnua-agents` | Cheat sheet 50 agents + endpoints |
 | `/alnua-new-agent` | Template + checklist création agent |
 | `/alnua-caveman` | Mode compression tokens |
 | `/alnua-test` | Patterns Playwright + stratégie tests |

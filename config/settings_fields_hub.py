@@ -133,6 +133,11 @@ class SettingsHubMixin:
         alias="IDLE_DAILY_BUDGET_USD",
         description="Soft daily budget for cost_monitor idle gates (adaptive)",
     )
+    idle_offline_mode: bool = Field(
+        default=False,
+        alias="IDLE_OFFLINE_MODE",
+        description="Force L1 idle drafts without OpenRouter (templates / offline triage)",
+    )
     # Phase C Loop Engine (DEC-024)
     loop_max_iterations: int = Field(
         default=3,

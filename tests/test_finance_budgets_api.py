@@ -51,6 +51,29 @@ def test_budgets_crud_http(client: TestClient) -> None:
     )
     assert patched.status_code == 200
     assert patched.json()["spent"] == 25.0
+    assert patched.json()["spent_manual"] == 25.0
+
+
+def test_budget_alerts_http(client: TestClient) -> None:
+    period = "2026-08"
+    client.post(
+        "/finances/budgets",
+        headers=HUB_HEADERS,
+        json={"department": "rnd", "period": period, "amount": 100},
+    )
+    bid = client.get(f"/finances/budgets?period={period}", headers=HUB_HEADERS).json()["budgets"][0]["id"]
+    client.patch(
+        f"/finances/budgets/{bid}",
+        headers=HUB_HEADERS,
+        json={"spent": 90},
+    )
+    res = client.get(f"/finances/budget-alerts?period={period}", headers=HUB_HEADERS)
+    assert res.status_code == 200
+    body = res.json()
+    assert body["period"] == period
+    rnd = next(a for a in body["alerts"] if a["department"] == "rnd")
+    assert rnd["severity"] == "warning"
+    assert rnd["remaining"] == 10.0
 
 
 def test_fiscal_obligations_http(client: TestClient) -> None:

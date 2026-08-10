@@ -10,7 +10,7 @@
 | Domaine | Status | Notes |
 |---------|--------|-------|
 | API FastAPI (**40** routers + `gdd` conditionnel) | ✅ Implémenté | `ALL_ROUTERS` — Phase D `rnd_trees` ; Phase E `trust` |
-| **49** agents personas (9 poles, dont 15 rôles Gaming/Robo Phase 13) | ✅ Implémenté | Voir tableau complet dans `CLAUDE.md` |
+| **50** agents personas (9 poles, dont 15 rôles Gaming/Robo Phase 13 + Brand) | ✅ Implémenté | Voir tableau complet dans `CLAUDE.md` |
 | Orchestration CrewAI | ✅ Implémenté | Tâches multi-agents complexes |
 | Système compétition (points/leaderboard) | ✅ Implémenté | `services/competition.py` |
 | Routeur LLM dynamique (tier fast/standard/premium) | ✅ Implémenté | `services/llm_router.py` |

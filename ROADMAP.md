@@ -44,8 +44,8 @@
 | 31 | Agent Trust System — indice de confiance par agent, distinct de la compétition | 🔄 MVP Complete |
 | 32 | Review Board générique + Quality Gates par département | 🔄 MVP Complete |
 | 33 | Marketing Command Center — profondeur (campagnes, calendrier éditorial unifié) | ✅ Complete (Campagnes + Content Studio) |
-| 34 | Finance Cockpit — profondeur (budgets, factures, fiscalité) | 🔄 In progress |
-| 35 | Brand Design — design system transversal + reviewer cross-département | 🔄 MVP Slice (Vague D) |
+| 34 | Finance Cockpit — profondeur (budgets, factures, fiscalité) | 🔄 Depth+ (alerts/invoices/fiscal ; `budget_transfer` reporté) |
+| 35 | Brand Design — design system transversal + reviewer cross-département | 🔄 Depth+ (persona + Content Studio ; débat LLM / split brand-view reste) |
 | 36 | Orchestration inter-départements — event bus cross-département + briefing COO étendu | 🔄 MVP Complete |
 | 37 | Marketing Command Center : mesure de performance réelle (Reach/Engagement/ROI/Funnel) | ✅ Complete |
 | 38 | Harmonisation visuelle globale du Hub sur les maquettes ChatGPT (rendu visuel, branchement à reconnecter) | ✅ Complete |
@@ -72,10 +72,11 @@ dumps, orphan `coding_facade`, checklist `AGENTS.md`, tests HTTP budgets).
 **`budget_transfer` :** explicitement **reporté** (pas dans le moteur ; enveloppes
 budgets manuelles seulement — DEC-016 inchangé, pas de paiement/transfert auto).
 **Prochain audit santé :** ≤ **2026-08-30** (Audit 005). **P0 + Vagues A–F +
-debt paydown :** bible `docs/` ; **0 fichiers Python >1000 / >500 / >300**
-sous `agents/` `services/` `api/` `skills/` `bots/` `config/` `database/`
-(façades + siblings, APIs inchangées). Suite : `UE_PROJECT_PATH` / Pi /
-Audit 005. **Phase 39** idle work MVP livré 2026-08-10 (DEC-021).
+debt paydown :** bible `docs/` ; **0 fichiers Python >1000 / >500 / >300**.
+**2026-08-10 profondeur :** Phase 34 alerts/factures/fiscal ; Phase 35 persona
+`brand` + Content Studio review ; autonomie trust→level + posts→validation +
+CEO A_VERIFIER. Suite : `UE_PROJECT_PATH` / Pi / Audit 005 / débat Brand LLM /
+split `brand-view` / drain cross-dept.
 
 ## Points tranchés le 2026-07-25 (anciennement ouverts)
 
@@ -1248,6 +1249,9 @@ DEC-012 (pas de second moteur de workflow).
 `campaign_validation` + autonomie 0–3 dans `services/workflow_validation_recipes.py`
 (enregistrées dans le catalogue existant, DEC-012) ; `workflow_step_completed`
 émis à chaque étape. `budget_transfer` encore absent (Phase 34).
+**Profondeur 2026-08-10 :** `services/autonomy_resolver.py` (trust→level) ;
+`PATCH /posts` → `content_validation` ; CEO `approve-step` + filtre
+`?waiting=a_verifier`. Reste : drain cross-dept exécutable, plan idle LLM.
 
 ### Phase 31 — Agent Trust System
 **Objectif :** indice de confiance par agent, alimenté par l'historique réel
@@ -1402,7 +1406,10 @@ le workflow engine de la Phase 30 (ex. Marketing→App validé par Aria).
 **Polish UI (2026-08-10) :** vue globale KPI brand + txs récentes + charts.
 Migration Supabase tables optionnelle plus tard — le JSON reste le chemin quotidien.
 **Dépendances :** Phase 29 (cockpit) et Phase 30 (transferts — reportés).
-**Statut :** 🔄 In progress (profondeur cockpit OK ; `budget_transfer` toujours hors scope).
+**Avancée profondeur 2026-08-10 :** `spent` overlay (computed + manual),
+`GET /finances/budget-alerts` (warning ≥80% / critical ≥100% + event_bus),
+factures due_date/filtres/overdue, fiscal auto-promote `upcoming→due`.
+**Statut :** 🔄 Depth+ (`budget_transfer` toujours hors scope).
 
 ### Phase 35 — Brand Design transversal
 **Objectif :** étendre `agents/brand_agent.py` (aujourd'hui pipeline
@@ -1420,7 +1427,11 @@ générique).
 - `GET /brand/design-system`, `POST /brand/review` (`brand_system` router)
 - Marketing Brand Center réel (plus ComingSoon)
 - Hors scope Vague D : persona multi-room Brand, débat LLM, split `brand-view`
-**Statut :** 🔄 MVP Slice (Vague D) — design system + reviewer structurel.
+**Avancée profondeur 2026-08-10 :** persona `brand` (Élise Mercier) +
+`BrandAgent(AgentBase)` ; Content Studio Review Brand + gate statut ;
+guidelines kit + `layout_tokens`. Reste : débat LLM Brand↔Anouk, split
+`brand-view` (577 lignes).
+**Statut :** 🔄 Depth+ (Vague D + persona + workflow éditorial).
 
 ### Phase 36 — Orchestration inter-départements
 **Objectif :** le scénario "validation d'un projet APP → Marketing crée le

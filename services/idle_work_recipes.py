@@ -63,9 +63,15 @@ def _step_idle_check_budget(ctx: dict[str, Any]) -> dict[str, Any]:
 
 
 def _step_idle_build_queue(ctx: dict[str, Any]) -> dict[str, Any]:
+    from services.autonomy_resolver import resolve_idle_autonomy_level
     from services.idle_work_queue import build_day_plan, clamp_autonomy
 
-    autonomy = clamp_autonomy(ctx.get("autonomy_level", 1))
+    if ctx.get("autonomy_level") is not None:
+        autonomy = clamp_autonomy(ctx["autonomy_level"])
+    else:
+        agent_id = str(ctx.get("agent_id") or "coo")
+        autonomy = resolve_idle_autonomy_level(agent_id)
+        ctx["autonomy_level"] = autonomy
     queue = build_day_plan(autonomy_level=autonomy)
     return {
         "status": "OK",

@@ -1,7 +1,5 @@
 import { hubFetch } from "./hub-fetch";
 
-export type IdleItemLevel = 0 | 1 | 2 | 3;
-
 export interface IdleQueueItem {
   id: string;
   level: number;
@@ -26,6 +24,17 @@ export interface IdleDayQueue {
   updated_at?: string;
 }
 
+export interface IdleDeliverableSummary {
+  item_id: string;
+  kind?: string;
+  title?: string;
+  agent_id?: string;
+  status?: string;
+  written_at?: string;
+  preview?: string;
+  path?: string;
+}
+
 export async function fetchIdleQueue(): Promise<IdleDayQueue> {
   return hubFetch<IdleDayQueue>("/workflows/idle/queue");
 }
@@ -43,4 +52,26 @@ export async function runIdlePlan(): Promise<Record<string, unknown>> {
 
 export async function runIdleDrain(): Promise<Record<string, unknown>> {
   return hubFetch("/workflows/idle/drain", { method: "POST" });
+}
+
+export async function fetchIdleDeliverables(limit = 20): Promise<IdleDeliverableSummary[]> {
+  const data = await hubFetch<{ deliverables: IdleDeliverableSummary[] }>(
+    `/workflows/idle/deliverables?limit=${limit}`,
+  );
+  return data.deliverables ?? [];
+}
+
+export async function fetchIdleDeliverable(itemId: string): Promise<Record<string, unknown>> {
+  return hubFetch(`/workflows/idle/deliverables/${encodeURIComponent(itemId)}`);
+}
+
+export async function promoteIdleTickets(body?: {
+  item_id?: string;
+  project_id?: string;
+  dry_run?: boolean;
+}): Promise<Record<string, unknown>> {
+  return hubFetch("/workflows/idle/promote-tickets", {
+    method: "POST",
+    body: JSON.stringify(body ?? {}),
+  });
 }

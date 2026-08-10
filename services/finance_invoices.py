@@ -48,6 +48,8 @@ def list_invoices(
     if vendor:
         v = vendor.lower()
         rows = [r for r in rows if v in str(r.get("vendor", "")).lower()]
+    if status == "to_pay":
+        return sorted(rows, key=lambda r: r.get("due_date") or "9999-12-31")
     return sorted(rows, key=lambda r: r.get("due_date") or r.get("created_at") or "", reverse=True)
 
 

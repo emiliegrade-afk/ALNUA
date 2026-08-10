@@ -49,7 +49,7 @@ ROOMS: dict[str, dict] = {
         "agents": [
             "marketing", "content",
             "content_app", "content_gaming", "content_robo", "content_company",
-            "ads",
+            "brand", "ads",
             "rnd_social", "rnd_visual",
         ],
     },
@@ -118,7 +118,7 @@ TEAMS: dict[str, dict] = {
         "agents": [
             "marketing", "content",
             "content_app", "content_gaming", "content_robo", "content_company",
-            "ads",
+            "brand", "ads",
             "rnd_social", "rnd_visual",
         ],
         "compete_metric": "impact_business",

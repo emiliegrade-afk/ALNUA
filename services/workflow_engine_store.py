@@ -37,20 +37,32 @@ def get_run(run_id: str) -> WorkflowRun | None:
         return None
 
 
-def list_runs(*, limit: int = 30, recipe_id: str | None = None) -> list[dict[str, Any]]:
+def _run_has_a_verifier(run: WorkflowRun) -> bool:
+    return any(s.status == "A_VERIFIER" for s in run.steps)
+
+
+def list_runs(
+    *,
+    limit: int = 30,
+    recipe_id: str | None = None,
+    waiting_a_verifier: bool = False,
+) -> list[dict[str, Any]]:
     items: list[tuple[str, WorkflowRun]] = []
     for path in sorted(_runs_dir().glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True):
         try:
             run = WorkflowRun.model_validate(json.loads(path.read_text(encoding="utf-8")))
             if recipe_id and run.recipe_id != recipe_id:
                 continue
+            if waiting_a_verifier and not _run_has_a_verifier(run):
+                continue
             items.append((path.name, run))
         except Exception:
             continue
         if len(items) >= limit:
             break
-    return [
-        {
+    out: list[dict[str, Any]] = []
+    for _, run in items:
+        row: dict[str, Any] = {
             "run_id": run.run_id,
             "recipe_id": run.recipe_id,
             "status": run.status,
@@ -59,5 +71,15 @@ def list_runs(*, limit: int = 30, recipe_id: str | None = None) -> list[dict[str
             "finished_at": run.finished_at,
             "summary": run.summary[:200],
         }
-        for _, run in items
-    ]
+        if waiting_a_verifier:
+            row["steps_a_verifier"] = [
+                {
+                    "step_id": s.step_id,
+                    "label": s.label,
+                    "detail": (s.detail or "")[:200],
+                }
+                for s in run.steps
+                if s.status == "A_VERIFIER"
+            ]
+        out.append(row)
+    return out

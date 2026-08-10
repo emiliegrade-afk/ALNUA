@@ -7,11 +7,13 @@ import { ForecastCockpitPanel } from "@/components/finances/forecast-cockpit-pan
 import {
   createFinanceBudget,
   createFiscalObligation,
+  fetchBudgetAlerts,
   fetchFinanceBudgets,
   fetchFiscalObligations,
   formatCurrency,
   updateFinanceBudget,
   updateFiscalObligation,
+  type BudgetDepartmentAlert,
   type BudgetSummary,
   type FinanceBudget,
   type FiscalObligation,
@@ -34,15 +36,21 @@ export function BudgetsFiscalTab() {
   const [fiscalDue, setFiscalDue] = useState(() => new Date().toISOString().slice(0, 10));
   const [fiscalKind, setFiscalKind] = useState("tva");
   const [saving, setSaving] = useState(false);
+  const [alertsByDept, setAlertsByDept] = useState<Record<string, BudgetDepartmentAlert>>({});
 
   async function load() {
     setLoading(true);
     try {
-      const [b, f] = await Promise.all([fetchFinanceBudgets(), fetchFiscalObligations()]);
+      const [b, f, alerts] = await Promise.all([
+        fetchFinanceBudgets(),
+        fetchFiscalObligations(),
+        fetchBudgetAlerts(period),
+      ]);
       setBudgets(b.budgets);
       setBSum(b.summary);
       setObligations(f.obligations);
       setFSum(f.summary);
+      setAlertsByDept(Object.fromEntries(alerts.alerts.map((a) => [a.department, a])));
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Chargement budgets/fiscal impossible");
     } finally {
@@ -52,7 +60,7 @@ export function BudgetsFiscalTab() {
 
   useEffect(() => {
     void load();
-  }, []);
+  }, [period]);
 
   async function addBudget() {
     const value = parseFloat(amount);
@@ -147,6 +155,7 @@ export function BudgetsFiscalTab() {
 
       <BudgetsSection
         budgets={budgets}
+        alertsByDept={alertsByDept}
         dept={dept}
         period={period}
         amount={amount}

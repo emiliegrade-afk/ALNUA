@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Callable
+from typing import Any
 
 from services.review_chain_gates import (
     AutoCheckFn,
@@ -11,6 +11,7 @@ from services.review_chain_gates import (
     run_board_gate,
     run_policy_gate,
 )
+from services.review_chain_integrate import IntegrateFn, needs_integrate, run_integrate
 from services.review_chain_models import (
     GateResult,
     ReviewChainResult,
@@ -20,8 +21,6 @@ from services.review_chain_models import (
 
 logger = logging.getLogger(__name__)
 
-IntegrateFn = Callable[..., dict[str, Any]]
-
 
 def _emit(event_type: str, payload: dict[str, Any]) -> None:
     try:
@@ -30,82 +29,6 @@ def _emit(event_type: str, payload: dict[str, Any]) -> None:
         emit(event_type, payload=payload, source_agent="review_chain")
     except Exception:
         pass
-
-
-def _needs_integrate(feature_branches: list[str] | None) -> bool:
-    return len([b for b in (feature_branches or []) if b]) > 1
-
-
-def _run_integrate(
-    *,
-    repo_path: str,
-    integration_branch: str,
-    feature_branches: list[str],
-    base_branch: str,
-    dry_run: bool,
-    integrate_fn: IntegrateFn | None,
-) -> GateResult:
-    if dry_run:
-        return GateResult(
-            gate="INTEGRATE",
-            outcome="pass",
-            detail="dry_run integrate skipped",
-            meta={
-                "dry_run": True,
-                "branches": feature_branches,
-                "integration_branch": integration_branch,
-            },
-        )
-
-    def _default_integrate() -> dict[str, Any]:
-        from agents.dev_integrator_agent import DevIntegratorAgent
-
-        agent = DevIntegratorAgent()
-        return agent.integrate_worktrees(
-            repo_path=repo_path,
-            branch=integration_branch,
-            worktrees=feature_branches,
-            base_branch=base_branch,
-        )
-
-    fn = integrate_fn or _default_integrate
-    try:
-        out = fn(
-            repo_path=repo_path,
-            branch=integration_branch,
-            worktrees=feature_branches,
-            base_branch=base_branch,
-        )
-    except TypeError:
-        out = fn()
-    except Exception as exc:
-        return GateResult(
-            gate="INTEGRATE",
-            outcome="fail",
-            detail=str(exc),
-            feedback=f"Integrate exception: {type(exc).__name__}: {exc}",
-            meta={},
-        )
-
-    conflicts = out.get("conflicts") or []
-    status = str(out.get("status") or "")
-    if conflicts or status in {"error", "conflict", "conflicts"}:
-        fb = "; ".join(
-            f"{c.get('branch')}: {c.get('error')}" for c in conflicts if isinstance(c, dict)
-        ) or str(out.get("error") or status)
-        return GateResult(
-            gate="INTEGRATE",
-            outcome="fail",
-            detail="integrate conflicts",
-            feedback=fb[:2000],
-            meta={"integrate": out},
-        )
-    return GateResult(
-        gate="INTEGRATE",
-        outcome="pass",
-        detail=f"merged={out.get('merged')}",
-        meta={"integrate": out},
-    )
 
 
 def run_review_chain(
@@ -219,7 +142,7 @@ def run_review_chain(
         return result
 
     branches = [b for b in (feature_branches or []) if b]
-    if _needs_integrate(branches):
+    if needs_integrate(branches):
         if not repo_path and not dry_run and integrate_fn is None:
             g = GateResult(
                 gate="INTEGRATE",
@@ -240,7 +163,7 @@ def run_review_chain(
             )
             _emit("review_chain.completed", result.to_dict())
             return result
-        integ = _run_integrate(
+        integ = run_integrate(
             repo_path=repo_path or "",
             integration_branch=integration_branch or f"integrate/{chain_id}",
             feature_branches=branches,

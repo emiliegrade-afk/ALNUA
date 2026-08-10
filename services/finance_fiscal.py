@@ -38,12 +38,39 @@ def _save(rows: list[dict[str, Any]]) -> None:
     _PATH.write_text(json.dumps(rows, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def _promote_due_obligations(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Auto-promote upcoming → due when due_date <= today (no auto-pay)."""
+    today = date.today().isoformat()
+    changed = False
+    for i, row in enumerate(rows):
+        if row.get("status") != "upcoming":
+            continue
+        due = str(row.get("due_date") or "")
+        if due and due <= today:
+            row = dict(row)
+            row["status"] = "due"
+            row["updated_at"] = datetime.now(timezone.utc).isoformat()
+            rows[i] = row
+            changed = True
+    if changed:
+        _save(rows)
+    return rows
+
+
+def get_obligation(obligation_id: str) -> dict[str, Any]:
+    rows = _promote_due_obligations(_load())
+    for row in rows:
+        if row.get("id") == obligation_id:
+            return row
+    raise KeyError(f"obligation not found: {obligation_id}")
+
+
 def list_obligations(
     *,
     status: str | None = None,
     kind: str | None = None,
 ) -> list[dict[str, Any]]:
-    rows = _load()
+    rows = _promote_due_obligations(_load())
     if status:
         rows = [r for r in rows if r.get("status") == status]
     if kind:
@@ -123,13 +150,18 @@ def update_obligation(obligation_id: str, **updates: Any) -> dict[str, Any]:
 
 
 def fiscal_summary() -> dict[str, Any]:
-    rows = _load()
-    open_rows = [r for r in rows if r.get("status") in ("upcoming", "due")]
+    rows = _promote_due_obligations(_load())
+    open_rows = sorted(
+        [r for r in rows if r.get("status") in ("upcoming", "due")],
+        key=lambda r: r.get("due_date") or "",
+    )
     open_total = sum(float(r.get("amount") or 0) for r in open_rows)
+    next_row = open_rows[0] if open_rows else None
     return {
         "count": len(rows),
         "open_count": len(open_rows),
         "open_total": round(open_total, 2),
-        "next_due": open_rows[0]["due_date"] if open_rows else None,
+        "next_due": next_row["due_date"] if next_row else None,
+        "next_due_title": next_row.get("title") if next_row else None,
         "payment_policy": "Paiement externe uniquement (banque / impôts.gouv).",
     }

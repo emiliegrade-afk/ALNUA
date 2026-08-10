@@ -24,6 +24,7 @@ export interface WorkflowRunSummary {
   created_at: string;
   finished_at: string | null;
   summary: string;
+  steps_a_verifier?: { step_id: string; label: string; detail: string }[];
 }
 
 export interface WorkflowRunResult {
@@ -65,6 +66,23 @@ export function fetchWorkflowRecipes(): Promise<WorkflowRecipe[]> {
 
 export function fetchWorkflowRuns(limit = 20): Promise<{ runs: WorkflowRunSummary[] }> {
   return wfFetch(`/workflows/runs?limit=${limit}`);
+}
+
+export function fetchWorkflowRunsWaiting(
+  limit = 20,
+): Promise<{ runs: WorkflowRunSummary[] }> {
+  return wfFetch(`/workflows/runs?limit=${limit}&waiting=a_verifier`);
+}
+
+export function approveWorkflowStep(
+  runId: string,
+  stepId: string,
+  approverAgentId = "ceo",
+): Promise<WorkflowRunResult> {
+  return wfFetch(`/workflows/runs/${runId}/approve-step`, {
+    method: "POST",
+    body: JSON.stringify({ step_id: stepId, approver_agent_id: approverAgentId }),
+  });
 }
 
 export function runWorkflow(

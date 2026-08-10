@@ -1,7 +1,7 @@
 """
-Brand Agent — orchestrateur CrewAI pour le pipeline Brand Kit ALNUA.
+Brand Agent — Élise Mercier, Design System & Kits ALNUA.
 
-Wraps vision_llm, palette, segmentation, kit_generator — same rules as docs/specs/SPEC_BRANDKIT_HUB.md.
+Orchestrates the brand kit pipeline (vision_llm, palette, segmentation, kit_generator).
 """
 
 from __future__ import annotations
@@ -11,8 +11,9 @@ import uuid
 from pathlib import Path
 from typing import Any
 
+from agents.agent_base import AgentBase
 from agents.brainstorm_agent import BrainstormAgent
-from database.supabase_client import get_supabase
+from config.agent_operating_spec import get_system_prompt
 from services.brand_schemas import BrandAnalysis
 from services.brand_storage import BRAND_KITS_ROOT, ensure_brand_kit_dirs
 from services.kit_generator import ALL_FORMAT_NAMES, generate_full_kit
@@ -25,15 +26,16 @@ from skills.skill_langfuse import trace_agent
 logger = logging.getLogger(__name__)
 
 
-class BrandAgent:
-    """Orchestrates the full brand kit pipeline (phases 1–4)."""
+class BrandAgent(AgentBase):
+    """Orchestrates the full brand kit pipeline (phases 1–4) + design system review."""
 
     AGENT_NAME = "brand"
+    SYSTEM_PROMPT = get_system_prompt("brand")
 
     def __init__(self) -> None:
-        self.db = get_supabase()
+        super().__init__()
 
-    @trace_agent("brand_agent")
+    @trace_agent("brand")
     def analyze_image(
         self,
         image_path: str | Path,
@@ -83,7 +85,7 @@ class BrandAgent:
             "isolated_assets": isolated_assets,
         }
 
-    @trace_agent("brand_agent")
+    @trace_agent("brand")
     def generate_kit(
         self,
         kit_id: str,

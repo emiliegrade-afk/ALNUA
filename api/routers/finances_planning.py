@@ -16,8 +16,17 @@ def list_finance_budgets(
 
     return {
         "budgets": list_budgets(department=department, period=period),
-        "summary": budget_summary(),
+        "summary": budget_summary(period=period),
     }
+
+
+@router.get("/finances/budget-alerts")
+def finance_budget_alerts(
+    period: str | None = Query(default=None, pattern=r"^(\d{4}-\d{2}|\d{4}-Q[1-4])$"),
+) -> dict[str, Any]:
+    from services.finance_budgets import budget_alerts
+
+    return budget_alerts(period=period)
 
 
 @router.post("/finances/budgets")

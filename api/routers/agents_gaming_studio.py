@@ -127,3 +127,22 @@ def qa_gaming_ue58_probe() -> dict[str, Any]:
 @router.get("/agents/qa-gaming/builds")
 def qa_gaming_builds(limit: int = 5) -> dict[str, Any]:
     return QaGamingAgent().list_recent_builds(limit=limit)
+
+
+@router.post("/agents/game-director/instruction")
+def game_director_instruction(body: AgentInstructionRequest) -> dict[str, str]:
+    result = GameDirectorAgent().handle_instruction(clean_agent_text(body.instruction))
+    return {"result": result}
+
+
+@router.post("/agents/game-director/lore/search")
+def game_director_lore_search(body: GameDirectorLoreSearchRequest) -> dict[str, Any]:
+    """Offline-safe — skill lore DB, no LLM."""
+    from skills.skill_lore_database import search_lore
+
+    hits = search_lore(
+        clean_agent_text(body.query, max_length=500),
+        project=body.project,
+        limit=max(1, min(body.limit, 20)),
+    )
+    return {"ok": True, "query": body.query, "hits": hits, "count": len(hits)}

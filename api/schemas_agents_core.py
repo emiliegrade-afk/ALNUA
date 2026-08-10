@@ -264,3 +264,31 @@ class AgentInstructionRequest(BaseModel):
     instruction: str
 
 
+class GameDirectorLoreSearchRequest(BaseModel):
+    query: str
+    project: str | None = None
+    limit: int = 5
+
+
+class RndAgentResearchRequest(BaseModel):
+    query: str
+    context: str = ""
+
+
+class RndAgentPrototypeRequest(BaseModel):
+    idea: str
+    context: str = ""
+
+
+class CodingCoachTeachRequest(BaseModel):
+    message: str
+    workspace: str = "sandbox"
+    file_path: str | None = None
+    file_content: str | None = None
+
+
+class CodingCoachExerciseRequest(BaseModel):
+    topic: str
+    level: str = "débutant"
+
+

@@ -69,19 +69,18 @@ y compris `tests/test_devex_phase6.py` réécrit pour le nouveau comportement.
 
 | ID | Gravité | Description | Constat |
 |----|---------|-------------|-----------|
-| — | — | Aucun bug ouvert tracké | Dette structurelle fichiers >300 hors hotspots BUG-004 : acceptée / backlog hygiène |
+| — | — | Aucun bug ouvert tracké | Hygiène fichiers >300 fermée (paydown 2026-08-10) |
 
-## Statistiques (mises à jour Vague F — 2026-08-10)
+## Statistiques (mises à jour profondeur 34/35/autonomie — 2026-08-10)
 
 | Bucket | Count |
 |--------|------:|
 | Ouverts | **0** |
 | Fermés remédiation + Vague 0–4 + BUG-004 | 15 (+ `BUG-004`) |
-| Routers / tests collectés / Next | **44** / **433** / **16.3.0** |
+| Routers / tests / Next | voir `api/routers/__init__.py` / **524** passed / **16.3.0** |
 | npm audit (web) | **0** |
-| Python >300 lignes (residual hygiène) | ~**74** (hors ticket) |
+| Python >300 lignes | **0** (packages agents/services/api/skills/bots/config/database) |
 | Residual mockup routes (working tree) | **0** |
-| npm audit (web) | **0** vulns (post Next 16) |
 | Corrigés (SEC) | 6 (`SEC-001`–`006`) |
 | Corrigés (BUG) | 19 (`BUG-001`–`019`) |
 | Décision fermée | 1 (`DEC-009`) |

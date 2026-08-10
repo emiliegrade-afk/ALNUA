@@ -9,7 +9,7 @@ solo d'Emilie, couvrant 3 branches :
 | Gaming | Wyrdheim Online | MMORPG fantasy nordique |
 | Robotique | Eve | Robot compagnon domestique |
 
-**49** personas LLM, frontend dans `web/` (lobby + bureaux `*-v2`).
+**50** personas LLM, frontend dans `web/` (lobby + bureaux `*-v2`).
 Détail code : `CLAUDE.md`. **Bible docs** : [`docs/README.md`](docs/README.md).
 
 ## Architecture

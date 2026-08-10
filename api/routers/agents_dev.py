@@ -123,3 +123,29 @@ def dev_integrator_review_diff(body: DevIntegratorReviewDiffRequest) -> dict[str
         clean_agent_text(body.diff_summary, max_length=12000),
         clean_agent_text(body.context),
     )
+
+
+@router.post("/agents/coding-coach/teach")
+def coding_coach_teach(body: CodingCoachTeachRequest) -> dict[str, str]:
+    reply = CodingCoachAgent().teach(
+        clean_agent_text(body.message),
+        workspace=body.workspace,
+        file_path=body.file_path,
+        file_content=body.file_content,
+    )
+    return {"reply": reply, "agent": "coding_coach"}
+
+
+@router.post("/agents/coding-coach/exercise")
+def coding_coach_exercise(body: CodingCoachExerciseRequest) -> dict[str, Any]:
+    return CodingCoachAgent().suggest_exercise(
+        clean_agent_text(body.topic, max_length=500),
+        clean_agent_text(body.level, max_length=80) or "débutant",
+    )
+
+
+@router.post("/agents/coding-coach/instruction")
+def coding_coach_instruction(body: AgentInstructionRequest) -> dict[str, str]:
+    reply = CodingCoachAgent().teach(clean_agent_text(body.instruction))
+    return {"reply": reply, "agent": "coding_coach"}
+

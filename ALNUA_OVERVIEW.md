@@ -8,7 +8,7 @@ Guide produit / infrastructure du Hub. Pour le détail technique (stack, sécuri
 
 **ALNUA** est une société solo (Emilie) structurée comme une entreprise complète — mais dont les « employés » sont des **agents IA** (personas LLM) qui travaillent dans un **siège social virtuel**.
 
-Ce siège s’appelle le **ALNUA Hub** (`ALUNA_HUB/`) : un dashboard Next.js + une API FastAPI qui orchestrent ~**49 agents** répartis en départements (pôles / rooms). Chaque agent a un prénom, un rôle, un modèle LLM (tier fast / standard / premium), une mémoire (Mem0) et des compétences métier.
+Ce siège s’appelle le **ALNUA Hub** (`ALUNA_HUB/`) : un dashboard Next.js + une API FastAPI qui orchestrent ~**50 agents** répartis en départements (pôles / rooms). Chaque agent a un prénom, un rôle, un modèle LLM (tier fast / standard / premium), une mémoire (Mem0) et des compétences métier.
 
 Le Hub n’est pas un produit grand public : c’est le **centre de commandement** pour faire avancer trois branches produit.
 

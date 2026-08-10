@@ -17,6 +17,7 @@ def idle_paths(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr("services.idle_work_queue._QUEUE_PATH", queue)
     monkeypatch.setattr("services.workflow_engine._RUNS_DIR", runs)
     monkeypatch.setattr("services.idle_work_recipes._DELIVERABLES", deliverables)
+    monkeypatch.setattr("services.idle_work_deliverables._DELIVERABLES", deliverables)
     return queue
 
 
@@ -123,3 +124,26 @@ def test_execute_company_draft_l1_no_publish(idle_paths: Path) -> None:
     assert body["status"] == "draft"
     assert "non publié" in body["note"].lower() or "pas de queue" in body["note"].lower()
     assert body["draft"]["draft"] == "Hello ALNUA"
+
+
+def test_product_triage_offline_no_llm(idle_paths: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    from services.idle_work_execute_l1 import execute_product_triage
+
+    monkeypatch.setattr("services.idle_work_execute_l1._offline_mode", lambda: True)
+    body = execute_product_triage({"title": "Triage", "payload": {}})
+    assert body["kind"] == "product_triage"
+    assert body["triage"].get("offline") is True
+    assert len(body["triage"].get("tickets") or []) >= 3
+
+
+def test_promote_triage_dry_run(idle_paths: Path) -> None:
+    from services.idle_work_deliverables import promote_triage_to_tickets
+
+    with patch("database.supabase_client.get_supabase") as gs:
+        mock_db = gs.return_value
+        mock_db.select.return_value = [{"id": "proj-1"}]
+        result = promote_triage_to_tickets(dry_run=True)
+    assert result["ok"] is True
+    assert result["source"] == "offline_fallback"
+    assert len(result["tickets"]) >= 3
+    assert all(t.get("dry_run") for t in result["tickets"])

@@ -48,7 +48,9 @@ from agents.dev_app_agent import DevAppAgent
 from agents.dev_frontend_agent import DevFrontendAgent
 from agents.dev_integrator_agent import DevIntegratorAgent
 from agents.dev_gaming_agent import DevGamingAgent
+from agents.coding_coach_agent import CodingCoachAgent
 from agents.electronics_agent import ElectronicsAgent
+from agents.game_director_agent import GameDirectorAgent
 from agents.embedded_dev_agent import EmbeddedDevAgent
 from agents.environment_artist_agent import EnvironmentArtistAgent
 from agents.firmware_agent import FirmwareAgent
@@ -61,6 +63,7 @@ from agents.narrative_designer_agent import NarrativeDesignerAgent
 from agents.pm_agent import PMAgent
 from agents.qa_agent import QAAgent
 from agents.qa_gaming_agent import QaGamingAgent
+from agents.rnd_agent import RndAgent
 from agents.qa_robot_agent import QaRobotAgent
 from agents.safety_agent import SafetyAgent
 from agents.secretary_agent import SecretaryAgent

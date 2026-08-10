@@ -65,6 +65,7 @@ AGENT_CAPABILITY_PACKS: dict[str, frozenset[str]] = {
     "content_gaming": _COMMS,
     "content_robo": _COMMS,
     "content_company": _COMMS,
+    "brand": _COMMS,
     "rnd_social": _COMMS,
     "rnd_visual": _COMMS,
     "ads": _COMMS | frozenset({"ads:spend"}),

@@ -3,6 +3,8 @@
 import { Plus } from "lucide-react";
 import {
   formatCurrency,
+  type BudgetAlertSeverity,
+  type BudgetDepartmentAlert,
   type FinanceBudget,
   type FiscalObligation,
   type FiscalStatus,
@@ -26,6 +28,24 @@ export const FISCAL_KINDS = [
   "autre",
 ] as const;
 
+const ALERT_STYLE: Record<BudgetAlertSeverity, { bg: string; color: string; label: string }> = {
+  ok: { bg: "rgba(61,220,151,.12)", color: "#3DDC97", label: "OK" },
+  warning: { bg: "rgba(224,155,106,.15)", color: "#E09B6A", label: "80%+" },
+  critical: { bg: "rgba(248,113,113,.15)", color: "#F87171", label: "Dépassé" },
+};
+
+export function BudgetAlertBadge({ severity }: { severity: BudgetAlertSeverity }) {
+  const s = ALERT_STYLE[severity];
+  return (
+    <span
+      className="rounded px-1.5 py-px text-[9px] font-medium uppercase tracking-wide"
+      style={{ background: s.bg, color: s.color }}
+    >
+      {s.label}
+    </span>
+  );
+}
+
 export function MiniStat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border px-2 py-1.5" style={{ borderColor: C.lineSoft }}>
@@ -41,6 +61,7 @@ export function MiniStat({ label, value }: { label: string; value: string }) {
 
 type BudgetsSectionProps = {
   budgets: FinanceBudget[];
+  alertsByDept: Record<string, BudgetDepartmentAlert>;
   dept: string;
   period: string;
   amount: string;
@@ -97,7 +118,7 @@ export function BudgetsSection(p: BudgetsSectionProps) {
           disabled={p.saving}
           onClick={p.onAdd}
           className="flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px]"
-          style={{ borderColor: "rgba(192,138,114,.4)", color: C.copperLight }}
+          style={{ borderColor: "rgba(224,155,106,.4)", color: C.copperLight }}
         >
           <Plus className="h-3 w-3" /> Ajouter
         </button>
@@ -108,31 +129,44 @@ export function BudgetsSection(p: BudgetsSectionProps) {
             Aucune enveloppe — crée la première pour Marketing / App / …
           </li>
         ) : (
-          p.budgets.map((b) => (
+          p.budgets.map((b) => {
+            const alert = p.alertsByDept[b.department];
+            const util = b.utilization_pct ?? 0;
+            return (
             <li
               key={b.id}
               className="flex items-center justify-between gap-2 rounded-lg border px-2.5 py-1.5 text-[11px]"
               style={{ borderColor: C.lineSoft }}
             >
-              <span style={{ color: C.ivory }}>
+              <span className="flex items-center gap-1.5" style={{ color: C.ivory }}>
                 {b.department} · {b.period}
-                <span className="ml-2" style={{ color: C.faint }}>
+                {alert ? <BudgetAlertBadge severity={alert.severity} /> : null}
+                <span className="ml-1" style={{ color: C.faint }}>
                   {b.label}
                 </span>
               </span>
               <span className="flex shrink-0 items-center gap-2" style={{ color: C.warm }}>
                 {formatCurrency(b.amount, b.currency)}
+                <span style={{ color: C.faint }}>
+                  {util.toFixed(0)}%
+                </span>
                 <button
                   type="button"
-                  onClick={() => p.onSpent(b.id, b.spent ?? 0)}
+                  onClick={() => p.onSpent(b.id, b.spent_manual ?? b.spent ?? 0)}
                   className="rounded border px-1.5 py-px text-[9px]"
                   style={{ borderColor: C.line, color: C.dim }}
+                  title={
+                    b.spent_computed != null
+                      ? `Calculé: ${formatCurrency(b.spent_computed, b.currency)}`
+                      : undefined
+                  }
                 >
                   dépensé {formatCurrency(b.spent ?? 0, b.currency)}
                 </button>
               </span>
             </li>
-          ))
+            );
+          })
         )}
       </ul>
     </section>
@@ -206,7 +240,7 @@ export function FiscalSection(p: FiscalSectionProps) {
           disabled={p.saving}
           onClick={p.onAdd}
           className="flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px]"
-          style={{ borderColor: "rgba(192,138,114,.4)", color: C.copperLight }}
+          style={{ borderColor: "rgba(224,155,106,.4)", color: C.copperLight }}
         >
           <Plus className="h-3 w-3" /> Ajouter
         </button>

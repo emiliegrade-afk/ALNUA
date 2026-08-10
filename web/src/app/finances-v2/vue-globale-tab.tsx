@@ -21,18 +21,24 @@ import {
 import { formatMonthLabel } from "@/components/finances/finances.constants";
 import { fetchAnalyticsSummary } from "@/lib/analytics";
 import {
+  fetchBudgetAlerts,
   fetchFinanceInvoices,
   fetchFinanceSummary,
   fetchFinanceTransactions,
+  fetchFiscalObligations,
   formatCurrency,
+  type BudgetAlertsResponse,
   type FinanceDashboard,
   type FinanceTransaction,
   type FinancialSummary,
+  type FiscalSummary,
 } from "@/lib/finances-api";
 import type { Project } from "@/lib/types";
 import { ROUTES } from "@/lib/routes";
 
-/* Vue globale Finance — brand board grid. Pas de métrique inventée. */
+/* Vue globale — disposition maquette PÔLE COMPTABILITÉ :
+   6 KPI → Evolution+Donut+Échéances+SaaS → Branch+Résumé+Tx+Récurrents.
+   Métriques réelles uniquement (runway = cash / burn). */
 
 function flatTrend(v: number): number[] {
   return Array.from({ length: 6 }, () => Math.max(0, v));
@@ -60,6 +66,10 @@ export function VueGlobaleTab({
   const [toPay, setToPay] = useState<{ count: number; total: number } | null>(
     null,
   );
+  const [budgetAlerts, setBudgetAlerts] = useState<BudgetAlertsResponse | null>(
+    null,
+  );
+  const [fiscalSummary, setFiscalSummary] = useState<FiscalSummary | null>(null);
   const [recentTx, setRecentTx] = useState<FinanceTransaction[]>([]);
 
   useEffect(() => {
@@ -101,10 +111,24 @@ export function VueGlobaleTab({
       .catch(() => {
         if (!cancelled) setToPay(null);
       });
+    fetchBudgetAlerts(month)
+      .then((a) => {
+        if (!cancelled) setBudgetAlerts(a);
+      })
+      .catch(() => {
+        if (!cancelled) setBudgetAlerts(null);
+      });
+    fetchFiscalObligations()
+      .then((f) => {
+        if (!cancelled) setFiscalSummary(f.summary);
+      })
+      .catch(() => {
+        if (!cancelled) setFiscalSummary(null);
+      });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [month]);
 
   useEffect(() => {
     let cancelled = false;
@@ -133,6 +157,7 @@ export function VueGlobaleTab({
 
   const expenseTrend = last6.map((m) => m.total_expenses);
   const balanceTrend = last6.map((m) => m.balance);
+  const incomeTrend = last6.map((m) => m.total_income);
   const cumulativeTrend = balanceTrend.reduce<number[]>((acc, b) => {
     acc.push((acc.length > 0 ? acc[acc.length - 1] : 0) + b);
     return acc;
@@ -148,18 +173,24 @@ export function VueGlobaleTab({
       ? earlier.reduce((s, m) => s + m.total_expenses, 0) / earlier.length
       : null;
 
-  const ytdPrev = (dashboard?.ytd_balance ?? 0) - (current?.balance ?? 0);
-  const cashChange = formatPct(
-    dashboard ? pctChange(dashboard.ytd_balance, ytdPrev) : null,
-  );
+  const cashPosition = dashboard?.ytd_balance ?? 0;
+  const runwayMonths =
+    burnRate != null && burnRate > 0 && cashPosition > 0
+      ? cashPosition / burnRate
+      : null;
+
   const profitChange = formatPct(
     current && prev ? pctChange(current.balance, prev.balance) : null,
   );
   const burnChange = formatPct(
     burnRate != null && prevBurn != null ? pctChange(burnRate, prevBurn) : null,
   );
-  // Burn down = good → invert positive styling when change is negative
   const burnIsGood = burnChange != null && burnChange.startsWith("-");
+  const soldeChange = formatPct(
+    dashboard && current
+      ? pctChange(cashPosition, cashPosition - current.balance)
+      : null,
+  );
 
   const mrrChange =
     mrr?.value != null && mrr.change_pct != null
@@ -167,135 +198,192 @@ export function VueGlobaleTab({
       : null;
 
   return (
-    <div className="alnua-scroll flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-1">
-      <FinancesMonthNav month={month} onChange={onMonthChange} />
+    <div className="alnua-scroll dept-hud flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto py-1">
+      <div className="flex items-center justify-between gap-3 px-0.5">
+        <FinancesMonthNav month={month} onChange={onMonthChange} />
+      </div>
 
       {dashboardLoading && !dashboard ? (
-        <p className="text-center text-sm text-alnua-titane">
+        <p className="text-center text-sm text-titanium/50">
           Chargement du tableau de bord…
         </p>
       ) : (
-        <div className="grid grid-cols-12 gap-6">
-          <FinanceKpiCard
-            className="col-span-12 sm:col-span-6 lg:col-span-3"
-            title="Cash flow"
-            value={dashboard ? formatCurrency(dashboard.ytd_balance) : "—"}
-            change={dashboard ? cashChange : null}
-            isPositive={(dashboard?.ytd_balance ?? 0) >= 0}
-            trend={cumulativeTrend.length > 1 ? cumulativeTrend : undefined}
-            trendColor="#2DD4BF"
-          />
-          <FinanceKpiCard
-            className="col-span-12 sm:col-span-6 lg:col-span-3"
-            title="MRR"
-            value={
-              mrr?.value != null ? formatCurrency(mrr.value) : "Non renseigné"
-            }
-            change={mrrChange}
-            isPositive={(mrr?.change_pct ?? 0) >= 0}
-            trend={mrr?.value != null ? flatTrend(mrr.value) : undefined}
-          />
-          <FinanceKpiCard
-            className="col-span-12 sm:col-span-6 lg:col-span-3"
-            title="Burn rate"
-            value={
-              burnRate != null ? `${formatCurrency(burnRate)} / mois` : "—"
-            }
-            change={burnChange}
-            isPositive={burnIsGood}
-            trend={expenseTrend.length > 1 ? expenseTrend : undefined}
-            trendColor="#F87171"
-          />
-          <FinanceKpiCard
-            className="col-span-12 sm:col-span-6 lg:col-span-3"
-            title="Profit (mois)"
-            value={current ? formatCurrency(current.balance) : "—"}
-            change={profitChange}
-            isPositive={(current?.balance ?? 0) >= 0}
-            trend={balanceTrend.length > 1 ? balanceTrend : undefined}
-          />
-
-          <div className="col-span-12 lg:col-span-8">
-            <FinancesEvolutionChart months={last6} />
-          </div>
-          <div className="col-span-12 lg:col-span-4">
-            <FinancesExpenseDonut
-              expenseByCategory={current?.by_category ?? {}}
-              monthLabel={formatMonthLabel(month)}
+        <div className="flex flex-col gap-5">
+          {/* Rangée 1 — rail KPI unique (pas 6 cartes) */}
+          <div className="finance-kpi-rail grid-cols-2 sm:grid-cols-3 xl:grid-cols-6">
+            <FinanceKpiCard
+              title="Cash Flow"
+              value={current ? formatCurrency(current.total_income) : "—"}
+              change={
+                current && prev
+                  ? formatPct(pctChange(current.total_income, prev.total_income))
+                  : null
+              }
+              isPositive={
+                current && prev
+                  ? current.total_income >= prev.total_income
+                  : (current?.total_income ?? 0) >= 0
+              }
+              trend={incomeTrend.length > 1 ? incomeTrend : undefined}
+              trendColor="#3DDC97"
+            />
+            <FinanceKpiCard
+              title="MRR"
+              value={
+                mrr?.value != null ? formatCurrency(mrr.value) : "Non renseigné"
+              }
+              change={mrrChange}
+              isPositive={(mrr?.change_pct ?? 0) >= 0}
+              trend={mrr?.value != null ? flatTrend(mrr.value) : undefined}
+              trendColor="#E09B6A"
+            />
+            <FinanceKpiCard
+              title="Burn Rate"
+              value={
+                burnRate != null ? `${formatCurrency(burnRate)} /mois` : "—"
+              }
+              change={burnChange}
+              isPositive={burnIsGood}
+              trend={expenseTrend.length > 1 ? expenseTrend : undefined}
+              trendColor="#F87171"
+            />
+            <FinanceKpiCard
+              title="Runway"
+              value={
+                runwayMonths != null ? `${runwayMonths.toFixed(1)} mois` : "—"
+              }
+              change={null}
+              isPositive={(runwayMonths ?? 0) >= 6}
+              trend={cumulativeTrend.length > 1 ? cumulativeTrend : undefined}
+              trendColor="#7BA7D9"
+            />
+            <FinanceKpiCard
+              title="Profit"
+              value={current ? formatCurrency(current.balance) : "—"}
+              change={profitChange}
+              isPositive={(current?.balance ?? 0) >= 0}
+              trend={balanceTrend.length > 1 ? balanceTrend : undefined}
+              trendColor="#F5C9A4"
+            />
+            <FinanceKpiCard
+              title="Solde"
+              value={dashboard ? formatCurrency(cashPosition) : "—"}
+              change={soldeChange}
+              isPositive={cashPosition >= 0}
+              trend={cumulativeTrend.length > 1 ? cumulativeTrend : undefined}
+              trendColor="#2DD4BF"
             />
           </div>
 
-          <div className="col-span-12 rounded-xl border border-alnua-border bg-alnua-surface p-5 lg:col-span-6">
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-xs font-semibold uppercase tracking-widest text-alnua-titane">
-                Dernières transactions
-              </h3>
-              {toPay && toPay.count > 0 ? (
-                <span className="text-[11px] text-alnua-danger">
-                  {toPay.count} facture{toPay.count > 1 ? "s" : ""} ·{" "}
-                  {formatCurrency(toPay.total)}
-                </span>
-              ) : null}
+          {/* Rangée 2 — chart hero + 3 instruments latéraux */}
+          <div className="grid grid-cols-12 gap-3">
+            <div className="col-span-12 xl:col-span-6">
+              <FinancesEvolutionChart months={last6} />
             </div>
-            {recentTx.length === 0 ? (
-              <p className="text-sm text-alnua-titane">
-                Aucune transaction ce mois.
-              </p>
-            ) : (
-              <table className="w-full text-sm">
-                <tbody className="divide-y divide-alnua-border/50">
-                  {recentTx.map((tx) => (
-                    <FinanceTransactionRow
-                      key={tx.id}
-                      date={formatTxDate(tx.date)}
-                      label={
-                        tx.description?.trim() ||
-                        tx.project_name ||
-                        tx.category
-                      }
-                      amount={`${tx.type === "income" ? "+" : "-"}${formatCurrency(tx.amount)}`}
-                      type={tx.type === "income" ? "in" : "out"}
-                    />
-                  ))}
-                </tbody>
-              </table>
-            )}
+            <div className="col-span-12 sm:col-span-4 xl:col-span-2">
+              <FinancesExpenseDonut
+                expenseByCategory={current?.by_category ?? {}}
+                monthLabel={formatMonthLabel(month)}
+              />
+            </div>
+            <div className="col-span-12 sm:col-span-4 xl:col-span-2">
+              <FinancesUpcomingPanel
+                recurringExpenses={dashboard?.recurring_expenses ?? []}
+              />
+            </div>
+            <div className="col-span-12 sm:col-span-4 xl:col-span-2">
+              <FinancesRecurringPreviewPanel
+                recurringExpenses={dashboard?.recurring_expenses ?? []}
+              />
+            </div>
           </div>
 
-          <div className="col-span-12 grid gap-3 lg:col-span-6 lg:grid-cols-1">
-            <FinancesUpcomingPanel
-              recurringExpenses={dashboard?.recurring_expenses ?? []}
-            />
+          {/* Rangée 3 */}
+          <div className="grid grid-cols-12 gap-3">
+            <div className="col-span-12 lg:col-span-3">
+              <FinancesBranchBreakdownPanel month={month} projects={projects} />
+            </div>
+            <div className="col-span-12 lg:col-span-3">
+              <FinancesSummaryCard
+                month={month}
+                summary={summary}
+                loading={summaryLoading}
+                onUpdated={setSummary}
+              />
+            </div>
+            <div className="finance-instrument col-span-12 p-4 lg:col-span-3">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <h3 className="text-[9px] font-medium uppercase tracking-[0.24em] text-titanium">
+                  Transactions
+                </h3>
+                {toPay && toPay.count > 0 ? (
+                  <span className="text-[10px] text-danger">
+                    {toPay.count} · {formatCurrency(toPay.total)}
+                  </span>
+                ) : null}
+              </div>
+              {recentTx.length === 0 ? (
+                <p className="text-xs text-titanium/50">Aucune ce mois.</p>
+              ) : (
+                <table className="w-full">
+                  <tbody className="divide-y divide-titanium/10">
+                    {recentTx.map((tx) => (
+                      <FinanceTransactionRow
+                        key={tx.id}
+                        date={formatTxDate(tx.date)}
+                        label={
+                          tx.description?.trim() ||
+                          tx.project_name ||
+                          tx.category
+                        }
+                        amount={`${tx.type === "income" ? "+" : "-"}${formatCurrency(tx.amount)}`}
+                        type={tx.type === "income" ? "in" : "out"}
+                      />
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+            <div className="finance-instrument col-span-12 flex flex-col p-4 lg:col-span-3">
+              <h3 className="text-[9px] font-medium uppercase tracking-[0.24em] text-titanium">
+                À payer
+              </h3>
+              <p className="mt-4 font-display text-[1.75rem] font-light tracking-tight text-ivoire">
+                {toPay ? formatCurrency(toPay.total) : "—"}
+              </p>
+              <p className="mt-1 text-[11px] text-titanium/70">
+                {toPay && toPay.count > 0
+                  ? `${toPay.count} facture${toPay.count > 1 ? "s" : ""}`
+                  : "Aucune facture ouverte"}
+              </p>
+              {budgetAlerts && budgetAlerts.warning_count + budgetAlerts.critical_count > 0 ? (
+                <p className="mt-2 text-[10px] text-copper-light/90">
+                  Budgets : {budgetAlerts.critical_count} critique
+                  {budgetAlerts.critical_count !== 1 ? "s" : ""}
+                  {budgetAlerts.warning_count > 0
+                    ? ` · ${budgetAlerts.warning_count} alerte${budgetAlerts.warning_count > 1 ? "s" : ""}`
+                    : ""}
+                </p>
+              ) : null}
+              {fiscalSummary?.next_due ? (
+                <p className="mt-1 text-[10px] text-titanium/55">
+                  Fiscal : {fiscalSummary.next_due_title ?? "échéance"}{" "}
+                  {fiscalSummary.next_due.slice(0, 10)}
+                </p>
+              ) : null}
+              <p className="mt-auto pt-6 text-[10px] text-titanium/45">
+                Paiement externe ·{" "}
+                <Link
+                  href={ROUTES.finances}
+                  className="text-copper-light/80 underline-offset-2 hover:underline"
+                >
+                  Coûts &amp; Factures
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
       )}
-
-      {toPay && toPay.count > 0 ? (
-        <p className="text-[11px] text-alnua-titane/60">
-          Paiement externe uniquement — détail dans Coûts &amp; Factures
-          {" · "}
-          <Link
-            href={ROUTES.finances}
-            className="underline underline-offset-2 text-alnua-titane"
-          >
-            ouvrir Comptabilité
-          </Link>
-        </p>
-      ) : null}
-
-      <FinancesSummaryCard
-        month={month}
-        summary={summary}
-        loading={summaryLoading}
-        onUpdated={setSummary}
-      />
-
-      <div className="grid gap-3 lg:grid-cols-2">
-        <FinancesRecurringPreviewPanel
-          recurringExpenses={dashboard?.recurring_expenses ?? []}
-        />
-        <FinancesBranchBreakdownPanel month={month} projects={projects} />
-      </div>
     </div>
   );
 }

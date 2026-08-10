@@ -15,8 +15,14 @@ export interface BrandDesignSystem {
   };
   color_tokens: BrandColorToken[];
   typography: Record<string, string>;
+  layout_tokens?: Record<string, string>;
   voice: Record<string, string>;
   guidelines: string[];
+  kit_meta?: {
+    mood: string[];
+    style: string;
+    usage_notes: string;
+  };
   reviewers: string[];
 }
 

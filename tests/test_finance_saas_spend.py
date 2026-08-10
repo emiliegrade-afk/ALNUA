@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 
 def test_saas_catalog_loads() -> None:
     from services.saas_spend import catalog_for_agents, load_saas_catalog
@@ -27,30 +29,31 @@ def test_saas_spend_report_includes_live_openrouter() -> None:
     assert report["gmail_ops"].get("expected") == "alnua.global@gmail.com"
 
 
-def test_invoices_lifecycle() -> None:
-    from services.finance_invoices import (
-        create_invoice,
-        invoice_summary,
-        list_invoices,
-        update_invoice,
-    )
+def test_invoices_lifecycle(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    from services import finance_invoices
 
-    row = create_invoice(
+    monkeypatch.setattr(finance_invoices, "_PATH", tmp_path / "invoices.json")
+
+    row = finance_invoices.create_invoice(
         vendor="Test Vendor SaaS",
         amount=12.5,
         description="test invoice",
+        due_date="2026-12-01",
         status="received",
     )
     assert row["id"]
     assert row["status"] == "received"
-    updated = update_invoice(row["id"], status="to_pay")
+    assert row["due_date"] == "2026-12-01"
+    updated = finance_invoices.update_invoice(row["id"], status="to_pay")
     assert updated["status"] == "to_pay"
-    paid = update_invoice(row["id"], status="paid_externally")
+    paid = finance_invoices.update_invoice(row["id"], status="paid_externally")
     assert paid["status"] == "paid_externally"
     assert paid.get("paid_at")
-    listed = list_invoices(vendor="Test Vendor")
+    listed = finance_invoices.list_invoices(vendor="Test Vendor")
     assert any(r["id"] == row["id"] for r in listed)
-    summary = invoice_summary()
+    to_pay = finance_invoices.list_invoices(status="to_pay")
+    assert to_pay[0]["due_date"] <= to_pay[-1]["due_date"] if len(to_pay) > 1 else True
+    summary = finance_invoices.invoice_summary()
     assert summary["count"] >= 1
     assert "payment_policy" in summary
 

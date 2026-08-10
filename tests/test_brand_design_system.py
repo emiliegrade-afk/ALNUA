@@ -16,6 +16,37 @@ def test_get_design_system_defaults(monkeypatch: Any) -> None:
     assert len(ds["color_tokens"]) >= 3
     assert "tone" in ds["voice"]
     assert "brand" in ds["reviewers"]
+    assert "layout_tokens" in ds
+    assert ds["layout_tokens"]["radius_md"] == "12px"
+
+
+def test_get_design_system_kit_guidelines(monkeypatch: Any) -> None:
+    from services import brand_design_system as bds
+
+    analysis = {
+        "style": "Minimal dark luxury",
+        "mood": ["confident", "warm"],
+        "usage_notes": "Copper accent on obsidian only.",
+        "colors": [{"hex": "#E09B6A", "role": "accent", "name": "Copper"}],
+    }
+    monkeypatch.setattr(bds, "_latest_kit_analysis", lambda: (analysis, "kit_abc"))
+    ds = bds.get_design_system()
+    assert ds["source"]["colors"] == "brand_kit"
+    assert any("Kit mood" in g for g in ds["guidelines"])
+    assert any("Kit style" in g for g in ds["guidelines"])
+    assert ds["kit_meta"]["mood"] == ["confident", "warm"]
+
+
+def test_brand_persona_registered() -> None:
+    from config.agent_personas import AGENT_PERSONAS, get_persona
+
+    assert "brand" in AGENT_PERSONAS
+    persona = get_persona("brand")
+    assert persona is not None
+    assert persona["room"] == "comms_hub"
+    assert persona["team"] == "business"
+    assert persona["competitive"] is True
+    assert get_persona("brand_agent") == persona
 
 
 def test_review_flags_forbidden_and_thin() -> None:

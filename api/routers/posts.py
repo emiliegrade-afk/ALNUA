@@ -72,19 +72,44 @@ def content_calendar(
 
 @router.patch("/posts/{post_id}")
 def update_post(post_id: str, body: PostUpdate) -> dict[str, Any]:
+    db = get_supabase()
+    previous_rows = db.select("posts_queue", filters={"id": post_id}, limit=1)
+    previous_status = previous_rows[0].get("status") if previous_rows else None
+
     agent = ContentAgent()
     try:
         payload = body.model_dump(exclude_none=True)
-        return agent.update_post(post_id, payload)
+        updated = agent.update_post(post_id, payload)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except RuntimeError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
+    if "status" in payload:
+        from services.content_validation_trigger import trigger_on_post_status
+
+        wf = trigger_on_post_status(updated, previous_status=previous_status)
+        if wf and wf.get("run_id"):
+            updated["validation_run_id"] = wf["run_id"]
+            updated["validation_status"] = wf.get("status")
+    return updated
+
 
 @router.patch("/posts/{post_id}/approve")
 def approve_post(post_id: str) -> dict[str, Any]:
+    db = get_supabase()
+    previous_rows = db.select("posts_queue", filters={"id": post_id}, limit=1)
+    previous_status = previous_rows[0].get("status") if previous_rows else None
+
     agent = ContentAgent()
-    return agent.approve_post(post_id)
+    updated = agent.approve_post(post_id)
+
+    from services.content_validation_trigger import trigger_on_post_status
+
+    wf = trigger_on_post_status(updated, previous_status=previous_status)
+    if wf and wf.get("run_id"):
+        updated["validation_run_id"] = wf["run_id"]
+        updated["validation_status"] = wf.get("status")
+    return updated
 
 

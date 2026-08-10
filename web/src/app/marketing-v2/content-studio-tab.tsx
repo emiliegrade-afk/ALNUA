@@ -9,6 +9,7 @@ import type { CreatablePostStatus, PostStatus } from "@/components/content/conte
 import { fetchPosts, updatePost, type Post } from "@/lib/content";
 import { fetchProjects } from "@/lib/api";
 import type { Project } from "@/lib/types";
+import { reviewBrandText } from "@/lib/brand-system-api";
 import { C } from "../app-v2/shared";
 
 /* Onglet "Content Studio" — Phase 33, ROADMAP.md. Remplace l'ancien onglet
@@ -41,6 +42,29 @@ export function ContentStudioTab() {
   }, []);
 
   async function handleStatusChange(id: string, status: PostStatus) {
+    const post = posts.find((p) => p.id === id);
+    if (post && (status === "approved" || status === "published")) {
+      const body = post.text_content?.trim() ?? "";
+      if (body.length >= 1) {
+        try {
+          const review = await reviewBrandText({
+            text: body,
+            department: "marketing",
+            sector: post.sector ?? "company",
+          });
+          if (!review.ok) {
+            toast.error(`Review Brand : ${review.flags.join(", ")} — déplacement bloqué`);
+            return;
+          }
+        } catch (err) {
+          toast.error(
+            err instanceof Error ? err.message : "Review Brand indisponible — déplacement bloqué",
+          );
+          return;
+        }
+      }
+    }
+
     const previous = posts;
     setPosts((prev) => prev.map((p) => (p.id === id ? { ...p, status } : p)));
     try {

@@ -124,6 +124,12 @@ export function BrandCenterTab() {
               </li>
             ))}
           </ul>
+          {ds?.layout_tokens ? (
+            <p className="mt-3 text-[10.5px]" style={{ color: C.muted }}>
+              Layout : radius md {ds.layout_tokens.radius_md ?? "—"} · gap{" "}
+              {ds.layout_tokens.gap_md ?? "—"}
+            </p>
+          ) : null}
         </div>
       </section>
 
@@ -149,9 +155,9 @@ export function BrandCenterTab() {
             onClick={() => void onReview()}
             className="rounded-full border px-4 py-1.5 text-[11.5px] disabled:opacity-40"
             style={{
-              borderColor: "rgba(192,138,114,.45)",
+              borderColor: "rgba(224,155,106,.45)",
               color: C.copperLight,
-              background: "rgba(192,138,114,.12)",
+              background: "rgba(224,155,106,.12)",
             }}
           >
             {busy ? "Review…" : "Lancer la review Brand"}

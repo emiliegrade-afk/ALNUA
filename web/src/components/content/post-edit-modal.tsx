@@ -14,6 +14,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { updatePost, type Post } from "@/lib/content";
+import {
+  reviewBrandText,
+  type BrandReviewResult,
+} from "@/lib/brand-system-api";
 
 interface PostEditModalProps {
   post: Post | null;
@@ -34,6 +38,8 @@ export function PostEditModal({
   const [reach, setReach] = useState("");
   const [engagementCount, setEngagementCount] = useState("");
   const [saving, setSaving] = useState(false);
+  const [reviewBusy, setReviewBusy] = useState(false);
+  const [brandReview, setBrandReview] = useState<BrandReviewResult | null>(null);
 
   useEffect(() => {
     if (!post) return;
@@ -46,10 +52,55 @@ export function PostEditModal({
     setScheduledAt(local);
     setReach(post.reach != null ? String(post.reach) : "");
     setEngagementCount(post.engagement_count != null ? String(post.engagement_count) : "");
+    setBrandReview(null);
   }, [post]);
+
+  async function handleBrandReview() {
+    const payload = text.trim();
+    if (!payload) return;
+    setReviewBusy(true);
+    setBrandReview(null);
+    try {
+      const result = await reviewBrandText({
+        text: payload,
+        department: "marketing",
+        sector: post?.sector ?? "company",
+      });
+      setBrandReview(result);
+      if (result.ok) {
+        toast.success("Review Brand : OK");
+      } else {
+        toast.warning(`Review Brand : ${result.flags.join(", ")}`);
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Review Brand impossible");
+    } finally {
+      setReviewBusy(false);
+    }
+  }
 
   async function handleSave() {
     if (!post) return;
+    if (
+      (post.status === "approved" || post.status === "pending_approval") &&
+      text.trim().length >= 12
+    ) {
+      try {
+        const gate = await reviewBrandText({
+          text: text.trim(),
+          department: "marketing",
+          sector: post.sector ?? "company",
+        });
+        if (!gate.ok) {
+          setBrandReview(gate);
+          toast.error(`Brand review bloque la sauvegarde : ${gate.flags.join(", ")}`);
+          return;
+        }
+      } catch {
+        toast.error("Review Brand indisponible — sauvegarde annulée");
+        return;
+      }
+    }
     setSaving(true);
     try {
       const tagList = hashtags
@@ -94,6 +145,26 @@ export function PostEditModal({
               rows={8}
               className="border-copper/20 bg-obsidian-deep/50"
             />
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={reviewBusy || !text.trim()}
+              onClick={() => void handleBrandReview()}
+              className="border-copper/30 text-copper-light hover:bg-copper/10"
+            >
+              {reviewBusy ? "Review…" : "Review Brand"}
+            </Button>
+            {brandReview ? (
+              <span
+                className={`text-[11px] ${brandReview.ok ? "text-emerald-400" : "text-amber-400"}`}
+              >
+                {brandReview.recommendation}
+                {brandReview.flags.length ? ` — ${brandReview.flags.join(", ")}` : " — aucun flag"}
+              </span>
+            ) : null}
           </div>
           <div className="space-y-2">
             <Label htmlFor="post-tags">Hashtags (séparés par espaces)</Label>

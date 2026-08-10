@@ -3,7 +3,7 @@
 ## Vision
 
 Hub d'orchestration multi-agents IA — le "siège social virtuel" d'ALNUA, société solo
-d'Emilie. **49** personas LLM (COO, PM, QA, dev, marketing, R&D, comptabilité, hardware,
+d'Emilie. **50** personas LLM (COO, PM, QA, dev, marketing, Brand, R&D, comptabilité, hardware,
 analytics, rôles Gaming/Robo…) réparties en 9 "poles"/rooms simulent les départements
 d'une entreprise et travaillent au service de 3 branches produit :
 
@@ -39,7 +39,7 @@ d'une entreprise et travaillent au service de 3 branches produit :
 | Module | Emplacement | Taille approx. | Status |
 |--------|-------------|-----------------|--------|
 | Routers API | `api/routers/` | Voir `ALL_ROUTERS` (+ `gdd.py` conditionnel) ; R&D éclaté en `rnd_*` | Active |
-| Agents personas | `agents/*_agent.py` | **49** agents personas (34 + 15 rôles Gaming/Robo, Phase 13) + orchestrateurs infra | Active |
+| Agents personas | `agents/*_agent.py` | **50** agents personas (35 + 15 rôles Gaming/Robo, Phase 13) + orchestrateurs infra | Active |
 | Services métier | `services/` | ~128 modules (compétition, coûts, R&D dossier, academy, telegram, brand, coding pipeline...) | Active |
 | Config | `config/` | Personas, tiers, specs opérationnelles 9-couches, settings pydantic | Active |
 | Bots | `bots/` | 11 bots (Discord/Telegram/Publisher/Reviews/Analytics/SAV/Watchdog) | Active |

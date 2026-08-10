@@ -14,11 +14,12 @@ logger = logging.getLogger(__name__)
 
 # Hub UI defaults (globals.css) — used when no brand kit palette is available.
 DEFAULT_COLOR_TOKENS: list[dict[str, str]] = [
+    {"token": "void", "hex": "#000000", "role": "void"},
+    {"token": "obsidian", "hex": "#0E1014", "role": "bg"},
+    {"token": "ivory", "hex": "#F5F2EA", "role": "text"},
+    {"token": "titanium", "hex": "#A7ADB5", "role": "muted"},
     {"token": "copper", "hex": "#C08A72", "role": "accent"},
-    {"token": "copper-light", "hex": "#D9A88F", "role": "accent_light"},
-    {"token": "obsidian", "hex": "#0F1215", "role": "bg"},
-    {"token": "ivory", "hex": "#E8E2DA", "role": "text"},
-    {"token": "titanium", "hex": "#8E949C", "role": "muted"},
+    {"token": "copper-light", "hex": "#E0B49A", "role": "accent_light"},
 ]
 
 DEFAULT_TYPE_SCALE: dict[str, str] = {
@@ -34,6 +35,40 @@ DEFAULT_GUIDELINES: list[str] = [
     "No corporate slop; build-in-public tone (see voice.forbidden).",
     "Visual kits from /brand feed color tokens when a kit exists.",
 ]
+
+# Hub UI layout defaults (globals.css / tailwind) — not invented per kit.
+DEFAULT_LAYOUT_TOKENS: dict[str, str] = {
+    "spacing_unit": "4px",
+    "gap_sm": "8px",
+    "gap_md": "16px",
+    "gap_lg": "24px",
+    "radius_sm": "8px",
+    "radius_md": "12px",
+    "radius_lg": "16px",
+    "radius_xl": "24px",
+}
+
+
+def _guidelines_from_kit(analysis: dict[str, Any] | None) -> list[str]:
+    """Merge default rules with active kit mood/style/usage when available."""
+    out = list(DEFAULT_GUIDELINES)
+    if not analysis:
+        return out
+
+    usage = str(analysis.get("usage_notes") or "").strip()
+    if usage:
+        out.append(f"Kit usage: {usage[:160]}")
+
+    mood = analysis.get("mood") or []
+    if isinstance(mood, list) and mood:
+        mood_str = ", ".join(str(m) for m in mood[:5])
+        out.append(f"Kit mood: {mood_str}")
+
+    style = str(analysis.get("style") or "").strip()
+    if style:
+        out.append(f"Kit style: {style[:160]}")
+
+    return out
 
 
 def _colors_from_kit_analysis(analysis: dict[str, Any] | None) -> list[dict[str, str]]:
@@ -98,6 +133,9 @@ def get_design_system() -> dict[str, Any]:
     if typo_from_kit:
         type_scale["kit_style"] = typo_from_kit
 
+    kit_mood = analysis.get("mood") if analysis else None
+    kit_style = str(analysis.get("style") or "").strip() if analysis else ""
+
     return {
         "ok": True,
         "source": {
@@ -107,8 +145,14 @@ def get_design_system() -> dict[str, Any]:
         },
         "color_tokens": color_tokens,
         "typography": type_scale,
+        "layout_tokens": dict(DEFAULT_LAYOUT_TOKENS),
         "voice": dict(BRAND_VOICE_GUIDE),
-        "guidelines": list(DEFAULT_GUIDELINES),
+        "guidelines": _guidelines_from_kit(analysis),
+        "kit_meta": {
+            "mood": kit_mood if isinstance(kit_mood, list) else [],
+            "style": kit_style,
+            "usage_notes": str(analysis.get("usage_notes") or "").strip() if analysis else "",
+        },
         "reviewers": ["brand", "content_company"],
     }
 

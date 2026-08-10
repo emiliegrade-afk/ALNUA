@@ -56,6 +56,8 @@ def _clamp_autonomy(raw: Any) -> int:
 
 def _auto_ok_allowed(ctx: dict[str, Any], step_index_after_load: int) -> bool:
     """step_index_after_load: 0=quality_gate, 1=apply_trust, 2=emit_validated."""
+    if ctx.get("_ceo_approved"):
+        return True
     level = _clamp_autonomy(ctx.get("autonomy_level", 1))
     return step_index_after_load < _AUTONOMY_AUTO_COUNT[level]
 

@@ -25,6 +25,7 @@ from api.routers.agents_pole import router as agents_pole_router
 from api.routers.agents_secretary import router as agents_secretary_router
 from api.routers.agents_dev import router as agents_dev_router
 from api.routers.agents_gaming_studio import router as agents_gaming_studio_router
+from api.routers.agents_rnd_persona import router as agents_rnd_persona_router
 from api.routers.agents_robo import router as agents_robo_router
 from api.routers.agents_comms import router as agents_comms_router
 from api.routers.agents_finance import router as agents_finance_router
@@ -111,6 +112,7 @@ ALL_ROUTERS = [
     agents_secretary_router,
     agents_dev_router,
     agents_gaming_studio_router,
+    agents_rnd_persona_router,
     agents_robo_router,
     agents_comms_router,
     agents_finance_router,

@@ -70,10 +70,7 @@ def run_scheduled_idle_plan_quiet() -> None:
     try:
         from services.workflow_scheduler import run_scheduled_idle_plan
 
-        from config.settings import settings
-
-        level = int(getattr(settings, "idle_default_autonomy_level", 1) or 1)
-        result = run_scheduled_idle_plan(autonomy_level=level)
+        result = run_scheduled_idle_plan()
         logger.info(
             "Idle plan day: success=%s summary=%s",
             result.get("success"),
