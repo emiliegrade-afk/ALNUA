@@ -3,6 +3,7 @@
 import { ConsoleProvider } from "@/components/console/console-provider";
 import { DeptV2PageShell } from "@/components/dept-v2";
 import { CeoIdleQueueCard } from "@/components/ceo/ceo-idle-queue-card";
+import { CeoUserManualCard } from "@/components/ceo/ceo-user-manual-card";
 import { CeoWorkflowsPendingCard } from "@/components/ceo/ceo-workflows-pending-card";
 import { CeoCockpitPanel } from "@/components/hub/ceo-cockpit";
 import { C } from "@/app/app-v2/shared";
@@ -28,6 +29,7 @@ export default function CeoPage() {
               Gate Academy · dossiers · file idle · autonomie
             </p>
           </div>
+          <CeoUserManualCard />
           <CeoIdleQueueCard />
           <CeoWorkflowsPendingCard />
           <CeoCockpitPanel />

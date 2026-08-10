@@ -31,6 +31,8 @@ export const ROUTES = {
   ide: "/ide",
   academy: "/academy",
   library: "/library",
+  docs: "/docs",
+  userManual: "/docs/guides/user-manual",
   settings: "/settings",
   trust: "/trust",
   // Non-department utility routes also referenced from bureau components.

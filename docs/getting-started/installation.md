@@ -133,7 +133,7 @@ Un `docker-compose.yml` existe à la racine pour un futur pack serveur. Ce guide
 
 ## Suite
 
+- [Manuel utilisateur](../guides/user-manual.md) — guide noob complet (écrans, arbres, quotidien)
 - [Premiers 15 minutes](./first-15-minutes.md) — première conversation avec les agents
-- [Concepts](./concepts.md) — rooms, workflows, mémoire
-- [Sécurisation](../SECURITY_HARDENING.md) — durcissement API et secrets
-- [Manuel utilisateur](../guides/user-manual.md) — *(à venir)*
+- [Concepts](./concepts.md) — agent, room, workflow, arbre, trust
+- [Sécurisation](../guides/SECURITY_HARDENING.md) — durcissement API et secrets

@@ -7,6 +7,24 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-11 — H3 manuel in-app CEO + bibliothèque (feat/docs)
+
+- **Type :** feat / docs
+- **Details :**
+  - Rendu Hub des guides `docs/*.md` via `/docs/[...slug]` + `docs-fs.ts`.
+  - Carte **Manuel** sur `/ceo` et pin sur `/library` ; index `/docs` cliquable.
+  - Route `ROUTES.userManual` → `/docs/guides/user-manual`.
+
+## 2026-08-11 — H3 manuel utilisateur noob (docs)
+
+- **Type :** docs
+- **Details :**
+  - `docs/guides/user-manual.md` — guide CEO (écrans, pôles, arbres/dossiers,
+    quotidien, sécurité, dépannage).
+  - Refresh `first-15-minutes.md` + `concepts.md` (launcher H1, `/health` sans
+    `/v1`, tiroir Assistants, OpenRoom réel).
+  - Liens : `docs/README.md`, `/docs` page, installation Suite.
+
 ## 2026-08-11 — Security Sentinel + launch silencieux (feat/ops)
 
 - **Type :** feat / ops / docs

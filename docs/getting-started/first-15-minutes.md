@@ -1,65 +1,88 @@
-# First 15 Minutes with ALNUA Hub
+# Premiers 15 minutes — ALNUA Hub
 
-## Minute 0–3: Verify the stack
+Session guidée pour Emilie. Prérequis : Hub installé et démarré
+([installation](./installation.md) — icône Bureau **ALNUA Hub**).
 
-```bash
-# Terminal 1 — API
-uvicorn api.main:app --reload --port 8003
+Ouvre http://localhost:3000. Aucune fenêtre CMD ne doit rester ouverte.
 
-# Terminal 2 — Web
-cd web && npm run dev
+---
+
+## Minute 0–3 — Vérifier que tout tourne
+
+Dans PowerShell :
+
+```powershell
+.\scripts\hub-status.ps1
+Invoke-RestMethod http://127.0.0.1:8003/health
 ```
 
-Open http://localhost:3000/landing — marketing page  
-Open http://localhost:3000/ceo — CEO cockpit  
-Check http://localhost:8003/v1/health → `{"status":"ok"}`
+- Status **0** / API saine → OK.
+- Navigateur : http://localhost:3000 → **Command Center**.
+- Optionnel : http://localhost:3000/landing (page marketing) puis `/ceo`.
 
-## Minute 3–7: Talk to your agents
+Canonique santé API : **`/health`** (pas besoin de `/v1`).
 
-1. Go to **CEO** → **Assistants**
-2. Try: *"Priorités du jour"* → routes to **Aria** (COO)
-3. Switch to **Nadia** → *"Rapport de la nuit Academy"*
-4. Use 👍/👎 on a response — negative feedback triggers regen + Mem0 lesson
+---
 
-## Minute 7–10: Explore rooms
+## Minute 3–7 — Parler aux agents
 
-- **Open Room** — see all 9 agent rooms
-- **R&D** — submit an idea, view cycle status
-- **Academy** — coding exercises pipeline
-- **Analytics** — agent metrics + ratings
+1. Sur le Command Center (`/`), ouvre le **tiroir Assistants** (bouton flottant).
+2. Demande à **Aria** (COO) : *« Priorités du jour »*.
+3. Passe à **Nadia** : *« Qu’est-ce qui attend mon attention ? »*.
+4. Si des 👍/👎 apparaissent sur une réponse : un 👎 peut déclencher une regen + une leçon mémoire — utile, pas obligatoire.
 
-## Minute 10–12: API & versioning
+Tu n’as **pas** besoin d’un onglet « Assistants » dans `/ceo` : le tiroir est global sur la console.
 
-All routes exist under `/v1/*`:
+---
 
-```bash
-curl http://localhost:8003/v1/health
-curl -H "X-Hub-Key: YOUR_KEY" http://localhost:8003/v1/platform/stats
-curl -H "X-Hub-Key: YOUR_KEY" http://localhost:8003/metrics
+## Minute 7–10 — Explorer les bureaux
+
+| Où | Quoi faire |
+|----|------------|
+| `/hq` | Carte HQ — clique **Secrétariat**, **R&D**, **Salle de réunion**… |
+| `/ceo` | Regarde les workflows en attente / gate Academy |
+| `/rd` | Ouvre l’onglet **Arbres** puis **Dossiers** (labo d’idées) |
+| `/openroom` | Salon agents (roster complet, pas « 9 salles ») |
+| `/academy` | Aperçu des niveaux / sprints agents |
+| `/analytics` | Métriques si tu es curieuse |
+
+Rappel **arbres** : mindmap d’hypothèses → tu gardes / tues une branche → une branche gardée devient un **dossier**. Détail : [manuel §6](../guides/user-manual.md).
+
+---
+
+## Minute 10–12 — Un coup d’œil API (optionnel)
+
+```powershell
+$k = "TA_CLE_HUB"   # même valeur que HUB_API_KEY dans .env
+Invoke-RestMethod http://127.0.0.1:8003/health
+Invoke-RestMethod -Headers @{ "X-Hub-Key" = $k } http://127.0.0.1:8003/metrics
 ```
 
-Multi-tenant: pass `X-Tenant-ID: alnua_coo` (or your tenant slug).
+Les routes utiles sont **sans** préfixe `/v1` (ex. `/health`, `/workflows`, …).  
+Le préfixe `/v1` peut encore répondre sur certains chemins, mais ce n’est plus le contrat à documenter.
 
-## Minute 12–15: Ops stack (optional)
+---
 
-```bash
-# Redis + Prometheus + Grafana
-cd grafana && docker compose up -d
+## Minute 12–15 — Ops optionnels
 
-# Grafana → http://localhost:3001 (admin/admin)
-# Prometheus → http://localhost:9090
+Seulement si tu as Docker / envops déjà branché :
 
-# Daily backup
+```powershell
+# Grafana stack (si tu l’utilises)
+cd grafana; docker compose up -d
+
+# Backup quotidien
 python scripts/backup_daily.py
-
-# Restore test (dry-run)
-python scripts/restore_backup.py backups/YYYY-MM-DD --dry-run
 ```
 
-## Next steps
+Sinon : saute cette étape. Le Hub local n’en a pas besoin pour démarrer.
 
-- [Installation](./installation.md)
-- [Concepts](./concepts.md)
-- [Coding pipeline](../guides/use-case-coding-pipeline.md)
-- [Content creation](../guides/use-case-content-creation.md)
-- [R&D pipeline](../guides/use-case-r-d-pipeline.md)
+---
+
+## Ensuite
+
+- [Manuel utilisateur](../guides/user-manual.md) — carte complète des écrans
+- [Concepts](./concepts.md) — vocabulaire (agent, room, arbre, trust…)
+- [Pipeline contenu](../guides/use-case-content-creation.md)
+- [Pipeline R&D](../guides/use-case-r-d-pipeline.md)
+- [Pipeline coding](../guides/use-case-coding-pipeline.md)

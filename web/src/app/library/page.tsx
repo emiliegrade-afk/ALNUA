@@ -5,6 +5,7 @@ import {
   LibraryTeamEnrichCard,
 } from "@/components/library/bureau-library-panel";
 import { LibraryDistributionCard } from "@/components/library/library-distribution-card";
+import { LibraryHubManualCard } from "@/components/library/library-hub-manual-card";
 import { LibraryRetentionCard } from "@/components/library/library-retention-card";
 
 export default function LibraryPage() {
@@ -14,6 +15,7 @@ export default function LibraryPage() {
       title="Bibliothèque ALNUA"
       subtitle="Recherche · archives par bureau · tout est conservé"
     >
+      <LibraryHubManualCard />
       <LibraryDistributionCard />
       <LibraryRetentionCard />
       <BureauLibraryPanel showResearch />

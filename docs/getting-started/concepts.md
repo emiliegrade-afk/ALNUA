@@ -1,68 +1,122 @@
-# Concepts ALNUA Hub
+# Concepts ALNUA Hub (produit)
 
-## Architecture 3 couches
+Vocabulaire pour utiliser le Hub au quotidien.  
+Pour le mode d’emploi écran par écran → [manuel utilisateur](../guides/user-manual.md).
 
-```
-web/ (Next.js)  →  api/ (FastAPI)  →  agents/ + services/
-```
+---
 
-## Agents & Operating Specs
+## Architecture en 3 couches (vue simple)
 
-Chaque agent a un contrat 9 couches : mission, hors-périmètre, processus, priorités, communication, mémoire, relations, format, qualité.
-
-Compilé via `config/agent_operating_spec.py` → injecté dans le system prompt.
-
-## Multi-tenancy (Sprint 1)
-
-- Header `X-Tenant-ID` sur chaque requête API
-- Défaut : `DEFAULT_TENANT_ID` (`.env`)
-- Helper : `models/tenant.py` → `with_tenant()`, `tenant_filter()`
-
-## Sécurité (Sprint 1)
-
-- `services/input_sanitizer.py` — filtre injection + longueur max
-- `services/rate_limiter.py` — sliding window par IP/session
-- Hub key middleware sur routes protégées
-
-## Cache LLM (Sprint 2)
-
-- `services/llm_cache.py` — in-memory TTL
-- Activé si `temperature <= 0.1` et `LLM_CACHE_ENABLED=1`
-- `LLMClient.chat_async()` pour appels non-bloquants
-
-## Observabilité (Sprint 2)
-
-- Langfuse : tracing agents (`@trace_agent`)
-- `/metrics` : format Prometheus
-- `/platform/stats` : snapshot admin
-
-## Feedback loop (Sprint 3)
-
-- `POST /feedback/agent` — rating 1 ou -1
-- Rating négatif → regen + lesson Mem0
-- UI : boutons 👍/👎 dans AssistantChat
-
-## API Versioning (Sprint 3)
-
-Toutes les routes existent sous `/v1/*` en miroir. Exemple :
-- `/health` et `/v1/health`
-- `/assistant/chat` et `/v1/assistant/chat`
-
-## Plugins (Sprint 4)
-
-```
-plugins/
-  example_echo/
-    manifest.json
-    agent.py
+```text
+Navigateur (web/)  →  API FastAPI (api/)  →  Agents + services
 ```
 
-`GET /plugins` — liste  
-`POST /plugins/{id}/run` — exécution
+Tu interagis presque toujours avec le **navigateur**. L’API et les agents travaillent derrière.
 
-## Backup (Sprint 4)
+Ports locaux habituels : web **3000**, API **8003**.
 
-```bash
-python scripts/backup_daily.py
-# → backups/YYYY-MM-DD/
-```
+---
+
+## Agent
+
+Un **agent** = un collaborateur virtuel avec :
+
+- un **prénom / persona** (ex. Aria Voss),
+- une **room** (bureau),
+- un **rôle** (COO, QA, dev…),
+- souvent un **tier** de modèle (fast / standard / premium).
+
+Tu lui donnes une intention en langage naturel ; il répond avec un livrable ou un plan.  
+Les agents « compétitifs » gagnent des points — c’est du gamification interne, pas une note scolaire pour toi.
+
+---
+
+## Room & pôle
+
+- **Room** = bureau dans le plan HQ (Direction, Secrétariat, APP, Gaming…).
+- **Pôle** = département produit (`/app`, `/gaming`, `/rd`…) avec une UI d’équipe + missions.
+
+Même entreprise, plusieurs bureaux : tu changes de contexte en changeant de page / de carte HQ.
+
+---
+
+## Workflow
+
+Un **workflow** = une chaîne d’étapes (souvent multi-agents) avec des points de validation.
+
+Sur `/ceo`, tu vois ce qui **attend ta décision** (approve / reject).  
+Ce n’est pas la même chose qu’un ticket : un ticket = une tâche ; un workflow = un processus.
+
+---
+
+## Ticket / mission
+
+Entrée dans le backlog (`/tickets` ou onglet Missions d’un pôle) : qui fait quoi, pour quel projet, éventuellement échéance / points.
+
+---
+
+## Arbre (R&D)
+
+**Mindmap d’hypothèses.** Tu explores des branches autour d’une idée.  
+Tu **gardes** ou tu **tues** une branche. Ce n’est pas encore un projet.
+
+Où : `/rd` → onglet **Arbres**.
+
+---
+
+## Dossier (R&D)
+
+Livrable structuré issu d’une branche prometteuse (comité, deck, social, finance…).  
+Toujours du **labo** jusqu’à décision CEO puis dispatch vers un pôle de build.
+
+Où : `/rd` → onglet **Dossiers**.
+
+---
+
+## Trust vs compétition
+
+| | **Trust** (`/trust`) | **Compétition** |
+|--|----------------------|-----------------|
+| Mesure | Fiabilité / autonomie | Points / milestones |
+| Usage | Combien le Hub peut laisser l’agent agir seul | Motivation interne agents |
+
+Les deux coexistent ; ne pas les confondre.
+
+---
+
+## Briefing
+
+Synthèse du matin (ops + optionnellement brief COO Aria) sur `/briefing`  
+(accès pratique : plan HQ → salle de réunion).
+
+---
+
+## Sécurité (rappel)
+
+- Texte utilisateur / titres externes → assainis avant prompt LLM.
+- Clé `X-Hub-Key` pour les appels API protégés.
+- **Sentry** = crashs apps ; **Security Sentinel (Hugo)** = hygiène / intrusion Hub.
+
+Détail : [SECURITY_HARDENING.md](../guides/SECURITY_HARDENING.md), [auth](../api/authentication.md).
+
+---
+
+## API — pas de double contrat `/v1`
+
+Les routes utiles sont montées **une seule fois** (ex. `/health`, `/workflows/...`).  
+Un préfixe `/v1` peut encore être toléré côté middleware sur certains chemins, mais **documente et utilise les chemins sans `/v1`**.
+
+---
+
+## Mémoire & bibliothèque
+
+Les agents peuvent mémoriser des leçons (Mem0) et s’appuyer sur la **bibliothèque** (`/library`) — sujets / notes, pas un dump de chat brut.
+
+---
+
+## Aller plus loin
+
+- [Manuel](../guides/user-manual.md)
+- [Premiers 15 minutes](./first-15-minutes.md)
+- [Installation](./installation.md)
+- Specs techniques : `docs/specs/` (pour Cursor / dev, pas pour le quotidien CEO)
