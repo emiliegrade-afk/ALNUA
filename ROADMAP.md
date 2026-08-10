@@ -468,6 +468,10 @@ pont Nwiro **abandonné** (DEC-017) — ne plus étendre `skill_nwiro`.
 - BOM : mechanical / industrial_design ; lab : qa_robot / safety / simulation ;
   Pi probe : vision_ai (DEC-018)
 - UI `/robo` : panneau probes Vague B
+**Vague A suite (2026-08-10) — gaming probes restants :**
+- environment_artist / narrative_designer / sound_designer / qa_gaming :
+  `probe_ue58` + endpoints ; narrative `search_canon` ; qa `list_recent_builds` ;
+  agency `run_studio_task` (env + sound) ; filtres `AGENT_CAP_FILTERS`
 **Statut :** 🔄 In progress (skills Gaming+Robo branchés ; UE_PROJECT_PATH + Pi
 à configurer ; serveur UE5.8 studio à brancher).
 

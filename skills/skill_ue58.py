@@ -29,6 +29,10 @@ AGENT_CAP_FILTERS: dict[str, tuple[str, ...]] = {
     "ai_programmer": ("behavior", "bt", "blackboard", "ai"),
     "technical_artist": ("render", "shader", "nanite", "lod", "perf"),
     "vfx_artist": ("niagara", "vfx", "particle"),
+    "environment_artist": ("landscape", "foliage", "world", "level", "staticmesh", "env"),
+    "narrative_designer": ("dialogue", "sequencer", "level_sequence", "subtitle", "lore"),
+    "sound_designer": ("audio", "sound", "meta_sound", "ambiance", "music"),
+    "qa_gaming": ("pie", "automation", "test", "qa", "screenshot", "play_in_editor"),
 }
 
 

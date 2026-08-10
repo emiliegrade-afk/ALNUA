@@ -64,6 +64,11 @@ def environment_artist_environment(body: EnvironmentArtistRequest) -> dict[str, 
     )
 
 
+@router.post("/agents/environment-artist/ue58-probe")
+def environment_artist_ue58_probe() -> dict[str, Any]:
+    return EnvironmentArtistAgent().probe_ue58()
+
+
 @router.post("/agents/technical-artist/render-budget")
 def technical_artist_render_budget(body: TechnicalArtistRenderRequest) -> dict[str, Any]:
     return TechnicalArtistAgent().optimize_render_budget(
@@ -78,6 +83,18 @@ def narrative_designer_dialogue(body: NarrativeDesignerDialogueRequest) -> dict[
     )
 
 
+@router.post("/agents/narrative-designer/canon-search")
+def narrative_designer_canon_search(body: NarrativeCanonSearchRequest) -> dict[str, Any]:
+    return NarrativeDesignerAgent().search_canon(
+        clean_agent_text(body.query, max_length=500), body.game
+    )
+
+
+@router.post("/agents/narrative-designer/ue58-probe")
+def narrative_designer_ue58_probe() -> dict[str, Any]:
+    return NarrativeDesignerAgent().probe_ue58()
+
+
 @router.post("/agents/vfx-artist/vfx")
 def vfx_artist_vfx(body: VfxArtistRequest) -> dict[str, Any]:
     return VfxArtistAgent().design_vfx(body.effect_name, body.game, body.trigger, body.style)
@@ -90,8 +107,23 @@ def sound_designer_soundscape(body: SoundDesignerRequest) -> dict[str, Any]:
     )
 
 
+@router.post("/agents/sound-designer/ue58-probe")
+def sound_designer_ue58_probe() -> dict[str, Any]:
+    return SoundDesignerAgent().probe_ue58()
+
+
 @router.post("/agents/qa-gaming/test-plan")
 def qa_gaming_test_plan(body: QaGamingTestPlanRequest) -> dict[str, Any]:
     return QaGamingAgent().build_test_plan(
         body.feature_name, body.game, body.build_version, clean_agent_text(body.risk_areas)
     )
+
+
+@router.post("/agents/qa-gaming/ue58-probe")
+def qa_gaming_ue58_probe() -> dict[str, Any]:
+    return QaGamingAgent().probe_ue58()
+
+
+@router.get("/agents/qa-gaming/builds")
+def qa_gaming_builds(limit: int = 5) -> dict[str, Any]:
+    return QaGamingAgent().list_recent_builds(limit=limit)

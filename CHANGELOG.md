@@ -7,6 +7,13 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-10 — Phase 21 Gaming probes restants (feat)
+
+- **Type :** feat
+- **Details :**
+  - UE5.8 probes + agency pour environment / narrative / sound / qa_gaming ;
+    canon lore + builds QA ; filtres cap `skill_ue58` ; endpoints gaming studio.
+
 ## 2026-08-10 — MCP PermissionGuard progressif (feat)
 
 - **Type :** feat

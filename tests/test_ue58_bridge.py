@@ -74,6 +74,63 @@ def test_probe_technical_and_vfx_filters(monkeypatch: Any) -> None:
     assert {c["id"] for c in vfx["capabilities"]} == {"niagara_spawn"}
 
 
+def test_probe_phase21_remaining_agents(monkeypatch: Any) -> None:
+    """Vague A suite — environment / narrative / sound / qa_gaming filters."""
+    from agents.environment_artist_agent import EnvironmentArtistAgent
+    from agents.narrative_designer_agent import NarrativeDesignerAgent
+    from agents.qa_gaming_agent import QaGamingAgent
+    from agents.sound_designer_agent import SoundDesignerAgent
+
+    monkeypatch.setenv("UE5_SERVER_URL", "http://127.0.0.1:8765")
+    caps = [
+        {"id": "landscape_sculpt", "category": "landscape", "description": "env"},
+        {"id": "dialogue_cue", "category": "dialogue", "description": "lines"},
+        {"id": "meta_sound_play", "category": "audio", "description": "sfx"},
+        {"id": "pie_start", "category": "pie", "description": "qa"},
+        {"id": "bt_create_tree", "category": "behavior", "description": "BT"},
+    ]
+    with (
+        patch.object(
+            skill_ue58,
+            "ue58_health",
+            return_value={"ok": True, "configured": True, "connected": True},
+        ),
+        patch.object(skill_ue58, "list_capabilities", return_value=caps),
+    ):
+        env = EnvironmentArtistAgent().probe_ue58()
+        narr = NarrativeDesignerAgent().probe_ue58()
+        snd = SoundDesignerAgent().probe_ue58()
+        qa = QaGamingAgent().probe_ue58()
+    assert {c["id"] for c in env["capabilities"]} == {"landscape_sculpt"}
+    assert {c["id"] for c in narr["capabilities"]} == {"dialogue_cue"}
+    assert {c["id"] for c in snd["capabilities"]} == {"meta_sound_play"}
+    assert {c["id"] for c in qa["capabilities"]} == {"pie_start"}
+
+
+def test_narrative_canon_search_uses_lore(monkeypatch: Any) -> None:
+    from agents.narrative_designer_agent import NarrativeDesignerAgent
+
+    monkeypatch.setattr(
+        "skills.skill_lore_database.search_lore",
+        lambda query, project=None, limit=5: [{"title": "Yggdrasil", "snippet": query}],
+    )
+    out = NarrativeDesignerAgent().search_canon("arbre monde", game="Wyrdheim")
+    assert out["ok"] is True
+    assert out["count"] == 1
+
+
+def test_qa_gaming_builds_degrades(monkeypatch: Any) -> None:
+    from agents.qa_gaming_agent import QaGamingAgent
+
+    monkeypatch.setattr(
+        "database.supabase_client.get_supabase",
+        lambda: (_ for _ in ()).throw(RuntimeError("no db")),
+    )
+    out = QaGamingAgent().list_recent_builds(limit=3)
+    assert out["ok"] is False
+    assert out["builds"] == []
+
+
 def test_gdd_sync_rejects_bad_direction() -> None:
     out = skill_ue58.gdd_sync("wyrdheim", "sideways")
     assert out["ok"] is False

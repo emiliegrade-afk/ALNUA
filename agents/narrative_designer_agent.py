@@ -45,3 +45,23 @@ Réponds en JSON :
             temperature=0.8,
             max_tokens=2048,
         )
+
+    @trace_agent("narrative_designer")
+    def search_canon(self, query: str, game: str = "Wyrdheim") -> dict[str, Any]:
+        """Phase 21 — search lore/GDD canon before writing (real skill)."""
+        from skills.skill_lore_database import search_lore
+
+        hits = search_lore(query, project=game, limit=8)
+        return {
+            "ok": True,
+            "query": query,
+            "game": game,
+            "hits": hits,
+            "count": len(hits),
+        }
+
+    @trace_agent("narrative_designer")
+    def probe_ue58(self) -> dict[str, Any]:
+        from skills.skill_ue58 import probe_for_agent
+
+        return probe_for_agent(self.AGENT_NAME)

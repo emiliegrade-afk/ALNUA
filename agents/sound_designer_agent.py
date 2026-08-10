@@ -43,3 +43,18 @@ Réponds en JSON :
             temperature=0.7,
             max_tokens=2048,
         )
+
+    @trace_agent("sound_designer")
+    def probe_ue58(self) -> dict[str, Any]:
+        """Phase 21 — probe UE5.8 audio-related tools."""
+        from skills.skill_ue58 import probe_for_agent
+
+        return probe_for_agent(self.AGENT_NAME)
+
+    @trace_agent("sound_designer")
+    def run_studio_task(self, title: str, description: str) -> dict[str, Any]:
+        from skills.skill_gaming_agency import run_studio_task
+
+        return run_studio_task(
+            agent_id=self.AGENT_NAME, title=title, description=description
+        )
