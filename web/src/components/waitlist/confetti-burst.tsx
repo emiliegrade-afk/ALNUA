@@ -18,7 +18,7 @@ export function ConfettiBurst({ active }: ConfettiBurstProps) {
       return;
     }
 
-    const colors = ["#C08A72", "#F5E6D3", "#22c55e", "#f59e0b", "#ec4899"];
+    const colors = ["#E09B6A", "#F5E6D3", "#22c55e", "#f59e0b", "#ec4899"];
     setPieces(
       Array.from({ length: 48 }, (_, i) => ({
         id: i,

@@ -119,7 +119,7 @@ const PLATFORM_BADGE: Record<string, { bg: string; color?: string; glyph: string
 };
 
 export function PlatformBadge({ platform, size = 34 }: { platform: string; size?: number }) {
-  const style = PLATFORM_BADGE[platform] ?? { bg: "rgba(192,138,114,.15)", color: C.copperLight, glyph: "•" };
+  const style = PLATFORM_BADGE[platform] ?? { bg: "rgba(224,155,106,.15)", color: C.copperLight, glyph: "•" };
   return (
     <div
       className="flex shrink-0 items-center justify-center rounded-full text-[13px] font-bold"
@@ -159,7 +159,7 @@ export function FunnelBars({
                 className="flex h-full items-center justify-end rounded-md px-2.5 text-[11.5px] font-semibold"
                 style={{
                   width: `${widthPct}%`,
-                  background: "linear-gradient(90deg, rgba(192,138,114,.55), rgba(232,168,124,.9))",
+                  background: "linear-gradient(90deg, rgba(224,155,106,.55), rgba(232,168,124,.9))",
                   color: "#1a1108",
                   fontFamily: MONO,
                 }}
@@ -181,7 +181,7 @@ export function StatusPill({ tone, children }: { tone: "done" | "progress" | "sc
   const map = {
     done: { color: C.online, bg: "rgba(111,207,151,.12)" },
     progress: { color: "#8fb3e8", bg: "rgba(143,179,232,.12)" },
-    scheduled: { color: C.copperLight, bg: "rgba(192,138,114,.12)" },
+    scheduled: { color: C.copperLight, bg: "rgba(224,155,106,.12)" },
   } as const;
   const s = map[tone];
   return (

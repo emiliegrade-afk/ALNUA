@@ -65,7 +65,7 @@ export function CampagnesTab() {
           type="button"
           onClick={openNew}
           className="flex items-center gap-1.5 rounded-[18px] border px-[13px] py-1.5 text-[11.5px]"
-          style={{ borderColor: "rgba(192,138,114,.45)", background: "rgba(192,138,114,.08)", color: C.copperLight }}
+          style={{ borderColor: "rgba(224,155,106,.45)", background: "rgba(224,155,106,.08)", color: C.copperLight }}
         >
           <Plus className="h-3.5 w-3.5" /> Nouvelle campagne
         </button>
@@ -90,7 +90,7 @@ export function CampagnesTab() {
                 type="button"
                 onClick={() => openEdit(c)}
                 className="flex flex-col gap-2.5 rounded-xl border p-3 text-left transition-colors hover:opacity-90"
-                style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}
+                style={{ borderColor: C.line, background: "#000000" }}
               >
                 <div className="flex items-start justify-between gap-2">
                   <span className="min-w-0 truncate text-[12.5px] font-semibold" style={{ color: C.ivory }}>

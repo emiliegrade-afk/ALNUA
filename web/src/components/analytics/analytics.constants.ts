@@ -18,7 +18,7 @@ export const CHART_COLORS = {
   expense: "#f87171",
   mrr: "#c084fc",
   ivory: "#e8e4df",
-  copper: "#c08a72",
+  copper: "#E09B6A",
 } as const;
 
 export const METRIC_OPTIONS = [

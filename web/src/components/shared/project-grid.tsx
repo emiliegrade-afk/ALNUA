@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 
 const STATUS_DONUT_COLOR: Record<ProjectStatus, string> = {
   active: "#34d399",
-  beta: "#C08A72",
+  beta: "#E09B6A",
   dev: "#60a5fa",
   paused: "#71717a",
 };
@@ -166,7 +166,7 @@ export function ProjectGrid({
               </div>
               <Donut
                 segments={[
-                  { value: progress, color: "#C08A72" },
+                  { value: progress, color: "#E09B6A" },
                   { value: 100 - progress, color: "#1C2027" },
                 ]}
                 size={64}
@@ -270,7 +270,7 @@ export function ProjectGrid({
 
         <div className="rounded-xl border border-bronze-faint bg-obsidian/70 p-4">
           <p className="label-caps mb-3">Répartition par branche</p>
-          <Bars data={typeCounts} height={120} color="#C08A72" />
+          <Bars data={typeCounts} height={120} color="#E09B6A" />
         </div>
       </div>
     </div>

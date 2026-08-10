@@ -37,7 +37,7 @@ export function PoleKpiRow({ kpis }: { kpis: PoleKpi[] }) {
               className={cn(
                 "w-full rounded-xl border border-bronze-faint bg-obsidian/60 p-3 text-left transition-all duration-300",
                 clickable &&
-                  "cursor-pointer hover:-translate-y-0.5 hover:border-copper/40 hover:shadow-[0_0_20px_rgba(192,138,114,0.12)] active:scale-[0.98]",
+                  "cursor-pointer hover:-translate-y-0.5 hover:border-copper/40 hover:shadow-[0_0_20px_rgba(224,155,106,0.12)] active:scale-[0.98]",
               )}
             >
               <p className="text-[9px] uppercase tracking-[0.16em] text-titane/50">{k.label}</p>

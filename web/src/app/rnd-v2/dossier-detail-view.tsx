@@ -57,7 +57,7 @@ type TabId = (typeof TABS)[number]["id"];
 const PIPELINE_TAB_MAP: Record<string, TabId> = { pitch: "sections" };
 
 const VERDICT_COLOR: Record<string, string> = {
-  GO: "#7FC98C",
+  GO: "#2DD4BF",
   MAYBE: "#E0A95C",
   NO: "#f87171",
 };
@@ -81,9 +81,9 @@ function PipelineStrip({
             style={{
               cursor: stage.status !== "locked" && stage.tab ? "pointer" : undefined,
               ...(stage.status === "done"
-                ? { borderColor: "rgba(127,201,140,.35)", background: "rgba(127,201,140,.1)", color: "#8FCB99" }
+                ? { borderColor: "rgba(45,212,191,.35)", background: "rgba(45,212,191,.1)", color: "#5EEAD4" }
                 : stage.status === "in_progress"
-                  ? { borderColor: "rgba(192,138,114,.45)", background: "rgba(192,138,114,.12)", color: C.copperLight }
+                  ? { borderColor: "rgba(224,155,106,.45)", background: "rgba(224,155,106,.12)", color: C.copperLight }
                   : { borderColor: C.lineSoft, color: C.faint }),
             }}
           >
@@ -229,7 +229,7 @@ export function DossierDetailView({
         className="flex h-full max-h-[92vh] w-full max-w-[1180px] flex-col overflow-hidden rounded-2xl border"
         style={{
           borderColor: C.lineStrong,
-          background: "radial-gradient(1200px 500px at 50% -10%, rgba(192,138,114,.08), transparent 60%), #0B0C0E",
+          background: "radial-gradient(1200px 500px at 50% -10%, rgba(224,155,106,.08), transparent 60%), #0B0C0E",
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -258,7 +258,7 @@ export function DossierDetailView({
           <div className="flex flex-wrap items-center gap-4">
             <div className="relative h-14 w-14 shrink-0">
               <svg width="56" height="56" viewBox="0 0 56 56">
-                <circle cx="28" cy="28" r="23" fill="none" stroke="rgba(192,138,114,.15)" strokeWidth="5" />
+                <circle cx="28" cy="28" r="23" fill="none" stroke="rgba(224,155,106,.15)" strokeWidth="5" />
                 {idea.score != null ? (
                   <circle
                     cx="28"
@@ -319,7 +319,7 @@ export function DossierDetailView({
                 onClick={() => void handleIncubate()}
                 disabled={incubating || archiving}
                 className="flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10.5px] disabled:opacity-40"
-                style={{ borderColor: "rgba(192,138,114,.45)", background: "rgba(192,138,114,.1)", color: C.copperLight }}
+                style={{ borderColor: "rgba(224,155,106,.45)", background: "rgba(224,155,106,.1)", color: C.copperLight }}
               >
                 {incubating ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
                 🧪 Incuber
@@ -357,7 +357,7 @@ export function DossierDetailView({
                   onClick={() => void handlePromote()}
                   disabled={promoting}
                   className="flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-1.5 text-[11px]"
-                  style={{ borderColor: "rgba(192,138,114,.45)", background: "rgba(192,138,114,.1)", color: C.copperLight }}
+                  style={{ borderColor: "rgba(224,155,106,.45)", background: "rgba(224,155,106,.1)", color: C.copperLight }}
                 >
                   {promoting ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
                   Créer le dossier détaillé →

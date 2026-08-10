@@ -1,5 +1,6 @@
 "use client";
 
+import { AnalyticsAgentsPanel } from "@/components/analytics/analytics-agents-panel";
 import { ConsoleProvider } from "@/components/console/console-provider";
 import { DeptV2PageShell } from "@/components/dept-v2";
 import { C } from "@/app/app-v2/shared";
@@ -7,8 +8,7 @@ import { ROUTES } from "@/lib/routes";
 import Link from "next/link";
 
 /**
- * Live Analytics entry — points to real measurement surfaces (Marketing).
- * Fake mockup metrics removed; no fabricated KPIs.
+ * Analytics department — Layla / Axel tools + links to real measurement surfaces.
  */
 export default function AnalyticsPage() {
   return (
@@ -19,7 +19,7 @@ export default function AnalyticsPage() {
         coreSubtitle="Mesure"
       >
         <div
-          className="alnua-scroll flex min-w-0 flex-1 flex-col gap-4 overflow-y-auto px-4 pb-4 pt-3.5"
+          className="alnua-scroll flex min-w-0 flex-1 flex-col gap-6 overflow-y-auto px-4 pb-4 pt-3.5"
           style={{ color: C.ivory }}
         >
           <div>
@@ -30,7 +30,7 @@ export default function AnalyticsPage() {
               </span>
             </h1>
             <p className="mt-0.5 text-[11px]" style={{ color: C.dim }}>
-              Sources réelles uniquement — pas de métriques inventées
+              Layla (business) · Axel (data) — sources réelles, pas de KPI inventés
             </p>
           </div>
 
@@ -60,6 +60,8 @@ export default function AnalyticsPage() {
               </span>
             </Link>
           </div>
+
+          <AnalyticsAgentsPanel />
         </div>
       </DeptV2PageShell>
     </ConsoleProvider>

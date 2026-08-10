@@ -153,7 +153,7 @@ export function PoleOverview({ bureau, dept, className }: PoleOverviewProps) {
           <div className="mt-3 flex items-center gap-4">
             <Donut
               segments={[
-                { value: cfg.budget.spent, color: "#C08A72" },
+                { value: cfg.budget.spent, color: "#E09B6A" },
                 { value: budgetRemaining, color: "#2a2a30" },
               ]}
               size={104}
@@ -172,7 +172,7 @@ export function PoleOverview({ bureau, dept, className }: PoleOverviewProps) {
         <div className={CARD}>
           <p className={CARD_TITLE}>Performance · 8 semaines</p>
           <div className="mt-3">
-            <Sparkline data={cfg.performance} width={260} height={64} stroke="#C08A72" idSeed={`pole-${bureau}-perf`} />
+            <Sparkline data={cfg.performance} width={260} height={64} stroke="#E09B6A" idSeed={`pole-${bureau}-perf`} />
             <div className="mt-2 flex justify-between text-[10px] text-titane/50">
               <span>Min {cfg.performanceMeta?.min ?? ""}</span>
               <span>Moy {cfg.performanceMeta?.avg ?? ""}</span>

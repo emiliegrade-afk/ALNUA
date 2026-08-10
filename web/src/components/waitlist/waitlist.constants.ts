@@ -49,7 +49,7 @@ export function statusBadgeStyle(status: string): string {
 }
 
 export const WAITLIST_SOURCE_COLORS = [
-  "#C08A72",
+  "#E09B6A",
   "#ec4899",
   "#06b6d4",
   "#22c55e",

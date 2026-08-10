@@ -185,7 +185,7 @@ function AnalyticsDashboard({
     <div className="space-y-3">
       <PoleKpiRow
         kpis={[
-          { label: "REQUÊTES/J", value: "12.4K", delta: "+18%", deltaType: "up", trend: [8, 9, 10, 11, 11.5, 12.4], color: "#C08A72" },
+          { label: "REQUÊTES/J", value: "12.4K", delta: "+18%", deltaType: "up", trend: [8, 9, 10, 11, 11.5, 12.4], color: "#E09B6A" },
           { label: "RAPPORTS", value: "86", delta: "+12", deltaType: "up", trend: [60, 68, 72, 75, 80, 86], color: "#22c55e", onClick: () => onNavigateTab("rapports") },
           { label: "ALERTES", value: "3", delta: "-2", deltaType: "down", trend: [5, 5, 4, 4, 3, 3], color: "#f97316", onClick: () => onNavigateTab("insights") },
           { label: "PRÉCISION", value: "94%", delta: "+1.2%", deltaType: "up", trend: [91, 92, 92.5, 93, 93.5, 94], color: "#60a5fa" },
@@ -199,12 +199,12 @@ function AnalyticsDashboard({
               <svg className="h-full w-full overflow-visible" preserveAspectRatio="none">
                 <defs>
                   <linearGradient id="anaGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#C08A72" stopOpacity="0.25" />
-                    <stop offset="100%" stopColor="#C08A72" stopOpacity="0" />
+                    <stop offset="0%" stopColor="#E09B6A" stopOpacity="0.25" />
+                    <stop offset="100%" stopColor="#E09B6A" stopOpacity="0" />
                   </linearGradient>
                 </defs>
                 <polygon points={`0,100 ${points} 100,100`} fill="url(#anaGrad)" />
-                <polyline points={points} fill="none" stroke="#C08A72" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+                <polyline points={points} fill="none" stroke="#E09B6A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
               </svg>
             </div>
             <div className="mt-2 grid grid-cols-3 gap-2">

@@ -28,11 +28,11 @@ export function AlnuaCoreWidget() {
 
   return (
     <div
-      className="relative overflow-hidden rounded-xl border p-3 pb-3.5"
+      className="relative overflow-hidden rounded-xl border p-3 pb-3.5 glow-copper-pulse"
       style={{
-        borderColor: "rgba(192,138,114,.2)",
+        borderColor: "rgba(224,155,106,.35)",
         background:
-          "radial-gradient(120% 90% at 50% 45%, rgba(192,138,114,.13), rgba(8,10,14,.9) 70%)",
+          "radial-gradient(120% 90% at 50% 45%, rgba(224,155,106,.22), rgba(0,0,0,.95) 70%)",
       }}
     >
       <div className="flex items-center justify-center gap-2">
@@ -50,16 +50,16 @@ export function AlnuaCoreWidget() {
           className="absolute inset-0 m-auto"
           aria-hidden
         >
-          <g fill="none" stroke="rgba(192,138,114,.35)">
+          <g fill="none" stroke="rgba(224,155,106,.35)">
             <ellipse cx="84" cy="56" rx="78" ry="30" />
-            <ellipse cx="84" cy="56" rx="60" ry="46" stroke="rgba(192,138,114,.22)" />
+            <ellipse cx="84" cy="56" rx="60" ry="46" stroke="rgba(224,155,106,.22)" />
             <ellipse cx="84" cy="56" rx="44" ry="17" />
-            <ellipse cx="84" cy="56" rx="26" ry="34" stroke="rgba(192,138,114,.2)" />
+            <ellipse cx="84" cy="56" rx="26" ry="34" stroke="rgba(224,155,106,.2)" />
             <ellipse cx="84" cy="56" rx="20" ry="8" />
           </g>
-          <circle cx="162" cy="56" r="2" fill="#D9A88F" />
-          <circle cx="84" cy="10" r="1.8" fill="#C08A72" />
-          <circle cx="40" cy="56" r="1.6" fill="#C08A72" />
+          <circle cx="162" cy="56" r="2" fill="#F0C4A0" />
+          <circle cx="84" cy="10" r="1.8" fill="#E09B6A" />
+          <circle cx="40" cy="56" r="1.6" fill="#E09B6A" />
         </svg>
         <AlnuaStar size={52} glow animated={healthy} className="relative" />
       </div>
@@ -69,7 +69,7 @@ export function AlnuaCoreWidget() {
           className={cn(
             "h-[7px] w-[7px] shrink-0 rounded-full",
             healthy
-              ? "bg-online shadow-[0_0_7px_#7FC98C]"
+              ? "bg-online shadow-[0_0_7px_#2DD4BF]"
               : phase === "checking"
                 ? "bg-titane/50"
                 : "bg-red-400",

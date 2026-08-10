@@ -47,7 +47,7 @@ const POLES: PoleDef[] = [
     icon: Compass,
     dept: "hub",
     bureau: "hub",
-    glow: "#C08A72",
+    glow: "#E09B6A",
   },
   {
     id: "secretary",
@@ -59,7 +59,7 @@ const POLES: PoleDef[] = [
     icon: UserRound,
     dept: "secretary",
     bureau: "secretary",
-    glow: "#C08A72",
+    glow: "#E09B6A",
   },
   {
     id: "ceo",
@@ -70,7 +70,7 @@ const POLES: PoleDef[] = [
     href: "/ceo",
     icon: Crown,
     dept: "ceo",
-    glow: "#C08A72",
+    glow: "#E09B6A",
   },
   {
     id: "rd",
@@ -82,7 +82,7 @@ const POLES: PoleDef[] = [
     icon: FlaskConical,
     dept: "rd",
     bureau: "rd",
-    glow: "#C08A72",
+    glow: "#E09B6A",
   },
   {
     id: "app",
@@ -94,7 +94,7 @@ const POLES: PoleDef[] = [
     icon: AppWindow,
     dept: "app",
     bureau: "app",
-    glow: "#C08A72",
+    glow: "#E09B6A",
   },
   {
     id: "gaming",
@@ -106,7 +106,7 @@ const POLES: PoleDef[] = [
     icon: Gamepad2,
     dept: "gaming",
     bureau: "gaming",
-    glow: "#C08A72",
+    glow: "#E09B6A",
   },
   {
     id: "robo",
@@ -130,7 +130,7 @@ const POLES: PoleDef[] = [
     icon: Megaphone,
     dept: "marketing",
     bureau: "marketing",
-    glow: "#C08A72",
+    glow: "#E09B6A",
   },
   {
     id: "finances",
@@ -142,7 +142,7 @@ const POLES: PoleDef[] = [
     icon: Calculator,
     dept: "finances",
     bureau: "finances",
-    glow: "#C08A72",
+    glow: "#E09B6A",
   },
   {
     id: "analytics",
@@ -154,7 +154,7 @@ const POLES: PoleDef[] = [
     icon: Compass,
     dept: "analytics",
     bureau: "analytics",
-    glow: "#C08A72",
+    glow: "#E09B6A",
   },
   {
     id: "brand",
@@ -182,18 +182,15 @@ function mapStatus(kind: AgentStatusKind | undefined): ConsoleAgentStatus {
   }
 }
 
-function utilizationFor(status: AgentStatusKind | undefined, progress?: number): number {
-  if (typeof progress === "number") return Math.min(100, Math.max(0, progress));
-  switch (status) {
-    case "working":
-      return 78;
-    case "waiting":
-      return 48;
-    case "error":
-      return 35;
-    default:
-      return 12;
+function utilizationFor(
+  _status: AgentStatusKind | undefined,
+  progress?: number | null,
+): number {
+  // DEC-021 — real progress only; no invented idle→12% / working→78%.
+  if (typeof progress === "number" && Number.isFinite(progress)) {
+    return Math.min(100, Math.max(0, progress));
   }
+  return 0;
 }
 
 function initials(name: string): string {
@@ -304,7 +301,7 @@ export function buildConsoleDepartments(
     description: pole.description,
     href: pole.href,
     icon: pole.icon,
-    accent: "text-bronze-bright",
+    accent: "text-[#F5C9A4]",
     ring: "ring-bronze/40",
     glow: pole.glow,
     agents: agentsForPole(pole, liveAgents),

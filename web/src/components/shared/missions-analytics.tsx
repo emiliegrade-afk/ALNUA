@@ -21,7 +21,7 @@ const TYPE_ORDER: TicketType[] = ["bug", "feature", "improvement", "crash"];
 const PRIORITY_ORDER: TicketPriority[] = ["critical", "high", "medium", "low"];
 
 const STATUS_DONUT = [
-  { key: "open", label: "Backlog", color: "#C08A72" },
+  { key: "open", label: "Backlog", color: "#E09B6A" },
   { key: "in_progress", label: "En cours", color: "#60a5fa" },
   { key: "in_review", label: "En revue", color: "#ffa500" },
   { key: "done", label: "Terminé", color: "#34d399" },
@@ -126,7 +126,7 @@ export function MissionsAnalytics({ tickets }: MissionsAnalyticsProps) {
           <p className="mb-3 text-[9px] text-titane/35">
             Missions résolues par semaine (d&apos;après leur dernière mise à jour)
           </p>
-          <Bars data={stats.velocity} height={128} color="#C08A72" />
+          <Bars data={stats.velocity} height={128} color="#E09B6A" />
         </div>
 
         <div className="space-y-4">
@@ -135,7 +135,7 @@ export function MissionsAnalytics({ tickets }: MissionsAnalyticsProps) {
               <p className="mb-2 text-[10px] uppercase tracking-wide text-titane/50">
                 Par nature
               </p>
-              <Bars data={stats.byType} height={92} color="#D9A88F" />
+              <Bars data={stats.byType} height={92} color="#F0C4A0" />
             </div>
           ) : null}
           {stats.byPriority.length > 0 ? (

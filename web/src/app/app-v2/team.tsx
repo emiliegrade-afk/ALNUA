@@ -49,7 +49,7 @@ export function MissionBox({
     return (
       <div
         className="flex w-full shrink-0 flex-col self-start rounded-[10px] border p-[11px] min-[1240px]:w-[clamp(146px,11.2vw,172px)]"
-        style={{ borderColor: "rgba(192,138,114,.32)", background: "rgba(22,17,13,.6)" }}
+        style={{ borderColor: "rgba(167,173,181,0.18)", background: "#000000" }}
       >
         <p
           className="border-b pb-2 text-[8.5px] tracking-[1.6px]"
@@ -78,7 +78,7 @@ export function MissionBox({
   return (
     <div
       className="flex w-full shrink-0 flex-col self-start rounded-[10px] border p-[11px] min-[1240px]:w-[clamp(146px,11.2vw,172px)]"
-      style={{ borderColor: "rgba(192,138,114,.32)", background: "rgba(22,17,13,.6)" }}
+      style={{ borderColor: "rgba(167,173,181,0.18)", background: "#000000" }}
     >
       <p
         className="border-b pb-2 text-[8.5px] tracking-[1.6px]"
@@ -253,7 +253,7 @@ export function ChatPanel({ agent }: { agent: BureauAgentDef }) {
   return (
     <div
       className="flex min-h-[200px] min-w-0 flex-1 flex-col rounded-[10px] border"
-      style={{ borderColor: C.line, background: "rgba(13,11,9,.5)" }}
+      style={{ borderColor: C.line, background: "#000000" }}
     >
       <div className="flex gap-4 px-3 pt-[9px]">
         <button
@@ -303,8 +303,8 @@ export function ChatPanel({ agent }: { agent: BureauAgentDef }) {
                   <div
                     className="max-w-[85%] rounded-lg px-2.5 py-2"
                     style={{
-                      background: m.me ? "rgba(192,138,114,.14)" : "rgba(255,255,255,.03)",
-                      border: `1px solid ${m.me ? "rgba(192,138,114,.25)" : C.line}`,
+                      background: m.me ? "rgba(224,155,106,.14)" : "rgba(255,255,255,.03)",
+                      border: `1px solid ${m.me ? "rgba(224,155,106,.25)" : C.line}`,
                     }}
                   >
                     <div className="mb-1 flex items-center justify-between gap-3.5">
@@ -342,8 +342,8 @@ export function ChatPanel({ agent }: { agent: BureauAgentDef }) {
               placeholder={`Envoyer un message à ${agent.name.split(" ")[0]}...`}
               className="min-w-0 flex-1 rounded-[9px] border px-3 py-2 text-[11px] outline-none"
               style={{
-                background: "rgba(8,7,6,.7)",
-                borderColor: "rgba(192,138,114,.2)",
+                background: "#000000",
+                borderColor: "rgba(224,155,106,.2)",
                 color: C.ivory,
               }}
             />
@@ -357,8 +357,8 @@ export function ChatPanel({ agent }: { agent: BureauAgentDef }) {
               aria-label="Envoyer"
               className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[9px] border text-[13px] disabled:opacity-40"
               style={{
-                borderColor: "rgba(192,138,114,.5)",
-                background: "rgba(192,138,114,.14)",
+                borderColor: "rgba(224,155,106,.5)",
+                background: "rgba(224,155,106,.14)",
                 color: C.copperLight,
               }}
             >
@@ -374,8 +374,8 @@ export function ChatPanel({ agent }: { agent: BureauAgentDef }) {
             placeholder={`Notes privées sur ${agent.name} — visibles par toi seule, jamais partagées avec l'agent.`}
             className="min-h-0 flex-1 resize-none rounded-[9px] border p-3 text-[11px] outline-none"
             style={{
-              background: "rgba(8,7,6,.7)",
-              borderColor: "rgba(192,138,114,.2)",
+              background: "#000000",
+              borderColor: "rgba(224,155,106,.2)",
               color: C.ivory,
             }}
           />
@@ -398,7 +398,7 @@ export function RecentTasksPanel({
     // contenu, plafonné et scrollable au-delà (voir la liste ci-dessous).
     <div
       className="flex w-[clamp(148px,11vw,170px)] shrink-0 flex-col self-start rounded-[10px] border px-2.5 py-[11px]"
-      style={{ borderColor: C.line, background: "rgba(13,11,9,.5)" }}
+      style={{ borderColor: C.line, background: "#000000" }}
     >
       <p
         className="border-b pb-[9px] text-[8.5px] tracking-[1.5px]"
@@ -439,7 +439,7 @@ export function RecentTasksPanel({
       <Link
         href={ROUTES.activity}
         className="rounded-lg border py-1.5 text-center text-[10px]"
-        style={{ borderColor: "rgba(192,138,114,.22)", color: C.warm }}
+        style={{ borderColor: "rgba(224,155,106,.22)", color: C.warm }}
       >
         Voir tout l&apos;historique
       </Link>
@@ -472,7 +472,7 @@ function MissionsWeekTile({ tickets }: { tickets: TicketWithProject[] }) {
   return (
     <div
       className="flex flex-1 flex-col items-center justify-center gap-0.5 rounded-[10px] border px-1.5 py-2.5 text-center"
-      style={{ borderColor: C.line, background: "rgba(22,17,13,.5)" }}
+      style={{ borderColor: C.line, background: "#000000" }}
     >
       <p className="text-[8.5px]" style={{ color: C.dim }}>
         Missions cette semaine
@@ -513,8 +513,7 @@ export function ApercuPanel({
 
   return (
     <div
-      className="flex w-[clamp(258px,21vw,326px)] shrink-0 flex-col gap-[11px] rounded-xl border px-3 py-[11px]"
-      style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}
+      className="dept-instrument flex w-[clamp(258px,21vw,326px)] shrink-0 flex-col gap-[11px] px-3 py-[11px]"
     >
       <div className="flex gap-3.5 border-b" style={{ borderColor: C.lineSoft }}>
         {APERCU_TABS.map((t) => (
@@ -538,7 +537,7 @@ export function ApercuPanel({
           <div className="flex gap-2">
             <div
               className="flex-1 rounded-[10px] border px-1.5 py-2.5 text-center"
-              style={{ borderColor: C.line, background: "rgba(22,17,13,.5)" }}
+              style={{ borderColor: C.line, background: "#000000" }}
             >
               <p className="mb-1.5 text-[8.5px]" style={{ color: C.dim }}>
                 Charge actuelle
@@ -558,7 +557,7 @@ export function ApercuPanel({
 
           <div
             className="rounded-[10px] border p-[11px]"
-            style={{ borderColor: C.line, background: "rgba(22,17,13,.4)" }}
+            style={{ borderColor: C.line, background: "#000000" }}
           >
             <p className="mb-2.5 text-[10.5px]" style={{ color: "#A7ADB5" }}>
               Compétences principales
@@ -583,7 +582,7 @@ export function ApercuPanel({
 
           <div
             className="alnua-scroll min-h-0 flex-1 overflow-y-auto rounded-[10px] border p-[11px]"
-            style={{ borderColor: C.line, background: "rgba(22,17,13,.4)" }}
+            style={{ borderColor: C.line, background: "#000000" }}
           >
             <p className="mb-2.5 text-[10.5px]" style={{ color: "#A7ADB5" }}>
               Projets assignés
@@ -632,7 +631,7 @@ export function ApercuPanel({
       {tab === "Compétences" ? (
         <div
           className="alnua-scroll min-h-0 flex-1 overflow-y-auto rounded-[10px] border p-[11px]"
-          style={{ borderColor: C.line, background: "rgba(22,17,13,.4)" }}
+          style={{ borderColor: C.line, background: "#000000" }}
         >
           <p className="mb-2.5 text-[10.5px]" style={{ color: "#A7ADB5" }}>
             Toutes les compétences
@@ -665,7 +664,7 @@ export function ApercuPanel({
       {tab === "Performance" ? (
         <div
           className="min-h-0 flex-1 overflow-y-auto rounded-[10px] border p-[11px]"
-          style={{ borderColor: C.line, background: "rgba(22,17,13,.4)", color: C.warm }}
+          style={{ borderColor: C.line, background: "#000000", color: C.warm }}
         >
           <PerformanceTab agentId={agent.id} />
         </div>
@@ -674,7 +673,7 @@ export function ApercuPanel({
       {tab === "Mémoire" ? (
         <div
           className="min-h-0 flex-1 overflow-y-auto rounded-[10px] border p-[11px]"
-          style={{ borderColor: C.line, background: "rgba(22,17,13,.4)", color: C.warm }}
+          style={{ borderColor: C.line, background: "#000000", color: C.warm }}
         >
           <MemoireTab agent={{ id: agent.id, role: agent.role }} bureau={bureau} />
         </div>

@@ -12,7 +12,7 @@ import { DossierDetailView } from "./dossier-detail-view";
    pas de nouveau endpoint, `fetchRndIdeas` existait déjà. */
 
 const VERDICT_META: Record<string, { label: string; color: string; bg: string; border: string }> = {
-  GO: { label: "GO", color: "#7FC98C", bg: "rgba(127,201,140,.12)", border: "rgba(127,201,140,.3)" },
+  GO: { label: "GO", color: "#2DD4BF", bg: "rgba(45,212,191,.12)", border: "rgba(45,212,191,.3)" },
   MAYBE: { label: "MAYBE", color: "#E0A95C", bg: "rgba(224,169,92,.12)", border: "rgba(224,169,92,.3)" },
   NO: { label: "NO", color: "#f87171", bg: "rgba(248,113,113,.12)", border: "rgba(248,113,113,.3)" },
 };
@@ -43,7 +43,7 @@ function IdeaCard({ idea, onOpen }: { idea: RndIdea; onOpen: () => void }) {
       type="button"
       onClick={onOpen}
       className="animate-rnd-card-breathe flex flex-col gap-2.5 rounded-xl border p-3.5 text-left transition-transform hover:-translate-y-0.5"
-      style={{ borderColor: verdict?.border ?? C.line, background: "rgba(19,22,27,.55)" }}
+      style={{ borderColor: verdict?.border ?? C.line, background: "#000000" }}
     >
       <div className="flex items-start justify-between gap-2">
         <span className="min-w-0 flex-1 truncate text-[13.5px] font-semibold" style={{ color: C.ivory }}>
@@ -70,7 +70,7 @@ function IdeaCard({ idea, onOpen }: { idea: RndIdea; onOpen: () => void }) {
       <div className="flex items-center gap-2.5">
         <div className="relative h-9 w-9 shrink-0">
           <svg width="36" height="36" viewBox="0 0 36 36">
-            <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(192,138,114,.15)" strokeWidth="3.5" />
+            <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(224,155,106,.15)" strokeWidth="3.5" />
             {idea.score != null ? (
               <circle
                 cx="18"
@@ -150,7 +150,7 @@ export function PipelineTab() {
               className="rounded-full border px-2.5 py-1 text-[10px]"
               style={
                 filter === f
-                  ? { borderColor: "rgba(192,138,114,.45)", background: "rgba(192,138,114,.12)", color: C.copperLight }
+                  ? { borderColor: "rgba(224,155,106,.45)", background: "rgba(224,155,106,.12)", color: C.copperLight }
                   : { borderColor: C.lineSoft, color: C.faint }
               }
             >

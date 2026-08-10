@@ -4,7 +4,7 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { BETA_TYPE_LABELS } from "@/components/beta/beta.constants";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-const COLORS = ["#C08A72", "#22c55e", "#f59e0b", "#06b6d4", "#a78bfa"];
+const COLORS = ["#E09B6A", "#22c55e", "#f59e0b", "#06b6d4", "#a78bfa"];
 
 interface BetaTypeDonutProps {
   byType: Record<string, number>;

@@ -7,6 +7,14 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-10 — UI chrome Hub (style)
+
+- **Type :** style
+- **Details :**
+  - Tokens / `globals.css` + Tailwind ; console shell/sidebar/topbar ;
+    dept-v2 header/sidebar/command-bar ; harmonisation App/Gaming/Robo/
+    Marketing/R&D/Finances.
+
 ## 2026-08-10 — Phases 34 + 35 + autonomie profonde (feat)
 
 - **Type :** feat

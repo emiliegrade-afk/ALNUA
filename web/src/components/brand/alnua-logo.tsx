@@ -80,7 +80,7 @@ export function AlnuaLogo({
         height={dim}
         className={cn(
           "shrink-0 object-contain",
-          variant === "ring" && "drop-shadow-[0_0_12px_rgba(192,138,114,0.35)]",
+          variant === "ring" && "drop-shadow-[0_0_12px_rgba(224,155,106,0.35)]",
           anim && "animate-alnua-glow",
         )}
         priority

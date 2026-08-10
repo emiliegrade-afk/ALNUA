@@ -59,7 +59,7 @@ export function TransactionsTab({
           type="button"
           onClick={onAdd}
           className="flex items-center gap-1.5 rounded-[18px] border px-[13px] py-1.5 text-[11.5px]"
-          style={{ borderColor: "rgba(192,138,114,.45)", background: "rgba(192,138,114,.08)", color: C.copperLight }}
+          style={{ borderColor: "rgba(224,155,106,.45)", background: "rgba(224,155,106,.08)", color: C.copperLight }}
         >
           <Plus className="h-3.5 w-3.5" /> Ajouter une transaction
         </button>

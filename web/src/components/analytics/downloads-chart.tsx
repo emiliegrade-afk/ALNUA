@@ -151,7 +151,7 @@ export function DownloadsChart({
               <Tooltip
                 contentStyle={{
                   background: "#141414",
-                  border: "1px solid rgba(192,138,114,0.25)",
+                  border: "1px solid rgba(224,155,106,0.25)",
                   borderRadius: 8,
                   fontSize: 12,
                 }}

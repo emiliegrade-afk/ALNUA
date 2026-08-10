@@ -31,7 +31,7 @@ const COLUMNS: { id: IncubatorStage; label: string }[] = [
 ];
 
 const VERDICT_COLOR: Record<string, string> = {
-  GO: "#7FC98C",
+  GO: "#2DD4BF",
   MAYBE: "#E0A95C",
   NO: "#f87171",
 };
@@ -43,7 +43,7 @@ function IdeaKanbanCard({ idea, promoting }: { idea: RndIdea; promoting: boolean
       className="flex flex-col gap-1.5 rounded-lg border p-2.5"
       style={{
         borderColor: C.line,
-        background: "rgba(19,22,27,.6)",
+        background: "#000000",
         opacity: promoting ? 0.55 : 1,
       }}
     >
@@ -157,8 +157,8 @@ export function IncubateurTab() {
                 key={col.id}
                 className="flex min-h-[420px] flex-col rounded-xl border"
                 style={{
-                  borderColor: col.id === "departement" ? "rgba(192,138,114,.35)" : C.line,
-                  background: "rgba(19,22,27,.4)",
+                  borderColor: col.id === "departement" ? "rgba(224,155,106,.35)" : C.line,
+                  background: "#000000",
                 }}
               >
                 <div className="flex items-center justify-between border-b px-2.5 py-2" style={{ borderColor: C.lineSoft }}>
@@ -175,7 +175,7 @@ export function IncubateurTab() {
                       ref={provided.innerRef}
                       {...provided.droppableProps}
                       className="flex flex-1 flex-col gap-2 p-2"
-                      style={{ background: snapshot.isDraggingOver ? "rgba(192,138,114,.06)" : undefined }}
+                      style={{ background: snapshot.isDraggingOver ? "rgba(224,155,106,.06)" : undefined }}
                     >
                       {columnIdeas.map((idea, index) => (
                         <Draggable

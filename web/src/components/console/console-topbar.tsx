@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Bell, Search, Zap } from "lucide-react";
 import { useConsoleData } from "./console-provider";
@@ -8,16 +9,12 @@ import { consolePathTitle } from "@/lib/console/nav";
 import { CONSOLE_POLES } from "@/lib/console/departments";
 import { useHubHealthLive } from "@/hooks/use-hub-health-live";
 import { useCooStore } from "@/store/coo-store";
+import { cn } from "@/lib/utils";
 
 interface ConsoleTopbarProps {
   onMobileMenu: () => void;
 }
 
-/** Maquette : la topbar porte breadcrumbs + titre + search + clock + bell +
- * bouton "Lancer un agent". Les segments de nav centraux (Vue générale /
- * Départements / Missions / Analytics / Ressources) ont été retirés — ils
- * duppliquaient la sidebar et envoyaient vers des pages héritées (HQ lobby,
- * tickets, analytics dept) qui ne correspondent pas à la maquette. */
 function useLiveClock(): Date | null {
   const [now, setNow] = useState<Date | null>(null);
   useEffect(() => {
@@ -62,10 +59,12 @@ export function ConsoleTopbar({ onMobileMenu }: ConsoleTopbarProps) {
 
   const fallback = consolePathTitle(pathname);
   const pole = findPole(pathname);
-  const crumb = pole ? "ALNUA / PÔLES" : fallback.crumb;
-  const title = pole ? `Pôle ${pole.name.replace("Bureau ", "").replace("Pôle ", "")}` : fallback.title;
+  const title = pole
+    ? `Pôle ${pole.name.replace("Bureau ", "").replace("Pôle ", "")}`
+    : fallback.title;
   const sub = pole ? pole.tagline : fallback.sub;
 
+  const hubOk = phase === "ok";
   const hubLabel =
     phase === "ok"
       ? "Hub connecté"
@@ -75,71 +74,85 @@ export function ConsoleTopbar({ onMobileMenu }: ConsoleTopbarProps) {
           ? "Clé API"
           : "Hub offline";
 
+  const clock =
+    now?.toLocaleTimeString("fr-FR", { hour12: false }) ?? "--:--:--";
+
   return (
-    <header className="sticky top-0 z-30 h-16 border-b border-bronze-faint bg-obsidian-deep/85 backdrop-blur-xl">
-      <div className="flex h-full items-center gap-4 px-4 sm:px-6">
-        {/* Breadcrumbs + titre — maquette : "ALNUA > Vue d'ensemble" + sub-caption */}
-        <div className="flex min-w-0 shrink-0 items-center gap-3">
+    <header className="sticky top-0 z-30 h-16 border-b border-titanium/20 bg-void/95">
+      <div className="flex h-full items-center justify-between gap-4 px-4 sm:px-8">
+        <div className="flex min-w-0 items-center gap-4">
           <button
             type="button"
             onClick={onMobileMenu}
-            className="-ml-1 p-2 text-titane hover:text-ivoire lg:hidden"
+            className="-ml-1 p-2 text-metal-titanium hover:text-ivoire lg:hidden"
             aria-label="Menu"
           >
             <span className="text-xl leading-none">≡</span>
           </button>
-          <div className="min-w-0">
-            <p className="truncate text-[10px] uppercase tracking-[0.2em] text-titane/55">
-              {crumb}
-            </p>
-            <div className="flex items-baseline gap-2">
-              <h1 className="truncate font-title text-sm font-semibold tracking-wide text-ivoire sm:text-base">
-                {title}
-              </h1>
-              <span className="hidden truncate text-[11px] text-titane/60 sm:inline">
-                {sub}
-              </span>
-            </div>
+          <h1 className="truncate font-display text-lg uppercase tracking-wide text-ivoire">
+            {title}
+            <span className="ml-2 hidden text-sm font-sans font-normal normal-case tracking-normal text-metal-titanium sm:inline">
+              {sub}
+            </span>
+          </h1>
+        </div>
+
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="relative hidden md:block">
+            <Search
+              size={16}
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-alnua-titane"
+              aria-hidden
+            />
+            <input
+              type="text"
+              readOnly
+              onFocus={() => setSearchOpen(true)}
+              onClick={() => setSearchOpen(true)}
+              placeholder="Rechercher... (⌘K)"
+              className="w-64 rounded-full border border-alnua-border bg-alnua-surface py-1.5 pl-10 pr-4 text-sm text-alnua-ivoire placeholder:text-alnua-titane transition-colors focus:border-alnua-cuivre focus:outline-none"
+              aria-label="Rechercher"
+            />
           </div>
-        </div>
 
-        {/* Search — maquette : barre centrée "Rechercher un agent, un pôle..." + ⌘K */}
-        <div className="mx-auto hidden max-w-md flex-1 md:block">
-          <button
-            type="button"
-            onClick={() => setSearchOpen(true)}
-            className="flex w-full items-center gap-2 rounded-lg border border-bronze-faint bg-obsidian/60 px-3 py-2 text-xs text-titane/55 transition-colors hover:border-bronze/40 hover:text-titane"
-          >
-            <Search className="h-3.5 w-3.5 shrink-0" />
-            <span className="flex-1 text-left">Rechercher un agent, un pôle…</span>
-            <kbd className="rounded border border-bronze-faint bg-obsidian-deep px-1.5 py-0.5 font-mono text-[9px] text-titane/60">
-              ⌘K
-            </kbd>
-          </button>
-        </div>
-
-        {/* Droite — clock + bell + "Lancer un agent" */}
-        <div className="ml-auto flex items-center gap-2 sm:gap-3">
-          <span
-            className="hidden font-mono text-xs tabular-nums text-titane/70 lg:inline"
-            suppressHydrationWarning
+          <div
+            className={cn(
+              "hidden items-center gap-2 rounded-full border px-3 py-1.5 sm:flex",
+              hubOk
+                ? "border-[#103020] bg-alnua-surface"
+                : "border-alnua-danger/40 bg-alnua-surface",
+            )}
             title={hubLabel}
           >
-            {now ? now.toLocaleTimeString("fr-FR", { hour12: false }) : "--:--:--"}
-          </span>
+            <div
+              className={cn(
+                "h-2 w-2 rounded-full",
+                hubOk ? "animate-pulse bg-alnua-teal" : "bg-alnua-danger",
+              )}
+            />
+            <span
+              className={cn(
+                "text-xs font-medium tabular-nums",
+                hubOk ? "text-alnua-teal" : "text-alnua-danger",
+              )}
+              suppressHydrationWarning
+            >
+              {hubLabel} {hubOk ? clock : null}
+            </span>
+          </div>
 
           <button
             type="button"
-            className="relative rounded-lg border border-bronze-faint bg-obsidian/70 p-2 text-titane transition-colors hover:border-bronze/40 hover:text-bronze-bright"
+            className="relative rounded-full border border-alnua-border p-2 text-alnua-cuivre transition-colors hover:bg-alnua-surface"
             aria-label={
               stats.ceoNotifications > 0
                 ? `Notifications — ${stats.ceoNotifications} en attente`
                 : "Notifications"
             }
           >
-            <Bell className="h-4 w-4" />
+            <Bell size={18} />
             {stats.ceoNotifications > 0 ? (
-              <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-glow px-1 text-[9px] font-bold text-obsidian-deep">
+              <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-alnua-cuivre px-1 text-[9px] font-bold text-alnua-bg">
                 {stats.ceoNotifications > 9 ? "9+" : stats.ceoNotifications}
               </span>
             ) : null}
@@ -148,51 +161,58 @@ export function ConsoleTopbar({ onMobileMenu }: ConsoleTopbarProps) {
           <button
             type="button"
             onClick={() => openDrawer()}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-copper px-3 py-2 text-xs font-semibold text-obsidian transition-colors hover:bg-copper-light"
+            className="inline-flex items-center gap-1.5 rounded-full border border-alnua-cuivre/40 bg-alnua-cuivre/10 px-3 py-1.5 text-xs font-semibold text-alnua-cuivre transition-colors hover:bg-alnua-cuivre/20"
           >
             <Zap className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Lancer un agent</span>
-            <span className="sm:hidden">Lancer</span>
           </button>
         </div>
       </div>
 
-      {/* Search modal — ouvert via ⌘K ou clic sur la barre */}
       {searchOpen ? (
         <div
-          className="fixed inset-0 z-50 flex items-start justify-center bg-obsidian-deep/70 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-start justify-center bg-alnua-bg/70 backdrop-blur-sm"
           onClick={() => setSearchOpen(false)}
         >
           <div
-            className="mt-24 w-full max-w-lg rounded-xl border border-bronze-faint bg-obsidian-deep/95 shadow-2xl"
+            className="mt-24 w-full max-w-lg rounded-xl border border-alnua-border bg-alnua-surface shadow-2xl"
             onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-label="Recherche"
           >
-            <div className="flex items-center gap-3 border-b border-bronze-faint px-4 py-3">
-              <Search className="h-4 w-4 text-titane/60" />
+            <div className="flex items-center gap-3 border-b border-alnua-border px-4 py-3">
+              <Search className="h-4 w-4 text-alnua-titane" />
               <input
                 ref={searchRef}
                 type="text"
                 placeholder="Rechercher un agent, un pôle…"
-                className="flex-1 bg-transparent text-sm text-ivoire placeholder:text-titane/50 focus:outline-none"
+                className="flex-1 bg-transparent text-sm text-alnua-ivoire placeholder:text-alnua-titane focus:outline-none"
               />
-              <kbd className="rounded border border-bronze-faint bg-obsidian px-1.5 py-0.5 font-mono text-[9px] text-titane/60">
+              <kbd className="rounded border border-alnua-border bg-alnua-bg px-1.5 py-0.5 font-mono text-[9px] text-alnua-titane">
                 ESC
               </kbd>
             </div>
-            <div className="max-h-80 overflow-y-auto p-2 alnua-scroll">
-              <p className="px-3 py-2 text-[10px] uppercase tracking-widest text-titane/45">
+            <div className="alnua-scroll max-h-80 overflow-y-auto p-2">
+              <p className="px-3 py-2 text-[10px] uppercase tracking-widest text-alnua-titane/60">
                 Pôles
               </p>
               {CONSOLE_POLES.map((p) => (
-                <a
+                <Link
                   key={p.id}
                   href={p.href}
-                  className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-titane/80 transition-colors hover:bg-obsidian hover:text-ivoire"
+                  onClick={() => setSearchOpen(false)}
+                  className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-alnua-titane transition-colors hover:bg-alnua-bg hover:text-alnua-ivoire"
                 >
-                  <span className="font-mono text-[10px] text-titane/40">{p.code}</span>
-                  <span className="flex-1">{p.name.replace("Bureau ", "").replace("Pôle ", "")}</span>
-                  <span className="truncate text-[11px] text-titane/45">{p.tagline}</span>
-                </a>
+                  <span className="font-mono text-[10px] text-alnua-titane/50">
+                    {p.code}
+                  </span>
+                  <span className="flex-1">
+                    {p.name.replace("Bureau ", "").replace("Pôle ", "")}
+                  </span>
+                  <span className="truncate text-[11px] text-alnua-titane/45">
+                    {p.tagline}
+                  </span>
+                </Link>
               ))}
             </div>
           </div>

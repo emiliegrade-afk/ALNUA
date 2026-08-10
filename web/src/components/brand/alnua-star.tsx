@@ -1,79 +1,90 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 interface AlnuaStarProps {
   size?: number;
-  /** Halo lumineux autour de la marque (cœur du widget CORE, orbe de la barre
-   * d'action). Toujours statique — voir note sur `animated`. */
+  /** Halo cuivre autour du symbole. */
   glow?: boolean;
-  /** Ancien effet de pulsation, désactivé : le keyframe partagé
-   * `animate-alnua-glow` (globals.css) anime le flou du `drop-shadow`, or ce
-   * flou grossit surtout la zone déjà quasi opaque de l'étincelle du PNG
-   * (contrairement à l'ancien SVG où l'étincelle n'était qu'un dégradé peu
-   * opaque) — résultat : une tache floue qui pulse au centre du symbole au
-   * lieu d'un simple liseré lumineux. Prop gardée (no-op) pour ne pas casser
-   * les appelants (`animated={healthy}` sur le widget CORE, etc.).
-   * [À COMPLÉTER : réintroduire une pulsation propre nécessiterait un halo
-   * séparé, positionné indépendamment du PNG — pas fait ici faute de repère
-   * fiable sur l'étincelle réelle du PNG, cf. tentative ratée précédente]. */
+  /**
+   * Animation « émergence » : étincelle au croisement des lames
+   * (concentration des idées → produits ALNUA).
+   */
   animated?: boolean;
   className?: string;
-  /** Couleur du halo (`drop-shadow`) quand `glow` est actif. */
   glowColorRgb?: string;
-  /** @deprecated Sans effet — l'étincelle est gravée dans `alnua-symbol-mark.png`,
-   * ces props ne recolorent pas un pixel du PNG. Gardées pour ne pas casser
-   * les appelants existants (plusieurs pages /*-v2 les passent encore). */
+  /** @deprecated Sans effet sur le PNG — gardé pour les appelants existants. */
   sparkMid?: string;
   sparkOuter?: string;
 }
 
-// Le PNG (512x592) est légèrement plus haut que large — le symbole officiel
-// mesuré sur `assets/brand/aluna-brand-board.png` (panneau « LE SYMBOLE »)
-// donne ~1.17, cohérent avec les 2 autres déclinaisons DA (construction et
-// app icon). `object-contain` (ci-dessous) gère cet écart sans distorsion.
 const SYMBOL_SRC = "/brand/alnua-symbol-mark.png";
 
 /**
- * Marque ALNUA — le symbole officiel de la charte : quatre lames effilées
- * croisées en métal (titane → ivoire), les deux chevrons fins qui les
- * flanquent, et l'étincelle cuivre rosé au point de convergence.
- *
- * Rendu en PNG alpha (`alnua-symbol-mark.png`, extrait et matricé à partir de
- * `assets/brand/aluna-brand-board.png` — la vraie référence DA, pas une
- * reconstruction à la main) plutôt qu'en SVG vectoriel : deux tentatives de
- * revectorisation à la main (lames simples, puis lames + chevrons
- * approximés) ont chacune fini par diverger visiblement de la charte — cf.
- * historique git de ce fichier. Le PNG élimine ce risque : c'est littéralement
- * l'image de la charte, juste détourée (alpha basé sur la luminance, seuil
- * réglé pour ne laisser aucun voile résiduel sur fond clair — cf. le `floor`
- * du script d'extraction, `alnua-mark.png` avait le même souci de fond noir
- * opaque visible sur dégradé, corrigé ici par un vrai canal alpha).
+ * Point de convergence optique du PNG `alnua-symbol-mark.png` (512×592),
+ * en % du cadre carré `object-contain` — pas le centre géométrique du box.
+ */
+const CORE_X = "50.5%";
+const CORE_Y = "55.5%";
+
+/**
+ * Marque ALNUA — quatre lames croisées + étincelle cuivre au point de
+ * convergence (charte : concentration / émergence au centre).
  */
 export function AlnuaStar({
   size = 52,
   glow = false,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- no-op, cf. doc ci-dessus
-  animated = true,
+  animated = false,
   className,
-  glowColorRgb = "192,138,114",
+  glowColorRgb = "224,155,106",
 }: AlnuaStarProps) {
   return (
     <div
-      className={cn("relative inline-block shrink-0", className)}
-      style={{ width: size, height: size }}
+      className={cn(
+        "relative inline-flex shrink-0 items-center justify-center",
+        animated && "alnua-star-emergence",
+        className,
+      )}
+      style={
+        {
+          width: size,
+          height: size,
+          ["--alnua-core-x"]: CORE_X,
+          ["--alnua-core-y"]: CORE_Y,
+        } as CSSProperties
+      }
       role="img"
       aria-label="ALNUA"
     >
-      <Image
-        src={SYMBOL_SRC}
-        alt=""
-        fill
-        sizes={`${size}px`}
-        className="object-contain"
-        style={glow ? { filter: `drop-shadow(0 0 10px rgba(${glowColorRgb},.55))` } : undefined}
-      />
+      <div
+        className={cn(
+          "relative h-full w-full",
+          animated && "alnua-mark-breathe",
+        )}
+      >
+        {animated ? (
+          <>
+            <span className="alnua-emergence-halo" aria-hidden />
+            <span className="alnua-emergence-spark" aria-hidden />
+          </>
+        ) : null}
+        <Image
+          src={SYMBOL_SRC}
+          alt=""
+          fill
+          sizes={`${size}px`}
+          className="z-[2] object-contain"
+          style={
+            glow || animated
+              ? {
+                  filter: `drop-shadow(0 0 ${animated ? 14 : 10}px rgba(${glowColorRgb},${animated ? 0.75 : 0.55}))`,
+                }
+              : undefined
+          }
+        />
+      </div>
     </div>
   );
 }

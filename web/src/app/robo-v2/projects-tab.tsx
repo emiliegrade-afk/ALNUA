@@ -19,12 +19,12 @@ function ProjectCard({ project, agents, realBomCount, latestBuild }: { project: 
   const bomCount = project.name === "Eve" && realBomCount != null ? realBomCount : null;
 
   return (
-    <div className="flex flex-col gap-2.5 rounded-xl border p-3.5" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
+    <div className="flex flex-col gap-2.5 dept-instrument p-3.5">
       <div className="flex items-center justify-between gap-2">
         <span className="truncate text-[13.5px] font-semibold" style={{ color: C.ivory }}>
           {project.name}
         </span>
-        <span className="shrink-0 rounded-full border px-2 py-0.5 text-[8.5px]" style={{ borderColor: "rgba(192,138,114,.25)", color: PROJECT_COLOR[project.status] }}>
+        <span className="shrink-0 rounded-full border px-2 py-0.5 text-[8.5px]" style={{ borderColor: "rgba(224,155,106,.25)", color: PROJECT_COLOR[project.status] }}>
           {PROJECT_LABEL[project.status]}
         </span>
       </div>
@@ -33,8 +33,8 @@ function ProjectCard({ project, agents, realBomCount, latestBuild }: { project: 
       </p>
 
       <div className="flex items-center gap-2">
-        <span className="h-1.5 flex-1 overflow-hidden rounded-full" style={{ background: "rgba(192,138,114,.15)" }}>
-          <span className="block h-full rounded-full" style={{ width: `${prog}%`, background: `linear-gradient(90deg,#8A6050,${C.copperLight})` }} />
+        <span className="h-1.5 flex-1 overflow-hidden rounded-full" style={{ background: "rgba(224,155,106,.15)" }}>
+          <span className="block h-full rounded-full" style={{ width: `${prog}%`, background: `linear-gradient(90deg,#B86E45,${C.copperLight})` }} />
         </span>
         <span className="text-[11px] font-semibold" style={{ color: C.ivory }}>
           {prog}%
@@ -100,7 +100,7 @@ function ProjectCard({ project, agents, realBomCount, latestBuild }: { project: 
         {agents.length > 0 ? <span>{agents.length} agents</span> : null}
       </div>
 
-      <Link href={`/projects/${encodeURIComponent(project.id)}`} className="rounded-lg border py-1.5 text-center text-[10.5px]" style={{ borderColor: "rgba(192,138,114,.22)", color: C.warm }}>
+      <Link href={`/projects/${encodeURIComponent(project.id)}`} className="rounded-lg border py-1.5 text-center text-[10.5px]" style={{ borderColor: "rgba(224,155,106,.22)", color: C.warm }}>
         Ouvrir le projet ›
       </Link>
     </div>
@@ -148,7 +148,7 @@ export function ProjetsTab({ projects, agents, onProjectCreated }: { projects: P
           type="button"
           onClick={() => setCreateOpen(true)}
           className="rounded-[18px] border px-3.5 py-1.5 text-[11px]"
-          style={{ borderColor: "rgba(192,138,114,.45)", background: "rgba(192,138,114,.12)", color: C.copperLight }}
+          style={{ borderColor: "rgba(224,155,106,.45)", background: "rgba(224,155,106,.12)", color: C.copperLight }}
         >
           ＋ Nouveau projet
         </button>

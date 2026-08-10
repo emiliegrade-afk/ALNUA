@@ -15,7 +15,7 @@ function roboCardTags(ticketId: string) {
   const component = pick(`${ticketId}-comp`, COMPONENTS);
   const bench = hash(`${ticketId}-bench`) % 2 === 0 ? pick(`${ticketId}-benchtag`, BENCHES) : null;
   const chip = {
-    borderColor: "rgba(192,138,114,.2)",
+    borderColor: "rgba(224,155,106,.2)",
     color: C.warm,
   } as const;
   return (

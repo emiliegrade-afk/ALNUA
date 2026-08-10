@@ -20,7 +20,7 @@ import { C } from "../app-v2/shared";
 type Mode = "idea" | "research";
 
 const inputCls = "w-full rounded-lg border px-2.5 py-2 text-[11px] outline-none";
-const inputStyle = { background: "rgba(8,7,6,.7)", borderColor: "rgba(192,138,114,.2)", color: "#F5F2EA" };
+const inputStyle = { background: "rgba(8,7,6,.7)", borderColor: "rgba(224,155,106,.2)", color: "#F5F2EA" };
 
 const RESEARCH_AGENTS = [
   { id: "brainstorm", label: "Idris — Brainstorm" },
@@ -154,7 +154,7 @@ export function NewIdeaModal({ open, onClose }: { open: boolean; onClose: () => 
               type="button"
               onClick={() => setMode("idea")}
               className="rounded-full border px-3 py-1.5 text-[10.5px]"
-              style={mode === "idea" ? { borderColor: "rgba(192,138,114,.45)", background: "rgba(192,138,114,.12)", color: C.copperLight } : { borderColor: C.lineSoft, color: C.faint }}
+              style={mode === "idea" ? { borderColor: "rgba(224,155,106,.45)", background: "rgba(224,155,106,.12)", color: C.copperLight } : { borderColor: C.lineSoft, color: C.faint }}
             >
               💡 Proposer une idée
             </button>
@@ -162,7 +162,7 @@ export function NewIdeaModal({ open, onClose }: { open: boolean; onClose: () => 
               type="button"
               onClick={() => setMode("research")}
               className="rounded-full border px-3 py-1.5 text-[10.5px]"
-              style={mode === "research" ? { borderColor: "rgba(192,138,114,.45)", background: "rgba(192,138,114,.12)", color: C.copperLight } : { borderColor: C.lineSoft, color: C.faint }}
+              style={mode === "research" ? { borderColor: "rgba(224,155,106,.45)", background: "rgba(224,155,106,.12)", color: C.copperLight } : { borderColor: C.lineSoft, color: C.faint }}
             >
               🔎 Lancer une recherche
             </button>
@@ -199,7 +199,7 @@ export function NewIdeaModal({ open, onClose }: { open: boolean; onClose: () => 
               disabled={busy || !ideaText.trim()}
               onClick={() => void handleSubmitIdea()}
               className="flex items-center justify-center gap-2 rounded-lg border py-2 text-[11.5px] disabled:opacity-40"
-              style={{ borderColor: "rgba(192,138,114,.45)", background: "rgba(192,138,114,.1)", color: C.copperLight }}
+              style={{ borderColor: "rgba(224,155,106,.45)", background: "rgba(224,155,106,.1)", color: C.copperLight }}
             >
               {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
               Ajouter au Pipeline
@@ -246,7 +246,7 @@ export function NewIdeaModal({ open, onClose }: { open: boolean; onClose: () => 
               disabled={busy || !query.trim()}
               onClick={() => void handleRunResearch()}
               className="flex items-center justify-center gap-2 rounded-lg border py-2 text-[11.5px] disabled:opacity-40"
-              style={{ borderColor: "rgba(192,138,114,.45)", background: "rgba(192,138,114,.1)", color: C.copperLight }}
+              style={{ borderColor: "rgba(224,155,106,.45)", background: "rgba(224,155,106,.1)", color: C.copperLight }}
             >
               {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
               {busy ? "Les agents explorent…" : "Lancer la recherche"}

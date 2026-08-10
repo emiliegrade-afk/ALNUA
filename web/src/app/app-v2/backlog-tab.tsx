@@ -93,7 +93,7 @@ function IdeaCard({
       </div>
       <span
         className="mt-1.5 inline-flex items-center gap-1 rounded-full border px-1.5 py-px text-[8.5px]"
-        style={{ borderColor: "rgba(192,138,114,.2)", color: TYPE_COLOR[ticket.type] ?? C.faint }}
+        style={{ borderColor: "rgba(224,155,106,.2)", color: TYPE_COLOR[ticket.type] ?? C.faint }}
       >
         <span className="h-1 w-1 rounded-full" style={{ background: TYPE_COLOR[ticket.type] ?? C.faint }} />
         {TYPE_LABEL[ticket.type] ?? ticket.type}
@@ -124,7 +124,7 @@ function IdeaCard({
         ) : stage === "En attente" ? (
           <span
             className="shrink-0 rounded-full border px-1.5 py-px text-[8px]"
-            style={{ borderColor: "rgba(192,138,114,.25)", color: C.warm }}
+            style={{ borderColor: "rgba(224,155,106,.25)", color: C.warm }}
           >
             {hasDependency ? "Dépendance" : "En attente"}
           </span>
@@ -145,7 +145,7 @@ function DonutChart({ segments }: { segments: { color: string; count: number }[]
   let acc = 0;
   return (
     <svg width="64" height="64" viewBox="0 0 64 64">
-      <circle cx="32" cy="32" r={r} fill="none" stroke="rgba(192,138,114,.1)" strokeWidth="9" />
+      <circle cx="32" cy="32" r={r} fill="none" stroke="rgba(224,155,106,.1)" strokeWidth="9" />
       {total > 0
         ? segments
             .filter((s) => s.count > 0)
@@ -245,7 +245,7 @@ export function BacklogTab({
             type="button"
             onClick={() => setCreateOpen(true)}
             className="shrink-0 rounded-[18px] border px-3.5 py-1.5 text-[11px]"
-            style={{ borderColor: "rgba(192,138,114,.45)", background: "rgba(192,138,114,.12)", color: C.copperLight }}
+            style={{ borderColor: "rgba(224,155,106,.45)", background: "rgba(224,155,106,.12)", color: C.copperLight }}
           >
             ＋ Nouvelle idée
           </button>
@@ -259,7 +259,7 @@ export function BacklogTab({
               { label: "À prioriser", value: buckets["À prioriser"].length },
               { label: "Déjà planifiés", value: buckets["Planifiées"].length },
             ].map((s) => (
-              <div key={s.label} className="rounded-xl border p-3 text-center" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
+              <div key={s.label} className="rounded-xl border p-3 text-center" style={{ borderColor: C.line, background: "#000000" }}>
                 <p className="text-[20px] font-semibold" style={{ color: C.ivory }}>
                   {s.value}
                 </p>
@@ -269,7 +269,7 @@ export function BacklogTab({
               </div>
             ))}
           </div>
-          <div className="flex shrink-0 items-center gap-3 rounded-xl border px-4 py-2" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
+          <div className="flex shrink-0 items-center gap-3 rounded-xl border px-4 py-2" style={{ borderColor: C.line, background: "#000000" }}>
             <DonutChart segments={donutSegments} />
             <div className="flex flex-col gap-1 text-[9px]" style={{ color: C.warm }}>
               <p className="mb-0.5" style={{ color: C.faint }}>
@@ -325,7 +325,7 @@ export function BacklogTab({
       </div>
 
       <div className="hidden w-[clamp(220px,17vw,270px)] shrink-0 flex-col gap-3 min-[1200px]:flex">
-        <div className="rounded-xl border p-3.5" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
+        <div className="dept-instrument p-3.5">
           <p className="mb-2.5 text-[9.5px] tracking-[1.5px]" style={{ color: C.faint }}>
             ACTIVITÉ RÉCENTE
           </p>

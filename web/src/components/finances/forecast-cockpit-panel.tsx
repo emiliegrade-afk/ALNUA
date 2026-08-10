@@ -81,7 +81,7 @@ export function ForecastCockpitPanel({ period }: { period: string }) {
           disabled={llmBusy}
           onClick={() => void runRemi()}
           className="rounded-full border px-2.5 py-1 text-[10px]"
-          style={{ borderColor: "rgba(192,138,114,.4)", color: C.copperLight }}
+          style={{ borderColor: "rgba(224,155,106,.4)", color: C.copperLight }}
         >
           {llmBusy ? "Rémi…" : "Enrichir avec Rémi (LLM)"}
         </button>

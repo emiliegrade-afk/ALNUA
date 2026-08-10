@@ -27,12 +27,40 @@ export const DEPT_V2_ICONS: Record<string, string> = {
 };
 
 /** Onglets header — `deptHref` = route canonique du département courant. */
-export function deptV2TopTabs(deptHref: string) {
+export function deptV2TopTabs(
+  deptHref: string,
+  activeTab: "overview" | "dept" | "missions" | "analytics" | "resources" = "dept",
+) {
   return [
-    { icon: "☰", label: "Vue générale", href: ROUTES.home, active: false },
-    { icon: "▦", label: "Départements", href: deptHref, active: true },
-    { icon: "◈", label: "Missions", href: ROUTES.tickets, active: false },
-    { icon: "📈", label: "Analytics", href: ROUTES.analytics, active: false },
-    { icon: "🗂", label: "Ressources", href: ROUTES.library, active: false },
+    {
+      icon: "☰",
+      label: "Vue générale",
+      href: ROUTES.home,
+      active: activeTab === "overview",
+    },
+    {
+      icon: "▦",
+      label: "Départements",
+      href: deptHref,
+      active: activeTab === "dept",
+    },
+    {
+      icon: "◈",
+      label: "Missions",
+      href: ROUTES.tickets,
+      active: activeTab === "missions",
+    },
+    {
+      icon: "📈",
+      label: "Analytics",
+      href: ROUTES.analytics,
+      active: activeTab === "analytics",
+    },
+    {
+      icon: "🗂",
+      label: "Ressources",
+      href: ROUTES.library,
+      active: activeTab === "resources",
+    },
   ] as const;
 }

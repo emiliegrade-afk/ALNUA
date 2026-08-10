@@ -171,7 +171,7 @@ function CeoDashboard({
       <PoleKpiRow
         kpis={[
           { label: "DÉCISIONS", value: "3", delta: "-1", deltaType: "down", trend: [5, 5, 4, 4, 3, 3], color: "#f97316", onClick: () => onNavigateTab("decisions") },
-          { label: "BRIEFS", value: "12", delta: "+3", deltaType: "up", trend: [8, 9, 10, 10, 11, 12], color: "#C08A72", onClick: () => onNavigateTab("briefs") },
+          { label: "BRIEFS", value: "12", delta: "+3", deltaType: "up", trend: [8, 9, 10, 10, 11, 12], color: "#E09B6A", onClick: () => onNavigateTab("briefs") },
           { label: "DOSSIERS GO", value: "8", delta: "+2", deltaType: "up", trend: [4, 5, 6, 6, 7, 8], color: "#22c55e", onClick: () => onNavigateTab("decisions") },
           { label: "PRs REVUS", value: "24", delta: "+6", deltaType: "up", trend: [15, 17, 18, 20, 21, 24], color: "#60a5fa", onClick: () => onNavigateTab("prs") },
         ]}

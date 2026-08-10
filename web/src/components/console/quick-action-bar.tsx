@@ -37,7 +37,7 @@ export function QuickActionBar() {
             className="pointer-events-none absolute inset-0 rounded-full opacity-70 transition-opacity duration-500 group-hover:opacity-100"
             style={{
               background:
-                "radial-gradient(circle, rgba(217,168,143,0.35) 0%, rgba(192,138,114,0.12) 45%, transparent 70%)",
+                "radial-gradient(circle, rgba(217,168,143,0.35) 0%, rgba(224,155,106,0.12) 45%, transparent 70%)",
             }}
           />
           <span className="pointer-events-none absolute inset-2 rounded-full border border-bronze/30" />

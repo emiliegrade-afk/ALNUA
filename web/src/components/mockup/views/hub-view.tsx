@@ -185,7 +185,7 @@ function HubDashboard({
     <div className="space-y-3">
       <PoleKpiRow
         kpis={[
-          { label: "AGENTS", value: "26", delta: "+12%", deltaType: "up", trend: [20, 22, 23, 24, 25, 26], color: "#C08A72" },
+          { label: "AGENTS", value: "26", delta: "+12%", deltaType: "up", trend: [20, 22, 23, 24, 25, 26], color: "#E09B6A" },
           { label: "PROJETS", value: "38", delta: "+5%", deltaType: "up", trend: [30, 32, 34, 35, 36, 38], color: "#22c55e" },
           { label: "DÉCISIONS/J", value: "184", delta: "+8%", deltaType: "up", trend: [150, 162, 168, 175, 178, 184], color: "#60a5fa" },
           { label: "UPTIME", value: "99.98%", delta: "stable", deltaType: "neutral", trend: [99.9, 99.95, 99.97, 99.98, 99.98, 99.99], color: "#A7ADB5" },

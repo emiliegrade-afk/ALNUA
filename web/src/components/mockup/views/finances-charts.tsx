@@ -37,7 +37,7 @@ const SERIES = [
 ] as const;
 
 const EXPENSE_DATA = [
-  { name: "SaaS & IA", value: 42, amount: "11 936 €", color: "#C08A72" },
+  { name: "SaaS & IA", value: 42, amount: "11 936 €", color: "#E09B6A" },
   { name: "Marketing", value: 18, amount: "5 116 €", color: "#E8A87C" },
   { name: "Salaires", value: 16, amount: "4 547 €", color: "#B8C0CC" },
   { name: "R&D", value: 10, amount: "2 842 €", color: "#7C8A9A" },
@@ -47,7 +47,7 @@ const EXPENSE_DATA = [
 
 const tooltipStyle: React.CSSProperties = {
   background: "rgba(14,16,20,0.95)",
-  border: "1px solid rgba(192,138,114,0.4)",
+  border: "1px solid rgba(224,155,106,0.4)",
   borderRadius: 10,
   fontSize: 11,
   color: "#F5F2EA",
@@ -112,7 +112,7 @@ export function FinanceEvolutionChart() {
         className="pointer-events-none absolute inset-0 rounded-md opacity-40"
         style={{
           background:
-            "radial-gradient(ellipse at 40% 60%, rgba(192,138,114,0.08) 0%, transparent 65%)",
+            "radial-gradient(ellipse at 40% 60%, rgba(224,155,106,0.08) 0%, transparent 65%)",
         }}
       />
       <ResponsiveContainer width="100%" height="100%">
@@ -139,7 +139,7 @@ export function FinanceEvolutionChart() {
             contentStyle={tooltipStyle}
             labelStyle={{ color: "#A7ADB5", marginBottom: 6, fontWeight: 600 }}
             formatter={(value, name) => [formatEuro(Number(value ?? 0)), String(name)]}
-            cursor={{ stroke: "rgba(192,138,114,0.25)", strokeWidth: 1 }}
+            cursor={{ stroke: "rgba(224,155,106,0.25)", strokeWidth: 1 }}
           />
           <Legend
             verticalAlign="top"
@@ -205,7 +205,7 @@ export function ExpenseDonut() {
         <div
           className="pointer-events-none absolute inset-3 rounded-full opacity-50"
           style={{
-            background: "radial-gradient(circle, rgba(192,138,114,0.2) 0%, transparent 70%)",
+            background: "radial-gradient(circle, rgba(224,155,106,0.2) 0%, transparent 70%)",
             filter: "blur(8px)",
           }}
         />
@@ -246,7 +246,7 @@ export function ExpenseDonut() {
           </PieChart>
         </ResponsiveContainer>
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-          <p className="font-title text-[15px] font-semibold tracking-wide text-ivoire drop-shadow-[0_0_8px_rgba(192,138,114,0.35)]">
+          <p className="font-title text-[15px] font-semibold tracking-wide text-ivoire drop-shadow-[0_0_8px_rgba(224,155,106,0.35)]">
             {formatEuro(total)}
           </p>
           <p className="text-[9px] uppercase tracking-[0.14em] text-titane/45">total</p>

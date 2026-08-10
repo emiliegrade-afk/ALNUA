@@ -2,9 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
-import { AlnuaStar } from "@/components/brand/alnua-star";
-import { DeptV2PageShell } from "@/components/dept-v2";
+import { DeptV2CommandBar, DeptV2PageShell } from "@/components/dept-v2";
 import { AgentAvatar } from "@/components/shared/agent-avatar";
 import { useConsoleData, ConsoleProvider } from "@/components/console/console-provider";
 import { useAgentStatuses } from "@/hooks/use-agent-statuses";
@@ -15,8 +13,6 @@ import { C, STATUS_TEXT, STATUS_COLOR, resolveAgentLoad, agentLoadChip } from ".
 import { MissionBox, ChatPanel, RecentTasksPanel, ApercuPanel } from "../app-v2/team";
 import { useCooStore } from "@/store/coo-store";
 import { CooDrawer } from "@/components/shared/coo-drawer";
-import { FinancesAccountingPanel } from "@/components/finances/finances-accounting-panel";
-import { FinancesControllerPanel } from "@/components/finances/finances-controller-panel";
 import { FinancesTransactionModal } from "@/components/finances/finances-transaction-modal";
 import {
   currentMonthKey,
@@ -31,37 +27,36 @@ import { TransactionsTab } from "./transactions-tab";
 import { CoutsTab } from "./couts-tab";
 import { BudgetsFiscalTab } from "./budgets-fiscal-tab";
 
-/* ────────────────────────────────────────────────────────────────────────────
-   Département Finances v2 — Phase 29 + DEC-016. Socle autonome (en-tête,
-   sidebar, barre de commandes). Données réelles via finances-api /
-   costs-api. Onglet « Coûts & Factures » = API costs + SaaS + ledger
-   factures + statut Revolut (`SaasInvoicesPanel`). Depuis Phase B
-   (2026-08-09), `/finances` ré-exporte cette page (plus de MockupShell).
-   ──────────────────────────────────────────────────────────────────────────── */
+/* Département Finances — chrome void / Jarvis (DEC-016). */
 
 const TABS = ["Équipe", "Vue globale", "Transactions", "Coûts & Factures", "Budgets & Fiscal"] as const;
 type Tab = (typeof TABS)[number];
 
-const TAB_ICON: Record<Tab, string> = {
-  Équipe: "👥",
-  "Vue globale": "◉",
-  Transactions: "💳",
-  "Coûts & Factures": "📡",
-  "Budgets & Fiscal": "▦",
-};
-
 const QUICK_ACTIONS = [
-  { icon: "＋", label: "Nouvelle transaction" },
-  { icon: "▤", label: "Rapport mensuel" },
+  { icon: "+", label: "Nouvelle transaction" },
+  { icon: "≡", label: "Rapport mensuel" },
   { icon: "◎", label: "Analyse des coûts" },
   { icon: "⚙", label: "Automatisation" },
 ] as const;
+
+function useLiveClock(): string {
+  const [now, setNow] = useState("--:--:--");
+  useEffect(() => {
+    const tick = () =>
+      setNow(new Date().toLocaleTimeString("fr-FR", { hour12: false }));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+  return now;
+}
 
 function FinancesDepartmentView() {
   const agents = getAgentsForBureau("finances");
   const statuses = useAgentStatuses();
   const { activityFeed } = useConsoleData();
-  const [tab, setTab] = useState<Tab>("Équipe");
+  const clock = useLiveClock();
+  const [tab, setTab] = useState<Tab>("Vue globale");
   const [selectedId, setSelectedId] = useState(agents[0]?.id ?? "");
 
   const [projects, setProjects] = useState<Project[]>([]);
@@ -139,183 +134,125 @@ function FinancesDepartmentView() {
     [activityFeed, selected],
   );
 
-  // Pas de concept de ticket propre à la Comptabilité (comme /finances legacy,
-  // projectBranch: null) — tableau honnêtement vide plutôt qu'un filtre
-  // inutilisé sur une branche qui n'existe pas pour ce bureau.
   const tickets: TicketWithProject[] = [];
-
-  const dashboardData = dashboard
-    ? {
-        total_income: dashboard.current_month.total_income,
-        total_expenses: dashboard.current_month.total_expenses,
-        balance: dashboard.current_month.balance,
-        by_category: dashboard.current_month.by_category,
-      }
-    : undefined;
 
   if (!selected) {
     return (
-      <p className="p-8 text-sm" style={{ color: C.dim }}>
+      <p className="p-8 text-sm text-titanium">
         Aucun agent dans le bureau Comptabilité.
       </p>
     );
   }
 
   return (
-    <DeptV2PageShell deptHref={ROUTES.finances} activeDeptId="finances" coreSubtitle="Cockpit opérationnel">
-        <div className="flex min-w-0 flex-1 flex-col gap-3 px-4 pb-3 pt-3.5">
-          <div className="flex shrink-0 items-center justify-between gap-3">
-            <div className="flex min-w-0 items-center gap-3">
-              <span
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border text-[15px]"
-                style={{ borderColor: "rgba(192,138,114,.4)", background: "radial-gradient(circle at 30% 20%, rgba(192,138,114,.25), rgba(14,16,20,.9))", color: C.copperLight }}
-              >
-                💠
+    <DeptV2PageShell
+      deptHref={ROUTES.finances}
+      activeDeptId="finances"
+      coreSubtitle="Cockpit opérationnel"
+    >
+      <div className="dept-hud flex min-w-0 flex-1 flex-col gap-4 px-5 pb-4 pt-4">
+        <div className="flex shrink-0 items-end justify-between gap-3 border-b border-titanium/15 pb-3">
+          <div className="min-w-0">
+            <div className="flex items-center gap-3">
+              <p className="text-[9px] font-medium uppercase tracking-[0.28em] text-titanium/70">
+                Département 09
+              </p>
+              <span className="hidden items-center gap-1.5 text-[9px] tracking-[0.18em] text-teal sm:flex">
+                <span className="finance-live-dot" />
+                SYSTEMS ONLINE
               </span>
-              <div className="min-w-0">
-                <h1 className="truncate text-[23px] leading-[1.1] tracking-[1px]">
-                  <span className="font-bold">FINANCE</span>{" "}
-                  <span className="font-light tracking-[4px]" style={{ color: "#A7AD85" }}>
-                    COCKPIT
-                  </span>
-                </h1>
-                <p className="mt-0.5 truncate text-[11px]" style={{ color: C.dim }}>
-                  Trésorerie · Coûts IA · Prévisions
-                </p>
-              </div>
             </div>
-            <div className="flex shrink-0 items-center gap-[9px]">
-              <span
-                className="hidden items-center gap-[7px] rounded-[18px] border px-[13px] py-1.5 text-[11.5px] sm:flex"
-                style={{ borderColor: "rgba(192,138,114,.22)", background: "rgba(19,22,27,.6)", color: C.warm }}
-              >
-                <span className="h-1.5 w-1.5 rounded-full" style={{ background: C.online, boxShadow: `0 0 6px ${C.online}` }} />
-                {activeCount} agent{activeCount !== 1 ? "s" : ""} actif{activeCount !== 1 ? "s" : ""}
-              </span>
-              <button
-                type="button"
-                onClick={requestNewAgent}
-                className="flex items-center gap-1.5 rounded-[18px] border px-[13px] py-1.5 text-[11.5px]"
-                style={{ borderColor: "rgba(192,138,114,.45)", background: "rgba(192,138,114,.08)", color: C.copperLight }}
-              >
-                ＋ <span className="hidden sm:inline">Ajouter un agent</span>
-              </button>
-            </div>
+            <h1 className="mt-1 truncate font-display text-[26px] font-light leading-none tracking-[0.08em] text-metal-titanium">
+              COMPTABILITÉ
+            </h1>
+            <p className="mt-1.5 truncate text-[11px] tracking-wide text-titanium/60">
+              Finance · Budget · Reporting · Conformité
+            </p>
           </div>
-
-          <div className="flex gap-5 overflow-x-auto border-b" style={{ borderColor: "rgba(192,138,114,.15)" }}>
-            {TABS.map((t) => (
-              <button
-                key={t}
-                type="button"
-                onClick={() => setTab(t)}
-                className="flex shrink-0 items-center gap-[7px] whitespace-nowrap border-b-2 pb-2 pt-1 text-[10.5px] tracking-[1.2px]"
-                style={{ borderColor: tab === t ? C.copper : "transparent", color: tab === t ? "#F5F2EA" : C.faint }}
-              >
-                <span className="text-[11px]">{TAB_ICON[t]}</span>
-                {t.toUpperCase()}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex min-h-0 flex-1 flex-col">
-            {tab === "Équipe" ? (
-              <EquipeTab
-                agents={agents}
-                statuses={statuses}
-                selected={selected}
-                selectedId={selectedId}
-                setSelectedId={setSelectedId}
-                selStatus={selStatus}
-                selLoad={selLoad}
-                activeCount={activeCount}
-                tickets={tickets}
-                projects={projects}
-                agentTasks={agentTasks}
-              />
-            ) : tab === "Vue globale" ? (
-              <VueGlobaleTab month={month} dashboard={dashboard} dashboardLoading={dashboardLoading} onMonthChange={setMonth} projects={projects} />
-            ) : tab === "Transactions" ? (
-              <TransactionsTab month={month} refreshKey={refreshKey} onAdd={openNewTransaction} onEdit={openEditTransaction} />
-            ) : tab === "Coûts & Factures" ? (
-              <CoutsTab />
-            ) : (
-              <BudgetsFiscalTab />
-            )}
-          </div>
-
-          {/* ══ COMMAND BAR ══ */}
-          <div className="relative flex h-[clamp(54px,7vh,62px)] shrink-0 items-center">
-            <span
-              className="absolute inset-0 rounded-[34px] border"
-              style={{ borderColor: "rgba(192,138,114,.28)", background: "radial-gradient(60% 220% at 50% 50%, rgba(192,138,114,.14), rgba(14,11,9,.7) 70%)" }}
-            />
-            <div className="relative flex flex-1 items-center justify-between px-7">
-              <span className="hidden text-[12px] sm:inline" style={{ color: C.muted }}>
-                Que souhaitez-vous faire aujourd&apos;hui ?
-              </span>
-              <div className="ml-auto flex items-center gap-3 text-[11.5px]" style={{ color: C.warm }}>
-                {QUICK_ACTIONS.map((qa) =>
-                  qa.label === "Nouvelle transaction" ? (
-                    // Seule action réellement câblée du groupe (label toujours
-                    // visible, fond distinct — précédent rnd-v2, signalé par
-                    // Emilie : boutons introuvables sous ~1280px si le libellé
-                    // se masque comme les icônes décoratives).
-                    <button
-                      key={qa.label}
-                      type="button"
-                      onClick={openNewTransaction}
-                      title={qa.label}
-                      className="flex items-center gap-[7px] rounded-full border px-2.5 py-1"
-                      style={{ borderColor: "rgba(192,138,114,.4)", background: "rgba(192,138,114,.1)" }}
-                    >
-                      <span className="flex h-[22px] w-[22px] items-center justify-center rounded-md border text-[10px]" style={{ borderColor: "rgba(192,138,114,.28)", color: C.copperLight }}>
-                        {qa.icon}
-                      </span>
-                      <span style={{ color: C.copperLight }}>{qa.label}</span>
-                    </button>
-                  ) : (
-                    <span key={qa.label} title={qa.label} className="flex items-center gap-[7px]">
-                      <span className="flex h-[22px] w-[22px] items-center justify-center rounded-md border text-[10px]" style={{ borderColor: "rgba(192,138,114,.28)", color: C.copperLight }}>
-                        {qa.icon}
-                      </span>
-                      <span className="hidden xl:inline">{qa.label}</span>
-                    </span>
-                  ),
-                )}
-              </div>
-            </div>
-            <span
-              className="absolute left-1/2 top-1/2 flex h-[88px] w-[88px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full"
-              style={{ background: "radial-gradient(circle, rgba(192,138,114,.30) 0%, rgba(192,138,114,.10) 45%, transparent 70%)" }}
-            >
-              <span className="absolute h-[76px] w-[76px] rounded-full border" style={{ borderColor: "rgba(192,138,114,.35)" }} />
-              <AlnuaStar size={60} glow sparkMid="#D9A88F" sparkOuter="#C08A72" glowColorRgb="192,138,114" />
+          <div className="flex shrink-0 items-center gap-3">
+            <span className="hidden font-mono text-[11px] tabular-nums tracking-wider text-titanium/70 sm:inline">
+              {clock}
             </span>
+            <span className="hidden items-center gap-2 border border-titanium/20 px-3 py-1.5 text-[10px] text-titanium sm:flex">
+              <span className="finance-live-dot" />
+              {activeCount} actif{activeCount !== 1 ? "s" : ""}
+            </span>
+            <button
+              type="button"
+              onClick={requestNewAgent}
+              className="bg-metal-copper px-3 py-1.5 text-[10px] tracking-wide transition-opacity hover:opacity-90"
+            >
+              + Agent
+            </button>
           </div>
-
-          {/* Outils IA Jules/Rémi — repliés par défaut, fonctionnalité réelle
-              de l'ancien /finances, préservée mais pas visible sans défiler
-              volontairement (même pattern que gaming-v2). */}
-          <details className="group shrink-0 rounded-xl border" style={{ borderColor: C.line }}>
-            <summary className="flex cursor-pointer items-center gap-2 px-4 py-2.5 text-[10.5px]" style={{ color: C.dim }}>
-              <ChevronRight className="h-3.5 w-3.5 transition-transform group-open:rotate-90" />
-              Jules — Comptabilité
-            </summary>
-            <div className="alnua-scroll max-h-[46vh] overflow-y-auto border-t p-4" style={{ borderColor: C.line }}>
-              <FinancesAccountingPanel month={month} dashboardData={dashboardData} />
-            </div>
-          </details>
-          <details className="group shrink-0 rounded-xl border" style={{ borderColor: C.line }}>
-            <summary className="flex cursor-pointer items-center gap-2 px-4 py-2.5 text-[10.5px]" style={{ color: C.dim }}>
-              <ChevronRight className="h-3.5 w-3.5 transition-transform group-open:rotate-90" />
-              Rémi — Contrôle de gestion
-            </summary>
-            <div className="alnua-scroll max-h-[46vh] overflow-y-auto border-t p-4" style={{ borderColor: C.line }}>
-              <FinancesControllerPanel month={month} dashboardData={dashboardData} />
-            </div>
-          </details>
         </div>
+
+        <div className="flex gap-6 overflow-x-auto">
+          {TABS.map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setTab(t)}
+              className={
+                tab === t
+                  ? "shrink-0 border-b border-copper pb-2 text-[10px] uppercase tracking-[0.16em] text-metal-copper"
+                  : "shrink-0 border-b border-transparent pb-2 text-[10px] uppercase tracking-[0.16em] text-titanium/55 transition-colors hover:text-titanium"
+              }
+              style={
+                tab === t ? { boxShadow: `0 1px 14px ${C.copperGlow}` } : undefined
+              }
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex min-h-0 flex-1 flex-col">
+          {tab === "Équipe" ? (
+            <EquipeTab
+              agents={agents}
+              statuses={statuses}
+              selected={selected}
+              selectedId={selectedId}
+              setSelectedId={setSelectedId}
+              selStatus={selStatus}
+              selLoad={selLoad}
+              activeCount={activeCount}
+              tickets={tickets}
+              projects={projects}
+              agentTasks={agentTasks}
+            />
+          ) : tab === "Vue globale" ? (
+            <VueGlobaleTab
+              month={month}
+              dashboard={dashboard}
+              dashboardLoading={dashboardLoading}
+              onMonthChange={setMonth}
+              projects={projects}
+            />
+          ) : tab === "Transactions" ? (
+            <TransactionsTab
+              month={month}
+              refreshKey={refreshKey}
+              onAdd={openNewTransaction}
+              onEdit={openEditTransaction}
+            />
+          ) : tab === "Coûts & Factures" ? (
+            <CoutsTab />
+          ) : (
+            <BudgetsFiscalTab />
+          )}
+        </div>
+
+        <DeptV2CommandBar
+          actions={QUICK_ACTIONS.map((qa) => ({
+            icon: qa.icon,
+            label: qa.label,
+            onClick: qa.label === "Nouvelle transaction" ? openNewTransaction : undefined,
+          }))}
+        />
+
+      </div>
 
       <FinancesTransactionModal
         open={txModalOpen}
@@ -356,20 +293,21 @@ function EquipeTab({
 }) {
   return (
     <div className="flex min-h-[clamp(340px,44vh,420px)] flex-1 gap-3">
-      <div
-        className="flex w-[clamp(176px,13.4vw,206px)] shrink-0 flex-col self-start rounded-xl border px-2.5 py-[11px]"
-        style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}
-      >
-        <div className="flex items-center justify-between border-b pb-[9px]" style={{ borderColor: C.lineSoft }}>
-          <span className="text-[9.5px] tracking-[1.5px]" style={{ color: "#A7AD85" }}>
-            ÉQUIPE FINANCE
+      {/* Roster */}
+      <div className="finance-instrument flex w-[clamp(176px,13.4vw,206px)] shrink-0 flex-col self-start px-2.5 py-3">
+        <div className="flex items-center justify-between border-b border-titanium/15 pb-2">
+          <span className="text-[9px] font-medium uppercase tracking-[0.2em] text-titanium">
+            Équipe
           </span>
-          <span className="flex items-center gap-1 rounded-[10px] border px-[6px] py-px text-[9px]" style={{ borderColor: "rgba(140,200,150,.3)", color: C.onlineSoft }}>
-            <span className="h-[5px] w-[5px] rounded-full" style={{ background: C.online }} />
-            {activeCount > 0 ? "En ligne" : "En veille"} ▾
+          <span className="flex items-center gap-1.5 text-[9px] text-titanium/70">
+            <span
+              className="h-1 w-1 rounded-full"
+              style={{ background: C.online, boxShadow: `0 0 6px ${C.online}` }}
+            />
+            {activeCount > 0 ? "Live" : "Veille"}
           </span>
         </div>
-        <div className="alnua-scroll max-h-[240px] space-y-1 overflow-y-auto py-2">
+        <div className="alnua-scroll max-h-[260px] space-y-0.5 overflow-y-auto py-2">
           {agents.map((agent) => {
             const s = statuses[agent.id]?.status ?? "idle";
             const active = agent.id === selectedId;
@@ -378,88 +316,108 @@ function EquipeTab({
                 key={agent.id}
                 type="button"
                 onClick={() => setSelectedId(agent.id)}
-                className="flex w-full items-center gap-2 rounded-lg px-1.5 py-1.5 text-left transition-colors"
-                style={active ? { background: "rgba(192,138,114,.12)" } : undefined}
+                className="flex w-full items-center gap-2 px-1.5 py-1.5 text-left transition-colors hover:bg-white/[0.03]"
+                style={
+                  active
+                    ? {
+                        background: "rgba(224,155,106,0.08)",
+                        boxShadow: `inset 2px 0 0 ${C.copper}`,
+                      }
+                    : undefined
+                }
               >
                 <AgentAvatar agentId={agent.id} name={agent.name} size={32} />
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[11px] font-medium" style={{ color: active ? C.copperLight : C.ivory }}>
+                  <span
+                    className="block truncate text-[11px] font-medium"
+                    style={{ color: active ? C.copperLight : C.ivory }}
+                  >
                     {agent.name}
                   </span>
-                  <span className="block truncate text-[9px]" style={{ color: C.faint }}>
+                  <span className="block truncate text-[9px] text-titanium/55">
                     {agent.role}
                   </span>
                 </span>
                 <span className="flex shrink-0 flex-col items-end gap-[3px]">
-                  <span className="text-[9.5px]" style={{ color: C.dim }}>
+                  <span className="text-[9px] text-titanium/50">
                     {agentLoadChip(statuses[agent.id], s)}
                   </span>
-                  <span className="h-[5px] w-[5px] rounded-full" style={{ background: STATUS_COLOR[s] }} />
+                  <span
+                    className="h-1 w-1 rounded-full"
+                    style={{ background: STATUS_COLOR[s] }}
+                  />
                 </span>
               </button>
             );
           })}
         </div>
-        <Link href={ROUTES.agents} className="rounded-lg border py-[6px] text-center text-[10px]" style={{ borderColor: "rgba(192,138,114,.22)", color: C.warm }}>
+        <Link
+          href={ROUTES.agents}
+          className="mt-1 border border-titanium/20 py-1.5 text-center text-[10px] text-titanium transition-colors hover:border-copper/40 hover:text-copper-light"
+        >
           Voir toute l&apos;équipe
         </Link>
       </div>
 
-      <div
-        className="flex min-w-0 flex-1 flex-col gap-[11px] rounded-xl border px-[13px] py-3"
-        style={{
-          borderColor: C.lineStrong,
-          background: "radial-gradient(120% 120% at 0% 0%, rgba(192,138,114,.08), rgba(19,22,27,.6) 55%)",
-          boxShadow: "0 0 24px rgba(192,138,114,.07)",
-        }}
-      >
-        <div className="flex items-start justify-between gap-3">
+      {/* Agent detail */}
+      <div className="finance-instrument flex min-w-0 flex-1 flex-col gap-3 px-3.5 py-3">
+        <div className="flex items-start justify-between gap-3 border-b border-titanium/15 pb-3">
           <div className="flex min-w-0 items-center gap-3">
-            <AgentAvatar agentId={selected.id} name={selected.name} size={56} ring />
+            <AgentAvatar agentId={selected.id} name={selected.name} size={52} ring />
             <div className="min-w-0">
-              <div className="flex items-center gap-[7px]">
-                <span className="truncate text-[19px] font-semibold">{selected.name}</span>
-                <span className="text-[13px]" style={{ color: C.copperLight }}>
-                  ✔
+              <div className="flex items-center gap-2">
+                <span className="truncate font-display text-[18px] font-light tracking-wide text-ivoire">
+                  {selected.name}
                 </span>
+                <span className="text-[11px] text-copper-light">✓</span>
               </div>
-              <p className="truncate text-[12px]" style={{ color: C.muted }}>
-                {selected.role}
-              </p>
-              <p className="mt-1 truncate text-[9.5px]" style={{ color: C.faint }}>
-                Spécialités : {selected.skills.join(" · ")}
+              <p className="truncate text-[12px] text-titanium">{selected.role}</p>
+              <p className="mt-1 truncate text-[9.5px] text-titanium/50">
+                {selected.skills.join(" · ")}
               </p>
             </div>
           </div>
           <div className="flex shrink-0 flex-col items-end gap-1.5">
-            <div className="flex items-center gap-3.5 text-[10px]">
-              <span className="flex items-center gap-1.5" style={{ color: STATUS_COLOR[selStatus] }}>
-                <span className="h-[5px] w-[5px] rounded-full" style={{ background: STATUS_COLOR[selStatus] }} />
+            <div className="flex items-center gap-3 text-[10px]">
+              <span
+                className="flex items-center gap-1.5"
+                style={{ color: STATUS_COLOR[selStatus] }}
+              >
+                <span
+                  className="h-1 w-1 rounded-full"
+                  style={{ background: STATUS_COLOR[selStatus] }}
+                />
                 {STATUS_TEXT[selStatus]}
               </span>
               <Link
                 href={`${ROUTES.openroom}?agent=${encodeURIComponent(selected.id)}`}
-                className="rounded-[16px] border px-3 py-[5px] text-[10.5px]"
-                style={{ borderColor: C.lineStrong, color: "#E8DFD4" }}
+                className="border border-titanium/25 px-2.5 py-1 text-[10px] text-titanium transition-colors hover:border-copper/40 hover:text-copper-light"
               >
-                Ouvrir le profil complet ↗
+                Profil ↗
               </Link>
             </div>
-            <div className="flex gap-3.5 text-[10px]" style={{ color: C.dim }}>
-              <span>⊕ Comptabilité</span>
-              <span>⏱ {selected.skills.length} compétences</span>
+            <div className="flex gap-3 text-[10px] text-titanium/45">
+              <span>Comptabilité</span>
+              <span>{selected.skills.length} skills</span>
             </div>
           </div>
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col gap-[11px] min-[1240px]:flex-row">
+        <div className="flex min-h-0 flex-1 flex-col gap-3 min-[1240px]:flex-row">
           <MissionBox agent={selected} status={statuses[selected.id]} tickets={tickets} />
           <ChatPanel agent={selected} />
           <RecentTasksPanel tasks={agentTasks} />
         </div>
       </div>
 
-      <ApercuPanel agent={selected} selLoad={selLoad} selStatus={selStatus} projects={projects} tickets={tickets} bureau="finances" />
+      <ApercuPanel
+        agent={selected}
+        selLoad={selLoad}
+        selStatus={selStatus}
+        projects={projects}
+        tickets={tickets}
+        bureau="finances"
+      />
     </div>
   );
 }

@@ -6,7 +6,8 @@ import "./globals.css";
 
 const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-geist-sans",
+  // Brand board: Inter = body/UI ; alias legacy --font-geist-sans conservé
+  variable: "--font-inter",
 });
 
 const spaceGrotesk = Space_Grotesk({

@@ -138,7 +138,7 @@ export function DocumentationTab({ projects }: { projects: Project[] }) {
             { label: "Recherches", value: categoryCounts["Recherche"] ?? 0 },
             { label: "Autres", value: entries.length - (categoryCounts["Spécifications"] ?? 0) - (categoryCounts["Guides"] ?? 0) - (categoryCounts["Décisions (ADR)"] ?? 0) - (categoryCounts["Recherche"] ?? 0) },
           ].map((s) => (
-            <div key={s.label} className="rounded-xl border p-3 text-center" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
+            <div key={s.label} className="rounded-xl border p-3 text-center" style={{ borderColor: C.line, background: "#000000" }}>
               <p className="text-[19px] font-semibold" style={{ color: C.ivory }}>
                 {s.value}
               </p>
@@ -150,7 +150,7 @@ export function DocumentationTab({ projects }: { projects: Project[] }) {
         </div>
 
         <div className="grid gap-3 lg:grid-cols-[180px_1fr]">
-          <div className="rounded-xl border p-3.5" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
+          <div className="dept-instrument p-3.5">
             <p className="mb-2.5 text-[9.5px] tracking-[1.5px]" style={{ color: C.faint }}>
               CATÉGORIES
             </p>
@@ -164,7 +164,7 @@ export function DocumentationTab({ projects }: { projects: Project[] }) {
             </div>
           </div>
 
-          <div className="rounded-xl border p-3.5" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
+          <div className="dept-instrument p-3.5">
             <p className="mb-2.5 text-[9.5px] tracking-[1.5px]" style={{ color: C.faint }}>
               DOCUMENTS RÉCENTS
             </p>
@@ -234,7 +234,7 @@ export function DocumentationTab({ projects }: { projects: Project[] }) {
       </div>
 
       <div className="hidden w-[clamp(230px,18vw,280px)] shrink-0 flex-col gap-3 min-[1200px]:flex">
-        <div className="rounded-xl border p-3.5" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
+        <div className="dept-instrument p-3.5">
           <p className="mb-2.5 text-[9.5px] tracking-[1.5px]" style={{ color: C.faint }}>
             DOCUMENTS ÉPINGLÉS
           </p>
@@ -264,7 +264,7 @@ export function DocumentationTab({ projects }: { projects: Project[] }) {
           )}
         </div>
 
-        <div className="rounded-xl border p-3.5" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
+        <div className="dept-instrument p-3.5">
           <p className="mb-2.5 text-[9.5px] tracking-[1.5px]" style={{ color: C.faint }}>
             CONTRIBUTIONS RÉCENTES
           </p>
@@ -282,7 +282,7 @@ export function DocumentationTab({ projects }: { projects: Project[] }) {
           </div>
         </div>
 
-        <div className="rounded-xl border p-3.5" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
+        <div className="dept-instrument p-3.5">
           <p className="mb-2.5 text-[9.5px] tracking-[1.5px]" style={{ color: C.faint }}>
             ACTIVITÉ RÉCENTE
           </p>

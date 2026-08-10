@@ -45,7 +45,7 @@ export function CostsByAgentChart({
         <Tooltip
           contentStyle={{
             background: "#1a1a1f",
-            border: "1px solid rgba(192,138,114,0.3)",
+            border: "1px solid rgba(224,155,106,0.3)",
             borderRadius: 8,
           }}
           formatter={(value) => {
@@ -53,7 +53,7 @@ export function CostsByAgentChart({
             return [`$${n.toFixed(4)}`, "Coût"];
           }}
         />
-        <Bar dataKey="cost" fill="rgba(192,138,114,0.75)" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="cost" fill="rgba(224,155,106,0.75)" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );

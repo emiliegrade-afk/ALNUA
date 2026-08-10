@@ -16,7 +16,7 @@ function gamingCardTags(ticketId: string) {
   const blueprint = `BP_${(hash(`${ticketId}-bp`) % 900) + 100}`;
   const npc = hash(`${ticketId}-npc`) % 3 === 0 ? pick(`${ticketId}-npctag`, NPC_TAGS) : null;
   const chip = {
-    borderColor: "rgba(192,138,114,.2)",
+    borderColor: "rgba(224,155,106,.2)",
     color: C.warm,
   } as const;
   return (

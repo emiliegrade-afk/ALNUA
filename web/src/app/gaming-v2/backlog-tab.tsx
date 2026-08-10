@@ -97,7 +97,7 @@ export function BacklogTab({
             type="button"
             onClick={() => setCreateOpen(true)}
             className="rounded-[18px] border px-3.5 py-1.5 text-[11px]"
-            style={{ borderColor: "rgba(192,138,114,.45)", background: "rgba(192,138,114,.12)", color: C.copperLight }}
+            style={{ borderColor: "rgba(224,155,106,.45)", background: "rgba(224,155,106,.12)", color: C.copperLight }}
           >
             ＋ Nouvelle idée
           </button>
@@ -111,8 +111,8 @@ export function BacklogTab({
               onClick={() => setFilter(c)}
               className="shrink-0 rounded-full border px-3 py-1 text-[10px]"
               style={{
-                borderColor: filter === c ? C.copper : "rgba(192,138,114,.2)",
-                background: filter === c ? "rgba(192,138,114,.15)" : "transparent",
+                borderColor: filter === c ? C.copper : "rgba(224,155,106,.2)",
+                background: filter === c ? "rgba(224,155,106,.15)" : "transparent",
                 color: filter === c ? C.copperLight : C.warm,
               }}
             >
@@ -128,9 +128,9 @@ export function BacklogTab({
         ) : (
           <div className="grid grid-cols-[repeat(auto-fill,minmax(230px,1fr))] gap-2.5">
             {ideas.map(({ ticket, meta }) => (
-              <div key={ticket.id} className="flex flex-col gap-2 rounded-xl border p-3" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
+              <div key={ticket.id} className="flex flex-col gap-2 dept-instrument p-3">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="rounded-full border px-1.5 py-px text-[8px]" style={{ borderColor: "rgba(192,138,114,.22)", color: C.copperLight }}>
+                  <span className="rounded-full border px-1.5 py-px text-[8px]" style={{ borderColor: "rgba(224,155,106,.22)", color: C.copperLight }}>
                     {meta.category}
                   </span>
                   <span className="text-[9.5px]" style={{ color: C.dim }}>
@@ -174,7 +174,7 @@ export function BacklogTab({
       </div>
 
       <div className="hidden w-[clamp(220px,17vw,270px)] shrink-0 flex-col gap-3 min-[1200px]:flex">
-        <div className="rounded-xl border p-3.5" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
+        <div className="dept-instrument p-3.5">
           <p className="mb-2.5 text-[9.5px] tracking-[1.5px]" style={{ color: C.faint }}>
             ACTIVITÉ RÉCENTE
           </p>

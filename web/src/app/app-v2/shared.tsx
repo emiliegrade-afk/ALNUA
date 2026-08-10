@@ -3,41 +3,46 @@
 import type { AgentStatus } from "@/lib/openroom-api";
 import { Sparkline } from "@/components/console/charts";
 
-/** Palette charte ALNUA — obsidienne dominante, cuivre rosé en accent léger,
- * titane pour textes secondaires et filets (pas de brun/orange). */
+/** Palette charte ALNUA — brand board maquettes (obsidienne / titane métal / cuivre). */
 export const C = {
+  void: "#000000",
   obsidian: "#0E1014",
-  obsidian2: "#13161B",
+  obsidian2: "#16181D",
   obsidian3: "#1A1E24",
-  obsidianDeep: "#08090C",
-  copper: "#C08A72",
-  copperLight: "#D9A88F",
-  copperDim: "#8A6050",
-  copperRgb: "192,138,114",
+  obsidianDeep: "#050507",
+  border: "#2A2E38",
+  copper: "#E09B6A",
+  copperLight: "#F5C9A4",
+  copperDim: "#B86E45",
+  copperRgb: "224,155,106",
   ivory: "#F5F2EA",
-  titanium: "#A7ADB5",
-  titaniumCold: "#9BA3AC",
-  titaniumMuted: "#7A8089",
-  titaniumDim: "#5C626A",
-  /** Filets structurels — titane, pas cuivre (évite l'effet « brun partout »). */
-  line: "rgba(167,173,181,0.12)",
-  lineSoft: "rgba(167,173,181,0.08)",
-  lineStrong: "rgba(167,173,181,0.22)",
-  /** Accents cuivre — bordures actives, icônes, glow discret. */
-  copperLine: "rgba(192,138,114,0.24)",
-  copperGlow: "rgba(192,138,114,0.32)",
-  copperFill: "rgba(192,138,114,0.07)",
-  copperFillActive: "rgba(192,138,114,0.11)",
-  online: "#7FC98C",
-  onlineSoft: "#8FCB99",
-  /** Alias legacy — texte secondaire en titane, plus de teinte brune. */
+  /** Brand board Titane — métal froid (#A7ADB5), jamais olive #A7ADB5. */
+  titanium: "#B8BDC4",
+  titaniumCold: "#E2E5E9",
+  titaniumMuted: "#8A9098",
+  titaniumDim: "#6D737C",
+  titaniumRgb: "184,189,196",
+  /** Filets structurels — titane métal. */
+  line: "rgba(167,173,181,0.14)",
+  lineSoft: "rgba(167,173,181,0.09)",
+  lineStrong: "rgba(167,173,181,0.26)",
+  /** Accents cuivre poli — bordures actives, icônes, glow Jarvis. */
+  copperLine: "rgba(224,155,106,0.42)",
+  copperGlow: "rgba(224,155,106,0.65)",
+  copperFill: "rgba(224,155,106,0.12)",
+  copperFillActive: "rgba(224,155,106,0.20)",
+  teal: "#2DD4BF",
+  danger: "#F87171",
+  online: "#2DD4BF",
+  onlineSoft: "#5EEAD4",
+  /** Alias legacy — texte secondaire en titane. */
   warm: "#A7ADB5",
-  muted: "#9BA3AC",
-  dim: "#7A8089",
-  faint: "#5C626A",
+  muted: "#8A9098",
+  dim: "#6D737C",
+  faint: "#555B64",
 } as const;
 
-export const DEPT_V2_BG = C.obsidian;
+export const DEPT_V2_BG = C.void;
 export const ALNUA_STAR_SPARK_MID = C.copperLight;
 export const ALNUA_STAR_SPARK_OUTER = C.copper;
 export const ALNUA_STAR_GLOW_RGB = C.copperRgb;
@@ -47,15 +52,43 @@ export function copperAlpha(alpha: number): string {
 }
 
 export function titaniumAlpha(alpha: number): string {
-  return `rgba(167,173,181,${alpha})`;
+  return `rgba(${C.titaniumRgb},${alpha})`;
 }
 
+/**
+ * @deprecated Cosmetic load % — prefer `resolveAgentLoad` (real progress / runId).
+ * Kept as 0-map so rings don't invent activity when idle.
+ */
 export const STATUS_LOAD: Record<AgentStatus["status"], number> = {
-  idle: 10,
-  waiting: 40,
-  working: 78,
+  idle: 0,
+  waiting: 0,
+  working: 0,
   error: 0,
 };
+
+/** Real load: backend progress only. No fake idle→10% mapping (DEC-021). */
+export function resolveAgentLoad(agent?: {
+  status?: AgentStatus["status"];
+  progress?: number | null;
+}): number {
+  if (agent?.progress != null && Number.isFinite(agent.progress)) {
+    return Math.min(100, Math.max(0, Number(agent.progress)));
+  }
+  return 0;
+}
+
+export function agentTaskLabel(agent?: {
+  currentTask?: string | null;
+  runId?: string | null;
+  taskId?: string | null;
+  recipeId?: string | null;
+}): string | null {
+  if (agent?.currentTask) return agent.currentTask;
+  if (agent?.runId) return `run ${agent.runId.slice(0, 12)}`;
+  if (agent?.taskId) return `task ${String(agent.taskId).slice(0, 12)}`;
+  if (agent?.recipeId) return agent.recipeId;
+  return null;
+}
 
 export const STATUS_TEXT: Record<AgentStatus["status"], string> = {
   idle: "En veille",
@@ -63,6 +96,25 @@ export const STATUS_TEXT: Record<AgentStatus["status"], string> = {
   working: "En ligne",
   error: "Erreur",
 };
+
+/** Sidebar / card chip: real task label, else real %, else status text. */
+export function agentLoadChip(
+  agent?: {
+    status?: AgentStatus["status"];
+    progress?: number | null;
+    currentTask?: string | null;
+    runId?: string | null;
+    taskId?: string | null;
+    recipeId?: string | null;
+  },
+  fallbackStatus: AgentStatus["status"] = "idle",
+): string {
+  const label = agentTaskLabel(agent);
+  if (label) return label.length > 22 ? `${label.slice(0, 20)}…` : label;
+  const load = resolveAgentLoad(agent);
+  if (load > 0) return `${load}%`;
+  return STATUS_TEXT[agent?.status ?? fallbackStatus];
+}
 
 export const STATUS_COLOR: Record<AgentStatus["status"], string> = {
   idle: C.titaniumDim,
@@ -145,7 +197,7 @@ export function KpiTile({
   return (
     <div
       className="flex-1 rounded-xl border p-3 text-center"
-      style={{ borderColor: C.line, background: `${C.obsidian2}CC` }}
+      style={{ borderColor: "rgba(167,173,181,0.18)", background: "#000000" }}
     >
       <p className="text-[19px] font-semibold" style={{ color }}>
         {value}

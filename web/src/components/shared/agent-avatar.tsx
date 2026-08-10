@@ -20,10 +20,10 @@ export const AVATAR_STATUS_DOT: Record<Status, string> = {
  * bureau sans introduire une couleur hors palette.
  */
 const TINTS = [
-  { ring: "#C08A72", base: "#2A1C10" },
-  { ring: "#D9A88F", base: "#2E2015" },
+  { ring: "#E09B6A", base: "#2A1C10" },
+  { ring: "#F0C4A0", base: "#2E2015" },
   { ring: "#A7ADB5", base: "#1C1F22" },
-  { ring: "#8A6050", base: "#241708" },
+  { ring: "#B86E45", base: "#241708" },
 ] as const;
 
 function tintFor(seed: string) {

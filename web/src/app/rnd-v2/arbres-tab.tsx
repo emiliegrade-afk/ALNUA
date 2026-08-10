@@ -344,7 +344,7 @@ export function ArbresTab() {
             disabled={launching || !newTopic.trim()}
             onClick={() => void handleLaunchInvestigation()}
             className="flex items-center gap-1 rounded-lg border px-2.5 py-1 text-[10.5px] disabled:opacity-50"
-            style={{ borderColor: "rgba(192,138,114,.4)", background: "rgba(192,138,114,.1)", color: C.copperLight }}
+            style={{ borderColor: "rgba(224,155,106,.4)", background: "rgba(224,155,106,.1)", color: C.copperLight }}
           >
             {launching ? <Loader2 className="h-3 w-3 animate-spin" /> : "🌱"} Investiguer
           </button>
@@ -406,9 +406,9 @@ export function ArbresTab() {
                       height: NODE_H,
                       transform: "translateX(-50%)",
                       borderColor: isSelected ? C.copper : meta.color,
-                      background: isSelected ? "rgba(192,138,114,.16)" : meta.bg,
+                      background: isSelected ? "rgba(224,155,106,.16)" : meta.bg,
                       opacity: isBusy ? 0.55 : 1,
-                      boxShadow: isSelected ? "0 0 0 2px rgba(192,138,114,.3)" : undefined,
+                      boxShadow: isSelected ? "0 0 0 2px rgba(224,155,106,.3)" : undefined,
                     }}
                   >
                     <span className="truncate text-[10.5px] font-semibold" style={{ color: C.ivory }}>
@@ -428,7 +428,7 @@ export function ArbresTab() {
         {/* Panneau détail */}
         <div
           className="flex w-[260px] shrink-0 flex-col gap-2.5 overflow-y-auto rounded-xl border p-3"
-          style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}
+          style={{ borderColor: C.line, background: "#000000" }}
         >
           {!selectedNode ? (
             <p className="text-[10.5px]" style={{ color: C.faint }}>
@@ -557,7 +557,7 @@ export function ArbresTab() {
                       disabled={!branchTitle.trim() || busyNodeId === selectedNode.id}
                       onClick={() => void handleAddBranch(selectedNode.id)}
                       className="rounded-md border py-1 text-[10px] disabled:opacity-40"
-                      style={{ borderColor: "rgba(192,138,114,.4)", background: "rgba(192,138,114,.1)", color: C.copperLight }}
+                      style={{ borderColor: "rgba(224,155,106,.4)", background: "rgba(224,155,106,.1)", color: C.copperLight }}
                     >
                       Créer la branche
                     </button>

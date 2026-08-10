@@ -9,7 +9,7 @@ import { getAgentById, type BureauAgentDef } from "@/lib/agent-bureau";
 import type { AgentStatus } from "@/lib/openroom-api";
 import type { ConsoleActivityItem } from "@/lib/console/types";
 import type { Project } from "@/lib/types";
-import { C, STATUS_LOAD, KIND_META, formatDueDate } from "@/app/app-v2/shared";
+import { C, resolveAgentLoad, agentLoadChip, KIND_META, formatDueDate } from "@/app/app-v2/shared";
 
 /* Tableau de bord Missions partagé (App / Gaming / Robo) — Vague 2 / BUG-004.
    Tags métier optionnels via `renderCardTags`. Tickets contrôlés (App) ou
@@ -124,7 +124,7 @@ function TicketCard({
           </span>
         ) : ticket.status === "in_progress" || ticket.status === "in_review" ? (
           <span className="flex items-center gap-1.5">
-            <span className="h-1 w-10 overflow-hidden rounded-full" style={{ background: "rgba(192,138,114,.18)" }}>
+            <span className="h-1 w-10 overflow-hidden rounded-full" style={{ background: "rgba(224,155,106,.18)" }}>
               <span
                 className="block h-full rounded-full"
                 style={{ width: `${pseudoProgress(ticket.id)}%`, background: C.copper }}
@@ -303,7 +303,7 @@ export function DeptMissionsTab({
           <div className="flex min-w-0 items-center gap-3">
             <span
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border text-[13px]"
-              style={{ borderColor: "rgba(192,138,114,.4)", background: "radial-gradient(circle at 30% 20%, rgba(192,138,114,.25), rgba(19,22,27,.9))", color: C.copperLight }}
+              style={{ borderColor: "rgba(224,155,106,.4)", background: "radial-gradient(circle at 30% 20%, rgba(224,155,106,.25), rgba(19,22,27,.9))", color: C.copperLight }}
             >
               ◈
             </span>
@@ -324,7 +324,7 @@ export function DeptMissionsTab({
                   type="button"
                   onClick={() => setView(v)}
                   className="px-3 py-1.5 text-[10.5px]"
-                  style={{ background: view === v ? "rgba(192,138,114,.18)" : "transparent", color: view === v ? C.copperLight : C.faint }}
+                  style={{ background: view === v ? "rgba(224,155,106,.18)" : "transparent", color: view === v ? C.copperLight : C.faint }}
                 >
                   {v === "board" ? "Vue Board" : "Vue Liste"}
                 </button>
@@ -447,7 +447,7 @@ export function DeptMissionsTab({
                   onClick={() => setPriorityFocus(priorityFocus === b.key ? null : b.key)}
                   className="mt-1 rounded-lg border py-1 text-[9.5px]"
                   style={{
-                    borderColor: priorityFocus === b.key ? C.copper : "rgba(192,138,114,.22)",
+                    borderColor: priorityFocus === b.key ? C.copper : "rgba(224,155,106,.22)",
                     color: priorityFocus === b.key ? C.copperLight : C.warm,
                   }}
                 >
@@ -482,7 +482,7 @@ export function DeptMissionsTab({
                     </span>
                     <span
                       className="shrink-0 rounded-full border px-2 py-0.5 text-[8.5px]"
-                      style={{ borderColor: "rgba(192,138,114,.2)", color: C.faint }}
+                      style={{ borderColor: "rgba(224,155,106,.2)", color: C.faint }}
                     >
                       {ev.dept}
                     </span>
@@ -571,18 +571,20 @@ export function DeptMissionsTab({
           </p>
           <div className="flex flex-col gap-2">
             {agents.map((a) => {
-              const load = STATUS_LOAD[statuses[a.id]?.status ?? "idle"];
+              const st = statuses[a.id]?.status ?? "idle";
+              const load = resolveAgentLoad(statuses[a.id] ?? { status: st });
+              const chip = agentLoadChip(statuses[a.id], st);
               return (
                 <div key={a.id} className="flex items-center gap-2">
                   <AgentAvatar agentId={a.id} name={a.name} size={20} />
                   <span className="min-w-0 flex-1 truncate text-[10px]" style={{ color: C.warm }}>
                     {a.name}
                   </span>
-                  <span className="h-1 w-12 overflow-hidden rounded-full" style={{ background: "rgba(192,138,114,.15)" }}>
+                  <span className="h-1 w-12 overflow-hidden rounded-full" style={{ background: "rgba(224,155,106,.15)" }}>
                     <span className="block h-full rounded-full" style={{ width: `${load}%`, background: C.copper }} />
                   </span>
-                  <span className="w-8 shrink-0 text-right text-[9.5px]" style={{ color: C.ivory }}>
-                    {load}%
+                  <span className="min-w-8 shrink-0 text-right text-[9.5px]" style={{ color: C.ivory }} title={chip}>
+                    {load > 0 ? `${load}%` : chip}
                   </span>
                 </div>
               );
@@ -608,7 +610,7 @@ export function DeptMissionsTab({
                     </span>
                     <span
                       className="shrink-0 rounded-full px-1.5 py-px text-[8px]"
-                      style={{ background: r.level === "Risque élevé" ? "rgba(248,113,113,.18)" : "rgba(192,138,114,.18)", color: r.level === "Risque élevé" ? "#f87171" : C.copperLight }}
+                      style={{ background: r.level === "Risque élevé" ? "rgba(248,113,113,.18)" : "rgba(224,155,106,.18)", color: r.level === "Risque élevé" ? "#f87171" : C.copperLight }}
                     >
                       {r.level}
                     </span>
@@ -628,7 +630,7 @@ export function DeptMissionsTab({
           </p>
           <div className="relative h-[70px] w-[70px]">
             <svg width="70" height="70" viewBox="0 0 70 70">
-              <circle cx="35" cy="35" r="29" fill="none" stroke="rgba(192,138,114,.15)" strokeWidth="5" />
+              <circle cx="35" cy="35" r="29" fill="none" stroke="rgba(224,155,106,.15)" strokeWidth="5" />
               <circle
                 cx="35"
                 cy="35"

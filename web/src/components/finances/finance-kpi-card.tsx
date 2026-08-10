@@ -4,6 +4,7 @@ import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { Sparkline } from "@/components/console/charts";
 import { cn } from "@/lib/utils";
 
+/** KPI ouvert — pas de carte individuelle (anti-pâté). */
 export function FinanceKpiCard({
   title,
   value,
@@ -22,44 +23,34 @@ export function FinanceKpiCard({
   className?: string;
 }) {
   const Icon = isPositive ? ArrowUpRight : ArrowDownRight;
-  const colorClass = isPositive ? "text-alnua-teal" : "text-alnua-danger";
+  const colorClass = isPositive ? "text-teal" : "text-danger";
   const sparkColor = trendColor ?? (isPositive ? "#2DD4BF" : "#F87171");
 
   return (
-    <div
-      className={cn(
-        "rounded-xl border border-alnua-border bg-alnua-surface p-5 transition-colors hover:border-alnua-cuivre/30",
-        className,
-      )}
-    >
-      <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-alnua-titane">
+    <div className={cn("finance-kpi-cell flex flex-col", className)}>
+      <h3 className="text-[9px] font-medium uppercase tracking-[0.24em] text-titanium">
         {title}
       </h3>
-      <div className="flex items-end justify-between gap-3">
-        <div className="min-w-0">
-          <p className="mb-1 font-display text-2xl font-medium text-alnua-ivoire">
-            {value}
-          </p>
-          {change ? (
-            <div className={cn("flex items-center text-xs font-medium", colorClass)}>
-              <Icon size={14} className="mr-1 shrink-0" aria-hidden />
-              <span>{change}</span>
-              <span className="ml-2 font-normal text-alnua-titane">
-                vs mois dernier
-              </span>
-            </div>
-          ) : (
-            <p className="text-xs text-alnua-titane">—</p>
-          )}
-        </div>
+      <p className="finance-kpi-value mt-2.5 font-display text-[1.45rem] font-light leading-none tracking-[-0.02em]">
+        {value}
+      </p>
+      <div className="mt-3 flex items-end justify-between gap-2">
+        {change ? (
+          <div className={cn("flex min-w-0 items-center text-[10px]", colorClass)}>
+            <Icon size={11} className="mr-0.5 shrink-0 opacity-80" aria-hidden />
+            <span className="truncate tabular-nums">{change}</span>
+          </div>
+        ) : (
+          <span className="text-[10px] text-titanium/40">—</span>
+        )}
         {trend && trend.length > 1 ? (
           <Sparkline
             data={trend}
-            width={80}
-            height={40}
+            width={64}
+            height={22}
             stroke={sparkColor}
-            strokeWidth={1.5}
-            className="shrink-0 opacity-70"
+            strokeWidth={1.6}
+            className="shrink-0"
             idSeed={title}
           />
         ) : null}
@@ -80,13 +71,13 @@ export function FinanceTransactionRow({
   type: "in" | "out";
 }) {
   return (
-    <tr className="transition-colors hover:bg-alnua-bg/50">
-      <td className="w-24 py-3 text-xs text-alnua-titane">{date}</td>
-      <td className="py-3 text-alnua-ivoire">{label}</td>
+    <tr className="transition-colors hover:bg-white/[0.015]">
+      <td className="w-20 py-2 text-[11px] tabular-nums text-titanium/65">{date}</td>
+      <td className="py-2 text-[12px] text-ivoire/90">{label}</td>
       <td
         className={cn(
-          "py-3 text-right font-medium",
-          type === "in" ? "text-alnua-teal" : "text-alnua-danger",
+          "py-2 text-right text-[12px] font-medium tabular-nums",
+          type === "in" ? "text-teal" : "text-danger",
         )}
       >
         {amount}

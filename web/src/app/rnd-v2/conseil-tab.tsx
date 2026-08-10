@@ -33,7 +33,7 @@ const COUNCIL_ROSTER = [
 ] as const;
 
 const VERDICT_COLOR: Record<CouncilVerdict, string> = {
-  GO: "#7FC98C",
+  GO: "#2DD4BF",
   MAYBE: "#E0A95C",
   NO: "#f87171",
 };
@@ -45,10 +45,10 @@ function GaugeBar({ label, value }: { label: string; value: number }) {
         <span>{label}</span>
         <span style={{ color: C.ivory }}>{value}%</span>
       </div>
-      <span className="block h-1.5 overflow-hidden rounded-full" style={{ background: "rgba(192,138,114,.15)" }}>
+      <span className="block h-1.5 overflow-hidden rounded-full" style={{ background: "rgba(224,155,106,.15)" }}>
         <span
           className="block h-full rounded-full transition-[width] duration-700"
-          style={{ width: `${value}%`, background: `linear-gradient(90deg,#8A6050,${C.copperLight})` }}
+          style={{ width: `${value}%`, background: `linear-gradient(90deg,#B86E45,${C.copperLight})` }}
         />
       </span>
     </div>
@@ -69,10 +69,10 @@ function EvaluateForm({
   const [productType, setProductType] = useState("");
 
   const inputCls = "w-full rounded-lg border px-2.5 py-1.5 text-[11px] outline-none";
-  const inputStyle = { background: "rgba(8,7,6,.7)", borderColor: "rgba(192,138,114,.2)", color: C.ivory };
+  const inputStyle = { background: "rgba(8,7,6,.7)", borderColor: "rgba(224,155,106,.2)", color: C.ivory };
 
   return (
-    <div className="flex flex-col gap-2.5 rounded-xl border p-4" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
+    <div className="flex flex-col gap-2.5 rounded-xl border p-4" style={{ borderColor: C.line, background: "#000000" }}>
       <p className="text-[10px] uppercase tracking-wider" style={{ color: C.faint }}>
         Évaluer un projet
       </p>
@@ -100,7 +100,7 @@ function EvaluateForm({
         disabled={busy || !topic.trim()}
         onClick={() => onSubmit({ topic, budget, team, weeks, productType })}
         className="flex items-center justify-center gap-2 rounded-lg border py-2 text-[11.5px] disabled:opacity-40"
-        style={{ borderColor: "rgba(192,138,114,.45)", background: "rgba(192,138,114,.1)", color: C.copperLight }}
+        style={{ borderColor: "rgba(224,155,106,.45)", background: "rgba(224,155,106,.1)", color: C.copperLight }}
       >
         {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
         {busy ? "Le Conseil délibère…" : "Lancer le débat"}
@@ -201,7 +201,7 @@ export function ConseilTab() {
             type="button"
             onClick={() => setMode("chat")}
             className="rounded-full border px-2.5 py-1 text-[10px]"
-            style={mode === "chat" ? { borderColor: "rgba(192,138,114,.45)", background: "rgba(192,138,114,.12)", color: C.copperLight } : { borderColor: C.lineSoft, color: C.faint }}
+            style={mode === "chat" ? { borderColor: "rgba(224,155,106,.45)", background: "rgba(224,155,106,.12)", color: C.copperLight } : { borderColor: C.lineSoft, color: C.faint }}
           >
             Discussion libre
           </button>
@@ -209,7 +209,7 @@ export function ConseilTab() {
             type="button"
             onClick={() => setMode("evaluate")}
             className="rounded-full border px-2.5 py-1 text-[10px]"
-            style={mode === "evaluate" ? { borderColor: "rgba(192,138,114,.45)", background: "rgba(192,138,114,.12)", color: C.copperLight } : { borderColor: C.lineSoft, color: C.faint }}
+            style={mode === "evaluate" ? { borderColor: "rgba(224,155,106,.45)", background: "rgba(224,155,106,.12)", color: C.copperLight } : { borderColor: C.lineSoft, color: C.faint }}
           >
             💎 Conseil IA — Évaluer un projet
           </button>
@@ -246,7 +246,7 @@ export function ConseilTab() {
       ) : (
         <div className="grid min-h-[420px] flex-1 grid-cols-1 gap-3 min-[1100px]:grid-cols-[190px_1fr_220px]">
           {/* Participants */}
-          <div className="flex flex-col gap-2 rounded-xl border p-2.5" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
+          <div className="flex flex-col gap-2 rounded-xl border p-2.5" style={{ borderColor: C.line, background: "#000000" }}>
             <p className="px-1 text-[9px] uppercase tracking-wider" style={{ color: C.faint }}>
               Participants
             </p>
@@ -289,8 +289,8 @@ export function ConseilTab() {
                       <div
                         className="max-w-[85%] rounded-lg px-2.5 py-2"
                         style={{
-                          background: isUser ? "rgba(192,138,114,.14)" : "rgba(255,255,255,.03)",
-                          border: `1px solid ${isUser ? "rgba(192,138,114,.25)" : C.line}`,
+                          background: isUser ? "rgba(224,155,106,.14)" : "rgba(255,255,255,.03)",
+                          border: `1px solid ${isUser ? "rgba(224,155,106,.25)" : C.line}`,
                         }}
                       >
                         <p className="mb-1 text-[10px] font-semibold" style={{ color: isUser ? C.copperLight : C.warm }}>
@@ -324,14 +324,14 @@ export function ConseilTab() {
                   placeholder="Pose une question au Conseil..."
                   disabled={busy}
                   className="min-w-0 flex-1 rounded-lg border px-3 py-2 text-[11px] outline-none disabled:opacity-50"
-                  style={{ background: "rgba(8,7,6,.7)", borderColor: "rgba(192,138,114,.2)", color: C.ivory }}
+                  style={{ background: "rgba(8,7,6,.7)", borderColor: "rgba(224,155,106,.2)", color: C.ivory }}
                 />
                 <button
                   type="button"
                   onClick={() => void handleSend()}
                   disabled={busy || !draft.trim()}
                   className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border text-[13px] disabled:opacity-40"
-                  style={{ borderColor: "rgba(192,138,114,.5)", background: "rgba(192,138,114,.14)", color: C.copperLight }}
+                  style={{ borderColor: "rgba(224,155,106,.5)", background: "rgba(224,155,106,.14)", color: C.copperLight }}
                 >
                   ↗
                 </button>
@@ -340,7 +340,7 @@ export function ConseilTab() {
           </div>
 
           {/* Jauges */}
-          <div className="flex flex-col gap-3 rounded-xl border p-3" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
+          <div className="flex flex-col gap-3 dept-instrument p-3">
             <p className="text-[9px] uppercase tracking-wider" style={{ color: C.faint }}>
               Jauges du débat
             </p>

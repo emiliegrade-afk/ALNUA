@@ -64,7 +64,7 @@ export function TodayContentPanel() {
                 <div className="flex items-center justify-between gap-2">
                   <span
                     className="shrink-0 rounded px-[7px] py-[2px] text-[9.5px]"
-                    style={{ background: "rgba(192,138,114,.12)", color: C.copperLight }}
+                    style={{ background: "rgba(224,155,106,.12)", color: C.copperLight }}
                   >
                     {PLATFORM_STYLES[post.platform]?.label ?? post.platform}
                   </span>

@@ -137,14 +137,14 @@ export function VueGlobaleTab({ onOpenCampagnes }: { onOpenCampagnes?: () => voi
             value={stats.approvedThisWeek}
             caption="7 derniers jours"
             trend={flatTrend(stats.approvedThisWeek)}
-            trendColor="#7FC98C"
+            trendColor="#2DD4BF"
           />
           <PremiumKpiTile
             label="PUBLIÉS CE MOIS"
             value={stats.publishedThisMonth}
             caption="mois en cours"
             trend={flatTrend(stats.publishedThisMonth)}
-            trendColor="#7FC98C"
+            trendColor="#2DD4BF"
           />
           <PremiumKpiTile
             label="SCORE ÉQUIPE"
@@ -182,8 +182,8 @@ export function VueGlobaleTab({ onOpenCampagnes }: { onOpenCampagnes?: () => voi
                   <span className="w-[92px] shrink-0 truncate text-[11px]" style={{ color: C.warm }}>
                     {p.label}
                   </span>
-                  <span className="h-1.5 flex-1 overflow-hidden rounded-full" style={{ background: "rgba(192,138,114,.14)" }}>
-                    <span className="block h-full rounded-full" style={{ width: `${p.pct}%`, background: `linear-gradient(90deg,#8A6050,${C.copperLight})` }} />
+                  <span className="h-1.5 flex-1 overflow-hidden rounded-full" style={{ background: "rgba(224,155,106,.14)" }}>
+                    <span className="block h-full rounded-full" style={{ width: `${p.pct}%`, background: `linear-gradient(90deg,#B86E45,${C.copperLight})` }} />
                   </span>
                   <span className="w-8 shrink-0 text-right text-[11px]" style={{ color: C.ivory }}>
                     {p.count}
@@ -206,8 +206,8 @@ export function VueGlobaleTab({ onOpenCampagnes }: { onOpenCampagnes?: () => voi
                   <span className="w-[92px] shrink-0 truncate text-[11px]" style={{ color: C.warm }}>
                     {s.label}
                   </span>
-                  <span className="h-1.5 flex-1 overflow-hidden rounded-full" style={{ background: "rgba(192,138,114,.14)" }}>
-                    <span className="block h-full rounded-full" style={{ width: `${s.pct}%`, background: `linear-gradient(90deg,#8A6050,${C.copperLight})` }} />
+                  <span className="h-1.5 flex-1 overflow-hidden rounded-full" style={{ background: "rgba(224,155,106,.14)" }}>
+                    <span className="block h-full rounded-full" style={{ width: `${s.pct}%`, background: `linear-gradient(90deg,#B86E45,${C.copperLight})` }} />
                   </span>
                   <span className="w-8 shrink-0 text-right text-[11px]" style={{ color: C.ivory }}>
                     {s.count}

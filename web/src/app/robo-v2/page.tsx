@@ -2,10 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
-import { RoboConsole } from "@/components/robo/robo-console";
-import { AlnuaStar } from "@/components/brand/alnua-star";
-import { DeptV2PageShell } from "@/components/dept-v2";
+import { DeptV2CommandBar, DeptV2PageShell } from "@/components/dept-v2";
 import { AgentAvatar } from "@/components/shared/agent-avatar";
 import { useConsoleData, ConsoleProvider } from "@/components/console/console-provider";
 import { useAgentStatuses } from "@/hooks/use-agent-statuses";
@@ -16,7 +13,7 @@ import { ROUTES } from "@/lib/routes";
 import type { Project, RoboBuild } from "@/lib/types";
 import type { TicketWithProject } from "@/lib/tickets";
 import type { ConsoleActivityItem } from "@/lib/console/types";
-import { C, STATUS_LOAD, STATUS_TEXT, STATUS_COLOR, KIND_META } from "../app-v2/shared";
+import { C, STATUS_TEXT, STATUS_COLOR, KIND_META, resolveAgentLoad, agentLoadChip } from "../app-v2/shared";
 import { useBureauTickets } from "../app-v2/tabs";
 import { MissionBox, ChatPanel, RecentTasksPanel, ApercuPanel } from "../app-v2/team";
 import { useCooStore } from "@/store/coo-store";
@@ -105,12 +102,12 @@ function RoboDepartmentView() {
 
   return (
     <DeptV2PageShell deptHref={ROUTES.robo} activeDeptId="robo" coreSubtitle="Atelier opérationnel">
-        <div className="flex min-w-0 flex-1 flex-col gap-3 px-4 pb-3 pt-3.5">
+        <div className="dept-hud flex min-w-0 flex-1 flex-col gap-4 px-5 pb-4 pt-4">
           <div className="flex shrink-0 items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
               <span
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border text-[15px]"
-                style={{ borderColor: "rgba(192,138,114,.4)", background: "radial-gradient(circle at 30% 20%, rgba(192,138,114,.25), rgba(14,16,20,.9))", color: C.copperLight }}
+                style={{ borderColor: "rgba(224,155,106,.4)", background: "radial-gradient(circle at 30% 20%, rgba(224,155,106,.25), #000000)", color: C.copperLight }}
               >
                 🤖
               </span>
@@ -128,31 +125,28 @@ function RoboDepartmentView() {
             </div>
             <div className="flex shrink-0 items-center gap-[9px]">
               <span
-                className="hidden items-center gap-[7px] rounded-[18px] border px-[13px] py-1.5 text-[11.5px] sm:flex"
-                style={{ borderColor: "rgba(192,138,114,.22)", background: "rgba(19,22,27,.6)", color: C.warm }}
+                className="hidden items-center gap-[7px] border border-titanium/20 px-3 py-1.5 text-[10px] text-titanium sm:flex"
               >
-                <span className="h-1.5 w-1.5 rounded-full" style={{ background: C.online, boxShadow: `0 0 6px ${C.online}` }} />
+                <span className="dept-live-dot" />
                 {activeCount} agent{activeCount !== 1 ? "s" : ""} actif{activeCount !== 1 ? "s" : ""}
               </span>
               <button
                 type="button"
                 onClick={() => requestRole()}
-                className="flex items-center gap-1.5 rounded-[18px] border px-[13px] py-1.5 text-[11.5px]"
-                style={{ borderColor: "rgba(192,138,114,.45)", background: "rgba(192,138,114,.08)", color: C.copperLight }}
+                className="flex items-center gap-1.5 bg-metal-copper px-3 py-1.5 text-[10px] tracking-wide"
               >
                 ＋ <span className="hidden sm:inline">Ajouter un agent</span>
               </button>
             </div>
           </div>
 
-          <div className="flex gap-5 overflow-x-auto border-b" style={{ borderColor: "rgba(192,138,114,.15)" }}>
+          <div className="flex gap-5 overflow-x-auto border-b" style={{ borderColor: "rgba(224,155,106,.15)" }}>
             {TABS.map((t) => (
               <button
                 key={t}
                 type="button"
                 onClick={() => setTab(t)}
-                className="flex shrink-0 items-center gap-[7px] whitespace-nowrap border-b-2 pb-2 pt-1 text-[10.5px] tracking-[1.2px]"
-                style={{ borderColor: tab === t ? C.copper : "transparent", color: tab === t ? "#F5F2EA" : C.faint }}
+                className={`flex shrink-0 items-center gap-[7px] whitespace-nowrap border-b-2 pb-2 pt-1 text-[10.5px] tracking-[1.2px] ${tab === t ? "border-copper text-metal-copper" : "border-transparent text-titanium/45"}`}
               >
                 <span className="text-[11px]">{TAB_ICON[t]}</span>
                 {t.toUpperCase()}
@@ -187,49 +181,12 @@ function RoboDepartmentView() {
             )}
           </div>
 
-          {/* ══ COMMAND BAR ══ */}
-          <div className="relative flex h-[clamp(54px,7vh,62px)] shrink-0 items-center">
-            <span
-              className="absolute inset-0 rounded-[34px] border"
-              style={{ borderColor: "rgba(192,138,114,.28)", background: "radial-gradient(60% 220% at 50% 50%, rgba(192,138,114,.14), rgba(14,11,9,.7) 70%)" }}
-            />
-            <div className="relative flex flex-1 items-center justify-between px-7">
-              <span className="hidden text-[12px] sm:inline" style={{ color: C.muted }}>
-                Que souhaitez-vous faire aujourd&apos;hui ?
-              </span>
-              <div className="ml-auto flex items-center gap-3 text-[11.5px]" style={{ color: C.warm }}>
-                {QUICK_ACTIONS.map((qa) => (
-                  <span key={qa.label} className="flex items-center gap-[7px]">
-                    <span className="flex h-[22px] w-[22px] items-center justify-center rounded-md border text-[10px]" style={{ borderColor: "rgba(192,138,114,.28)", color: C.copperLight }}>
-                      {qa.icon}
-                    </span>
-                    <span className="hidden xl:inline">{qa.label}</span>
-                  </span>
-                ))}
-              </div>
-            </div>
-            <span
-              className="absolute left-1/2 top-1/2 flex h-[88px] w-[88px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full"
-              style={{ background: "radial-gradient(circle, rgba(192,138,114,.30) 0%, rgba(192,138,114,.10) 45%, transparent 70%)" }}
-            >
-              <span className="absolute h-[76px] w-[76px] rounded-full border" style={{ borderColor: "rgba(192,138,114,.35)" }} />
-              <AlnuaStar size={60} glow sparkMid="#D9A88F" sparkOuter="#C08A72" glowColorRgb="192,138,114" />
-            </span>
-          </div>
-
-          {/* Console agents Robotique — repliée par défaut, fonctionnalité
-              réelle de l'ancienne /robo (statut Eve, Looking Glass, BOM,
-              instructions Hardware/Embedded), préservée mais pas visible
-              sans défiler volontairement. */}
-          <details className="group shrink-0 rounded-xl border" style={{ borderColor: C.line }}>
-            <summary className="flex cursor-pointer items-center gap-2 px-4 py-2.5 text-[10.5px]" style={{ color: C.dim }}>
-              <ChevronRight className="h-3.5 w-3.5 transition-transform group-open:rotate-90" />
-              Console agents Robotique — instructions directes
-            </summary>
-            <div className="alnua-scroll max-h-[46vh] overflow-y-auto border-t p-4" style={{ borderColor: C.line }}>
-              <RoboConsole />
-            </div>
-          </details>
+          <DeptV2CommandBar
+            actions={QUICK_ACTIONS.map((qa) => ({
+              icon: qa.icon,
+              label: qa.label,
+            }))}
+          />
         </div>
     </DeptV2PageShell>
   );
@@ -253,7 +210,9 @@ function EquipeTab({
   const [selectedId, setSelectedId] = useState(agents[0]?.id ?? "");
   const selected = agents.find((a) => a.id === selectedId);
   const selStatus = selected ? statuses[selected.id]?.status ?? "idle" : "idle";
-  const selLoad = STATUS_LOAD[selStatus];
+  const selLoad = selected
+    ? resolveAgentLoad(statuses[selected.id] ?? { status: selStatus })
+    : 0;
 
   /* Dernier build hardware réel (Phase 19, ROADMAP.md, 2026-07-30) — partagé
    * par toutes les cartes agent, comme pour Gaming (pas de vrai suivi Git
@@ -289,7 +248,7 @@ function EquipeTab({
         <div className="alnua-scroll flex min-w-0 flex-1 gap-3 overflow-x-auto pb-1">
           {agents.map((agent) => {
             const s = statuses[agent.id]?.status ?? "idle";
-            const load = STATUS_LOAD[s];
+            const load = resolveAgentLoad(statuses[agent.id] ?? { status: s });
             const active = agent.id === selectedId;
             return (
               <button
@@ -300,9 +259,9 @@ function EquipeTab({
                 style={{
                   borderColor: active ? C.copper : C.line,
                   background: active
-                    ? "radial-gradient(120% 120% at 0% 0%, rgba(192,138,114,.12), rgba(19,22,27,.6) 60%)"
-                    : "rgba(19,22,27,.55)",
-                  boxShadow: active ? "0 0 22px rgba(192,138,114,.12)" : undefined,
+                    ? "radial-gradient(120% 120% at 0% 0%, rgba(224,155,106,.12), #000000 60%)"
+                    : "#000000",
+                  boxShadow: active ? "0 0 22px rgba(224,155,106,.12)" : undefined,
                 }}
               >
                 <div className="flex items-center gap-2.5">
@@ -330,7 +289,7 @@ function EquipeTab({
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "rgba(192,138,114,.15)" }}>
+                  <span className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "rgba(224,155,106,.15)" }}>
                     <span className="block h-full rounded-full" style={{ width: `${load}%`, background: C.copper }} />
                   </span>
                   <span className="text-[9.5px]" style={{ color: C.ivory }}>
@@ -352,9 +311,9 @@ function EquipeTab({
               type="button"
               onClick={() => onRequestRole(role)}
               className="flex w-[230px] shrink-0 flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed p-3 text-center transition-colors hover:opacity-80"
-              style={{ borderColor: "rgba(192,138,114,.28)", background: "rgba(19,22,27,.3)", minHeight: 150 }}
+              style={{ borderColor: "rgba(224,155,106,.28)", background: "#000000", minHeight: 150 }}
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-full border text-[13px]" style={{ borderColor: "rgba(192,138,114,.35)", color: C.copperLight }}>
+              <span className="flex h-8 w-8 items-center justify-center rounded-full border text-[13px]" style={{ borderColor: "rgba(224,155,106,.35)", color: C.copperLight }}>
                 ＋
               </span>
               <span className="text-[10.5px] font-medium" style={{ color: C.warm }}>
@@ -369,14 +328,13 @@ function EquipeTab({
 
         {/* Activité en temps réel — même panneau que App/Gaming. */}
         <div
-          className="flex h-[268px] w-[clamp(226px,18vw,276px)] shrink-0 flex-col rounded-xl border px-3 py-[11px]"
-          style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}
+          className="flex h-[268px] w-[clamp(226px,18vw,276px)] shrink-0 flex-col dept-instrument px-3 py-[11px]"
         >
           <div className="flex items-center justify-between border-b pb-[9px]" style={{ borderColor: C.lineSoft }}>
             <span className="text-[9.5px] tracking-[1.6px]" style={{ color: "#A7ADB5" }}>
               ACTIVITÉ EN TEMPS RÉEL
             </span>
-            <Link href={ROUTES.activity} className="text-[9.5px]" style={{ color: C.copper }}>
+            <Link href={ROUTES.activity} className="text-metal-copper text-[9.5px]">
               Tout voir
             </Link>
           </div>
@@ -408,7 +366,7 @@ function EquipeTab({
               ))
             )}
           </div>
-          <Link href={ROUTES.activity} className="rounded-lg border py-[7px] text-center text-[10.5px]" style={{ borderColor: "rgba(192,138,114,.22)", color: C.warm }}>
+          <Link href={ROUTES.activity} className="rounded-lg border py-[7px] text-center text-[10.5px]" style={{ borderColor: "rgba(224,155,106,.22)", color: C.warm }}>
             Voir toute l&apos;activité
           </Link>
         </div>
@@ -418,8 +376,7 @@ function EquipeTab({
         <div className="flex min-h-[clamp(340px,44vh,420px)] flex-1 gap-3">
           {/* Roster — dimensionné à l'équipe réelle, pas étiré (self-start). */}
           <div
-            className="flex w-[clamp(176px,13.4vw,206px)] shrink-0 flex-col self-start rounded-xl border px-2.5 py-[11px]"
-            style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}
+            className="flex w-[clamp(176px,13.4vw,206px)] shrink-0 flex-col self-start dept-instrument px-2.5 py-[11px]"
           >
             <div className="flex items-center justify-between border-b pb-[9px]" style={{ borderColor: C.lineSoft }}>
               <span className="text-[9.5px] tracking-[1.5px]" style={{ color: "#A7ADB5" }}>
@@ -440,7 +397,7 @@ function EquipeTab({
                     type="button"
                     onClick={() => setSelectedId(agent.id)}
                     className="flex w-full items-center gap-2 rounded-lg px-1.5 py-1.5 text-left transition-colors"
-                    style={active ? { background: "rgba(192,138,114,.12)" } : undefined}
+                    style={active ? { background: "rgba(224,155,106,.12)" } : undefined}
                   >
                     <AgentAvatar agentId={agent.id} name={agent.name} size={32} />
                     <span className="min-w-0 flex-1">
@@ -453,7 +410,7 @@ function EquipeTab({
                     </span>
                     <span className="flex shrink-0 flex-col items-end gap-[3px]">
                       <span className="text-[9.5px]" style={{ color: C.dim }}>
-                        {STATUS_LOAD[s]}%
+                        {agentLoadChip(statuses[agent.id], s)}
                       </span>
                       <span className="h-[5px] w-[5px] rounded-full" style={{ background: STATUS_COLOR[s] }} />
                     </span>
@@ -461,7 +418,7 @@ function EquipeTab({
                 );
               })}
             </div>
-            <Link href={ROUTES.agents} className="rounded-lg border py-[6px] text-center text-[10px]" style={{ borderColor: "rgba(192,138,114,.22)", color: C.warm }}>
+            <Link href={ROUTES.agents} className="rounded-lg border py-[6px] text-center text-[10px]" style={{ borderColor: "rgba(224,155,106,.22)", color: C.warm }}>
               Voir toute l&apos;équipe
             </Link>
           </div>
@@ -471,8 +428,8 @@ function EquipeTab({
             className="flex min-w-0 flex-1 flex-col gap-[11px] rounded-xl border px-[13px] py-3"
             style={{
               borderColor: C.lineStrong,
-              background: "radial-gradient(120% 120% at 0% 0%, rgba(192,138,114,.08), rgba(19,22,27,.6) 55%)",
-              boxShadow: "0 0 24px rgba(192,138,114,.07)",
+              background: "radial-gradient(120% 120% at 0% 0%, rgba(224,155,106,.08), #000000 55%)",
+              boxShadow: "0 0 24px rgba(224,155,106,.07)",
             }}
           >
             <div className="flex items-start justify-between gap-3">
@@ -481,7 +438,7 @@ function EquipeTab({
                 <div className="min-w-0">
                   <div className="flex items-center gap-[7px]">
                     <span className="truncate text-[19px] font-semibold">{selected.name}</span>
-                    <span className="text-[13px]" style={{ color: C.copperLight }}>
+                    <span className="text-metal-copper text-[13px]">
                       ✔
                     </span>
                   </div>

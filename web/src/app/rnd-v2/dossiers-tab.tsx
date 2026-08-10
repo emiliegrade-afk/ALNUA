@@ -54,13 +54,13 @@ const STATUS_LABEL: Record<string, string> = {
 
 const CEO_STATUS_META: Record<string, { label: string; color: string }> = {
   pending: { label: "En attente", color: C.faint },
-  approved: { label: "Approuvé", color: "#7FC98C" },
+  approved: { label: "Approuvé", color: "#2DD4BF" },
   rejected: { label: "Rejeté", color: "#f87171" },
   pivot_requested: { label: "Pivot demandé", color: "#E0A95C" },
 };
 
 const VERDICT_COLOR: Record<string, string> = {
-  GO: "#7FC98C",
+  GO: "#2DD4BF",
   MAYBE: "#E0A95C",
   NO: "#f87171",
 };
@@ -157,7 +157,7 @@ export function DossiersTab() {
             className="rounded-full border px-2.5 py-1 text-[10px]"
             style={
               statusFilter === "Toutes"
-                ? { borderColor: "rgba(192,138,114,.45)", background: "rgba(192,138,114,.12)", color: C.copperLight }
+                ? { borderColor: "rgba(224,155,106,.45)", background: "rgba(224,155,106,.12)", color: C.copperLight }
                 : { borderColor: C.lineSoft, color: C.faint }
             }
           >
@@ -171,7 +171,7 @@ export function DossiersTab() {
               className="rounded-full border px-2.5 py-1 text-[10px]"
               style={
                 statusFilter === s
-                  ? { borderColor: "rgba(192,138,114,.45)", background: "rgba(192,138,114,.12)", color: C.copperLight }
+                  ? { borderColor: "rgba(224,155,106,.45)", background: "rgba(224,155,106,.12)", color: C.copperLight }
                   : { borderColor: C.lineSoft, color: C.faint }
               }
             >
@@ -286,7 +286,7 @@ export function DossiersTab() {
                         type="button"
                         onClick={() => setOpenIdea(rowToIdea(r))}
                         className="rounded-lg border px-2 py-1 text-[9.5px]"
-                        style={{ borderColor: "rgba(192,138,114,.4)", color: C.copperLight }}
+                        style={{ borderColor: "rgba(224,155,106,.4)", color: C.copperLight }}
                       >
                         Ouvrir
                       </button>

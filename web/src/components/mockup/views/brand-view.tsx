@@ -39,9 +39,12 @@ type PanelDef = {
 
 const PALETTE = [
   { name: "Obsidienne", hex: "#0E1014", role: "background" },
+  { name: "Surface", hex: "#16181D", role: "cards" },
   { name: "Ivoire", hex: "#F5F2EA", role: "text" },
   { name: "Titane", hex: "#A7ADB5", role: "secondary" },
-  { name: "Cuivre Rosé", hex: "#C08A72", role: "accent" },
+  { name: "Cuivre Rosé", hex: "#E09B6A", role: "accent" },
+  { name: "Teal", hex: "#2DD4BF", role: "positive" },
+  { name: "Danger", hex: "#F87171", role: "alert" },
 ];
 
 const KITS = [
@@ -118,7 +121,7 @@ const SECONDARY: Record<string, PanelDef> = {
         { primary: "Obsidienne #0E1014", secondary: "Background · surfaces", meta: "bg", tone: "muted" },
         { primary: "Ivoire #F5F2EA", secondary: "Texte principal", meta: "text", tone: "ok" },
         { primary: "Titane #A7ADB5", secondary: "Secondaire · labels", meta: "muted", tone: "muted" },
-        { primary: "Cuivre Rosé #C08A72", secondary: "Accent · CTAs", meta: "accent", tone: "ok" },
+        { primary: "Cuivre Rosé #E09B6A", secondary: "Accent · CTAs", meta: "accent", tone: "ok" },
       ],
     },
     right: {
@@ -224,9 +227,9 @@ function BrandDashboard({
       <PoleKpiRow
         kpis={[
           { label: "KITS PUBLIÉS", value: "1", delta: "stable", deltaType: "neutral", trend: [1, 1, 1, 1, 1, 1], color: "#22c55e", onClick: () => onNavigateTab("kits") },
-          { label: "EN COURS", value: "3", delta: "+1", deltaType: "up", trend: [1, 2, 2, 2, 3, 3], color: "#C08A72", onClick: () => onNavigateTab("kits") },
+          { label: "EN COURS", value: "3", delta: "+1", deltaType: "up", trend: [1, 2, 2, 2, 3, 3], color: "#E09B6A", onClick: () => onNavigateTab("kits") },
           { label: "ASSETS", value: "4", delta: "+2", deltaType: "up", trend: [1, 2, 2, 3, 3, 4], color: "#60a5fa", onClick: () => onNavigateTab("assets") },
-          { label: "CHECKLIST", value: "67%", delta: "+8%", deltaType: "up", trend: [50, 55, 58, 60, 63, 67], color: "#C08A72", onClick: () => onNavigateTab("guidelines") },
+          { label: "CHECKLIST", value: "67%", delta: "+8%", deltaType: "up", trend: [50, 55, 58, 60, 63, 67], color: "#E09B6A", onClick: () => onNavigateTab("guidelines") },
         ]}
       />
 

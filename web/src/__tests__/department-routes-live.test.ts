@@ -55,6 +55,7 @@ describe("department primary routes are live (not MockupShell)", () => {
     const ceo = readFileSync(join(process.cwd(), "src", "app", "ceo", "page.tsx"), "utf8");
     const sec = readFileSync(join(process.cwd(), "src", "app", "secretary", "page.tsx"), "utf8");
     expect(ceo).toMatch(/CeoCockpitPanel/);
+    expect(ceo).toMatch(/CeoIdleQueueCard/);
     expect(sec).toMatch(/NadiaDesktopPanel|SecretaryConsole/);
   });
 

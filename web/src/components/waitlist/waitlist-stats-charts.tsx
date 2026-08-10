@@ -49,9 +49,9 @@ export function WaitlistStatsCharts({ stats }: WaitlistStatsChartsProps) {
               <Line
                 type="monotone"
                 dataKey="count"
-                stroke="#C08A72"
+                stroke="#E09B6A"
                 strokeWidth={2}
-                dot={{ fill: "#C08A72", r: 4 }}
+                dot={{ fill: "#E09B6A", r: 4 }}
                 activeDot={{ r: 6 }}
               />
             </LineChart>

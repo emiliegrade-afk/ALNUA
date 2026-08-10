@@ -7,7 +7,7 @@ export function Sparkline({
   data,
   width = 120,
   height = 36,
-  stroke = "#C08A72",
+  stroke = "#E09B6A",
   fill = true,
   strokeWidth = 1.5,
   className,
@@ -41,21 +41,41 @@ export function Sparkline({
   const areaPath = `${linePath} L ${width} ${height} L 0 ${height} Z`;
   const seed = idSeed ?? `${stroke}-${data[0]}`;
   const gid = `spark-${seed.split("").reduce((h, c) => h * 31 + c.charCodeAt(0), 7)}`;
+  const fid = `${gid}-glow`;
   return (
     <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className={className} preserveAspectRatio="none">
-      {fill && (
-        <>
-          <defs>
-            <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={stroke} stopOpacity="0.35" />
-              <stop offset="100%" stopColor={stroke} stopOpacity="0" />
-            </linearGradient>
-          </defs>
-          <path d={areaPath} fill={`url(#${gid})`} />
-        </>
-      )}
-      <path d={linePath} fill="none" stroke={stroke} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx={points[points.length - 1][0]} cy={points[points.length - 1][1]} r="2" fill={stroke} />
+      <defs>
+        <filter id={fid} x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="2.2" result="b" />
+          <feMerge>
+            <feMergeNode in="b" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        {fill ? (
+          <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={stroke} stopOpacity="0.45" />
+            <stop offset="100%" stopColor={stroke} stopOpacity="0" />
+          </linearGradient>
+        ) : null}
+      </defs>
+      {fill ? <path d={areaPath} fill={`url(#${gid})`} /> : null}
+      <path
+        d={linePath}
+        fill="none"
+        stroke={stroke}
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        filter={`url(#${fid})`}
+      />
+      <circle
+        cx={points[points.length - 1][0]}
+        cy={points[points.length - 1][1]}
+        r="2.2"
+        fill={stroke}
+        filter={`url(#${fid})`}
+      />
     </svg>
   );
 }
@@ -92,7 +112,7 @@ export function Donut({
   return (
     <div className={cn("relative inline-flex items-center justify-center", className)} style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#14171C" strokeWidth={thickness} />
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#0a0a0a" strokeWidth={thickness} />
         {segs.map((s, i) => (
           <circle
             key={i}
@@ -110,8 +130,16 @@ export function Donut({
       </svg>
       {(centerValue || centerLabel) && (
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          {centerValue && <span className="text-lg font-bold text-ivoire leading-none">{centerValue}</span>}
-          {centerLabel && <span className="text-[9px] uppercase tracking-wide text-titane/60 mt-1">{centerLabel}</span>}
+          {centerValue && (
+            <span className="font-display text-lg font-medium leading-none text-metal-copper">
+              {centerValue}
+            </span>
+          )}
+          {centerLabel && (
+            <span className="mt-1 text-[9px] uppercase tracking-[0.16em] text-titanium/55">
+              {centerLabel}
+            </span>
+          )}
         </div>
       )}
     </div>
@@ -122,7 +150,7 @@ export function Donut({
 export function Bars({
   data,
   height = 80,
-  color = "#C08A72",
+  color = "#E09B6A",
   className,
 }: {
   data: { label: string; value: number }[];
@@ -166,7 +194,7 @@ export function Gauge({
   thickness = 7,
   label,
   unit,
-  color = "#C08A72",
+  color = "#E09B6A",
 }: {
   value: number;
   max?: number;
@@ -223,7 +251,7 @@ export function Gauge({
 export function Heatmap({
   data,
   days,
-  color = "#C08A72",
+  color = "#E09B6A",
   className,
 }: {
   data: number[][];
@@ -314,7 +342,7 @@ export function CommGraph({
             y1={a.y}
             x2={b.x}
             y2={b.y}
-            stroke="#C08A72"
+            stroke="#E09B6A"
             strokeOpacity={0.12 + w * 0.35}
             strokeWidth={0.4 + w * 1.4}
           />
@@ -323,8 +351,8 @@ export function CommGraph({
       {/* nodes */}
       {nodes.map((nd) => (
         <g key={nd.name}>
-          <circle cx={nd.x} cy={nd.y} r="5" fill="#0E1014" stroke="#C08A72" strokeWidth="1.2" />
-          <circle cx={nd.x} cy={nd.y} r="2" fill="#C08A72" />
+          <circle cx={nd.x} cy={nd.y} r="5" fill="#0E1014" stroke="#E09B6A" strokeWidth="1.2" />
+          <circle cx={nd.x} cy={nd.y} r="2" fill="#E09B6A" />
           <text
             x={nd.x}
             y={nd.y - 9}
@@ -341,7 +369,7 @@ export function CommGraph({
 }
 
 // ─── Horizontal capability bar ──────────────────────────────────────────────
-export function LevelBar({ value, max = 100, color = "#C08A72" }: { value: number; max?: number; color?: string }) {
+export function LevelBar({ value, max = 100, color = "#E09B6A" }: { value: number; max?: number; color?: string }) {
   const pct = (value / max) * 100;
   return (
     <div className="h-1.5 rounded-full bg-obsidian-deep overflow-hidden">

@@ -2,6 +2,7 @@
 
 import { C } from "@/app/app-v2/shared";
 
+/** Section nav — void + filet, jamais de fond gris. */
 export function DeptV2SectionBox({
   title,
   children,
@@ -11,12 +12,12 @@ export function DeptV2SectionBox({
 }) {
   return (
     <div
-      className="rounded-[10px] border p-2"
-      style={{ borderColor: C.line, background: `${C.obsidian2}CC` }}
+      className="border border-titanium/15 bg-transparent p-1.5"
+      style={{ borderColor: "rgba(167,173,181,0.14)" }}
     >
       <p
-        className="mb-2 ml-2 mt-0.5 text-[8.5px] tracking-[0.2em]"
-        style={{ color: C.faint }}
+        className="mb-1.5 ml-2 mt-1 text-[8px] font-medium uppercase tracking-[0.22em]"
+        style={{ color: C.titaniumDim }}
       >
         {title}
       </p>

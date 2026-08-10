@@ -1,18 +1,18 @@
 /** Unified ALNUA copper palette — single accent across all departments. */
 const COPPER = {
-  main: "#C08A72",
-  bg: "rgba(192, 138, 114, 0.10)",
-  border: "rgba(192, 138, 114, 0.20)",
+  main: "#E09B6A",
+  bg: "rgba(224, 155, 106, 0.10)",
+  border: "rgba(224, 155, 106, 0.20)",
 } as const;
 
 const COPPER_LIGHT = {
-  main: "#D9A88F",
+  main: "#F0C4A0",
   bg: "rgba(217, 168, 143, 0.10)",
   border: "rgba(217, 168, 143, 0.20)",
 } as const;
 
 const COPPER_DIM = {
-  main: "#8A6050",
+  main: "#B86E45",
   bg: "rgba(138, 96, 80, 0.10)",
   border: "rgba(138, 96, 80, 0.20)",
 } as const;

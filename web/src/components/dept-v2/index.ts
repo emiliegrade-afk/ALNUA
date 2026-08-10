@@ -4,3 +4,5 @@ export { DeptV2Sidebar } from "./sidebar";
 export type { DeptV2SidebarProps } from "./sidebar";
 export { DeptV2Header, DeptV2PageShell } from "./header";
 export type { DeptV2HeaderProps } from "./header";
+export { DeptV2CommandBar } from "./command-bar";
+export type { DeptV2CommandAction } from "./command-bar";

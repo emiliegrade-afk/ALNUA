@@ -47,7 +47,7 @@ export function CooDrawer() {
           isOpen ? "translate-x-0" : "translate-x-full"
         )}
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#C08A72]/15">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#E09B6A]/15">
           <div>
             <h3 className="font-['Space_Grotesk'] text-[#F5F2EA] font-medium">
               Aria & Nadia

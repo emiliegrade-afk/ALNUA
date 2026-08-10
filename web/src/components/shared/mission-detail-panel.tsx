@@ -127,7 +127,7 @@ export function MissionDetailPanel({ bureau, tickets }: MissionDetailPanelProps)
 
       <div className="rounded-xl border border-bronze-faint bg-obsidian/70 p-4">
         <p className="label-caps mb-3">Répartition</p>
-        <Bars data={statusCounts} height={140} color="#C08A72" />
+        <Bars data={statusCounts} height={140} color="#E09B6A" />
       </div>
     </div>
   );

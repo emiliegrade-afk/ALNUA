@@ -110,9 +110,9 @@ export function ExplorerTab() {
               onClick={() => toggleTopic(t)}
               className="rounded-full border px-2.5 py-1 text-[10.5px]"
               style={{
-                borderColor: on ? "rgba(192,138,114,.5)" : C.line,
+                borderColor: on ? "rgba(224,155,106,.5)" : C.line,
                 color: on ? C.copperLight : C.muted,
-                background: on ? "rgba(192,138,114,.12)" : "transparent",
+                background: on ? "rgba(224,155,106,.12)" : "transparent",
               }}
             >
               {t}
@@ -132,7 +132,7 @@ export function ExplorerTab() {
           disabled={scanning}
           onClick={() => void scan()}
           className="flex items-center gap-1.5 rounded-full border px-3 py-1 text-[10.5px] disabled:opacity-40"
-          style={{ borderColor: "rgba(192,138,114,.4)", color: C.copperLight }}
+          style={{ borderColor: "rgba(224,155,106,.4)", color: C.copperLight }}
         >
           {scanning ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
           Scanner
@@ -143,9 +143,9 @@ export function ExplorerTab() {
           onClick={() => void runBrief()}
           className="flex items-center gap-1.5 rounded-full border px-3 py-1 text-[10.5px] disabled:opacity-40"
           style={{
-            borderColor: "rgba(192,138,114,.4)",
+            borderColor: "rgba(224,155,106,.4)",
             color: C.ivory,
-            background: "rgba(192,138,114,.1)",
+            background: "rgba(224,155,106,.1)",
           }}
         >
           {briefing ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
@@ -195,7 +195,7 @@ export function ExplorerTab() {
             <article
               key={`${item.source}-${item.url}-${item.title}`}
               className="flex flex-wrap items-start justify-between gap-2 rounded-xl border px-3 py-2.5"
-              style={{ borderColor: C.line, background: "rgba(19,22,27,.4)" }}
+              style={{ borderColor: C.line, background: "#000000" }}
             >
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2 text-[9.5px]" style={{ color: C.faint }}>
@@ -217,7 +217,7 @@ export function ExplorerTab() {
                 disabled={seeding === item.title}
                 onClick={() => void seedIdea(item.title)}
                 className="shrink-0 rounded-full border px-2.5 py-1 text-[10px] disabled:opacity-40"
-                style={{ borderColor: "rgba(192,138,114,.35)", color: C.copperLight }}
+                style={{ borderColor: "rgba(224,155,106,.35)", color: C.copperLight }}
               >
                 → Pipeline
               </button>

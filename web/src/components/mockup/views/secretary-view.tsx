@@ -173,7 +173,7 @@ function SecretaryDashboard({ onNavigateTab }: { onNavigateTab: (id: string) => 
     <div className="space-y-3">
       <PoleKpiRow
         kpis={[
-          { label: "MAILS", value: "4", delta: "+2", deltaType: "up", trend: [1, 2, 2, 3, 3, 4], color: "#C08A72", onClick: () => onNavigateTab("mails") },
+          { label: "MAILS", value: "4", delta: "+2", deltaType: "up", trend: [1, 2, 2, 3, 3, 4], color: "#E09B6A", onClick: () => onNavigateTab("mails") },
           { label: "RÉUNIONS", value: "4", delta: "stable", deltaType: "neutral", trend: [4, 4, 4, 4, 4, 4], color: "#60a5fa", onClick: () => onNavigateTab("agenda") },
           { label: "TÂCHES", value: "2", delta: "-1", deltaType: "down", trend: [4, 3, 3, 3, 2, 2], color: "#f97316", onClick: () => onNavigateTab("taches") },
           { label: "TICKETS SAV", value: "3", delta: "+1", deltaType: "up", trend: [1, 1, 2, 2, 2, 3], color: "#22c55e", onClick: () => onNavigateTab("sav") },

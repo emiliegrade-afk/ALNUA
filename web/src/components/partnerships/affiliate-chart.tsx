@@ -80,7 +80,7 @@ export function AffiliateChart({ linkId }: AffiliateChartProps) {
           type="monotone"
           dataKey="clicks"
           name="Clics"
-          stroke="#C08A72"
+          stroke="#E09B6A"
           strokeWidth={2}
           dot={false}
         />

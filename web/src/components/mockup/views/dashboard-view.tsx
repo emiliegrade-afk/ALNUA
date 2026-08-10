@@ -97,7 +97,7 @@ export function MockupDashboardView() {
                         cy="50"
                         r="40"
                         fill="none"
-                        stroke="#C08A72"
+                        stroke="#E09B6A"
                         strokeWidth="10"
                         strokeDasharray={`${(g.value / 100) * 251.2} 251.2`}
                         strokeLinecap="round"
@@ -278,15 +278,15 @@ function AreaChart({ data }: { data: number[] }) {
       <svg className="h-full w-full overflow-visible" preserveAspectRatio="none">
         <defs>
           <linearGradient id="dashGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#C08A72" stopOpacity="0.25" />
-            <stop offset="100%" stopColor="#C08A72" stopOpacity="0" />
+            <stop offset="0%" stopColor="#E09B6A" stopOpacity="0.25" />
+            <stop offset="100%" stopColor="#E09B6A" stopOpacity="0" />
           </linearGradient>
         </defs>
         <polygon points={`0,100 ${points} 100,100`} fill="url(#dashGrad)" />
         <polyline
           points={points}
           fill="none"
-          stroke="#C08A72"
+          stroke="#E09B6A"
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"

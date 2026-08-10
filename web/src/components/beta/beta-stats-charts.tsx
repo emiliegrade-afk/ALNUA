@@ -16,7 +16,7 @@ import { BETA_TYPE_LABELS } from "@/components/beta/beta.constants";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { BetaStats } from "@/lib/beta-api";
 
-const TYPE_COLORS = ["#C08A72", "#22c55e", "#f59e0b", "#06b6d4"];
+const TYPE_COLORS = ["#E09B6A", "#22c55e", "#f59e0b", "#06b6d4"];
 const SEV_COLORS: Record<string, string> = {
   bloquant: "#ef4444",
   majeur: "#f97316",
@@ -38,7 +38,7 @@ export function BetaStatsCharts({ stats }: BetaStatsChartsProps) {
   const severityData = Object.entries(stats.by_severity).map(([sev, count]) => ({
     name: sev,
     count,
-    fill: SEV_COLORS[sev] ?? "#C08A72",
+    fill: SEV_COLORS[sev] ?? "#E09B6A",
   }));
 
   const timelineData = stats.timeline_7d.map((d) => ({
@@ -125,7 +125,7 @@ export function BetaStatsCharts({ stats }: BetaStatsChartsProps) {
                   borderRadius: 8,
                 }}
               />
-              <Bar dataKey="count" fill="#C08A72" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="count" fill="#E09B6A" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
