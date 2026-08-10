@@ -40,6 +40,7 @@ AGENT_CAPABILITY_PACKS: dict[str, frozenset[str]] = {
     "spec": _DIRECTION,
     "qa": _DIRECTION,
     "pm": _DIRECTION,
+    "security_sentinel": _DIRECTION,
     # App / coding
     "dev_app": _DEV,
     "dev_backend": _DEV,

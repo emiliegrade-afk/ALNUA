@@ -64,3 +64,29 @@ def production_ops_simulate(body: SentrySimulateRequest) -> dict[str, Any]:
         level=body.level,
         dry_run=body.dry_run,
     )
+
+
+@router.post("/ops/security/patrol")
+def security_patrol(notify: bool = True) -> dict[str, Any]:
+    """Hugo (Security Sentinel) — une patrouille Hub (≠ Sentry)."""
+    from agents.security_sentinel_agent import SecuritySentinelAgent
+
+    return SecuritySentinelAgent().patrol(notify=notify)
+
+
+@router.get("/ops/security/status")
+def security_status() -> dict[str, Any]:
+    """État lockdown + dernier rapport de patrouille."""
+    from agents.security_sentinel_agent import SecuritySentinelAgent
+
+    return SecuritySentinelAgent().status()
+
+
+@router.post("/ops/security/lockdown")
+def security_lockdown(active: bool, reason: str = "") -> dict[str, Any]:
+    """Active/désactive le lockdown (localhost only)."""
+    from agents.security_sentinel_agent import SecuritySentinelAgent
+    from services.input_sanitizer import sanitize_user_input
+
+    clean = sanitize_user_input(reason or "", redact_pii_enabled=False) if reason else ""
+    return SecuritySentinelAgent().set_lockdown(active, reason=clean)

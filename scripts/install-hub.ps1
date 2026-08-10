@@ -15,6 +15,7 @@ $NodeModules = Join-Path $WebDir "node_modules"
 $EnvFile = Join-Path $Root ".env"
 $EnvExample = Join-Path $Root ".env.example"
 $BatPath = Join-Path $Root "ALNUA Hub.bat"
+$VbsPath = Join-Path $Root "scripts\launch-hub-silent.vbs"
 
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Yellow
@@ -82,9 +83,10 @@ if (-not (Test-Path $EnvFile)) {
     Write-Host '(OK) Fichier .env present' -ForegroundColor Green
 }
 
-# 4. Raccourci Bureau -> ALNUA Hub.bat
-if (-not (Test-Path $BatPath)) {
-    Write-Host "ERREUR : $BatPath introuvable" -ForegroundColor Red
+# 4. Raccourci Bureau -> launcher silencieux (VBS, sans CMD permanente)
+$LaunchTarget = if (Test-Path $VbsPath) { $VbsPath } else { $BatPath }
+if (-not (Test-Path $LaunchTarget)) {
+    Write-Host "ERREUR : $LaunchTarget introuvable" -ForegroundColor Red
     exit 1
 }
 
@@ -97,9 +99,9 @@ $IconCandidates = @(
 
 $wsh = New-Object -ComObject WScript.Shell
 $shortcut = $wsh.CreateShortcut($ShortcutPath)
-$shortcut.TargetPath = $BatPath
+$shortcut.TargetPath = $LaunchTarget
 $shortcut.WorkingDirectory = $Root
-$shortcut.Description = 'Cockpit ALNUA - entreprise virtuelle'
+$shortcut.Description = 'ALNUA Hub — demarrage silencieux (pas de fenetre CMD)'
 foreach ($icon in $IconCandidates) {
     if (Test-Path $icon) {
         $shortcut.IconLocation = "$icon,0"
@@ -123,7 +125,7 @@ Write-Host "========================================" -ForegroundColor Green
 Write-Host ""
 Write-Host "Comment demarrer :" -ForegroundColor Cyan
 Write-Host "  1. Double-clic sur le raccourci Bureau ""ALNUA Hub""" -ForegroundColor White
-Write-Host "     ou lance ""ALNUA Hub.bat"" a la racine du projet" -ForegroundColor White
+Write-Host "     (aucune fenetre CMD qui reste ouverte)" -ForegroundColor White
 Write-Host "  2. Le navigateur s'ouvre sur http://localhost:3000" -ForegroundColor White
 Write-Host ""
 Write-Host "Arreter le Hub :" -ForegroundColor Cyan

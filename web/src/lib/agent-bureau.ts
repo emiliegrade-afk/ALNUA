@@ -94,6 +94,16 @@ export const BUREAU_AGENTS: BureauAgentDef[] = [
     description: "Analyse feedbacks, bugs et qualité produit.",
     skills: ["Feedback", "Bugs", "Tests"],
   },
+  {
+    id: "security_sentinel",
+    room: "direction",
+    icon: "🛡️",
+    name: "Hugo Brandt",
+    role: "Security Sentinel",
+    branch: "hub",
+    description: "Patrouille le Hub : intrusion, fuites, lockdown.",
+    skills: ["Patrol", "Lockdown", "Alertes"],
+  },
   // app_office (/app)
   {
     id: "dev_app",

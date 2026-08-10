@@ -73,10 +73,10 @@ dumps, orphan `coding_facade`, checklist `AGENTS.md`, tests HTTP budgets).
 budgets manuelles seulement — DEC-016 inchangé, pas de paiement/transfert auto).
 **Prochain audit santé :** ≤ **2026-08-30** (Audit 005). **P0 + Vagues A–F +
 debt paydown :** bible `docs/` ; **0 fichiers Python >1000 / >500 / >300**.
-**2026-08-11 H2+H1 :** sécurité béton (DEC-028 clés scopées / IP allowlist /
-shell coding) + installateur / status / guide launch. Suite produit HQ :
-manuel noob (H3), Nadia+COO (H4), polish CEO/Secrétaire/repas/photos (H5) ;
-externe UE/Pi/VPS (H6) ; Audit 005.
+**2026-08-11 H2+H1+Sentinel :** sécurité béton (DEC-028) + **Hugo Security Sentinel**
+(DEC-029 patrouille / lockdown) + launch silencieux (icône Bureau, pas de CMD) ;
+installateur / status / guide. Suite produit HQ : manuel noob (H3), Nadia+COO (H4),
+polish CEO/Secrétaire/repas/photos (H5) ; externe UE/Pi/VPS (H6) ; Audit 005.
 
 ## Points tranchés le 2026-07-25 (anciennement ouverts)
 

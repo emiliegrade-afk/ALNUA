@@ -7,6 +7,17 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-11 — Security Sentinel + launch silencieux (feat/ops)
+
+- **Type :** feat / ops / docs
+- **Details :**
+  - **Hugo (security_sentinel)** : patrouille Hub (clé, allowlist, rafale auth,
+    `.env` Git) + lockdown localhost optionnel (`SECURITY_AUTO_LOCKDOWN`) ;
+    cron 30 min ; endpoints `/ops/security/*`. **≠ Sentry** (crashs apps).
+  - **Launch pro** : `launch-hub-silent.vbs` — double-clic Bureau sans CMD
+    permanente ; raccourci install pointe le VBS.
+  - Docs : installation UX + `SECURITY_HARDENING.md` tableau Sentry vs Sentinel.
+
 ## 2026-08-11 — H2 sécurité béton + H1 launch Hub (feat/ops)
 
 - **Type :** feat / ops / docs

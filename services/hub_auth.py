@@ -37,7 +37,16 @@ def hub_api_key_valid(provided: str | None) -> bool:
 
 
 def client_ip_allowed(client_ip: str | None) -> bool:
-    """When HUB_IP_ALLOWLIST is empty, all IPs pass; else exact match only."""
+    """IP gate: lockdown → localhost only; else optional HUB_IP_ALLOWLIST."""
+    try:
+        from services.security_sentinel import is_lockdown_active
+
+        if is_lockdown_active():
+            if not client_ip:
+                return False
+            return client_ip.strip() in {"127.0.0.1", "::1", "localhost"}
+    except Exception:
+        pass
     allowlist = (get_settings().hub_ip_allowlist or "").strip()
     if not allowlist:
         return True

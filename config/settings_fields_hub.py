@@ -50,6 +50,11 @@ class SettingsHubMixin:
         alias="HUB_IP_ALLOWLIST",
         description="Comma-separated client IPs; empty = allow all",
     )
+    security_auto_lockdown: bool = Field(
+        default=False,
+        alias="SECURITY_AUTO_LOCKDOWN",
+        description="Security Sentinel auto-enables localhost lockdown on critical findings",
+    )
     jwt_secret: str = Field(default="", alias="JWT_SECRET")
     environment: str = Field(default="development", alias="ENVIRONMENT")
     alnua_workspace: str = Field(

@@ -112,8 +112,29 @@ Avec Tailscale : tu peux **fermer 443 au public** et n'autoriser que le réseau 
 |----------|----------|
 | `JWT_SECRET` | Obligatoire en prod/staging (portail beta) |
 | `TELEGRAM_WEBHOOK_SECRET` | Valide les webhooks COO / Secretary |
-| `SENTRY_WEBHOOK_SECRET` | Signature HMAC Sentry |
+| `SENTRY_WEBHOOK_SECRET` | Signature HMAC Sentry *(crashs apps, pas intrusion Hub)* |
+| `SECURITY_AUTO_LOCKDOWN` | `1` = Hugo active lockdown localhost si finding critique |
 | `SUPABASE_*`, `OPENROUTER_*` | Jamais dans le frontend public |
+
+---
+
+## Sentry ≠ Security Sentinel
+
+| | **Sentry** | **Hugo — Security Sentinel** |
+|--|------------|------------------------------|
+| Rôle | Crashs / erreurs des apps (Naïa, etc.) | Patrouille **sécurité du Hub** |
+| Détecte | Exceptions, regressions | Clé faible, `.env` dans Git, rafale 401, prod sans allowlist |
+| Action | Issue / hotfix pipeline | Alerte Telegram/notify + **lockdown** optionnel |
+| Endpoint | `POST /webhook/sentry` | `POST /ops/security/patrol`, `GET /ops/security/status` |
+
+Patrouille auto toutes les **30 min** (scheduler). Lockdown actif → seules `127.0.0.1` / `::1` passent le gate IP.
+
+```bash
+# Patrouille manuelle
+curl -X POST -H "X-Hub-Key: TA_CLE" http://127.0.0.1:8003/ops/security/patrol
+# Lockdown manuel
+curl -X POST -H "X-Hub-Key: TA_CLE" "http://127.0.0.1:8003/ops/security/lockdown?active=true&reason=test"
+```
 
 ---
 
@@ -123,8 +144,8 @@ Avec Tailscale : tu peux **fermer 443 au public** et n'autoriser que le réseau 
 # Depuis le VPS
 python scripts/verify_deploy.py
 
-# Tests CI locaux (clés + auth)
-pytest tests/test_hub_auth.py tests/test_security_phase1.py -q
+# Tests CI locaux (clés + auth + sentinel)
+pytest tests/test_hub_auth.py tests/test_security_phase1.py tests/test_security_sentinel.py -q
 ```
 
 Checklist rapide :
@@ -134,21 +155,25 @@ Checklist rapide :
 - [ ] IP hors allowlist → `403` (si allowlist active)
 - [ ] HTTPS actif, pas de HTTP plain
 - [ ] `.env` permissions `600` : `chmod 600 .env`
+- [ ] Patrouille Sentinel OK (`/ops/security/status`)
 
 ---
 
 ## 8. En cas de compromission
 
 1. Régénère `HUB_API_KEY` + clés scopées.
-2. Mets à jour Vercel, n8n, Cursor MCP, `.env` VPS.
-3. Redémarre uvicorn / supervisor.
-4. Vérifie les logs Supabase / OpenRouter pour activité anormale.
-5. Documente dans `BUGS.md` si incident réel.
+2. Active le lockdown : `POST /ops/security/lockdown?active=true`.
+3. Mets à jour Vercel, n8n, Cursor MCP, `.env` VPS.
+4. Redémarre uvicorn / supervisor.
+5. Vérifie les logs Supabase / OpenRouter pour activité anormale.
+6. Documente dans `BUGS.md` si incident réel.
+7. Désactive le lockdown quand c'est sécurisé : `active=false`.
 
 ---
 
 ## Références repo
 
-- `DECISIONS.md` DEC-010 — clé obligatoire partout
+- `DECISIONS.md` DEC-010 — clé obligatoire partout ; DEC-028 — clés scopées + allowlist
 - `docs/api/authentication.md` — headers et clés scopées
+- `agents/security_sentinel_agent.py` + `services/security_sentinel.py` — Hugo
 - `BUGS.md` SEC-001 / SEC-002 — historique durcissements

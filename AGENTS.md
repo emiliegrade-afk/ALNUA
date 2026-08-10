@@ -5,7 +5,7 @@ ce repo. Il n'y a rien à "faire" ici — juste l'ordre de lecture pour le reste
 
 ## Ordre de lecture
 
-1. **`CLAUDE.md`** — architecture, patterns, **50** agents personas, règles invariantes.
+1. **`CLAUDE.md`** — architecture, patterns, **51** agents personas, règles invariantes.
    Le plus souvent suffisant à lui seul pour une tâche courante.
 2. **`ALNUA_OVERVIEW.md`** — vue produit / organisation (quoi / pourquoi), si le contexte
    métier manque ; pas un substitut à `CLAUDE.md` pour coder.

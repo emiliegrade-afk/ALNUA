@@ -53,7 +53,7 @@ api/
 
 ---
 
-## 50 agents ALNUA (35 existants + 15 rôles spécialisés Gaming/Robotique — Phase 13, ROADMAP.md)
+## 51 agents ALNUA (36 existants + 15 rôles spécialisés Gaming/Robotique — Phase 13, ROADMAP.md)
 
 > Source de vérité pour room/team/tier : `config/agent_personas.py` (`AGENT_PERSONAS`, `ROOMS`, `TEAMS`) + `config/agent_models.py` (`AGENT_TIERS`). Cette table est une vue de lecture — en cas de divergence, ce sont ces deux fichiers qui font foi, pas ce document.
 
@@ -64,6 +64,7 @@ api/
 | `spec` | `agents/spec_agent.py` | Léon Marchand — Spec | fast |
 | `qa` | `agents/qa_agent.py` | Alex Okafor — QA | standard |
 | `pm` | `agents/pm_agent.py` | Sam Rivera — PM | standard |
+| `security_sentinel` | `agents/security_sentinel_agent.py` | Hugo Brandt — Security Sentinel | fast |
 
 > Note : `agents/coo_agent.py` a `AGENT_NAME = "coo_agent"` en interne (pas `"coo"`), sans alias dans `AGENT_ID_ALIASES` (`config/agent_models.py`) contrairement aux autres agents en `_agent`. Historique connu, pas encore corrigé — vérifier avant de router dynamiquement sur cet agent_id.
 
@@ -318,7 +319,7 @@ Cursor peut alors appeler directement `POST /agents/analyst-data/sql` etc. comme
 | Skill | Usage |
 |-------|-------|
 | `/alnua-hub` | Architecture complète (à invoquer en début de session) |
-| `/alnua-agents` | Cheat sheet 50 agents + endpoints |
+| `/alnua-agents` | Cheat sheet 51 agents + endpoints |
 | `/alnua-new-agent` | Template + checklist création agent |
 | `/alnua-caveman` | Mode compression tokens |
 | `/alnua-test` | Patterns Playwright + stratégie tests |

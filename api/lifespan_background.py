@@ -16,6 +16,7 @@ from api.lifespan_jobs import (
     run_scheduled_idle_drain_quiet,
     run_scheduled_idle_plan_quiet,
     run_scheduled_ops_quiet,
+    run_scheduled_security_patrol,
     run_scheduled_semaine_quiet,
 )
 from api.route_common import *  # noqa: F403
@@ -85,6 +86,13 @@ async def start_background_services(settings: Any) -> None:
             run_scheduled_backup,
             CronTrigger(hour=3, minute=0, timezone=cron_tz),
             id="daily_backup",
+            replace_existing=True,
+        )
+        _briefing_scheduler.add_job(
+            run_scheduled_security_patrol,
+            "interval",
+            minutes=30,
+            id="security_sentinel_patrol",
             replace_existing=True,
         )
         if getattr(settings, "idle_work_enabled", True):

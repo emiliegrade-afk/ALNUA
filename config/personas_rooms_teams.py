@@ -7,7 +7,7 @@ ROOMS: dict[str, dict] = {
         "description": "Supervision transversale — tous projets",
         "accent_color": "#D4AF37",
         "style": "corner_office",
-        "agents": ["coo", "spec", "qa", "pm"],
+        "agents": ["coo", "spec", "qa", "pm", "security_sentinel"],
     },
     "secretary_office": {
         "label": "Secrétariat de Direction",

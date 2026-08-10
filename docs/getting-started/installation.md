@@ -44,7 +44,7 @@ Ouvre `.env` et remplis au minimum :
 - `OPENROUTER_API_KEY`
 - `HUB_API_KEY` — choisis une clé secrète longue (ex. un mot de passe généré)
 
-> Ne partage jamais ton `.env`. Consulte [SECURITY_HARDENING.md](../SECURITY_HARDENING.md) pour les bonnes pratiques.
+> Ne partage jamais ton `.env`. Consulte [SECURITY_HARDENING.md](../guides/SECURITY_HARDENING.md) pour les bonnes pratiques.
 
 ### 4. Lancer l'installateur Windows
 
@@ -69,11 +69,20 @@ Options PowerShell avancées :
 
 | Action | Comment |
 |--------|---------|
-| **Démarrer** | Double-clic **ALNUA Hub** (Bureau) ou `ALNUA Hub.bat` |
+| **Démarrer** | Double-clic **ALNUA Hub** (Bureau) |
 | **Interface** | http://localhost:3000 (s'ouvre automatiquement) |
 | **Arrêter** | Double-clic **`Arreter ALNUA Hub.bat`** |
 
-Le démarrage lance le supervisor (`scripts/hub_supervisor.py`) qui gère l'API (port **8003**) et le web (port **3000**) en arrière-plan.
+### Expérience « produit » (comme une app installée)
+
+1. **Une fois** : `Installer ALNUA Hub.bat` → raccourci Bureau.
+2. **Chaque jour** : double-clic l'icône → le Hub démarre **sans fenêtre CMD** (launcher VBS + supervisor caché).
+3. Le navigateur s'ouvre. Tu n'as **pas** de console noire qui reste ouverte.
+4. Pour couper : `Arreter ALNUA Hub.bat`.
+
+Sous le capot : `scripts/launch-hub-silent.vbs` → `start-all.ps1` → `hub_supervisor.py` (API **:8003** + web **:3000**, processus enfants sans fenêtre).
+
+Ce n'est pas encore un `.exe` signé type store — c'est le même modèle qu'un outil desktop pro local (install → icône → app). Le pack VPS / distribution large vient plus tard.
 
 ## Hub H24 à la connexion Windows
 

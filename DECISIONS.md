@@ -37,6 +37,7 @@
 | DEC-026 | Capability Packs + PermissionGuard + Trust Graph (AAF Phase E) | 2026-08-10 | Active |
 | DEC-027 | Context Engine L1–L4 + collective promotion (AAF Phase F) | 2026-08-10 | Active |
 | DEC-028 | Clés Hub scopées + allowlist IP optionnelle (H2 sécurité) | 2026-08-11 | Active |
+| DEC-029 | Security Sentinel (Hugo) — patrouille Hub ≠ Sentry | 2026-08-11 | Active |
 
 ---
 
@@ -472,3 +473,15 @@ pour cockpit privé / futur VPS VPN, sans SSO multi-user.
 6. Checklist VPS : `docs/guides/SECURITY_HARDENING.md`.
 **Alternatives rejetées :** OAuth SSO ; rotation auto 30j ; WAF public.
 **Pourquoi :** réduit le blast radius par canal, reste mono-opérateur.
+
+### DEC-029 — Security Sentinel (Hugo) distinct de Sentry
+**Contexte :** Sentry couvre les crashs apps ; besoin d’une patrouille Hub
+(intrusion / fuite / clé faible) avec prévention locale.
+**Décision (2026-08-11) :**
+1. Agent `security_sentinel` + `services/security_sentinel.py` — findings sur
+   clé courte, allowlist manquante en prod, `.env` tracké Git, rafales d’auth.
+2. Middleware enregistre les 401/403 ; lockdown → localhost only via
+   `client_ip_allowed` ; auto-lockdown seulement si `SECURITY_AUTO_LOCKDOWN=1`.
+3. Cron 30 min + endpoints `/ops/security/*` ; notify Hub sur high/critical.
+**Alternatives rejetées :** fusionner avec Sentry ; WAF cloud obligatoire.
+**Pourquoi :** prévention Hub mono-user sans confondre monitoring crash produit.

@@ -75,6 +75,12 @@ async def hub_api_key_middleware(request: Request, call_next):
 
     client_ip = request.client.host if request.client else None
     if not client_ip_allowed(client_ip):
+        try:
+            from services.security_sentinel import record_auth_failure
+
+            record_auth_failure(kind="ip_deny", client_ip=client_ip)
+        except Exception:
+            pass
         return JSONResponse(
             status_code=403,
             content={"detail": "Adresse IP non autorisee"},
@@ -82,6 +88,12 @@ async def hub_api_key_middleware(request: Request, call_next):
 
     provided = request.headers.get("X-Hub-Key")
     if not hub_api_key_valid(provided):
+        try:
+            from services.security_sentinel import record_auth_failure
+
+            record_auth_failure(kind="hub_key", client_ip=client_ip)
+        except Exception:
+            pass
         return JSONResponse(
             status_code=401,
             content={"detail": "Cle API invalide ou absente"},

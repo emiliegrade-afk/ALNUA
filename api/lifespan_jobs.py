@@ -94,6 +94,22 @@ def run_scheduled_idle_drain_quiet() -> None:
         logger.exception("Scheduled idle_drain failed")
 
 
+def run_scheduled_security_patrol() -> None:
+    """Security Sentinel — patrouille Hub (pas Sentry)."""
+    try:
+        from services.security_sentinel import run_patrol
+
+        report = run_patrol(notify=True)
+        logger.info(
+            "Security patrol: ok=%s findings=%s lockdown=%s",
+            report.get("ok"),
+            len(report.get("findings") or []),
+            report.get("lockdown"),
+        )
+    except Exception:
+        logger.exception("Security patrol failed")
+
+
 def run_scheduled_backup() -> None:
     try:
         from services.rq_queue import enqueue_task, job_backup_daily
