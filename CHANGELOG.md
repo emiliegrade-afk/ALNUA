@@ -7,6 +7,17 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-11 — H2 sécurité béton + H1 launch Hub (feat/ops)
+
+- **Type :** feat / ops / docs
+- **Details :**
+  - **H2 :** `services/hub_auth.py` — clés canal (`HUB_API_KEY_WEB|N8N|MCP|CURSOR`)
+    + `HUB_IP_ALLOWLIST` ; coding agent shell = SEC-001 ; webhook secrétaire
+    exempté ; docs auth corrigées ; `SECURITY_HARDENING.md` ; DEC-028.
+  - **H1 :** `Installer ALNUA Hub.bat` + `scripts/install-hub.ps1` /
+    `hub-status.ps1` ; messages launchers FR ; install guide noob.
+  - Tests : **538** passed / 6 skipped.
+
 ## 2026-08-10 — UI chrome Hub (style)
 
 - **Type :** style

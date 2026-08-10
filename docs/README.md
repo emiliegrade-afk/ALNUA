@@ -21,9 +21,9 @@ pour que la racine du repo reste lisible.
 |-------------------|---------|
 | [`classeur/`](classeur/) | Architecture, testing, implementation status, audits, todos |
 | [`specs/`](specs/) | Contrats feature (`SPEC_*`) — Brand, R&D, UE5.8, workflows |
-| [`guides/`](guides/) | MCP Cursor, vérification autonomie, use-cases, env, n8n |
-| [`getting-started/`](getting-started/) | Premiers pas |
-| [`api/`](api/) | Notes routes / auth |
+| [`guides/`](guides/) | MCP Cursor, [sécurité VPS](guides/SECURITY_HARDENING.md), autonomie, n8n |
+| [`getting-started/`](getting-started/) | [Install / lancer le Hub](getting-started/installation.md) |
+| [`api/`](api/) | [Auth Hub-Key](api/authentication.md) |
 | [`archive/`](archive/) | Plans terminés, assainissement historique, vieux changelog |
 
 ## Racine volontairement courte

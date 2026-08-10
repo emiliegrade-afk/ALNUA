@@ -2,15 +2,18 @@
 
 from __future__ import annotations
 
-import secrets
-
 from fastapi import Request
 from fastapi.responses import JSONResponse
 
 from config.settings import get_settings
 from models.tenant import TenantContext, resolve_tenant_id
+from services.hub_auth import client_ip_allowed, hub_api_key_valid as _hub_key_valid
 from services.rate_limiter import ASSISTANT_LIMIT, API_LIMIT, assistant_limiter, api_limiter
 from services.telemetry import RequestTimer, metrics
+
+# Re-export for route_common and legacy imports.
+hub_api_key_valid = _hub_key_valid
+_hub_api_key_valid = hub_api_key_valid
 
 
 def _strip_v1_prefix(path: str) -> str:
@@ -45,6 +48,8 @@ def _is_hub_api_key_exempt(path: str, method: str) -> bool:
         return True
     if path == "/webhook/telegram" and method == "POST":
         return True
+    if path == "/webhook/telegram/secretary" and method == "POST":
+        return True
     if path == "/webhook/sentry" and method == "POST":
         return True
     if path.startswith("/go/"):
@@ -62,28 +67,21 @@ def _is_hub_api_key_exempt(path: str, method: str) -> bool:
     return False
 
 
-def hub_api_key_valid(provided: str | None) -> bool:
-    """HUB_API_KEY is required in every environment — settings validation
-    already refuses to start the app without one (config/settings.py)."""
-    expected = get_settings().hub_api_key
-    if not provided or not expected:
-        return False
-    return secrets.compare_digest(provided, expected)
-
-
-# Backward-compatible alias for split routers.
-_hub_api_key_valid = hub_api_key_valid
-
-
 async def hub_api_key_middleware(request: Request, call_next):
     """Require X-Hub-Key on all routes except health checks and public portals."""
     path = request.url.path
     if _is_hub_api_key_exempt(path, request.method) or request.method == "OPTIONS":
         return await call_next(request)
 
-    expected = get_settings().hub_api_key
+    client_ip = request.client.host if request.client else None
+    if not client_ip_allowed(client_ip):
+        return JSONResponse(
+            status_code=403,
+            content={"detail": "Adresse IP non autorisee"},
+        )
+
     provided = request.headers.get("X-Hub-Key")
-    if not provided or not expected or not secrets.compare_digest(provided, expected):
+    if not hub_api_key_valid(provided):
         return JSONResponse(
             status_code=401,
             content={"detail": "Cle API invalide ou absente"},

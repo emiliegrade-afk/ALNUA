@@ -36,6 +36,7 @@
 | DEC-025 | Review Chain — AUTO→BOARD→POLICY→INTEGRATE + merge autonomy (AAF Phase D) | 2026-08-10 | Active |
 | DEC-026 | Capability Packs + PermissionGuard + Trust Graph (AAF Phase E) | 2026-08-10 | Active |
 | DEC-027 | Context Engine L1–L4 + collective promotion (AAF Phase F) | 2026-08-10 | Active |
+| DEC-028 | Clés Hub scopées + allowlist IP optionnelle (H2 sécurité) | 2026-08-11 | Active |
 
 ---
 
@@ -455,3 +456,19 @@ couches stratifiées ni wipe working memory, ni promotion bureau.
 5. Spec : `docs/specs/SPEC_CONTEXT_ENGINE.md`.
 **Alternatives rejetées :** Neo4j obligatoire ; 2ᵉ store vectoriel parallèle.
 **Pourquoi :** prompts stables + pas de contamination L4 entre missions.
+
+### DEC-028 — Clés Hub scopées + allowlist IP optionnelle
+**Contexte :** une seule `HUB_API_KEY` ouvrait Next, n8n, Cursor MCP et scripts
+avec le même secret — fuite d’un canal = accès total. Objectif H2 « béton armé »
+pour cockpit privé / futur VPS VPN, sans SSO multi-user.
+**Décision (2026-08-11) :**
+1. Master `HUB_API_KEY` reste obligatoire (DEC-010).
+2. Clés canal optionnelles acceptées en parallèle : `HUB_API_KEY_WEB`,
+   `_N8N`, `_MCP`, `_CURSOR` (`services/hub_auth.py`).
+3. `HUB_IP_ALLOWLIST` optionnelle (IPs exactes, virgule) — vide = désactivé.
+4. Coding agent shell aligné SEC-001 (metachars + premier token exact).
+5. Webhook secrétaire exempté Hub-Key comme le COO ; secrets webhook toujours
+   requis en prod (inchangé).
+6. Checklist VPS : `docs/guides/SECURITY_HARDENING.md`.
+**Alternatives rejetées :** OAuth SSO ; rotation auto 30j ; WAF public.
+**Pourquoi :** réduit le blast radius par canal, reste mono-opérateur.

@@ -6,7 +6,7 @@ from pathlib import Path
 
 from config.agent_models import CODING_AGENT_IDS, get_coding_model_for_agent
 from services.dev_ownership import resolve_coding_agent
-from services.hub_coding_agent import _execute_action, _safe_path
+from services.hub_coding_agent import _execute_action, _run_shell, _safe_path
 
 
 def test_coding_agents_use_unified_model_config() -> None:
@@ -38,6 +38,23 @@ def test_reject_empty_file(tmp_path: Path) -> None:
         {"action": "write_file", "path": "empty.ts", "content": ""},
     )
     assert "vide" in out.lower()
+
+
+def test_run_shell_rejects_shell_metacharacters(tmp_path: Path) -> None:
+    out = _run_shell("npm install; rm -rf /", tmp_path)
+    assert "[refusé]" in out
+    assert "interdits" in out.lower() or "Caractères" in out
+
+
+def test_run_shell_rejects_prefix_bypass(tmp_path: Path) -> None:
+    """First token must match allowlist exactly — not startswith on whole string."""
+    out = _run_shell("npm-evil install", tmp_path)
+    assert "[refusé]" in out
+
+
+def test_run_shell_rejects_disallowed_command(tmp_path: Path) -> None:
+    out = _run_shell("curl https://evil.example", tmp_path)
+    assert "[refusé]" in out
 
 
 def test_resolve_coding_agent_routes_to_frontend_backend_and_app() -> None:

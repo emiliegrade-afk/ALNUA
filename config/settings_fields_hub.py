@@ -41,6 +41,15 @@ class SettingsHubMixin:
         alias="AGENT_MODEL",
     )
     hub_api_key: str = Field(default="", alias="HUB_API_KEY")
+    hub_api_key_web: str = Field(default="", alias="HUB_API_KEY_WEB")
+    hub_api_key_n8n: str = Field(default="", alias="HUB_API_KEY_N8N")
+    hub_api_key_mcp: str = Field(default="", alias="HUB_API_KEY_MCP")
+    hub_api_key_cursor: str = Field(default="", alias="HUB_API_KEY_CURSOR")
+    hub_ip_allowlist: str = Field(
+        default="",
+        alias="HUB_IP_ALLOWLIST",
+        description="Comma-separated client IPs; empty = allow all",
+    )
     jwt_secret: str = Field(default="", alias="JWT_SECRET")
     environment: str = Field(default="development", alias="ENVIRONMENT")
     alnua_workspace: str = Field(

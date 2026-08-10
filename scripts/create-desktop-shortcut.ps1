@@ -1,7 +1,7 @@
 # Cree un raccourci Bureau "ALNUA Hub" (double-clic = ouvrir l'app).
 $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent $PSScriptRoot
-$BatPath = Join-Path $Root "Ouvrir ALNUA Hub.bat"
+$BatPath = Join-Path $Root "ALNUA Hub.bat"
 $IconPath = Join-Path $Root "web\public\icon-512.png"
 $Desktop = [Environment]::GetFolderPath("Desktop")
 $ShortcutPath = Join-Path $Desktop "ALNUA Hub.lnk"

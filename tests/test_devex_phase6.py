@@ -7,7 +7,7 @@ without a key. See DECISIONS.md / BUGS.md SEC-002 for why that was reversed.
 from __future__ import annotations
 
 import os
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -81,7 +81,14 @@ def test_hub_api_key_valid_false_when_expected_key_empty() -> None:
     (e.g. mocked), hub_api_key_valid must never treat that as "open"."""
     from api.middleware import hub_api_key_valid
 
-    with patch("api.middleware.get_settings") as mock_settings:
-        mock_settings.return_value.hub_api_key = ""
+    with patch("services.hub_auth.get_settings") as mock_settings:
+        mock_settings.return_value = MagicMock(
+            hub_api_key="",
+            hub_api_key_web="",
+            hub_api_key_n8n="",
+            hub_api_key_mcp="",
+            hub_api_key_cursor="",
+            hub_ip_allowlist="",
+        )
         assert hub_api_key_valid("anything") is False
         assert hub_api_key_valid(None) is False

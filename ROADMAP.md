@@ -73,10 +73,10 @@ dumps, orphan `coding_facade`, checklist `AGENTS.md`, tests HTTP budgets).
 budgets manuelles seulement — DEC-016 inchangé, pas de paiement/transfert auto).
 **Prochain audit santé :** ≤ **2026-08-30** (Audit 005). **P0 + Vagues A–F +
 debt paydown :** bible `docs/` ; **0 fichiers Python >1000 / >500 / >300**.
-**2026-08-10 profondeur :** Phase 34 alerts/factures/fiscal ; Phase 35 persona
-`brand` + Content Studio review ; autonomie trust→level + posts→validation +
-CEO A_VERIFIER. Suite : `UE_PROJECT_PATH` / Pi / Audit 005 / débat Brand LLM /
-split `brand-view` / drain cross-dept.
+**2026-08-11 H2+H1 :** sécurité béton (DEC-028 clés scopées / IP allowlist /
+shell coding) + installateur / status / guide launch. Suite produit HQ :
+manuel noob (H3), Nadia+COO (H4), polish CEO/Secrétaire/repas/photos (H5) ;
+externe UE/Pi/VPS (H6) ; Audit 005.
 
 ## Points tranchés le 2026-07-25 (anciennement ouverts)
 

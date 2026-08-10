@@ -23,9 +23,9 @@ logger = logging.getLogger(__name__)
 
 _SYSTEM = get_system_prompt("hub_coding_agent")
 
-_CMD_ALLOW = re.compile(
-    r"^(npm|npx|node|python|pytest|git|tsc|expo|yarn|pnpm)\b",
-    re.I,
+_SHELL_METACHARS = re.compile(r"[;&|`$<>\n\r]")
+_CMD_ALLOWED = frozenset(
+    {"npm", "npx", "node", "python", "py", "pytest", "git", "tsc", "expo", "yarn", "pnpm"}
 )
 
 
@@ -39,7 +39,13 @@ def _safe_path(root: Path, rel: str) -> Path:
 
 
 def _run_shell(command: str, cwd: Path, timeout: int = 180) -> str:
-    if not _CMD_ALLOW.match(command.strip()):
+    cmd = command.strip()
+    if _SHELL_METACHARS.search(cmd):
+        return (
+            f"[refusé] Caractères interdits (; & | ` $ < >) : {command[:80]}"
+        )
+    first_token = cmd.split(None, 1)[0].lower() if cmd else ""
+    if first_token not in _CMD_ALLOWED:
         return f"[refusé] Commande non autorisée : {command[:80]}"
     try:
         proc = subprocess.run(

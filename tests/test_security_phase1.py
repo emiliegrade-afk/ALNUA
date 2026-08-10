@@ -219,8 +219,15 @@ def test_orchestration_sentry_ingest_uses_trusted_relay(
 def test_hub_api_key_valid_uses_compare_digest() -> None:
     from api.middleware import hub_api_key_valid
 
-    with patch("api.middleware.get_settings") as mock_settings:
-        mock_settings.return_value.hub_api_key = "secret-key"
+    with patch("services.hub_auth.get_settings") as mock_settings:
+        mock_settings.return_value = MagicMock(
+            hub_api_key="secret-key",
+            hub_api_key_web="",
+            hub_api_key_n8n="",
+            hub_api_key_mcp="",
+            hub_api_key_cursor="",
+            hub_ip_allowlist="",
+        )
         assert hub_api_key_valid("secret-key") is True
         assert hub_api_key_valid("secret-ke") is False
         assert hub_api_key_valid(None) is False
