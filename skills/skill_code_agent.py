@@ -15,26 +15,25 @@ Dépendance unique à installer : pip install gitpython
 """
 from __future__ import annotations
 
-import json
 import logging
-import os
-import urllib.request
+import re
+import time
 from pathlib import Path
 from typing import Any
 
 from config.agent_operating_spec import get_system_prompt
+from skills.skill_code_agent_git import (
+    commit_and_push,
+    create_branch,
+    create_pr,
+    detect_files,
+    get_repo,
+)
 
 logger = logging.getLogger(__name__)
 
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
-OPENROUTER_BASE = "https://openrouter.ai/api/v1/chat/completions"
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
 DEFAULT_AGENT_ID = "dev_app"
 
-
-# ---------------------------------------------------------------------------
-# LLM call direct (sans dépendance CrewAI)
-# ---------------------------------------------------------------------------
 
 def _llm(system: str, user: str, model: str | None = None, agent_id: str = DEFAULT_AGENT_ID) -> str:
     """OpenRouter via LLMClient — costs, retries, prompt-cache included."""
@@ -50,117 +49,6 @@ def _llm(system: str, user: str, model: str | None = None, agent_id: str = DEFAU
         max_tokens=8000,
     )
 
-# ---------------------------------------------------------------------------
-# Git operations via gitpython
-# ---------------------------------------------------------------------------
-
-def _get_repo(repo_path: str):
-    """Retourne un objet git.Repo. Installe gitpython si absent."""
-    try:
-        import git
-        return git.Repo(repo_path)
-    except ImportError:
-        raise RuntimeError("gitpython non installé — lance : pip install gitpython")
-
-
-def _create_branch(repo, branch_name: str) -> None:
-    """Crée et checkout une branche depuis main."""
-    try:
-        origin = repo.remote("origin")
-        origin.pull()
-    except Exception:
-        pass
-    if branch_name in repo.heads:
-        repo.delete_head(branch_name, force=True)
-    branch = repo.create_head(branch_name)
-    branch.checkout()
-
-
-def _commit_and_push(repo, files_modified: list[str], message: str) -> bool:
-    """Stage, commit et push les fichiers modifiés."""
-    try:
-        repo.index.add(files_modified)
-        if not repo.index.diff("HEAD"):
-            logger.info("Aucun changement à commiter")
-            return False
-        repo.index.commit(f"[auto-fix] {message[:72]}")
-        origin = repo.remote("origin")
-        origin.push(repo.active_branch.name)
-        return True
-    except Exception as exc:
-        logger.error("Git commit/push failed: %s", exc)
-        return False
-
-
-# ---------------------------------------------------------------------------
-# GitHub PR
-# ---------------------------------------------------------------------------
-
-def _create_pr(github_repo: str, branch: str, title: str, body: str) -> str | None:
-    """Crée une PR GitHub. Retourne l'URL ou None."""
-    if not GITHUB_TOKEN or not github_repo:
-        return None
-    payload = json.dumps({
-        "title": title[:72],
-        "body": body,
-        "head": branch,
-        "base": "main",
-    }).encode()
-    req = urllib.request.Request(
-        f"https://api.github.com/repos/{github_repo}/pulls",
-        data=payload,
-        headers={
-            "Authorization": f"Bearer {GITHUB_TOKEN}",
-            "Accept": "application/vnd.github+json",
-            "Content-Type": "application/json",
-        },
-        method="POST",
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=15) as r:
-            return json.loads(r.read()).get("html_url")
-    except Exception as exc:
-        logger.warning("PR creation failed: %s", exc)
-        return None
-
-
-# ---------------------------------------------------------------------------
-# Détection automatique des fichiers concernés
-# ---------------------------------------------------------------------------
-
-def _detect_files(error_message: str, repo_path: str, hint_files: list[str] | None) -> list[str]:
-    """
-    Trouve les fichiers Python probablement concernés par l'erreur.
-    Priorité : hint_files > fichiers mentionnés dans l'erreur > recherche par mot-clé.
-    """
-    if hint_files:
-        return [f for f in hint_files if Path(repo_path, f).exists()]
-
-    found = []
-    root = Path(repo_path)
-
-    # Cherche les noms de fichiers mentionnés dans le stack trace
-    import re
-    for match in re.finditer(r'File "([^"]+\.py)"', error_message):
-        fpath = Path(match.group(1))
-        # Convertit en chemin relatif au repo
-        try:
-            rel = fpath.relative_to(root)
-            found.append(str(rel))
-        except ValueError:
-            # Chemin absolu hors du repo — cherche par nom
-            name = fpath.name
-            for p in root.rglob(name):
-                if ".git" not in str(p) and "node_modules" not in str(p):
-                    found.append(str(p.relative_to(root)))
-                    break
-
-    return found[:5]  # Max 5 fichiers
-
-
-# ---------------------------------------------------------------------------
-# Point d'entrée principal
-# ---------------------------------------------------------------------------
 
 def fix_bug(
     error_message: str,
@@ -196,15 +84,13 @@ def fix_bug(
     if not repo_path or not Path(repo_path).exists():
         return {"success": False, "summary": f"Repo path invalide: {repo_path}"}
 
-    # 1. Détecte les fichiers concernés
-    files_to_fix = _detect_files(error_message, repo_path, hint_files)
+    files_to_fix = detect_files(error_message, repo_path, hint_files)
     if not files_to_fix:
         return {
             "success": False,
             "summary": "Impossible de détecter les fichiers concernés par l'erreur.",
         }
 
-    # 2. Lit le contenu des fichiers
     files_content = {}
     for rel_path in files_to_fix:
         full = Path(repo_path) / rel_path
@@ -214,7 +100,6 @@ def fix_bug(
     if not files_content:
         return {"success": False, "summary": "Fichiers introuvables dans le repo."}
 
-    # 3. Construit le prompt de fix
     files_block = "\n\n".join(
         f"### {fname}\n```python\n{content[:4000]}\n```"
         for fname, content in files_content.items()
@@ -241,7 +126,6 @@ FICHIERS CONCERNÉS :
 
 Analyse et corrige le bug. Suis exactement le format demandé."""
 
-    # dry_run = Phase 1 : retourne le prompt sans appliquer
     if dry_run:
         return {
             "success": True,
@@ -251,14 +135,11 @@ Analyse et corrige le bug. Suis exactement le format demandé."""
             "prompt": f"**Colle dans Cursor (Ctrl+K) :**\n\n{user_prompt[:2000]}",
         }
 
-    # 4. Appelle le LLM
     try:
         raw_response = _llm(system_prompt, user_prompt, model, agent_id=agent_id)
     except Exception as exc:
         return {"success": False, "summary": f"Erreur LLM: {exc}"}
 
-    # 5. Parse la réponse avec séparateurs ===SUMMARY=== / ===FILE:...=== / ===END===
-    import re
     text = raw_response.strip()
 
     summary_match = re.search(r'===SUMMARY===\s*(.*?)\s*(?:===FILE:|$)', text, re.DOTALL)
@@ -276,27 +157,23 @@ Analyse et corrige le bug. Suis exactement le format demandé."""
         logger.debug("Réponse LLM brute : %s", raw_response[:800])
         return {"success": False, "summary": f"LLM n'a pas retourné de fichier corrigé. Résumé: {fix_summary[:200]}"}
 
-    # 6. Applique les fichiers corrigés
     for rel_path, new_content in fixed_files.items():
         full_path = Path(repo_path) / rel_path
         if full_path.exists():
             full_path.write_text(new_content, encoding="utf-8")
             logger.info("Fixed: %s", rel_path)
 
-    # 7. Commit + push + PR
-    import re, time
     branch_name = f"fix/auto_{re.sub(r'[^\\w]', '_', error_message[:30].lower())}_{int(time.time()) % 10000}"
 
     pr_url = None
     try:
-        repo = _get_repo(repo_path)
-        _create_branch(repo, branch_name)
-        # Re-applique les fichiers sur la nouvelle branche
+        repo = get_repo(repo_path)
+        create_branch(repo, branch_name)
         for rel_path, new_content in fixed_files.items():
             (Path(repo_path) / rel_path).write_text(new_content, encoding="utf-8")
-        committed = _commit_and_push(repo, list(fixed_files.keys()), fix_summary)
+        committed = commit_and_push(repo, list(fixed_files.keys()), fix_summary)
         if committed and github_repo:
-            pr_url = _create_pr(
+            pr_url = create_pr(
                 github_repo=github_repo,
                 branch=branch_name,
                 title=f"[Auto-fix] {fix_summary[:60]}",

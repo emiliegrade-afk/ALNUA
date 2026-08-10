@@ -10,7 +10,6 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 from telegram import Update
-from telegram.error import Conflict
 from telegram.ext import (
     Application,
     CommandHandler,
@@ -22,13 +21,11 @@ from telegram.ext import (
 from agents.secretary_agent import SecretaryAgent
 from bots.base import log_bot_action
 from bots.telegram_common import acquire_single_instance_lock, presence_callbacks, split_message
+from bots.telegram_secretary_auth import is_authorized, reject_unauthorized
+from bots.telegram_secretary_commands import cmd_apps, cmd_connect, cmd_status, on_error
 from config.settings import get_settings
 from database.supabase_client import get_supabase
-from services.telegram_presence import (
-    BACK_MESSAGE_NADIA,
-    COFFEE_MESSAGE_NADIA,
-    hub_status_line,
-)
+from services.telegram_presence import BACK_MESSAGE_NADIA, COFFEE_MESSAGE_NADIA
 
 logger = logging.getLogger(__name__)
 
@@ -36,40 +33,6 @@ BOT_NAME = "telegram_secretary_bot"
 _LOCK_FILE = Path(__file__).resolve().parent.parent / ".telegram_secretary_bot.lock"
 _MORNING_JOB = "nadia_morning_brief"
 _PARIS = ZoneInfo("Europe/Paris")
-
-_UNAUTHORIZED_REPLY = (
-    "⛔ Ce bot est réservé à son propriétaire.\n"
-    "Si c'est toi : envoie /start, copie ton chat ID, "
-    "mets TELEGRAM_SECRETARY_CHAT_ID=<id> dans .env, puis redémarre le bot."
-)
-
-
-def _authorized_chat_id() -> int | None:
-    raw = get_settings().telegram_secretary_chat_id_effective
-    if not raw:
-        return None
-    try:
-        return int(raw)
-    except ValueError:
-        logger.error("TELEGRAM_SECRETARY_CHAT_ID invalide : %r", raw)
-        return None
-
-
-def _is_authorized(update: Update) -> bool:
-    chat = update.effective_chat
-    if chat is None:
-        return False
-    owner = _authorized_chat_id()
-    return owner is not None and chat.id == owner
-
-
-async def _reject_unauthorized(update: Update) -> None:
-    if update.message:
-        await update.message.reply_text(_UNAUTHORIZED_REPLY)
-    logger.warning(
-        "Unauthorized Telegram (Nadia) command from chat %s",
-        update.effective_chat.id if update.effective_chat else "?",
-    )
 
 _START_MESSAGE = (
     "Bonjour Emilie, c'est **Nadia** — ta secrétaire ALNUA.\n\n"
@@ -86,77 +49,6 @@ _START_MESSAGE = (
     "/connect calendar — lier Google Calendar\n"
     "/apps — apps connectées"
 )
-
-
-async def _cmd_connect(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    if not update.message:
-        return
-    if not _is_authorized(update):
-        await _reject_unauthorized(update)
-        return
-    if not context.args:
-        await update.message.reply_text(
-            "Usage : /connect gmail\nou : /connect calendar"
-        )
-        return
-    app = context.args[0].upper()
-    if app in ("CALENDAR", "AGENDA", "GOOGLECALENDAR"):
-        app = "GOOGLECALENDAR"
-    elif app == "GMAIL":
-        app = "GMAIL"
-    else:
-        app = app.upper()
-
-    from services.secretary_composio import get_oauth_link_for_ceo
-
-    link = get_oauth_link_for_ceo(app)
-    if link.startswith("Erreur"):
-        await update.message.reply_text(f"❌ {link}")
-        return
-    if "déjà connecté" in link or "deja connecte" in link.lower():
-        await update.message.reply_text(f"✅ {link}")
-        return
-    await update.message.reply_text(link)
-
-
-async def _cmd_apps(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    if not update.message:
-        return
-    if not _is_authorized(update):
-        await _reject_unauthorized(update)
-        return
-    from services.secretary_composio import connection_status_text
-
-    await update.message.reply_text(connection_status_text())
-
-
-async def _cmd_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    if not update.message:
-        return
-    if not _is_authorized(update):
-        await _reject_unauthorized(update)
-        return
-    await update.message.reply_text(
-        f"**Nadia** — secrétaire ALNUA\n{hub_status_line()}\n\n"
-        "Si le Hub est hors ligne, je peux encore discuter — "
-        "mais pas relancer le pipeline ni actions lourdes.",
-        parse_mode="Markdown",
-    )
-
-
-async def _on_error(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
-    if isinstance(context.error, Conflict):
-        logger.warning("409 Conflict — autre instance du bot Nadia en polling.")
-        return
-    logger.error("Telegram secretary handler error", exc_info=context.error)
-    if isinstance(update, Update) and update.message:
-        try:
-            await update.message.reply_text(
-                "❌ Souci technique côté Nadia — réessaie dans un instant. "
-                "Si ça persiste : `Demarrer-Hub.bat` puis /status"
-            )
-        except Exception:
-            pass
 
 
 class TelegramSecretaryBot:
@@ -259,16 +151,16 @@ class TelegramSecretaryBot:
     async def _handle_rapport(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> None:
-        if not _is_authorized(update):
-            await _reject_unauthorized(update)
+        if not is_authorized(update):
+            await reject_unauthorized(update)
             return
         await self._reply_nadia(update, "rapport de la nuit sur l'Academy")
 
     async def _handle_briefing(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> None:
-        if not _is_authorized(update):
-            await _reject_unauthorized(update)
+        if not is_authorized(update):
+            await reject_unauthorized(update)
             return
         await self._reply_nadia(update, "briefing du jour")
 
@@ -277,8 +169,8 @@ class TelegramSecretaryBot:
     ) -> None:
         if not update.message or not update.message.text:
             return
-        if not _is_authorized(update):
-            await _reject_unauthorized(update)
+        if not is_authorized(update):
+            await reject_unauthorized(update)
             return
         chat_id = update.effective_chat.id if update.effective_chat else 0
         from services.rate_limiter import TELEGRAM_LIMIT, telegram_limiter
@@ -343,13 +235,13 @@ class TelegramSecretaryBot:
             app.add_handler(CommandHandler("start", self._handle_start))
             app.add_handler(CommandHandler("rapport", self._handle_rapport))
             app.add_handler(CommandHandler("briefing", self._handle_briefing))
-            app.add_handler(CommandHandler("status", _cmd_status))
-            app.add_handler(CommandHandler("connect", _cmd_connect))
-            app.add_handler(CommandHandler("apps", _cmd_apps))
+            app.add_handler(CommandHandler("status", cmd_status))
+            app.add_handler(CommandHandler("connect", cmd_connect))
+            app.add_handler(CommandHandler("apps", cmd_apps))
             app.add_handler(
                 MessageHandler(filters.TEXT & ~filters.COMMAND, self._handle_text)
             )
-            app.add_error_handler(_on_error)
+            app.add_error_handler(on_error)
             self._application = app
         return self._application
 

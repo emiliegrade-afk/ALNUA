@@ -65,9 +65,10 @@ dumps, orphan `coding_facade`, checklist `AGENTS.md`, tests HTTP budgets).
 **`budget_transfer` :** explicitement **reporté** (pas dans le moteur ; enveloppes
 budgets manuelles seulement — DEC-016 inchangé, pas de paiement/transfert auto).
 **Prochain audit santé :** ≤ **2026-08-30** (Audit 005). **P0 + Vagues A–F +
-debt paydown :** bible `docs/` ; **0 fichiers >1000 lignes** (schemas, rnd,
-core, coding_agent, rnd_repository éclatés). Residual ~24 fichiers >500.
-Suite : continuer splits >500 ; `UE_PROJECT_PATH` / Pi / Audit 005.
+debt paydown :** bible `docs/` ; **0 fichiers Python >1000 / >500 / >300**
+sous `agents/` `services/` `api/` `skills/` `bots/` `config/` `database/`
+(façades + siblings, APIs inchangées). Suite : `UE_PROJECT_PATH` / Pi /
+Audit 005.
 
 ## Points tranchés le 2026-07-25 (anciennement ouverts)
 

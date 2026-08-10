@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import logging
 import os
-import re
-import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -15,7 +13,6 @@ logger = logging.getLogger(__name__)
 _ROOT = Path(__file__).resolve().parents[1]
 _SANDBOX = _ROOT / "data" / "ide_sandbox"
 
-# Extensions editable in the browser IDE
 _EDITABLE_EXT = frozenset(
     {
         ".py", ".ts", ".tsx", ".js", ".jsx", ".json", ".md", ".txt", ".yaml", ".yml",
@@ -198,6 +195,8 @@ def list_tree(workspace_id: str, rel_path: str = ".") -> dict[str, Any]:
 
 
 def read_file(workspace_id: str, rel_path: str) -> dict[str, Any]:
+    from services.ide_workspace_shell import language_for
+
     root, read_only = resolve_workspace(workspace_id)
     path = _safe_rel(root, rel_path)
     if not path.is_file():
@@ -211,7 +210,7 @@ def read_file(workspace_id: str, rel_path: str) -> dict[str, Any]:
         "path": str(path.relative_to(root)).replace("\\", "/"),
         "content": text,
         "readOnly": read_only,
-        "language": _language_for(path),
+        "language": language_for(path),
     }
 
 
@@ -226,81 +225,13 @@ def write_file(workspace_id: str, rel_path: str, content: str) -> dict[str, str]
     return {"path": str(path.relative_to(root)).replace("\\", "/"), "status": "saved"}
 
 
-_SHELL_METACHARS = re.compile(r"[;&|`$<>\n\r]")
-
-
 def run_sandbox_command(command: str, *, cwd_rel: str = ".") -> dict[str, Any]:
-    """Restricted shell — sandbox workspace only (CEO learning)."""
-    root, _ = resolve_workspace("sandbox")
-    cwd = _safe_rel(root, cwd_rel)
-    if not cwd.is_dir():
-        raise ValueError("cwd invalide")
-    cmd = command.strip()
-    if _SHELL_METACHARS.search(cmd):
-        raise ValueError(
-            "Commande refusée : caractères de chaînage/redirection interdits (; & | ` $ < >)"
-        )
-    allowed = ("python", "py", "node", "npm", "npx", "pytest", "echo", "dir", "ls")
-    first_token = cmd.split(None, 1)[0].lower() if cmd else ""
-    if first_token not in allowed:
-        raise ValueError(f"Commande non autorisée. Autorisé : {', '.join(allowed)}")
-    try:
-        proc = subprocess.run(
-            cmd,
-            cwd=str(cwd),
-            shell=True,
-            capture_output=True,
-            text=True,
-            timeout=120,
-        )
-        out = (proc.stdout or "") + (proc.stderr or "")
-        return {
-            "exitCode": proc.returncode,
-            "output": out[-8000:] if len(out) > 8000 else out,
-        }
-    except subprocess.TimeoutExpired:
-        return {"exitCode": -1, "output": "[timeout 120s]"}
+    from services.ide_workspace_shell import run_sandbox_command as _run
+
+    return _run(command, cwd_rel=cwd_rel)
 
 
 def git_diff(workspace_id: str) -> str:
-    root, _ = resolve_workspace(workspace_id)
-    try:
-        proc = subprocess.run(
-            ["git", "diff", "--stat"],
-            cwd=str(root),
-            capture_output=True,
-            text=True,
-            timeout=30,
-        )
-        stat = (proc.stdout or proc.stderr or "").strip()
-        proc2 = subprocess.run(
-            ["git", "diff"],
-            cwd=str(root),
-            capture_output=True,
-            text=True,
-            timeout=30,
-        )
-        diff = (proc2.stdout or "")[:12000]
-        return f"{stat}\n\n{diff}".strip() or "(aucun changement git)"
-    except Exception as exc:
-        return f"(git diff indisponible: {exc})"
+    from services.ide_workspace_shell import git_diff as _git_diff
 
-
-def _language_for(path: Path) -> str:
-    ext = path.suffix.lower()
-    return {
-        ".py": "python",
-        ".ts": "typescript",
-        ".tsx": "typescript",
-        ".js": "javascript",
-        ".jsx": "javascript",
-        ".json": "json",
-        ".md": "markdown",
-        ".html": "html",
-        ".css": "css",
-        ".yaml": "yaml",
-        ".yml": "yaml",
-        ".sql": "sql",
-        ".sh": "shell",
-        ".ps1": "powershell",
-    }.get(ext, "plaintext")
+    return _git_diff(workspace_id)

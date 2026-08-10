@@ -2,85 +2,18 @@
 
 from __future__ import annotations
 
-import re
 from typing import Any
 
-# Default subscription tiers when dossier sections lack explicit pricing
-DOMAIN_TIER_DEFAULTS: dict[str, list[dict[str, Any]]] = {
-    "saas": [
-        {"name": "Starter", "price_eur": 16.99, "mix_pct": 0.42},
-        {"name": "Pro", "price_eur": 49.0, "mix_pct": 0.32},
-        {"name": "Studio", "price_eur": 99.0, "mix_pct": 0.18},
-        {"name": "Business", "price_eur": 199.0, "mix_pct": 0.08},
-    ],
-    "ia": [
-        {"name": "Solo", "price_eur": 19.0, "mix_pct": 0.45},
-        {"name": "Pro", "price_eur": 59.0, "mix_pct": 0.35},
-        {"name": "Team", "price_eur": 149.0, "mix_pct": 0.20},
-    ],
-    "app": [
-        {"name": "Mensuel", "price_eur": 6.99, "mix_pct": 0.50},
-        {"name": "Annuel", "price_eur": 49.0, "mix_pct": 0.35, "billing": "yearly"},
-        {"name": "Premium", "price_eur": 14.99, "mix_pct": 0.15},
-    ],
-    "jeu": [
-        {"name": "Base", "price_eur": 9.99, "mix_pct": 0.55, "billing": "one_time"},
-        {"name": "Deluxe", "price_eur": 24.99, "mix_pct": 0.30, "billing": "one_time"},
-        {"name": "Season pass", "price_eur": 12.99, "mix_pct": 0.15},
-    ],
-    "game": [
-        {"name": "Base", "price_eur": 9.99, "mix_pct": 0.55, "billing": "one_time"},
-        {"name": "Deluxe", "price_eur": 24.99, "mix_pct": 0.30, "billing": "one_time"},
-        {"name": "Season pass", "price_eur": 12.99, "mix_pct": 0.15},
-    ],
-    "gaming": [
-        {"name": "Base", "price_eur": 9.99, "mix_pct": 0.55, "billing": "one_time"},
-        {"name": "Deluxe", "price_eur": 24.99, "mix_pct": 0.30, "billing": "one_time"},
-        {"name": "Season pass", "price_eur": 12.99, "mix_pct": 0.15},
-    ],
-    "hardware": [
-        {"name": "Kit standard", "price_eur": 89.0, "mix_pct": 0.65, "billing": "one_time"},
-        {"name": "Kit pro", "price_eur": 149.0, "mix_pct": 0.25, "billing": "one_time"},
-        {"name": "Abonnement cloud", "price_eur": 9.99, "mix_pct": 0.10},
-    ],
-    "autre": [
-        {"name": "Essentiel", "price_eur": 14.99, "mix_pct": 0.50},
-        {"name": "Pro", "price_eur": 39.0, "mix_pct": 0.35},
-        {"name": "Premium", "price_eur": 79.0, "mix_pct": 0.15},
-    ],
-}
-
-# Paying customers at run-rate milestones (organic solo founder, no paid ads budget)
-BASE_PAYING_SUBSCRIBERS: dict[str, dict[str, int]] = {
-    "saas": {"m3": 10, "m6": 28, "m12": 62},
-    "ia": {"m3": 8, "m6": 22, "m12": 50},
-    "app": {"m3": 18, "m6": 45, "m12": 95},
-    "jeu": {"m3": 120, "m6": 350, "m12": 800},
-    "game": {"m3": 120, "m6": 350, "m12": 800},
-    "gaming": {"m3": 120, "m6": 350, "m12": 800},
-    "hardware": {"m3": 6, "m6": 18, "m12": 40},
-    "autre": {"m3": 10, "m6": 25, "m12": 55},
-}
-
-EFFORT_M3_SCALE: dict[str, float] = {"S": 1.25, "M": 1.0, "L": 0.82, "XL": 0.65}
-EFFORT_M12_SCALE: dict[str, float] = {"S": 0.55, "M": 1.0, "L": 1.35, "XL": 1.75}
-
-_PRICE_RE = re.compile(
-    r"(?:€|EUR|\$|USD)\s*(\d+(?:[.,]\d{1,2})?)|(\d+(?:[.,]\d{1,2})?)\s*(?:€|EUR|\$|USD)",
-    re.IGNORECASE,
+from services.rnd_pricing_defaults import (
+    BASE_PAYING_SUBSCRIBERS,
+    DOMAIN_TIER_DEFAULTS,
+    EFFORT_M12_SCALE,
+    EFFORT_M3_SCALE,
+    PRICE_RE,
+    RANGE_RE,
+    TIER_LINE_RE,
+    parse_price,
 )
-_RANGE_RE = re.compile(
-    r"(\d+(?:[.,]\d{1,2})?)\s*[-–]\s*(\d+(?:[.,]\d{1,2})?)\s*(?:€|\$|EUR|USD|/mois|/month)",
-    re.IGNORECASE,
-)
-_TIER_LINE_RE = re.compile(
-    r"(?i)(starter|solo|pro|studio|business|premium|team|essentiel|mensuel|annuel)\s*[|:]\s*"
-    r"(\d+(?:[.,]\d{1,2})?)\s*€?",
-)
-
-
-def _parse_price(raw: str) -> float:
-    return float(raw.replace(",", "."))
 
 
 def _blended_arpu(tiers: list[dict[str, Any]]) -> float:
@@ -140,10 +73,10 @@ def infer_pricing_model(
     source = "domain_default"
 
     tiers: list[dict[str, Any]] = []
-    range_match = _RANGE_RE.search(blob)
+    range_match = RANGE_RE.search(blob)
     if range_match:
-        low = _parse_price(range_match.group(1))
-        high = _parse_price(range_match.group(2))
+        low = parse_price(range_match.group(1))
+        high = parse_price(range_match.group(2))
         mid = round((low + high) / 2, 2)
         tiers = [
             {"name": "Starter", "price_eur": low, "mix_pct": 0.42},
@@ -153,9 +86,9 @@ def infer_pricing_model(
         source = "extracted_range"
 
     if not tiers:
-        for m in _TIER_LINE_RE.finditer(blob):
+        for m in TIER_LINE_RE.finditer(blob):
             tiers.append(
-                {"name": m.group(1).capitalize(), "price_eur": _parse_price(m.group(2)), "mix_pct": 0.0}
+                {"name": m.group(1).capitalize(), "price_eur": parse_price(m.group(2)), "mix_pct": 0.0}
             )
         if tiers:
             even = round(1.0 / len(tiers), 2)
@@ -165,10 +98,10 @@ def infer_pricing_model(
 
     if not tiers:
         prices = []
-        for m in _PRICE_RE.finditer(blob):
+        for m in PRICE_RE.finditer(blob):
             raw = m.group(1) or m.group(2)
             if raw:
-                prices.append(_parse_price(raw))
+                prices.append(parse_price(raw))
         tiers = _tiers_from_extracted_prices(prices, dom)
         if tiers:
             source = "extracted_prices"
@@ -296,7 +229,6 @@ def revenue_from_pricing(
         "optimistic_m12_monthly_eur": round(m12_mrr * opt_sub_factor * opt_arpu_factor, 2),
         "conservative_cumulative_12m_eur": round(cumulative_12m * cons_factor, 2),
         "optimistic_cumulative_12m_eur": round(cumulative_12m * opt_sub_factor * opt_arpu_factor, 2),
-        # Legacy / portfolio context
         "portfolio_baseline_monthly_eur": portfolio_monthly,
         "per_app_baseline_monthly_eur": per_app_monthly,
         "active_apps_count": active_apps,

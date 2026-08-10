@@ -7,6 +7,20 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-10 — Full debt paydown : zéro fichier >300 lignes (refactor)
+
+- **Type :** refactor
+- **Details :**
+  - Suite du paydown repo-wide (pas seulement la dernière vague produit) :
+    agents, services, routers, skills, bots, config — façades + siblings.
+  - Parmi les gros : `rnd_ceo_agent`, hypothesis tree, telegram, playbooks,
+    dispatch executor, orchestration, `advanced_services`, `agents_pole`,
+    `agents/base` (LLMClient), `skill_gh_issues`, `skill_agent_learning`,
+    `workflow_engine`, `settings`, nomenclature, brand/pipeline routers, etc.
+  - APIs / routes / imports publics préservés via façades.
+  - **0** fichiers Python >1000, **0** >500, **0** >300 sous
+    `agents/` `services/` `api/` `skills/` `bots/` `config/` `database/`.
+
 ## 2026-08-10 — Full debt paydown : zéro fichier >1000 lignes (refactor)
 
 - **Type :** refactor

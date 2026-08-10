@@ -6,18 +6,19 @@ from __future__ import annotations
 import pytest
 
 from services import cost_monitor
+from services import cost_monitor_store
 
 
 @pytest.fixture(autouse=True)
 def isolated_cost_log(tmp_path, monkeypatch):
     """Isolate cost log per test — no cross-test pollution."""
     log_path = tmp_path / "cost_log.json"
-    monkeypatch.setattr(cost_monitor, "_COST_LOG_PATH", log_path)
-    cost_monitor._cost_log = []
-    cost_monitor._loaded = True
+    monkeypatch.setattr(cost_monitor_store, "COST_LOG_PATH", log_path)
+    cost_monitor_store._cost_log = []
+    cost_monitor_store._loaded = True
     yield
-    cost_monitor._cost_log = []
-    cost_monitor._loaded = False
+    cost_monitor_store._cost_log = []
+    cost_monitor_store._loaded = False
 
 
 def test_record_call_computes_cost() -> None:
@@ -29,8 +30,8 @@ def test_record_call_computes_cost() -> None:
         method="review",
     )
     assert cost > 0
-    assert len(cost_monitor._cost_log) == 1
-    assert cost_monitor._cost_log[0]["agent_id"] == "qa"
+    assert len(cost_monitor_store._cost_log) == 1
+    assert cost_monitor_store._cost_log[0]["agent_id"] == "qa"
 
 
 def test_get_cost_report_aggregates_by_agent() -> None:

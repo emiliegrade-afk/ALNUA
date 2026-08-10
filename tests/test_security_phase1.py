@@ -190,7 +190,7 @@ def test_telegram_webhook_accepts_valid_secret(
 
     mock_bot = MagicMock()
     mock_bot.process_update = AsyncMock()
-    with patch("api.routers.releases.get_telegram_bot", return_value=mock_bot):
+    with patch("api.routers.releases_coo_webhooks.get_telegram_bot", return_value=mock_bot):
         res = client.post(
             "/webhook/telegram",
             json={"update_id": 1},

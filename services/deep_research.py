@@ -21,102 +21,13 @@ Usage:
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
 from typing import Any
+
+from services.deep_research_models import ResearchReport, ResearchRound
+from services.deep_research_prompts import get_system
 
 logger = logging.getLogger(__name__)
 
-
-# ---------------------------------------------------------------------------
-# Dataclasses
-# ---------------------------------------------------------------------------
-
-@dataclass
-class ResearchRound:
-    round_num: int
-    query: str
-    findings: list[str]
-    sources_mentioned: list[str]
-    confidence: str    # "high" | "medium" | "low"
-    gaps_identified: list[str]
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "round": self.round_num,
-            "query": self.query,
-            "findings": self.findings,
-            "sources_mentioned": self.sources_mentioned,
-            "confidence": self.confidence,
-            "gaps_identified": self.gaps_identified,
-        }
-
-
-@dataclass
-class ResearchReport:
-    query: str
-    agent_id: str
-    rounds_completed: int
-    executive_summary: str
-    key_findings: list[dict[str, str]]   # [{finding, confidence, source}]
-    verified_claims: list[str]
-    unverified_claims: list[str]
-    knowledge_gaps: list[str]
-    recommended_actions: list[str]
-    rounds_history: list[ResearchRound]
-    depth: str   # "quick" | "standard" | "deep"
-    generated_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "query": self.query,
-            "agent_id": self.agent_id,
-            "rounds_completed": self.rounds_completed,
-            "depth": self.depth,
-            "executive_summary": self.executive_summary,
-            "key_findings": self.key_findings,
-            "verified_claims": self.verified_claims,
-            "unverified_claims": self.unverified_claims,
-            "knowledge_gaps": self.knowledge_gaps,
-            "recommended_actions": self.recommended_actions,
-            "rounds_history": [r.to_dict() for r in self.rounds_history],
-            "generated_at": self.generated_at,
-        }
-
-
-# ---------------------------------------------------------------------------
-# System prompts par agent
-# ---------------------------------------------------------------------------
-
-_RESEARCHER_SYSTEMS: dict[str, str] = {
-    "brainstorm": """Tu es Idris Okonkwo, Brainstorm Lead d'ALNUA.
-Tu explores des idées en profondeur, tu croises les disciplines, tu fais émerger des connexions non-évidentes.
-Ton rôle : transformer une question en carte d'exploration structurée.
-Réponds en JSON valide.""",
-
-    "rnd_agent": """Tu es Alex Mercer, R&D Lead d'ALNUA.
-Tu analyses les approches techniques avec rigueur. Tu distingues ce qui est prouvé de ce qui est expérimental.
-Ton rôle : évaluer la faisabilité, identifier les risques, proposer des prototypes concrets.
-Réponds en JSON valide.""",
-
-    "analyst_business": """Tu es Layla Hassan, Business Analyst d'ALNUA.
-Tu analyses les tendances marché avec des données. Tu identifies des opportunités business.
-Ton rôle : transformer une recherche en insight actionnable pour la direction.
-Réponds en JSON valide.""",
-
-    "default": """Tu es un chercheur expert d'ALNUA.
-Tu analyses des sujets avec rigueur et méthode. Tu distingues les faits des hypothèses.
-Réponds en JSON valide.""",
-}
-
-
-def _get_system(agent_id: str) -> str:
-    return _RESEARCHER_SYSTEMS.get(agent_id, _RESEARCHER_SYSTEMS["default"])
-
-
-# ---------------------------------------------------------------------------
-# Round runner
-# ---------------------------------------------------------------------------
 
 def _run_single_round(
     query: str,
@@ -152,7 +63,7 @@ Génère un objet JSON avec :
 - gaps_identified (list[string]): 2-4 questions restées sans réponse à investiguer
 - sub_query (string): question plus précise à investiguer au prochain round"""
 
-        raw = llm.complete(_get_system(agent_id), prompt, agent_id=agent_id, temperature=temperature)
+        raw = llm.complete(get_system(agent_id), prompt, agent_id=agent_id, temperature=temperature)
         data = parse_json_response(raw)
 
         return ResearchRound(
@@ -174,10 +85,6 @@ Génère un objet JSON avec :
             gaps_identified=["Erreur de recherche — réessayer"],
         )
 
-
-# ---------------------------------------------------------------------------
-# Synthesizer final
-# ---------------------------------------------------------------------------
 
 def _synthesize_all_rounds(
     query: str,
@@ -221,7 +128,7 @@ Produis un rapport JSON final avec :
 - recommended_actions (list[string]): 3-5 actions concrètes à prendre (format: "[agent_id] → action")"""
 
         raw = llm.complete(
-            _get_system(agent_id), prompt,
+            get_system(agent_id), prompt,
             agent_id=agent_id, temperature=0.3
         )
         return parse_json_response(raw)
@@ -236,10 +143,6 @@ Produis un rapport JSON final avec :
             "recommended_actions": [],
         }
 
-
-# ---------------------------------------------------------------------------
-# API principale
-# ---------------------------------------------------------------------------
 
 def run_deep_research(
     query: str,
@@ -273,13 +176,11 @@ def run_deep_research(
         )
         research_rounds.append(round_result)
 
-        # Construire le contexte cumulé pour le prochain round
         previous_context = "\n".join([
             f"Round {r.round_num}: {'; '.join(r.findings[:3])}"
             for r in research_rounds
         ])
 
-    # Synthèse finale
     synthesis = _synthesize_all_rounds(query, research_rounds, context, agent_id)
 
     report = ResearchReport(
@@ -296,7 +197,6 @@ def run_deep_research(
         depth=depth_map.get(rounds, "deep"),
     )
 
-    # Compétition — points pour la recherche
     try:
         from services.competition import add_points
         add_points(agent_id, "document_produced", note=f"Deep research: {query[:50]}")

@@ -5,7 +5,9 @@ from __future__ import annotations
 from fastapi import FastAPI
 
 from api.routers.health import router as health_router
-from api.routers.pipeline import router as pipeline_router
+from api.routers.pipeline_tasks import router as pipeline_tasks_router
+from api.routers.pipeline_openroom import router as pipeline_openroom_router
+from api.routers.pipeline_costs import router as pipeline_costs_router
 from api.routers.dashboard import router as dashboard_router
 from api.routers.core import router as core_router
 from api.routers.projects import router as projects_router
@@ -20,7 +22,16 @@ from api.routers.briefing import router as briefing_router
 from api.routers.releases import router as releases_router
 from api.routers.competition import router as competition_router
 from api.routers.agents_pole import router as agents_pole_router
-from api.routers.brand import router as brand_router
+from api.routers.agents_secretary import router as agents_secretary_router
+from api.routers.agents_dev import router as agents_dev_router
+from api.routers.agents_gaming_studio import router as agents_gaming_studio_router
+from api.routers.agents_robo import router as agents_robo_router
+from api.routers.agents_comms import router as agents_comms_router
+from api.routers.agents_finance import router as agents_finance_router
+from api.routers.agents_analytics import router as agents_analytics_router
+from api.routers.agents_bots import router as agents_bots_router
+from api.routers.brand_analyze import router as brand_analyze_router
+from api.routers.brand_kits import router as brand_kits_router
 from api.routers.brand_system import router as brand_system_router
 from api.routers.beta import router as beta_router
 from api.routers.waitlist import router as waitlist_router
@@ -42,6 +53,15 @@ from api.routers.composio import router as composio_router
 from api.routers.scanner import router as scanner_router
 from api.routers.settings import router as settings_router
 from api.routers.advanced_services import router as advanced_services_router
+from api.routers.services_llm_router import router as services_llm_router
+from api.routers.services_parallel import router as services_parallel_router
+from api.routers.services_content import router as services_content_router
+from api.routers.services_research import router as services_research_router
+from api.routers.services_code_graph import router as services_code_graph_router
+from api.routers.services_costs import router as services_costs_router
+from api.routers.services_ab_test import router as services_ab_test_router
+from api.routers.services_events import router as services_events_router
+from api.routers.services_coo_briefing import router as services_coo_briefing_router
 from api.routers.orchestration import router as orchestration_router
 from api.routers.admin import router as admin_router
 from api.routers.gdd import router as gdd_router
@@ -67,7 +87,9 @@ from api.routers.robo_phase21 import router as robo_phase21_router
 
 ALL_ROUTERS = [
     health_router,
-    pipeline_router,
+    pipeline_tasks_router,
+    pipeline_openroom_router,
+    pipeline_costs_router,
     dashboard_router,
     core_router,
     projects_router,
@@ -82,7 +104,16 @@ ALL_ROUTERS = [
     releases_router,
     competition_router,
     agents_pole_router,
-    brand_router,
+    agents_secretary_router,
+    agents_dev_router,
+    agents_gaming_studio_router,
+    agents_robo_router,
+    agents_comms_router,
+    agents_finance_router,
+    agents_analytics_router,
+    agents_bots_router,
+    brand_analyze_router,
+    brand_kits_router,
     brand_system_router,
     beta_router,
     waitlist_router,
@@ -104,6 +135,15 @@ ALL_ROUTERS = [
     scanner_router,
     settings_router,
     advanced_services_router,
+    services_llm_router,
+    services_parallel_router,
+    services_content_router,
+    services_research_router,
+    services_code_graph_router,
+    services_costs_router,
+    services_ab_test_router,
+    services_events_router,
+    services_coo_briefing_router,
     orchestration_router,
     admin_router,
     academy_router,

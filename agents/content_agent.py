@@ -11,41 +11,17 @@ from typing import Any
 from crewai import Agent, LLM
 
 from agents.base import LLMClient, log_agent_action, parse_json_response, run_with_learning
+from agents.content_agent_constants import (
+    CONTENT_TYPE_HINTS,
+    PLATFORM_RULES,
+    VALID_CONTENT_TYPES,
+    VALID_PLATFORMS,
+)
 from agents.tools.hub_tools import CONTENT_TOOLS
 from database.supabase_client import SupabaseClient
 from skills.skill_composio import get_composio_tools
 from config.agent_operating_spec import get_system_prompt
 from skills.skill_langfuse import trace_agent
-
-VALID_PLATFORMS = frozenset({"instagram", "tiktok", "x", "youtube", "linkedin", "website_blog"})
-VALID_CONTENT_TYPES = frozenset({
-    "announcement", "teaser", "tutorial", "behind_scenes", "short_video",
-})
-
-PLATFORM_RULES: dict[str, str] = {
-    "instagram": (
-        "Instagram : texte 150-300 mots, émojis naturels, 20-25 hashtags en fin de post."
-    ),
-    "tiktok": (
-        "TikTok : hook percutant en 1ère ligne, texte court (caption), 5-8 hashtags tendance."
-    ),
-    "x": "X (Twitter) : max 280 caractères, punch direct, 2-3 hashtags max.",
-    "youtube": (
-        "YouTube Shorts : titre accrocheur en 1ère ligne, puis description + tags/hashtags."
-    ),
-    "linkedin": (
-        "LinkedIn : ton professionnel, 100-200 mots, pas d'émojis excessifs, 3-5 hashtags."
-    ),
-}
-
-CONTENT_TYPE_HINTS: dict[str, str] = {
-    "announcement": "Annonce de feature — clair, enthousiaste, orienté bénéfice utilisateur.",
-    "teaser": "Teaser mystère — intrigue sans tout révéler, crée de la curiosité.",
-    "behind_scenes": "Behind the scenes — authenticité solo dev, coulisses du build.",
-    "tutorial": "Tutoriel court — une astuce actionnable, étapes concises.",
-    "short_video": "Hype / engagement — énergie, question à la communauté, CTA.",
-    "lore": "Lore / univers (Wyrdheim) — immersion, worldbuilding, ton épique.",
-}
 
 
 class ContentAgent(AgentBase):
@@ -296,10 +272,6 @@ Chaque post doit respecter les contraintes de SA plateforme."""
                 raise ValueError(f"Statut invalide : {payload['status']}")
         if not payload:
             raise ValueError("Aucun champ à mettre à jour.")
-        # Stats de performance réelle (Phase 37) — saisie manuelle après
-        # publication, on horodate pour que l'UI affiche "à jour au ...".
         if {"reach", "engagement_count"} & payload.keys():
-            from datetime import datetime, timezone
-
             payload["stats_updated_at"] = datetime.now(timezone.utc).isoformat()
         return self.db.update("posts_queue", post_id, payload)
