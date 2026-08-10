@@ -29,6 +29,13 @@
 | DEC-018 | Eve Pi différé ; agents via Hub SSH (`PI_HOST`) ; WinSCP = humain seulement | 2026-08-09 | Active |
 | DEC-019 | UI Finance/Marketing = `*-v2` live ; stash pole-dashboard BUG-019 jeté | 2026-08-09 | Active |
 | DEC-020 | Agency Gaming PC = Claude Code sur `UE_PROJECT_PATH` (+ outils UE5.8) | 2026-08-10 | Active |
+| DEC-021 | Idle agent work — ambition entreprise, file hybride, trust, budget adaptatif | 2026-08-10 | Active |
+| DEC-022 | Agent isolation — resource locks + slots + integrator-only merge (AAF Phase A) | 2026-08-10 | Active |
+| DEC-023 | Mission Graph — façade plan_executor, pas de 3ᵉ moteur (AAF Phase B) | 2026-08-10 | Active |
+| DEC-024 | Loop Engine — FSM execute/evaluate/feedback/retry (AAF Phase C) | 2026-08-10 | Active |
+| DEC-025 | Review Chain — AUTO→BOARD→POLICY→INTEGRATE + merge autonomy (AAF Phase D) | 2026-08-10 | Active |
+| DEC-026 | Capability Packs + PermissionGuard + Trust Graph (AAF Phase E) | 2026-08-10 | Active |
+| DEC-027 | Context Engine L1–L4 + collective promotion (AAF Phase F) | 2026-08-10 | Active |
 
 ---
 
@@ -319,3 +326,132 @@ UE5.8 — pas seulement bavarder via HTTP.
 **Alternative rejetée :** élargir `/ide/run` ou donner un shell Windows non jailed.
 **Pourquoi rejetée :** SEC-001 / allowlist IDE existent pour une raison ; l’agency
 Gaming réutilise le modèle worktree déjà éprouvé.
+
+### DEC-021 — Idle agent work (travail sans brief CEO précis)
+**Contexte :** audit branchement 2026-08-10 — les agents sont surtout
+request-driven ; l’ops autonome existe (`run_ops`, BugWatchdog, academy) mais pas
+de contrat pour avancer produits / entreprise / self-dev sans demande. Emilie
+veut que le siège « travaille vraiment » hors brief ponctuel, sans abandonner le
+contrôle stratégique (`SPEC_WORKFLOW_ENGINE.md`).
+**Décision (choix CEO 2026-08-10) :**
+1. **Ambition C — Entreprise** : idle couvre ops + tickets produit + initiatives
+   company en L1 (brouillons / issues), pas seulement academy/ops.
+2. **Sélection hybride** : Aria propose une file du jour ; L0–L1 s’exécutent dès
+   qu’ils sont en file ; L2 seulement après validation CEO de cette file.
+3. **Self-dev** (Mem0 compress, research domaine, skill synth) : uniquement si
+   trust ≥ 70 (DEC-011) — pas de self-dev idle sous ce seuil.
+4. **Budget LLM idle adaptatif** : pas de plafond USD figé ; throttle via
+   `cost_monitor.check_budget_alert` (`ok` / `warning` / `critical`).
+5. **Implémentation** : étendre `workflow_engine` (DEC-012) + scheduler/n8n —
+   pas un second moteur ; contrat dans `docs/specs/SPEC_IDLE_AGENT_WORK.md` ;
+   livraison = Phase 39 ROADMAP.
+**Alternatives rejetées :**
+- Ambition A/B seule (trop étroit vs objectif « entreprise vivante »).
+- File 100 % auto L2 sans validation matinale (risque side-effects).
+- Self-dev pour tous sans trust (pollution mémoire / coût).
+- Plafond USD hardcodé dans la DEC (trop rigide ; settings + alertes suffisent).
+**Pourquoi :** hybride + trust + budget adaptatif garde le « 100 % autonome sauf
+le quoi stratégique » tout en élargissant le terrain de jeu idle.
+
+### DEC-022 — Agent isolation (locks + slots + merge integrator)
+**Contexte :** intégration des patterns AAF manquants — sans isolation, le
+parallélisme (`parallel_runner`, plans COO, coding worktrees, idle) risque
+d’overwrite silencieux (même fichier / ticket / dossier) et de merges `main`
+par des exécuteurs. Spec : `docs/specs/SPEC_AGENT_ISOLATION.md`.
+**Décision :**
+1. **Resource locks** (`services/resource_locks.py`) — fail-closed, TTL, wait
+   puis deny ; clés `ticket:` / `path:` / `dossier:` / `campaign:` / `task:` /
+   `data:`.
+2. **Execution slots** (`services/execution_slots.py`) — plafonds global /
+   per-repo / per-agent (settings `ISOLATION_MAX_*`).
+3. **Merge policy** (`services/merge_policy.py`) — branches protégées
+   `main`/`master`/`staging` : `dev_integrator` ; `fix_pipeline` (hotfix
+   opt-in) ; academy auto-merge ; `coding_pipeline` → staging seulement si
+   `CODING_AUTO_MERGE`.
+4. Câblage : coding backends, `parallel_runner`, `plan_executor`,
+   `fix_pipeline` ; API `GET /isolation/*`.
+**Alternatives rejetées :**
+- Verrou exclusif sur tout le repo (tuerait le parallèle worktree légitime).
+- Faire confiance au LLM / prompts pour « ne pas toucher aux fichiers des autres ».
+- Second moteur d’orchestration (DEC-012 inchangé).
+**Pourquoi :** lois déterministes hors LLM — même esprit AAF PermissionGuard /
+Worktree, sans réécrire le Kernel.
+
+### DEC-023 — Mission Graph (façade plan_executor)
+**Contexte :** AAF Phase B — besoin d’un graphe Mission→Tasks (`depends_on`)
+unique pour parallèle/séquentiel, visible OpenRoom/CEO, sans créer un 3ᵉ moteur
+à côté de `workflow_engine` (DEC-012) et `plan_executor`.
+**Décision :**
+1. Agrégat `Mission` + `MissionTask` persisté dans `data/missions/{id}.json`.
+2. Dispatch = même `_execute_step` / isolation Phase A que `plan_executor`.
+3. `run_coo_plan` persiste et exécute via Mission Graph.
+4. API `/missions*` + overlay OpenRoom (`missionId`).
+5. Spec : `docs/specs/SPEC_MISSION_GRAPH.md`.
+**Alternatives rejetées :** second moteur DAG ; stocker seulement dans
+`workflow_runs` (mauvais modèle recettes vs missions multi-agents).
+**Pourquoi :** unifie la vue sans dupliquer l’exécution.
+
+### DEC-024 — Loop Engine (execute → evaluate → feedback → retry)
+**Contexte :** AAF Phase C — le loop vérif/correction n’existait vraiment que
+dans `fix_pipeline` ; Mission Graph / plan_executor retentaient sans feedback
+structuré ; `workflow_engine` ne connaissait que `ECART` (humain).
+**Décision :**
+1. Service `services/loop_engine.py` — FSM PENDING→EXECUTING→EVALUATING→
+   COMPLETED | FAILED | ESCALATED ; rejet sans feedback interdit.
+2. `fix_pipeline` et `plan_executor._execute_step` passent par ce moteur.
+3. `workflow_engine` : statut `RETRYABLE` (rejoue l’étape avec
+   `ctx[_step_feedback]`) vs `ECART` (blocage humain).
+4. Caps `LOOP_MAX_ITERATIONS` / `LOOP_STRICT_MAX_ITERATIONS` (settings) ;
+   `is_strict_loop` + `resolve_max_iterations` branchés sur merge / ship /
+   integrator / fix_pipeline.
+5. Spec : `docs/specs/SPEC_LOOP_ENGINE.md`.
+**Alternatives rejetées :** dupliquer le while de fix_pipeline partout ;
+fusionner Loop et Mission Graph en un seul monolithe.
+**Pourquoi :** un contrat unique de self-correction, borné, avec feedback brut.
+
+### DEC-025 — Review Chain + merge autonomy
+**Contexte :** AAF Phase D — gates et merge n’étaient pas le même contrat
+partout (coding, fix_pipeline, ship, Mission).
+**Décision :**
+1. Service `services/review_chain.py` — ordre fixe AUTO → BOARD → POLICY →
+   INTEGRATE? → DONE ; auto avant humain.
+2. `merge_autonomy()` : academy auto ; staging si trust ≥ seuil ; main jamais
+   auto idle ; ads/finances/publish → humain ; hotfix `fix_pipeline` excepté.
+3. N>1 feature branches → INTEGRATE (`dev_integrator`) obligatoire.
+4. Recette workflow `mission_ship` ; API `/review-chain/*`.
+5. Spec : `docs/specs/SPEC_REVIEW_CHAIN.md`.
+**Alternatives rejetées :** dupliquer QA/Spec dans chaque pipeline ; auto-merge
+`main` Hub « pour coller à AAF ».
+**Pourquoi :** un seul chemin de ship, fail-fast, sans toucher main sans humain.
+
+### DEC-026 — Capability Packs + PermissionGuard + Trust Graph
+**Contexte :** AAF Phase E — le LLM peut « vouloir » un tool ; rien de
+mathématique ne l’arrêtait partout (merge, ads, etc.).
+**Décision :**
+1. Catalogue `config/capability_catalog.py` + packs
+   `config/capability_packs.py` (Capability ≠ Skill).
+2. `services/permission_guard.py` — fail-closed ; inconnu = deny ;
+   `PERMISSION_GUARD_ENABLED` pour compat.
+3. Trust Graph append-only `data/trust_graph.jsonl` (≠ Trust Score DEC-011).
+4. Câblé sur merge / ads / worktree / mail / git / PR / abort ; API
+   `/capabilities*`, `/permission-guard/check`, `/trust-graph/recent`.
+5. MCP progressif : `X-MCP-Agent` + `config/mcp_capability_routes.py` +
+   middleware ; `PERMISSION_GUARD_MCP_ENABLED` ; packs `cursor`/`mcp_client`.
+6. Spec : `docs/specs/SPEC_CAPABILITY_GUARD.md`.
+**Alternatives rejetées :** laisser merge_policy seul (pas de catalogue
+   explicite) ; Trust Score comme journal (mauvais modèle) ; Neo4j obligatoire.
+**Pourquoi :** deny déterministe avant side-effect, auditable.
+
+### DEC-027 — Context Engine L1–L4 + Collective Intelligence
+**Contexte :** AAF Phase F — leçons Mem0 et library existaient, mais pas de
+couches stratifiées ni wipe working memory, ni promotion bureau.
+**Décision :**
+1. `services/context_engine.py` compile L1 policies → L2 standards/library/
+   collective → L3 Mem0 → L4 working.
+2. L4 dans `data/working_memory/` ; wipe obligatoire en fin de step plan.
+3. Promotion : ≥N agents même room, même fingerprint → Mem0 `bureau:{room}`
+   + `collective_lessons.json`.
+4. `inject_learning_context` délègue au moteur ; API `/context/*`.
+5. Spec : `docs/specs/SPEC_CONTEXT_ENGINE.md`.
+**Alternatives rejetées :** Neo4j obligatoire ; 2ᵉ store vectoriel parallèle.
+**Pourquoi :** prompts stables + pas de contamination L4 entre missions.

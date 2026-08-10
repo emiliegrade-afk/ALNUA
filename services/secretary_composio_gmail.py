@@ -25,7 +25,27 @@ def execute(action: str, params: dict[str, Any]) -> dict[str, Any]:
     return composio_execute(action, params, user_id=composio_user_id())
 
 
-def send_email(to: str, subject: str, body: str) -> dict[str, Any]:
+def send_email(
+    to: str,
+    subject: str,
+    body: str,
+    *,
+    agent_id: str = "secretary",
+) -> dict[str, Any]:
+    try:
+        from services.permission_guard import PermissionDeniedError, require_capability
+
+        require_capability(
+            agent_id,
+            "mail:send",
+            resource=f"to:{(to or '')[:80]}",
+            meta={"subject": (subject or "")[:80]},
+        )
+    except PermissionDeniedError as exc:
+        return {"success": False, "error": str(exc)}
+    except Exception:
+        pass
+
     if not is_connected("gmail"):
         return {
             "success": False,

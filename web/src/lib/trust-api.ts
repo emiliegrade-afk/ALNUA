@@ -42,3 +42,20 @@ export async function fetchAgentTrustList(limit = 50): Promise<AgentTrustRow[]> 
   );
   return Array.isArray(data.agents) ? data.agents : [];
 }
+
+/** Trust Graph decision row — GET /trust-graph/recent (DEC-026). */
+export interface TrustGraphDecision {
+  ts?: string;
+  agent_id: string;
+  capability: string;
+  allowed: boolean;
+  reason?: string;
+  resource?: string | null;
+}
+
+export async function fetchTrustGraphRecent(limit = 30): Promise<TrustGraphDecision[]> {
+  const data = await hubFetch<{ decisions: TrustGraphDecision[] }>(
+    `/trust-graph/recent?limit=${encodeURIComponent(String(limit))}`,
+  );
+  return Array.isArray(data.decisions) ? data.decisions : [];
+}

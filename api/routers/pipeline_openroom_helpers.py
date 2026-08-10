@@ -20,9 +20,110 @@ def openroom_idle_agents() -> dict[str, dict[str, Any]]:
             "recentCode": [],
             "log": [],
             "progress": None,
+            "runId": None,
+            "taskId": None,
+            "recipeId": None,
+            "missionId": None,
         }
         for agent_id in OPENROOM_AGENT_IDS
     }
+
+
+def apply_workflow_runs_to_agents(agents: dict[str, dict[str, Any]]) -> None:
+    """Overlay recent workflow_runs onto OpenRoom — real run/task IDs (DEC-021)."""
+    try:
+        from services.workflow_engine_store import list_runs, get_run
+    except Exception:
+        return
+
+    active_statuses = {"running", "blocked", "pending"}
+    for summary in list_runs(limit=25):
+        status = str(summary.get("status") or "")
+        run_id = str(summary.get("run_id") or "")
+        recipe_id = str(summary.get("recipe_id") or "")
+        if not run_id:
+            continue
+        run = get_run(run_id)
+        if not run:
+            continue
+        head = None
+        try:
+            from services.workflow_engine_catalog import get_recipe
+
+            recipe = get_recipe(recipe_id)
+            head = recipe.head_agent if recipe else None
+        except Exception:
+            head = None
+        # Normalize *_agent → persona id when needed
+        agent_id = (head or "").replace("_agent", "") if head else ""
+        if agent_id not in agents:
+            # idle drain may tag agents in context
+            ctx_agents = list((run.context or {}).get("_idle_agent_ids") or [])
+            agent_id = str(ctx_agents[0]) if ctx_agents else ""
+        if agent_id not in agents:
+            continue
+
+        task_label = summary.get("summary") or recipe_id or run_id
+        if status in active_statuses or status == "in_progress":
+            set_openroom_status(agents, agent_id, "working", str(task_label)[:160])
+            agents[agent_id]["runId"] = run_id
+            agents[agent_id]["recipeId"] = recipe_id
+            agents[agent_id]["taskId"] = run_id
+            # Rough progress from finished steps
+            steps = run.steps or []
+            if steps:
+                done = sum(1 for s in steps if str(s.status) in {"OK", "A_VERIFIER"})
+                agents[agent_id]["progress"] = int(100 * done / max(len(steps), 1))
+        elif status == "completed":
+            # Recently finished — waiting with run id, no fake load
+            if not agents[agent_id].get("runId"):
+                set_openroom_status(agents, agent_id, "waiting", str(task_label)[:160])
+                agents[agent_id]["runId"] = run_id
+                agents[agent_id]["recipeId"] = recipe_id
+                agents[agent_id]["taskId"] = run_id
+                agents[agent_id]["progress"] = 100
+
+
+def apply_missions_to_agents(agents: dict[str, dict[str, Any]]) -> None:
+    """Overlay active Mission Graph tasks onto OpenRoom (DEC-023)."""
+    try:
+        from services.mission_graph_store import get_mission, list_missions
+    except Exception:
+        return
+
+    for summary in list_missions(limit=20):
+        status = str(summary.get("status") or "")
+        if status not in {"IN_PROGRESS", "BLOCKED", "A_VERIFIER"}:
+            continue
+        mid = str(summary.get("mission_id") or "")
+        if not mid:
+            continue
+        mission = get_mission(mid)
+        if not mission:
+            continue
+        progress = mission.progress_pct()
+        for task in mission.tasks:
+            aid = (task.agent_id or "").replace("_agent", "")
+            if aid not in agents:
+                continue
+            label = f"{mission.title}: {task.description}"[:160]
+            if task.status == "EXECUTING":
+                set_openroom_status(agents, aid, "working", label)
+                agents[aid]["runId"] = mid
+                agents[aid]["taskId"] = task.task_id
+                agents[aid]["missionId"] = mid
+                agents[aid]["progress"] = progress
+            elif task.status == "READY" and agents[aid].get("status") in {"idle", "waiting"}:
+                set_openroom_status(agents, aid, "waiting", label)
+                agents[aid]["runId"] = mid
+                agents[aid]["taskId"] = task.task_id
+                agents[aid]["missionId"] = mid
+                agents[aid]["progress"] = progress
+            elif task.status == "FAILED":
+                set_openroom_status(agents, aid, "error", label)
+                agents[aid]["runId"] = mid
+                agents[aid]["taskId"] = task.task_id
+                agents[aid]["missionId"] = mid
 
 
 def extract_file_mentions(logs: list[str]) -> tuple[str | None, list[str]]:

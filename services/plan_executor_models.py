@@ -16,6 +16,9 @@ class ExecutionStep:
     kwargs: dict[str, Any] = field(default_factory=dict)
     depends_on: list[str] = field(default_factory=list)
     award_points: bool = True
+    lock_keys: list[str] = field(default_factory=list)
+    repo_slug: str = ""
+    repo_path: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -24,6 +27,8 @@ class ExecutionStep:
             "agent_id": self.agent_id,
             "method": self.method,
             "depends_on": self.depends_on,
+            "lock_keys": list(self.lock_keys or []),
+            "repo_slug": self.repo_slug,
         }
 
 

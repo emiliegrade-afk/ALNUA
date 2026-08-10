@@ -105,3 +105,85 @@ class SettingsHubMixin:
         alias="SCHEDULER_TIMEZONE",
         description="IANA timezone for cron triggers (briefing, R&D, content sprint)",
     )
+    idle_work_enabled: bool = Field(
+        default=True,
+        alias="IDLE_WORK_ENABLED",
+        description="Phase 39 — schedule idle_plan_day / idle_drain (DEC-021)",
+    )
+    idle_drain_interval_min: int = Field(
+        default=180,
+        alias="IDLE_DRAIN_INTERVAL_MIN",
+        description="Minutes between idle_drain jobs when IDLE_WORK_ENABLED",
+    )
+    idle_max_items_per_drain: int = Field(
+        default=1,
+        ge=1,
+        le=3,
+        alias="IDLE_MAX_ITEMS_PER_DRAIN",
+    )
+    idle_default_autonomy_level: int = Field(
+        default=1,
+        ge=0,
+        le=3,
+        alias="IDLE_DEFAULT_AUTONOMY_LEVEL",
+        description="Phase 30 autonomy_level mapped to max idle L0–L2",
+    )
+    idle_daily_budget_usd: float = Field(
+        default=10.0,
+        alias="IDLE_DAILY_BUDGET_USD",
+        description="Soft daily budget for cost_monitor idle gates (adaptive)",
+    )
+    # Phase C Loop Engine (DEC-024)
+    loop_max_iterations: int = Field(
+        default=3,
+        alias="LOOP_MAX_ITERATIONS",
+        ge=1,
+        le=10,
+        description="Default Loop Engine max iterations (align watchdog)",
+    )
+    loop_strict_max_iterations: int = Field(
+        default=2,
+        alias="LOOP_STRICT_MAX_ITERATIONS",
+        ge=1,
+        le=5,
+        description="Stricter cap for destructive / merge-sensitive loops",
+    )
+    loop_retry_sleep_s: float = Field(
+        default=0.0,
+        alias="LOOP_RETRY_SLEEP_S",
+        ge=0.0,
+        le=60.0,
+        description="Default sleep between loop iterations (fix_pipeline overrides)",
+    )
+    # Phase D Review Chain (DEC-025)
+    review_chain_staging_trust_min: float = Field(
+        default=0.70,
+        alias="REVIEW_CHAIN_STAGING_TRUST_MIN",
+        ge=0.0,
+        le=1.0,
+        description="Min producer trust for auto-merge into staging",
+    )
+    # Phase E PermissionGuard (DEC-026)
+    permission_guard_enabled: bool = Field(
+        default=True,
+        alias="PERMISSION_GUARD_ENABLED",
+        description="Fail-closed Capability Pack checks before sensitive side-effects",
+    )
+    permission_guard_mcp_enabled: bool = Field(
+        default=True,
+        alias="PERMISSION_GUARD_MCP_ENABLED",
+        description="Enforce Capability Packs on MCP-identified HTTP calls (X-MCP-Agent)",
+    )
+    # Phase F Context Engine (DEC-027)
+    context_engine_enabled: bool = Field(
+        default=True,
+        alias="CONTEXT_ENGINE_ENABLED",
+        description="Compile L1–L4 stratified context into agent prompts",
+    )
+    collective_promote_min_agents: int = Field(
+        default=3,
+        alias="COLLECTIVE_PROMOTE_MIN_AGENTS",
+        ge=2,
+        le=20,
+        description="Distinct agents in same room before promoting lesson to L2",
+    )

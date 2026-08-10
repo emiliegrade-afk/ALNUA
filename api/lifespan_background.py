@@ -13,6 +13,8 @@ from api.lifespan_jobs import (
     run_partnership_followup_reminders_job,
     run_scheduled_backup,
     run_scheduled_daily_briefing,
+    run_scheduled_idle_drain_quiet,
+    run_scheduled_idle_plan_quiet,
     run_scheduled_ops_quiet,
     run_scheduled_semaine_quiet,
 )
@@ -85,6 +87,22 @@ async def start_background_services(settings: Any) -> None:
             id="daily_backup",
             replace_existing=True,
         )
+        if getattr(settings, "idle_work_enabled", True):
+            _briefing_scheduler.add_job(
+                run_scheduled_idle_plan_quiet,
+                CronTrigger(hour=8, minute=10, timezone=cron_tz),
+                id="idle_plan_day",
+                replace_existing=True,
+            )
+            drain_min = max(30, int(getattr(settings, "idle_drain_interval_min", 180) or 180))
+            _briefing_scheduler.add_job(
+                run_scheduled_idle_drain_quiet,
+                "interval",
+                minutes=drain_min,
+                id="idle_drain",
+                replace_existing=True,
+            )
+            logger.info("Idle work jobs registered (plan 08:10, drain every %s min)", drain_min)
         _briefing_scheduler.start()
         logger.info("Scheduler started (08:00 %s)", cron_tz.key)
     else:

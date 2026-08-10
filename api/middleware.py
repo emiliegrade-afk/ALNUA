@@ -162,4 +162,8 @@ def register_middleware(app) -> None:
     app.middleware("http")(metrics_middleware)
     app.middleware("http")(tenant_middleware)
     app.middleware("http")(rate_limit_middleware)
+    # Register before hub_api_key so hub key runs first (last registered = outermost).
+    from api.middleware_mcp import mcp_permission_middleware
+
+    app.middleware("http")(mcp_permission_middleware)
     app.middleware("http")(hub_api_key_middleware)

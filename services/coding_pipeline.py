@@ -128,8 +128,13 @@ def merge_pr_if_allowed(
     tests_passed: bool,
     repo_slug: str | None = None,
     config: CodingPipelineConfig | None = None,
+    agent_id: str = "coding_pipeline",
+    target_branch: str | None = None,
+    producer_agent_id: str | None = None,
+    department: str | None = None,
+    human_approved: bool = False,
 ) -> dict[str, str | bool]:
-    """Merge PR via gh CLI when auto-merge is on and QA passed."""
+    """Merge PR via gh CLI when auto-merge is on, QA passed, and merge policy allows."""
     cfg = config or get_coding_config()
     out: dict[str, str | bool] = {"merged": False, "reason": ""}
 
@@ -139,6 +144,47 @@ def merge_pr_if_allowed(
     if not tests_passed:
         out["reason"] = "tests_failed"
         return out
+
+    branch = (target_branch or cfg.merge_base_branch or resolve_default_branch(repo_path)).strip()
+    try:
+        from services.merge_policy import MergeDeniedError, assert_can_merge, merge_autonomy
+
+        assert_can_merge(agent_id, branch, repo_slug=repo_slug)
+        autonomy = merge_autonomy(
+            branch,
+            repo_slug=repo_slug,
+            department=department,
+            producer_agent_id=producer_agent_id or agent_id,
+            actor_agent_id=agent_id,
+            human_approved=human_approved,
+        )
+        if autonomy.get("mode") == "deny":
+            out["reason"] = f"merge_autonomy:{autonomy.get('reason')}"
+            return out
+        if autonomy.get("mode") == "human_required":
+            out["reason"] = f"human_required:{autonomy.get('reason')}"
+            logger.info("[CodingPipeline] merge deferred (human): %s", autonomy.get("reason"))
+            return out
+    except MergeDeniedError as exc:
+        out["reason"] = f"merge_policy:{exc}"
+        logger.warning("[CodingPipeline] merge denied: %s", exc)
+        return out
+
+    try:
+        from services.permission_guard import PermissionDeniedError, require_capability
+
+        require_capability(
+            agent_id,
+            "github:pr:merge",
+            resource=f"pr:{pr_number}",
+            meta={"repo_slug": repo_slug, "target_branch": branch},
+        )
+    except PermissionDeniedError as exc:
+        out["reason"] = f"capability:{exc}"
+        logger.warning("[CodingPipeline] github:pr:merge denied: %s", exc)
+        return out
+    except Exception:
+        pass
 
     try:
         result = subprocess.run(

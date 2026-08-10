@@ -71,6 +71,19 @@ def connect_app_oauth(app_name: str) -> str:
 @tool("send_email_via_gmail")
 def send_email_via_gmail(to: str, subject: str, body: str) -> str:
     """Envoie un email via Gmail. Args: to (destinataire), subject, body."""
+    try:
+        from services.permission_guard import PermissionDeniedError, require_capability
+
+        require_capability(
+            "coo",
+            "mail:send",
+            resource=f"to:{(to or '')[:80]}",
+            meta={"subject": (subject or "")[:80], "source": "coo_composio_tools"},
+        )
+    except PermissionDeniedError as exc:
+        return f"Erreur: {exc}"
+    except Exception:
+        pass
     result = composio_execute(
         action="GMAIL_SEND_EMAIL",
         params={"recipient_email": to, "subject": subject, "body": body},

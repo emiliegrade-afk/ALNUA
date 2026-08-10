@@ -112,6 +112,27 @@ def _finalize_pr(
     result: dict,
 ) -> dict:
     """Push branch, open PR, set success fields."""
+    agent_id = _resolve_spec_agent_id(spec)
+    try:
+        from services.permission_guard import PermissionDeniedError, require_capability
+
+        require_capability(
+            agent_id,
+            "git:push:feature",
+            resource=f"branch:{branch}",
+            meta={"source": "_finalize_pr"},
+        )
+        require_capability(
+            agent_id,
+            "github:pr:create",
+            resource=f"branch:{branch}",
+            meta={"title": str(spec.get("pr_title") or spec.get("title") or "")[:80]},
+        )
+    except PermissionDeniedError:
+        raise
+    except Exception:
+        pass
+
     config = get_coding_config()
     _, sha, _ = run_command(["git", "rev-parse", "HEAD"], cwd=str(worktree_path))
     result["commit_sha"] = sha.strip()

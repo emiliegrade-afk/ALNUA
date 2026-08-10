@@ -14,6 +14,29 @@
 
 **100 % autonome** = tout sauf le *quoi* stratégique et la validation CEO.
 
+Extension idle (sans brief précis) : `docs/specs/SPEC_IDLE_AGENT_WORK.md` +
+**DEC-021** — ambition entreprise, file hybride COO/CEO, self-dev si trust ≥ 70,
+budget LLM adaptatif. N’élargit pas L3 (stratégique) ni `budget_transfer`.
+
+Isolation parallèle (AAF Phase A) : `docs/specs/SPEC_AGENT_ISOLATION.md` +
+**DEC-022** — resource locks + slots + merge integrator-only avant tout
+side-effect multi-agents.
+
+Mission Graph (AAF Phase B) : `docs/specs/SPEC_MISSION_GRAPH.md` + **DEC-023** —
+DAG Mission/Tasks façade `plan_executor` (pas de 3ᵉ moteur).
+
+Loop Engine (AAF Phase C) : `docs/specs/SPEC_LOOP_ENGINE.md` + **DEC-024** —
+retry avec feedback ; `RETRYABLE` workflow ≠ `ECART`.
+
+Review Chain (AAF Phase D) : `docs/specs/SPEC_REVIEW_CHAIN.md` + **DEC-025** —
+AUTO→BOARD→POLICY→INTEGRATE ; `merge_autonomy` staging/main.
+
+Capability Guard (AAF Phase E) : `docs/specs/SPEC_CAPABILITY_GUARD.md` +
+**DEC-026** — packs + PermissionGuard + Trust Graph.
+
+Context Engine (AAF Phase F) : `docs/specs/SPEC_CONTEXT_ENGINE.md` +
+**DEC-027** — L1–L4 + promotion collective.
+
 ## Objectif
 
 Unifier les pipelines dispersés (`orchestration`, `plan_executor`, dossiers R&D, `app_factory`, `fix_pipeline`) sous **un même contrat** :
@@ -25,11 +48,13 @@ Unifier les pipelines dispersés (`orchestration`, `plan_executor`, dossiers R&D
 | `OK` | Terminé, critères satisfaits |
 | `A_VERIFIER` | Terminé mais points à valider par Emilie |
 | `ECART` | **Blocage** — le workflow s'arrête, action humaine requise |
+| `RETRYABLE` | Échec temporaire — Loop Engine rejoue l'étape (cap `LOOP_MAX_ITERATIONS`) puis `ECART` |
 
 Règles :
 - Seul l'agent **head** (COO, rnd_ceo, qa…) délègue ; les étapes appellent des services existants.
 - Persistance : `data/workflow_runs/{run_id}.json`
 - Audit : chaque étape garde `started_at`, `finished_at`, `detail`, `gaps[]`
+- Loop Engine (DEC-024 / `SPEC_LOOP_ENGINE.md`) : `RETRYABLE` ≠ `ECART` (humain).
 
 ## Recettes (catalogue)
 
@@ -130,3 +155,5 @@ Branch : `app` | `gaming` | `robotics` | `hub` | `other`
    (+ niveaux d'autonomie 0–3 MVP — voir `ROADMAP.md` Phase 30, DEC-012)
    Extension via `services/workflow_validation_recipes.py` (ne pas grossir
    `workflow_engine.py` — BUG-004).
+7. **Phase 39 ROADMAP** — idle agent work (`idle_plan_day` / `idle_drain`) :
+   voir `SPEC_IDLE_AGENT_WORK.md`, DEC-021.

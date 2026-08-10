@@ -52,6 +52,56 @@ class SettingsCodingMixin:
         ge=1,
         le=16,
     )
+    # Phase A isolation (DEC-022 / SPEC_AGENT_ISOLATION)
+    isolation_enabled: bool = Field(
+        default=True,
+        alias="ISOLATION_ENABLED",
+        description="Resource locks + execution slots for parallel agents",
+    )
+    isolation_max_global: int = Field(
+        default=8,
+        alias="ISOLATION_MAX_GLOBAL",
+        ge=1,
+        le=32,
+        description="Max concurrent agent executions across the Hub",
+    )
+    isolation_max_per_repo: int = Field(
+        default=2,
+        alias="ISOLATION_MAX_PER_REPO",
+        ge=1,
+        le=16,
+        description="Max concurrent executions per git repo (aligns with CODING_MAX_PARALLEL)",
+    )
+    isolation_max_per_agent: int = Field(
+        default=1,
+        alias="ISOLATION_MAX_PER_AGENT",
+        ge=1,
+        le=4,
+        description="Max concurrent executions per agent_id",
+    )
+    isolation_lock_ttl_s: int = Field(
+        default=3600,
+        alias="ISOLATION_LOCK_TTL_S",
+        ge=60,
+        le=86400,
+    )
+    isolation_wait_s: float = Field(
+        default=30.0,
+        alias="ISOLATION_WAIT_S",
+        ge=0.0,
+        le=600.0,
+        description="Seconds to wait in queue for a lock/slot before fail-closed",
+    )
+    isolation_integrator_only_merge: bool = Field(
+        default=True,
+        alias="ISOLATION_INTEGRATOR_ONLY_MERGE",
+        description="Only dev_integrator (and allowlisted system roles) merge protected branches",
+    )
+    isolation_fix_pipeline_merge: bool = Field(
+        default=True,
+        alias="ISOLATION_FIX_PIPELINE_MERGE",
+        description="Allow fix_pipeline system role to merge main after QA+Spec (hotfix)",
+    )
     coding_backend: str = Field(
         default="hub",
         alias="CODING_BACKEND",

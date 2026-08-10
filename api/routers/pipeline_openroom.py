@@ -6,7 +6,9 @@ import time
 
 from api.route_common import *  # noqa: F403
 from api.routers.pipeline_openroom_helpers import (
+    apply_missions_to_agents,
     apply_task_details,
+    apply_workflow_runs_to_agents,
     extract_file_mentions,
     format_log_time,
     openroom_idle_agents,
@@ -68,6 +70,30 @@ async def agents_status() -> dict[str, Any]:
         return _agents_status_cache[1]
 
     agents = openroom_idle_agents()
+    apply_workflow_runs_to_agents(agents)
+    apply_missions_to_agents(agents)
+    # Idle queue items in progress → surface taskId
+    try:
+        from services.idle_work_queue import load_queue
+
+        for item in load_queue().get("items") or []:
+            if item.get("status") != "pending":
+                continue
+            aid = str(item.get("agent_id") or "")
+            if aid not in agents:
+                continue
+            if agents[aid].get("status") == "idle":
+                set_openroom_status(
+                    agents,
+                    aid,
+                    "waiting",
+                    str(item.get("title") or item.get("id"))[:160],
+                )
+            agents[aid]["taskId"] = item.get("id")
+            if item.get("run_id"):
+                agents[aid]["runId"] = item.get("run_id")
+    except Exception:
+        pass
     recent_logs: list[dict[str, str]] = []
     pipeline_active = False
 

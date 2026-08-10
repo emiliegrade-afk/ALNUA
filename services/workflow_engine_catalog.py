@@ -118,6 +118,23 @@ RECIPE_CATALOG: list[WorkflowRecipe] = [
             WorkflowStepDef(id="notify_shipped", label="Événement feature_shipped", head_agent="coo"),
         ],
     ),
+    WorkflowRecipe(
+        id="mission_ship",
+        name="Mission ship — Review Chain + integrate",
+        description=(
+            "QA readiness → Review Chain (auto/board/policy/integrate) → "
+            "lifecycle → notify. dry_run=true par défaut dans le contexte."
+        ),
+        head_agent="dev_integrator",
+        priority="P1",
+        steps=[
+            WorkflowStepDef(id="qa_readiness", label="Erreurs coding ouvertes", head_agent="qa"),
+            WorkflowStepDef(id="review_chain", label="Review Chain ordonnée", head_agent="dev_integrator"),
+            WorkflowStepDef(id="require_integrate", label="Integrate si N>1 branches", head_agent="dev_integrator"),
+            WorkflowStepDef(id="update_lifecycle", label="Mise à jour lifecycle", head_agent="coo"),
+            WorkflowStepDef(id="notify_shipped", label="Événement feature_shipped", head_agent="coo"),
+        ],
+    ),
 ]
 
 

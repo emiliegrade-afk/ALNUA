@@ -23,6 +23,10 @@ class AgentTask:
     award_points: bool = True
     max_retries: int = 2
     depends_on: list[str] = field(default_factory=list)
+    # Phase A isolation (DEC-022) — optional explicit resource keys / repo
+    lock_keys: list[str] = field(default_factory=list)
+    repo_slug: str = ""
+    repo_path: str = ""
 
     @property
     def label(self) -> str:

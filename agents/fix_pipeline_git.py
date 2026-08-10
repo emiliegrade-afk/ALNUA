@@ -23,7 +23,29 @@ def _get_diff(repo_path: str, branch: str) -> str:
 
 
 def _auto_merge(repo_path: str, branch: str) -> bool:
-    """Merge automatique de la branche fix sur main."""
+    """Merge automatique de la branche fix sur main (DEC-022 + DEC-025)."""
+    try:
+        from services.merge_policy import MergeDeniedError, assert_can_merge, merge_autonomy
+
+        assert_can_merge("fix_pipeline", "main", repo_slug=None)
+        autonomy = merge_autonomy(
+            "main",
+            actor_agent_id="fix_pipeline",
+            producer_agent_id="fix_pipeline",
+        )
+        if autonomy.get("mode") != "auto":
+            logger.error(
+                "fix_pipeline: auto-merge blocked by autonomy: %s",
+                autonomy.get("reason"),
+            )
+            return False
+    except MergeDeniedError as exc:
+        logger.error("fix_pipeline: auto-merge denied by policy: %s", exc)
+        return False
+    except Exception as exc:
+        logger.error("fix_pipeline: merge policy check failed: %s", exc)
+        return False
+
     try:
         import git
 

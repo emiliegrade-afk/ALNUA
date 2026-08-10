@@ -146,6 +146,26 @@ class DevIntegratorAgent(AgentBase):
                 "error": "PR non ouverte : review QA non approuvée",
             }
 
+        try:
+            from services.permission_guard import PermissionDeniedError, require_capability
+
+            require_capability(
+                self.AGENT_NAME,
+                "git:push:feature",
+                resource=f"branch:{branch}",
+                meta={"source": "open_integration_pr"},
+            )
+            require_capability(
+                self.AGENT_NAME,
+                "github:pr:create",
+                resource=f"branch:{branch}",
+                meta={"title": (title or "")[:80]},
+            )
+        except PermissionDeniedError as exc:
+            return {"status": "error", "branch": branch, "error": str(exc)}
+        except Exception:
+            pass
+
         code, _, err = run_command(["git", "push", "-u", "origin", branch], cwd=work_cwd)
         if code != 0:
             return {"status": "error", "branch": branch, "error": f"Échec push : {err}"}

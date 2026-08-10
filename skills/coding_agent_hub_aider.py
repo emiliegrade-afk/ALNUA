@@ -22,7 +22,15 @@ logger = logging.getLogger(__name__)
 
 def _execute_hub_task_core(spec: dict) -> dict:
     """Worktree → Hub Agent (Cursor-like loop) → commit → PR."""
+    from services.agent_isolation import coding_isolation
+
+    with coding_isolation(spec):
+        return _execute_hub_task_core_isolated(spec)
+
+
+def _execute_hub_task_core_isolated(spec: dict) -> dict:
     from services.hub_coding_agent import run_hub_coding_loop
+
     config = get_coding_config()
     repo_path = spec.get("repo_path")
     branch = spec.get(
@@ -91,6 +99,13 @@ def _execute_hub_task_core(spec: dict) -> dict:
 
 def _execute_aider_task_core(spec: dict) -> dict:
     """Worktree → Aider (OpenRouter) → commit → PR."""
+    from services.agent_isolation import coding_isolation
+
+    with coding_isolation(spec):
+        return _execute_aider_task_core_isolated(spec)
+
+
+def _execute_aider_task_core_isolated(spec: dict) -> dict:
     config = get_coding_config()
     repo_path = spec.get("repo_path")
     branch = spec.get(

@@ -45,6 +45,8 @@ from agents.controller_agent import ControllerAgent
 from agents.coo_agent import COOAgent
 from agents.dev_backend_agent import DevBackendAgent
 from agents.dev_app_agent import DevAppAgent
+from agents.dev_frontend_agent import DevFrontendAgent
+from agents.dev_integrator_agent import DevIntegratorAgent
 from agents.dev_gaming_agent import DevGamingAgent
 from agents.electronics_agent import ElectronicsAgent
 from agents.embedded_dev_agent import EmbeddedDevAgent

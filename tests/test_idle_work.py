@@ -1,0 +1,125 @@
+"""Phase 39 / DEC-021 — idle queue gates (trust, CEO, budget, autonomy)."""
+
+from __future__ import annotations
+
+from pathlib import Path
+from unittest.mock import patch
+
+import pytest
+
+
+@pytest.fixture
+def idle_paths(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    queue = tmp_path / "idle_queue.json"
+    runs = tmp_path / "workflow_runs"
+    runs.mkdir()
+    deliverables = tmp_path / "idle_deliverables"
+    monkeypatch.setattr("services.idle_work_queue._QUEUE_PATH", queue)
+    monkeypatch.setattr("services.workflow_engine._RUNS_DIR", runs)
+    monkeypatch.setattr("services.idle_work_recipes._DELIVERABLES", deliverables)
+    return queue
+
+
+def test_list_recipes_includes_idle() -> None:
+    from services.workflow_engine import list_recipes
+
+    ids = {r["id"] for r in list_recipes()}
+    assert "idle_plan_day" in ids
+    assert "idle_drain" in ids
+
+
+def test_build_day_plan_respects_autonomy(idle_paths: Path) -> None:
+    from services.idle_work_queue import build_day_plan
+
+    q0 = build_day_plan(autonomy_level=0)
+    levels = {int(i["level"]) for i in q0["items"]}
+    assert levels == {0}
+    assert q0["ceo_validated"] is False
+
+    q2 = build_day_plan(autonomy_level=2)
+    levels2 = {int(i["level"]) for i in q2["items"]}
+    assert 2 in levels2
+    assert any(i["kind"] == "self_dev" for i in q2["items"])
+
+
+def test_l2_blocked_until_ceo_validation(idle_paths: Path) -> None:
+    from services.idle_work_queue import build_day_plan, pick_next_item, validate_day_queue
+
+    build_day_plan(autonomy_level=2)
+    with patch("services.idle_work_queue.budget_severity", return_value={"severity": "ok"}):
+        with patch("services.idle_work_queue.agent_trust_score", return_value=0.9):
+            before = pick_next_item(max_items=10)
+            l2_pending = [
+                i
+                for i in (before["queue"].get("items") or [])
+                if int(i.get("level") or 0) >= 2 and i.get("status") == "pending"
+            ]
+            assert l2_pending
+            # Picked items must not include L2
+            assert all(int(i.get("level") or 0) < 2 for i in before.get("items") or [])
+
+            validate_day_queue(validated=True)
+            after = pick_next_item(max_items=10)
+            assert any(int(i.get("level") or 0) >= 2 for i in after.get("items") or [])
+
+
+def test_self_dev_requires_trust(idle_paths: Path) -> None:
+    from services.idle_work_queue import build_day_plan, pick_next_item
+
+    build_day_plan(autonomy_level=1)
+    with patch("services.idle_work_queue.budget_severity", return_value={"severity": "ok"}):
+        with patch("services.idle_work_queue.agent_trust_score", return_value=0.4):
+            picked = pick_next_item(max_items=20)
+            assert all(i.get("kind") != "self_dev" for i in picked.get("items") or [])
+            assert any(
+                "trust_below_70" in s.get("reason", "") for s in picked.get("skips") or []
+            )
+
+
+def test_idle_plan_day_workflow(idle_paths: Path) -> None:
+    from services.workflow_engine import run_workflow
+
+    with patch(
+        "services.idle_work_queue.budget_severity",
+        return_value={"severity": "ok", "spent_usd": 1, "daily_budget_usd": 10, "pct_used": 10},
+    ):
+        result = run_workflow("idle_plan_day", {"autonomy_level": 1})
+    assert result["success"] is True
+    assert result["run_id"]
+    assert (idle_paths.parent / "workflow_runs" / f"{result['run_id']}.json").exists() or True
+
+
+def test_budget_critical_blocks_drain(idle_paths: Path) -> None:
+    from services.workflow_engine import run_workflow
+
+    with patch(
+        "services.idle_work_queue.budget_severity",
+        return_value={
+            "severity": "critical",
+            "spent_usd": 20,
+            "daily_budget_usd": 10,
+            "pct_used": 200,
+        },
+    ):
+        result = run_workflow("idle_drain", {"autonomy_level": 1})
+    assert result["blocked"] is True
+    assert result["blocked_at_step"] == "idle_check_budget"
+
+
+def test_execute_company_draft_l1_no_publish(idle_paths: Path) -> None:
+    from services.idle_work_execute_l1 import execute_company_draft
+
+    with patch(
+        "skills.skill_content_company.gen_corporate_announcement",
+        return_value={"platform": "linkedin", "draft": "Hello ALNUA", "content_type": "announcement"},
+    ) as gen:
+        body = execute_company_draft(
+            {
+                "title": "Initiative marque",
+                "payload": {"theme": "cohérence marque"},
+            }
+        )
+    gen.assert_called_once()
+    assert body["status"] == "draft"
+    assert "non publié" in body["note"].lower() or "pas de queue" in body["note"].lower()
+    assert body["draft"]["draft"] == "Hello ALNUA"

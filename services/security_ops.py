@@ -63,6 +63,7 @@ def run_security_ingest(payload: dict[str, Any]) -> dict[str, Any]:
                 email_to,
                 f"[RESONANCE SECURITY] {severity.upper()} — {title[:80]}",
                 msg,
+                agent_id="system",
             )
             email_ok = bool(result.get("success"))
         except Exception as exc:

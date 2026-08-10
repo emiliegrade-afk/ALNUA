@@ -171,7 +171,9 @@ Analyse et corrige le bug. Suis exactement le format demandé."""
         create_branch(repo, branch_name)
         for rel_path, new_content in fixed_files.items():
             (Path(repo_path) / rel_path).write_text(new_content, encoding="utf-8")
-        committed = commit_and_push(repo, list(fixed_files.keys()), fix_summary)
+        committed = commit_and_push(
+            repo, list(fixed_files.keys()), fix_summary, agent_id=agent_id
+        )
         if committed and github_repo:
             pr_url = create_pr(
                 github_repo=github_repo,
@@ -184,6 +186,7 @@ Analyse et corrige le bug. Suis exactement le format demandé."""
                     f"**Fichiers modifiés :** {', '.join(fixed_files.keys())}\n\n"
                     f"*Généré automatiquement par skill_code_agent.*"
                 ),
+                agent_id=agent_id,
             )
     except Exception as exc:
         logger.error("Git/PR failed: %s", exc)

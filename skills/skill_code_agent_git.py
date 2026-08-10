@@ -37,8 +37,35 @@ def create_branch(repo, branch_name: str) -> None:
     branch.checkout()
 
 
-def commit_and_push(repo, files_modified: list[str], message: str) -> bool:
+def commit_and_push(
+    repo,
+    files_modified: list[str],
+    message: str,
+    *,
+    agent_id: str = "dev_app",
+) -> bool:
     """Stage, commit et push les fichiers modifiés."""
+    try:
+        from services.permission_guard import PermissionDeniedError, require_capability
+
+        branch = getattr(getattr(repo, "active_branch", None), "name", "") or "unknown"
+        require_capability(
+            agent_id,
+            "git:commit",
+            resource=f"branch:{branch}",
+            meta={"source": "commit_and_push"},
+        )
+        require_capability(
+            agent_id,
+            "git:push:feature",
+            resource=f"branch:{branch}",
+            meta={"source": "commit_and_push"},
+        )
+    except PermissionDeniedError:
+        logger.warning("commit_and_push denied for agent=%s", agent_id)
+        return False
+    except Exception:
+        pass
     try:
         repo.index.add(files_modified)
         if not repo.index.diff("HEAD"):
@@ -53,8 +80,29 @@ def commit_and_push(repo, files_modified: list[str], message: str) -> bool:
         return False
 
 
-def create_pr(github_repo: str, branch: str, title: str, body: str) -> str | None:
+def create_pr(
+    github_repo: str,
+    branch: str,
+    title: str,
+    body: str,
+    *,
+    agent_id: str = "dev_app",
+) -> str | None:
     """Crée une PR GitHub. Retourne l'URL ou None."""
+    try:
+        from services.permission_guard import PermissionDeniedError, require_capability
+
+        require_capability(
+            agent_id,
+            "github:pr:create",
+            resource=f"branch:{branch}",
+            meta={"title": (title or "")[:80], "repo": github_repo},
+        )
+    except PermissionDeniedError:
+        logger.warning("create_pr denied for agent=%s", agent_id)
+        return None
+    except Exception:
+        pass
     if not GITHUB_TOKEN or not github_repo:
         return None
     payload = json.dumps({

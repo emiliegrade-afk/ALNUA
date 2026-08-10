@@ -5,8 +5,8 @@ import logging
 import shutil
 from datetime import datetime
 from pathlib import Path
-
 from services.coding_pipeline import (
+    CodingPipelineConfig,
     detect_stack,
     get_coding_config,
     resolve_default_branch,
@@ -43,6 +43,17 @@ def _execute_coding_task_core(spec: dict) -> dict:
         if not result.get("success"):
             raise RuntimeError(result.get("error", "Échec inconnu du coding agent"))
         return result
+
+    from services.agent_isolation import coding_isolation
+
+    with coding_isolation(spec):
+        return _execute_claude_task_core_isolated(spec, config)
+
+
+def _execute_claude_task_core_isolated(
+    spec: dict,
+    config: CodingPipelineConfig,
+) -> dict:
     repo_path = spec.get("repo_path")
     branch = spec.get(
         "branch_name",

@@ -66,6 +66,37 @@ def run_scheduled_semaine_quiet() -> None:
         logger.exception("Scheduled semaine failed")
 
 
+def run_scheduled_idle_plan_quiet() -> None:
+    try:
+        from services.workflow_scheduler import run_scheduled_idle_plan
+
+        from config.settings import settings
+
+        level = int(getattr(settings, "idle_default_autonomy_level", 1) or 1)
+        result = run_scheduled_idle_plan(autonomy_level=level)
+        logger.info(
+            "Idle plan day: success=%s summary=%s",
+            result.get("success"),
+            (result.get("summary") or result.get("reason") or "")[:120],
+        )
+    except Exception:
+        logger.exception("Scheduled idle_plan_day failed")
+
+
+def run_scheduled_idle_drain_quiet() -> None:
+    try:
+        from services.workflow_scheduler import run_scheduled_idle_drain
+
+        result = run_scheduled_idle_drain()
+        logger.info(
+            "Idle drain: success=%s summary=%s",
+            result.get("success"),
+            (result.get("summary") or result.get("reason") or "")[:120],
+        )
+    except Exception:
+        logger.exception("Scheduled idle_drain failed")
+
+
 def run_scheduled_backup() -> None:
     try:
         from services.rq_queue import enqueue_task, job_backup_daily

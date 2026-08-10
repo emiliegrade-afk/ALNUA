@@ -29,12 +29,25 @@ async def _run_single_task(
 
     while True:
         try:
-            method = _get_agent_method(task.agent_id, task.method)
-            if inspect.iscoroutinefunction(method):
-                result = await method(**task.kwargs)
-            else:
-                loop = asyncio.get_event_loop()
-                result = await loop.run_in_executor(None, lambda: method(**task.kwargs))
+            from services.agent_isolation import task_isolation
+
+            with task_isolation(
+                agent_id=task.agent_id,
+                holder_id=f"parallel:{run_id or 'run'}:{label}",
+                lock_keys=list(task.lock_keys or []),
+                kwargs=dict(task.kwargs or {}),
+                repo_path=task.repo_path or None,
+                repo_slug=task.repo_slug or None,
+                meta={"label": label, "method": task.method},
+            ):
+                method = _get_agent_method(task.agent_id, task.method)
+                if inspect.iscoroutinefunction(method):
+                    result = await method(**task.kwargs)
+                else:
+                    loop = asyncio.get_event_loop()
+                    result = await loop.run_in_executor(
+                        None, lambda: method(**task.kwargs)
+                    )
             duration_ms = int((time.monotonic() - start) * 1000)
 
             points = 0

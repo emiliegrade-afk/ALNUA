@@ -45,6 +45,25 @@ Il contient les 5 servers. **Tu dois juste remplacer les placeholders ci-dessous
 Le server `alnua-hub` pointe sur `http://localhost:8000/mcp`.
 Il s'active automatiquement quand le Hub FastAPI tourne (`uvicorn api.main:app`).
 
+**PermissionGuard MCP** (`PERMISSION_GUARD_MCP_ENABLED=1`) : si le client envoie
+`X-MCP-Agent: <agent_id>` (ou `X-MCP-Client: 1`), les routes sensibles mappées
+(`ads:spend`, `github:pr:create`, `workflow:abort`, …) sont refusées sans
+capability dans le pack. Exemple headers MCP :
+
+```json
+"alnua-hub": {
+  "url": "http://localhost:8000/mcp",
+  "headers": {
+    "X-Hub-Key": "${env:HUB_API_KEY}",
+    "X-MCP-Agent": "cursor"
+  }
+}
+```
+
+Le pack `cursor` est fail-closed (pas de spend / merge / mail). Pour agir en tant
+qu’agent métier, mets son id (`coo`, `ads`, `dev_integrator`, …).
+Liste des règles : `GET /mcp-capability-routes`.
+
 ---
 
 ## Étape 3 — Installer les dépendances npm (une seule fois)

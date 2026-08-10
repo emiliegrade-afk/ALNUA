@@ -68,6 +68,11 @@ EVENT_TYPES = {
     # Workflow engine
     "workflow_step_completed": "Étape de recette workflow terminée",
 
+    # Mission Graph (DEC-023)
+    "mission.started": "Mission Graph démarrée",
+    "mission.task_finished": "Task Mission terminée (OK ou fail)",
+    "mission.completed": "Mission Graph terminale (COMPLETED/FAILED/…)",
+
     # Finance
     "budget_alert":      "Budget dépassé → Controller + Accounting alertés",
     "invoice_created":   "Facture créée → Jules pour validation",

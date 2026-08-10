@@ -33,6 +33,14 @@ class AdsAgent(AgentBase):
         """Structure une campagne payante (A/B creative variants) et la persiste
         réellement dans `campaigns` — avant Phase 33 (ROADMAP.md) ce dict était
         volatile, aucune campagne n'existait après l'appel."""
+        from services.permission_guard import require_capability
+
+        require_capability(
+            self.AGENT_NAME,
+            "ads:spend",
+            resource=f"platform:{platform}",
+            meta={"budget_usd": budget_usd, "objective": objective},
+        )
         result = draft_campaign(
             brief, platform=platform, budget_usd=budget_usd, objective=objective, audience=audience,
         )
@@ -72,6 +80,14 @@ class AdsAgent(AgentBase):
         audience: str = "lookalike",
     ) -> dict[str, Any]:
         """Booste un post organique existant (posts_queue) avec du budget payant."""
+        from services.permission_guard import require_capability
+
+        require_capability(
+            self.AGENT_NAME,
+            "ads:spend",
+            resource=f"post:{post_id}",
+            meta={"budget_usd": budget_usd, "platform": platform},
+        )
         result = amplify_organic_post(post_id, platform=platform, budget_usd=budget_usd, audience=audience)
         log_agent_action(
             self.db, self.AGENT_NAME, "amplify_post",

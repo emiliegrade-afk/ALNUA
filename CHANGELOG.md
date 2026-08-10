@@ -7,6 +7,122 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-10 — MCP PermissionGuard progressif (feat)
+
+- **Type :** feat
+- **Details :**
+  - Interception MCP via `X-MCP-Agent` + carte route→capability ;
+    middleware 403 ; packs `cursor`/`mcp_client` fail-closed ;
+    `PERMISSION_GUARD_MCP_ENABLED` ; tests `test_mcp_permission_guard.py`.
+
+## 2026-08-10 — Review Chain E2E dry-run 2 PR→staging (test)
+
+- **Type :** test
+- **Details :**
+  - E2E dry-run : mission 2 branches → integrate → staging auto ;
+    `mission_ship` workflow dry-run ; ctx `_review_chain` / `integrate_done`
+    partagé entre steps.
+
+## 2026-08-10 — PermissionGuard call-sites extension (feat)
+
+- **Type :** feat
+- **Details :**
+  - Call-sites : `mail:send`, `github:pr:create/merge`, `git:commit` /
+    `git:push:feature`, `workflow:abort` (missions + workflow runs) ;
+  - Packs : `mail:send` pour `coo` + `system` ; API abort mission/workflow ;
+  - Tests étendus `test_permission_guard.py`.
+
+## 2026-08-10 — Phase 45 Context Engine AAF Phase F (feat)
+
+- **Type :** feat
+- **Details :**
+  - Context Engine L1–L4 + promotion collective (DEC-027) ;
+    spec `SPEC_CONTEXT_ENGINE.md`.
+  - Wipe L4 fin de step ; `inject_learning_context` délégué ;
+    API `/context/*` ; tests `test_context_engine.py`.
+
+## 2026-08-10 — Phase 44 Capability Guard AAF Phase E (feat)
+
+- **Type :** feat
+- **Details :**
+  - Capability Packs + PermissionGuard fail-closed (DEC-026) ;
+    Trust Graph `trust_graph.jsonl` ; spec `SPEC_CAPABILITY_GUARD.md`.
+  - Merge + ads:spend branchés ; API `/capabilities*`,
+    `/permission-guard/check`, `/trust-graph/recent` ; UI décisions `/trust`.
+  - Tests `tests/test_permission_guard.py`.
+
+## 2026-08-10 — Phase 43 Review Chain AAF Phase D (feat)
+
+- **Type :** feat
+- **Details :**
+  - Review Chain AUTO→BOARD→POLICY→INTEGRATE (`review_chain`, DEC-025) ;
+    spec `SPEC_REVIEW_CHAIN.md`.
+  - `merge_autonomy` (staging trust / main humain / academy auto) ;
+    recipe `mission_ship` ; API `/review-chain/*` ; integrate Mission.
+  - Tests `tests/test_review_chain.py`.
+
+## 2026-08-10 — Phase 42 Loop Engine AAF Phase C (feat)
+
+- **Type :** feat
+- **Details :**
+  - FSM execute→evaluate→feedback→retry (`loop_engine`, DEC-024) ;
+    spec `SPEC_LOOP_ENGINE.md`.
+  - `fix_pipeline` + `plan_executor` branchés ; workflow `RETRYABLE` vs
+    `ECART` ; settings `LOOP_*` ; `GET /loop/defaults`.
+  - Cap strict (`LOOP_STRICT_MAX_ITERATIONS`) sur merge / ship /
+    integrator / fix_pipeline via `is_strict_loop` + `resolve_max_iterations`.
+  - Tests `tests/test_loop_engine.py` (FSM, cap, feedback, workflow retry,
+    strict ceiling).
+
+## 2026-08-10 — Phase 41 Mission Graph AAF Phase B (feat)
+
+- **Type :** feat
+- **Details :**
+  - Mission → Tasks DAG (`depends_on`) + store `data/missions/` (DEC-023) ;
+    spec `SPEC_MISSION_GRAPH.md`.
+  - API `/missions*` ; `run_coo_plan` passe par le graphe ; OpenRoom
+    `missionId` ; client `missions-api.ts`.
+  - Tests `tests/test_mission_graph.py` (parallèle, deps, fail→blocked).
+
+## 2026-08-10 — Phase 40 agent isolation AAF Phase A (feat)
+
+- **Type :** feat
+- **Details :**
+  - Resource locks + execution slots + merge policy (DEC-022) ;
+    spec `SPEC_AGENT_ISOLATION.md`.
+  - Câblé sur coding worktrees, `parallel_runner`, `plan_executor`,
+    `fix_pipeline` ; API `/isolation/*` ; settings `ISOLATION_*`.
+  - Tests `tests/test_agent_isolation.py` (collision paths, slots, merge deny).
+
+## 2026-08-10 — Idle suite : UI CEO + L1 LLM + load réel dept (feat)
+
+- **Type :** feat
+- **Details :**
+  - `/ceo` : `CeoIdleQueueCard` (replan / valider L2 / drain).
+  - L1 `company_draft` / `product_triage` → vrais drafts (Anouk skill /
+    Sam PM), jamais publish.
+  - Dept-v2 + missions : `resolveAgentLoad` / `agentLoadChip` (plus de %).
+
+## 2026-08-10 — Phase 39 idle work MVP + P0 câblage (feat)
+
+- **Type :** feat
+- **Details :**
+  - Recettes `idle_plan_day` / `idle_drain` + queue `data/idle_queue.json` ;
+    scheduler + `GET/POST /workflows/idle/*` ; gates trust / CEO L2 / budget.
+  - OpenRoom : `runId`/`taskId`/`progress` ; plus de load % cosmétique (0).
+  - P0 : routes `dev_frontend`/`dev_integrator` ; cartes bureau R&D (6) ;
+    Phase 21 probes UE/lore/builds sur 4 gaming ; `/analytics` → Layla/Axel.
+  - Spec DEC-021 + tests `tests/test_idle_work.py`.
+
+## 2026-08-10 — Spec idle agent work (docs)
+
+- **Type :** docs
+- **Details :**
+  - Contrat CEO : ambition entreprise (C), file hybride COO/CEO, self-dev
+    seulement si trust ≥ 70, budget LLM idle adaptatif (`cost_monitor`).
+  - `docs/specs/SPEC_IDLE_AGENT_WORK.md` + DEC-021 + Phase 39 ROADMAP.
+  - Lien croisé depuis `SPEC_WORKFLOW_ENGINE.md`.
+
 ## 2026-08-10 — Full debt paydown : zéro fichier >300 lignes (refactor)
 
 - **Type :** refactor

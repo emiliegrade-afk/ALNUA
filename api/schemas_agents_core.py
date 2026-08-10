@@ -91,6 +91,44 @@ class DevBackendDebugRequest(BaseModel):
     code_snippet: str = ""
 
 
+class DevFrontendImplementRequest(BaseModel):
+    feature: str
+    project: str = "Hub ALNUA"
+    context: str = ""
+    design_notes: str = ""
+
+
+class DevFrontendFixLayoutRequest(BaseModel):
+    issue: str
+    context: str = ""
+    code_snippet: str = ""
+
+
+class DevFrontendReviewRequest(BaseModel):
+    code: str
+    context: str = ""
+
+
+class DevIntegratorIntegrateRequest(BaseModel):
+    repo_path: str
+    branch: str
+    worktrees: list[str] | None = None
+    base_branch: str = ""
+
+
+class DevIntegratorOpenPrRequest(BaseModel):
+    repo_path: str
+    branch: str
+    title: str
+    body: str = ""
+    qa_verdict: dict | None = None
+
+
+class DevIntegratorReviewDiffRequest(BaseModel):
+    diff_summary: str
+    context: str = ""
+
+
 class LevelDesignerQuestRequest(BaseModel):
     quest_name: str
     game: str
@@ -139,6 +177,11 @@ class TechnicalArtistRenderRequest(BaseModel):
     game: str
     target_fps: int = 60
     current_issues: str = ""
+
+
+class NarrativeCanonSearchRequest(BaseModel):
+    query: str
+    game: str = "Wyrdheim"
 
 
 class NarrativeDesignerDialogueRequest(BaseModel):

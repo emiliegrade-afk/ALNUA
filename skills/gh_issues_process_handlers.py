@@ -74,6 +74,7 @@ def handle_success(
             pr_number,
             tests_passed=test_passed,
             repo_slug=target.slug,
+            agent_id="gh_issues",
         )
         if merge_result.get("merged"):
             post_comment(

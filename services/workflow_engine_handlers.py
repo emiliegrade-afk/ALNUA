@@ -36,6 +36,10 @@ from services.workflow_step_handlers_ship import (
     _step_validate_registry_robotics,
     _step_validate_robotics_readiness,
 )
+from services.workflow_step_handlers_review import (
+    _step_require_integrate,
+    _step_review_chain,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +53,8 @@ _STEP_HANDLERS: dict[str, Callable[..., dict[str, Any]]] = {
     "qa_readiness": _step_qa_readiness,
     "update_lifecycle": _step_update_lifecycle,
     "notify_shipped": _step_notify_shipped,
+    "review_chain": _step_review_chain,
+    "require_integrate": _step_require_integrate,
     "scan_registry": _step_scan_registry,
     "scan_errors": _step_scan_errors,
     "watchdog_status": _step_watchdog_status,
@@ -69,10 +75,16 @@ _STEP_HANDLERS: dict[str, Callable[..., dict[str, Any]]] = {
 
 
 def register_extension_recipes() -> None:
-    """Load Phase 30 validation recipes without inlining them here (BUG-004)."""
+    """Load Phase 30 validation + Phase 39 idle recipes (BUG-004)."""
     try:
         from services.workflow_validation_recipes import register_validation_recipes
 
         register_validation_recipes()
     except Exception as exc:
         logger.warning("validation recipes not loaded: %s", exc)
+    try:
+        from services.idle_work_recipes import register_idle_recipes
+
+        register_idle_recipes()
+    except Exception as exc:
+        logger.warning("idle recipes not loaded: %s", exc)

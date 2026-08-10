@@ -16,6 +16,11 @@ class WorkflowRunRequest(BaseModel):
     context: dict[str, Any] = Field(default_factory=dict)
 
 
+class WorkflowAbortRequest(BaseModel):
+    agent_id: str = Field(default="coo", min_length=1, max_length=64)
+    reason: str = Field(default="", max_length=400)
+
+
 @router.get("/recipes")
 def workflows_list_recipes() -> list[dict[str, Any]]:
     from services.workflow_engine import list_recipes
@@ -41,6 +46,21 @@ def workflows_get_run(run_id: str) -> dict[str, Any]:
     if not run:
         raise HTTPException(status_code=404, detail="Run introuvable")
     return run.model_dump()
+
+
+@router.post("/runs/{run_id}/abort")
+def workflows_abort_run(run_id: str, body: WorkflowAbortRequest | None = None) -> dict[str, Any]:
+    from services.input_sanitizer import sanitize_user_input
+    from services.workflow_engine import abort_workflow_run, get_run
+
+    if not get_run(run_id):
+        raise HTTPException(status_code=404, detail="Run introuvable")
+    req = body or WorkflowAbortRequest()
+    reason = sanitize_user_input(req.reason, redact_pii_enabled=False)[:400]
+    result = abort_workflow_run(run_id, agent_id=req.agent_id, reason=reason)
+    if result.get("error") == "capability_denied":
+        raise HTTPException(status_code=403, detail=result.get("detail") or "capability denied")
+    return result
 
 
 @router.post("/run")
@@ -99,3 +119,37 @@ def workflows_watchdog_coverage() -> dict[str, Any]:
     from services.run_watchdog_registry import build_watchdog_coverage_report
 
     return build_watchdog_coverage_report()
+
+
+@router.get("/idle/queue")
+def workflows_idle_queue() -> dict[str, Any]:
+    """File du jour idle (DEC-021)."""
+    from services.idle_work_queue import load_queue
+
+    return load_queue()
+
+
+class IdleValidateRequest(BaseModel):
+    validated: bool = True
+
+
+@router.post("/idle/validate")
+def workflows_idle_validate(body: IdleValidateRequest) -> dict[str, Any]:
+    """CEO valide la file du jour → débloque items L2."""
+    from services.idle_work_queue import validate_day_queue
+
+    return validate_day_queue(validated=body.validated)
+
+
+@router.post("/idle/plan")
+def workflows_idle_plan() -> dict[str, Any]:
+    from services.workflow_scheduler import run_scheduled_idle_plan
+
+    return run_scheduled_idle_plan()
+
+
+@router.post("/idle/drain")
+def workflows_idle_drain() -> dict[str, Any]:
+    from services.workflow_scheduler import run_scheduled_idle_drain
+
+    return run_scheduled_idle_drain()

@@ -23,6 +23,13 @@ composio_cache/
 data/chroma/
 data/agent_scores.json
 data/agent_trust.json
+data/trust_graph.jsonl
+data/working_memory/
+data/lesson_candidates.json
+data/collective_lessons.json
+data/resource_locks.json
+data/missions/
+data/idle_queue.json
 data/cross_dept_queue.json
 data/rnd_dossiers/
 data/rnd_ideas.json

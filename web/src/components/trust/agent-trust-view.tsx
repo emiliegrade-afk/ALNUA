@@ -5,11 +5,13 @@ import { Loader2, RefreshCw, Shield } from "lucide-react";
 import { C } from "@/app/app-v2/shared";
 import {
   fetchAgentTrustList,
+  fetchTrustGraphRecent,
   trustBand,
   trustBandLabel,
   trustPercent,
   type AgentTrustRow,
   type TrustBand,
+  type TrustGraphDecision,
 } from "@/lib/trust-api";
 
 const BAND_STYLE: Record<TrustBand, { bar: string; text: string }> = {
@@ -64,9 +66,29 @@ function TrustRow({ row }: { row: AgentTrustRow }) {
   );
 }
 
-/** Minimal Phase 31 trust UI — reads GET /agents/trust (≠ competition). */
+function DecisionRow({ d }: { d: TrustGraphDecision }) {
+  const ok = d.allowed;
+  return (
+    <li
+      className="flex flex-wrap items-baseline justify-between gap-2 rounded-[8px] border px-2.5 py-2 text-[11px]"
+      style={{ borderColor: C.line, background: "rgba(0,0,0,0.15)" }}
+    >
+      <span style={{ color: C.ivory }}>
+        <span className="font-medium">{d.agent_id}</span>
+        <span style={{ color: C.dim }}> · {d.capability}</span>
+      </span>
+      <span style={{ color: ok ? "#9bc4a8" : "#e8a090" }}>
+        {ok ? "allow" : "deny"}
+        {d.reason ? ` · ${d.reason}` : ""}
+      </span>
+    </li>
+  );
+}
+
+/** Phase 31 scores + Phase E Trust Graph decisions (DEC-011 / DEC-026). */
 export function AgentTrustView() {
   const [rows, setRows] = useState<AgentTrustRow[]>([]);
+  const [decisions, setDecisions] = useState<TrustGraphDecision[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -74,10 +96,16 @@ export function AgentTrustView() {
     setLoading(true);
     setError(null);
     try {
-      setRows(await fetchAgentTrustList(80));
+      const [trustRows, graph] = await Promise.all([
+        fetchAgentTrustList(80),
+        fetchTrustGraphRecent(25),
+      ]);
+      setRows(trustRows);
+      setDecisions(graph);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Chargement trust impossible");
       setRows([]);
+      setDecisions([]);
     } finally {
       setLoading(false);
     }
@@ -96,6 +124,7 @@ export function AgentTrustView() {
             <p className="text-[12px] leading-snug" style={{ color: C.dim }}>
               Indice de confiance distinct de la compétition (DEC-011).{" "}
               {"<70 % → validation manager · 70–90 % → Review Board · >90 % → autonomie."}
+              {" "}PermissionGuard (DEC-026) journalise allow/deny ci-dessous.
             </p>
           </div>
         </div>
@@ -138,6 +167,23 @@ export function AgentTrustView() {
           ))}
         </ul>
       ) : null}
+
+      <div className="mt-2">
+        <h2 className="mb-2 text-[12px] font-medium tracking-wide" style={{ color: C.titanium }}>
+          DÉCISIONS RÉCENTES (Trust Graph)
+        </h2>
+        {decisions.length === 0 && !loading ? (
+          <p className="text-[11px]" style={{ color: C.dim }}>
+            Aucune décision PermissionGuard pour l’instant.
+          </p>
+        ) : (
+          <ul className="flex flex-col gap-1.5">
+            {decisions.map((d, i) => (
+              <DecisionRow key={`${d.ts ?? i}-${d.agent_id}-${d.capability}`} d={d} />
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

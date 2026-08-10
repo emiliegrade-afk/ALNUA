@@ -8,7 +8,15 @@ export interface AgentStatus {
   currentFile?: string;
   recentCode?: string[];
   log?: string[];
-  progress?: number;
+  /** Real progress 0–100 from pipeline/workflow when known — never invent. */
+  progress?: number | null;
+  /** Workflow run id (data/workflow_runs) when agent is tied to a recipe. */
+  runId?: string | null;
+  /** Idle queue item id or coding task id. */
+  taskId?: string | null;
+  recipeId?: string | null;
+  /** Mission Graph id when agent is running a Mission task (DEC-023). */
+  missionId?: string | null;
 }
 
 export interface OpenRoomLogEntry {

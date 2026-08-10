@@ -110,9 +110,29 @@ def get_library_context(agent_id: str, task: str = "") -> str:
         return ""
 
 
-def inject_learning_context(prompt: str, agent_id: str, task: str) -> str:
-    """Injecte leçons Mem0 + catalogue bibliothèque (et digest si deep-learn) dans un prompt."""
-    block = get_learning_context(agent_id, task)
-    library = get_library_context(agent_id, task)
-    extra = block + library
-    return prompt + extra if extra else prompt
+def inject_learning_context(
+    prompt: str,
+    agent_id: str,
+    task: str,
+    *,
+    task_id: str | None = None,
+    loop_feedback: str | None = None,
+    include_library: bool = True,
+) -> str:
+    """Inject L1–L4 context (DEC-027). Falls back to L3+library if engine off."""
+    try:
+        from services.context_engine import compile_context_block
+
+        extra = compile_context_block(
+            agent_id,
+            task,
+            task_id=task_id,
+            loop_feedback=loop_feedback,
+            include_library=include_library,
+        )
+        return prompt + extra if extra else prompt
+    except Exception:
+        block = get_learning_context(agent_id, task)
+        library = get_library_context(agent_id, task) if include_library else ""
+        extra = block + library
+        return prompt + extra if extra else prompt

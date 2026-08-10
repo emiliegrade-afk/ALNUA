@@ -7,8 +7,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
-StepStatus = Literal["PENDING", "IN_PROGRESS", "OK", "A_VERIFIER", "ECART"]
-RunStatus = Literal["running", "completed", "blocked", "failed"]
+StepStatus = Literal["PENDING", "IN_PROGRESS", "OK", "A_VERIFIER", "ECART", "RETRYABLE"]
+RunStatus = Literal["running", "completed", "blocked", "failed", "cancelled"]
 
 
 class WorkflowStepDef(BaseModel):

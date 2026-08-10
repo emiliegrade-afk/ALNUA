@@ -49,6 +49,13 @@
 | 36 | Orchestration inter-départements — event bus cross-département + briefing COO étendu | 🔄 MVP Complete |
 | 37 | Marketing Command Center : mesure de performance réelle (Reach/Engagement/ROI/Funnel) | ✅ Complete |
 | 38 | Harmonisation visuelle globale du Hub sur les maquettes ChatGPT (rendu visuel, branchement à reconnecter) | ✅ Complete |
+| 39 | Idle agent work — file hybride COO/CEO, ambition entreprise, trust + budget adaptatif | 🔄 MVP Complete (DEC-021) |
+| 40 | Agent isolation (AAF Phase A) — locks + slots + merge integrator-only | ✅ Complete (DEC-022) |
+| 41 | Mission Graph (AAF Phase B) — DAG Mission/Tasks + API + OpenRoom | ✅ Complete (DEC-023) |
+| 42 | Loop Engine (AAF Phase C) — execute/evaluate/feedback/retry | ✅ Complete (DEC-024) |
+| 43 | Review Chain + Merge (AAF Phase D) — AUTO→BOARD→POLICY→INTEGRATE | ✅ Complete (DEC-025) |
+| 44 | Capabilities + PermissionGuard + Trust Graph (AAF Phase E) | ✅ Complete (DEC-026) |
+| 45 | Context Engine L1–L4 + Collective (AAF Phase F) | ✅ Complete (DEC-027) |
 
 Statut légende : ⏸️ Not started | 🔄 In progress | ✅ Complete | 🔴 Blocked
 
@@ -68,7 +75,7 @@ budgets manuelles seulement — DEC-016 inchangé, pas de paiement/transfert aut
 debt paydown :** bible `docs/` ; **0 fichiers Python >1000 / >500 / >300**
 sous `agents/` `services/` `api/` `skills/` `bots/` `config/` `database/`
 (façades + siblings, APIs inchangées). Suite : `UE_PROJECT_PATH` / Pi /
-Audit 005.
+Audit 005. **Phase 39** idle work MVP livré 2026-08-10 (DEC-021).
 
 ## Points tranchés le 2026-07-25 (anciennement ouverts)
 
@@ -1527,3 +1534,106 @@ Ivoire #F5F2EA, Titane #A7ADB5, Cuivre Rosé #C08A72 en accent uniquement) pour
   `/finances`/`/marketing` en maquette VAE — ne pas merger sans décision produit.
 **Statut :** ✅ Complete (rendu + routes primaires live au HEAD `7dfad6f` /
   Audit 004). Voir Sprint REM-002 close-out dans `DOC_AUDIT.md`.
+
+### Phase 39 — Idle agent work
+**Objectif :** les agents avancent sans brief CEO précis — ops + produits +
+initiatives entreprise (L1) + self-dev si trust ≥ 70 — via file hybride COO/CEO
+et budget LLM adaptatif (`cost_monitor`).
+**Référence :** `docs/specs/SPEC_IDLE_AGENT_WORK.md`, DEC-021.
+**Dépendances :** Phase 30 (workflow_engine), Phase 31 (trust), ops scheduler
+existant (`run_ops` / `semaine` / academy).
+**Livrables cibles :** recettes `idle_plan_day` + `idle_drain` ; UI validation
+file du jour sur `/ceo` ; OpenRoom lié aux vrais `workflow_runs` ; tests trust /
+budget critical.
+**Livré MVP (2026-08-10) :**
+- `services/idle_work_queue.py` + `idle_work_recipes.py` (`idle_plan_day` / `idle_drain`)
+- Scheduler 08:10 plan + interval drain ; env `IDLE_WORK_*`
+- Gates : trust ≥ 0.70 self-dev, L2 ↔ `POST /workflows/idle/validate`, budget adaptatif
+- OpenRoom : `runId` / `taskId` / `progress` réel ; `STATUS_LOAD` cosmétique → 0
+- P0 parallèle : routes `dev_frontend` / `dev_integrator`, cartes bureau R&D,
+  Phase 21 probes 4 gaming, `/analytics` → `AnalyticsAgentsPanel`
+**Suite livrée (même jour) :** UI `/ceo` file idle (valider L2 / drain) ;
+  L1 company/product = vrais drafts ; dept-v2 + lobby = load réel uniquement.
+**Statut :** 🔄 MVP Complete — prochains enrichissements optionnels (preview
+  livrables dans l’UI, tickets idle-ok auto-créés après validation CEO).
+
+### Phase 40 — Agent isolation (AAF Phase A)
+**Objectif :** agents parallèles sans overwrite ; concurrence bornée ; merge
+protégé (intégrateur).
+**Référence :** `docs/specs/SPEC_AGENT_ISOLATION.md`, DEC-022.
+**Livré (2026-08-10) :**
+- `services/resource_locks.py` + `execution_slots.py` + `merge_policy.py` +
+  façade `agent_isolation.py`
+- Câblage coding / parallel_runner / plan_executor / fix_pipeline
+- API `GET /isolation/status|locks|slots`, `POST /isolation/locks/release`
+- Settings `ISOLATION_*` ; tests `tests/test_agent_isolation.py`
+**Suite (hors Phase A) :** Loop Engine + Mission Graph (plan AAF B–D).
+**Statut :** ✅ Complete.
+
+### Phase 41 — Mission Graph (AAF Phase B)
+**Objectif :** graphe Mission → Tasks (`depends_on`) séquentiel/parallèle,
+persisté, API + OpenRoom — façade `plan_executor` (DEC-023).
+**Référence :** `docs/specs/SPEC_MISSION_GRAPH.md`.
+**Livré (2026-08-10) :**
+- `services/mission_graph_*.py` + store `data/missions/`
+- `POST/GET /missions*` ; `run_coo_plan` → Mission Graph
+- OpenRoom `missionId` + overlay tasks EXECUTING/READY
+- Client `web/src/lib/missions-api.ts` ; tests `test_mission_graph.py`
+**Suite :** Loop Engine (Phase C).
+**Statut :** ✅ Complete.
+
+### Phase 42 — Loop Engine (AAF Phase C)
+**Objectif :** FSM commun exécute → évalue → feedback → retry (cap) puis
+escalade ; brancher fix_pipeline, plan/Mission, workflow `RETRYABLE`.
+**Référence :** `docs/specs/SPEC_LOOP_ENGINE.md`, DEC-024.
+**Livré (2026-08-10) :**
+- `services/loop_engine.py` + models ; settings `LOOP_*`
+- `fix_pipeline` via `run_loop_async` ; `_execute_step` via `run_loop`
+- `workflow_engine` : `RETRYABLE` → retry puis `ECART` ; `GET /loop/defaults`
+- Cap strict branché (`is_strict_loop` / `resolve_max_iterations`) sur merge,
+  ship, integrator, fix_pipeline
+- Tests `tests/test_loop_engine.py`
+**Suite :** Review Chain + merge integrate (Phase D).
+**Statut :** ✅ Complete.
+
+### Phase 43 — Review Chain + Merge (AAF Phase D)
+**Objectif :** chaîne ordonnée AUTO → BOARD → POLICY → INTEGRATE → DONE ;
+autonomie merge staging/main ; integrate si N>1 branches.
+**Référence :** `docs/specs/SPEC_REVIEW_CHAIN.md`, DEC-025.
+**Livré (2026-08-10) :**
+- `services/review_chain*.py` + `merge_autonomy` ; settings
+  `REVIEW_CHAIN_STAGING_TRUST_MIN`
+- Câblage `coding_pipeline` / `fix_pipeline` ; `ensure_integrate_task` ;
+  recipe `mission_ship` ; API `/review-chain/*`
+- Tests `tests/test_review_chain.py`
+**Suite :** Capabilities + Trust Graph (Phase E).
+**Statut :** ✅ Complete.
+
+### Phase 44 — Capabilities + PermissionGuard (AAF Phase E)
+**Objectif :** Capability Packs par rôle ; PermissionGuard fail-closed ;
+Trust Graph (journal allow/deny) distinct du Trust Score.
+**Référence :** `docs/specs/SPEC_CAPABILITY_GUARD.md`, DEC-026.
+**Livré (2026-08-10) :**
+- `capability_catalog` / `capability_packs` ; `permission_guard` ;
+  `trust_graph.jsonl`
+- Câblé merge (`assert_can_merge`) + `ads:spend` + worktree/git/PR/mail/
+  abort ; API + UI `/trust` décisions récentes ; setting
+  `PERMISSION_GUARD_ENABLED`
+- Tests `tests/test_permission_guard.py`
+**Suite :** Neo4j Trust Graph (hors scope volontaire) ; MCP PermissionGuard
+  progressif livré (`X-MCP-Agent` + route map).
+**Statut :** ✅ Complete.
+
+### Phase 45 — Context Engine L1–L4 (AAF Phase F)
+**Objectif :** compiler L1→L4 dans les prompts ; wipe L4 en fin de task ;
+promotion collective L3→L2 (≥3 agents / bureau).
+**Référence :** `docs/specs/SPEC_CONTEXT_ENGINE.md`, DEC-027.
+**Livré (2026-08-10) :**
+- `context_engine` + `working_memory` + `collective_learning` ;
+  policies L1 / standards L2
+- `inject_learning_context` délégué ; wipe L4 dans `plan_executor` ;
+  API `/context/*` ; settings `CONTEXT_ENGINE_*` / `COLLECTIVE_*`
+- Tests `tests/test_context_engine.py`
+**Suite :** AAF plan A–F terminé — Neo4j hors scope volontaire ;
+  MCP PermissionGuard progressif + call-sites catalog MVP câblés.
+**Statut :** ✅ Complete.

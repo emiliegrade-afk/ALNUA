@@ -60,3 +60,66 @@ def dev_app_list_issues() -> dict[str, Any]:
 def dev_gaming_instruction(body: AgentInstructionRequest) -> dict[str, str]:
     result = DevGamingAgent().handle_instruction(clean_agent_text(body.instruction))
     return {"result": result}
+
+
+@router.post("/agents/dev-frontend/implement-ui")
+def dev_frontend_implement_ui(body: DevFrontendImplementRequest) -> dict[str, str]:
+    result = DevFrontendAgent().implement_ui(
+        clean_agent_text(body.feature),
+        body.project,
+        clean_agent_text(body.context),
+        clean_agent_text(body.design_notes),
+    )
+    return {"result": result}
+
+
+@router.post("/agents/dev-frontend/fix-layout")
+def dev_frontend_fix_layout(body: DevFrontendFixLayoutRequest) -> dict[str, Any]:
+    return DevFrontendAgent().fix_layout(
+        clean_agent_text(body.issue),
+        clean_agent_text(body.context),
+        clean_agent_text(body.code_snippet, max_length=12000),
+    )
+
+
+@router.post("/agents/dev-frontend/review")
+def dev_frontend_review(body: DevFrontendReviewRequest) -> dict[str, Any]:
+    return DevFrontendAgent().review_component(
+        clean_agent_text(body.code, max_length=12000),
+        clean_agent_text(body.context),
+    )
+
+
+@router.post("/agents/dev-frontend/instruction")
+def dev_frontend_instruction(body: AgentInstructionRequest) -> dict[str, str]:
+    result = DevFrontendAgent().handle_instruction(clean_agent_text(body.instruction))
+    return {"result": result}
+
+
+@router.post("/agents/dev-integrator/integrate")
+def dev_integrator_integrate(body: DevIntegratorIntegrateRequest) -> dict[str, Any]:
+    return DevIntegratorAgent().integrate_worktrees(
+        body.repo_path,
+        body.branch,
+        body.worktrees,
+        body.base_branch,
+    )
+
+
+@router.post("/agents/dev-integrator/open-pr")
+def dev_integrator_open_pr(body: DevIntegratorOpenPrRequest) -> dict[str, Any]:
+    return DevIntegratorAgent().open_integration_pr(
+        body.repo_path,
+        body.branch,
+        clean_agent_text(body.title, max_length=200),
+        clean_agent_text(body.body, max_length=4000),
+        body.qa_verdict,
+    )
+
+
+@router.post("/agents/dev-integrator/review-diff")
+def dev_integrator_review_diff(body: DevIntegratorReviewDiffRequest) -> dict[str, Any]:
+    return DevIntegratorAgent().review_diff(
+        clean_agent_text(body.diff_summary, max_length=12000),
+        clean_agent_text(body.context),
+    )

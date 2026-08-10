@@ -48,3 +48,32 @@ def run_scheduled_semaine(*, weekly_plan: bool = True) -> dict[str, Any]:
     headline = result.get("summary") or "Brief hebdo"
     _notify_ops(f"Semaine ALNUA\n{headline}")
     return result
+
+
+def run_scheduled_idle_plan(*, autonomy_level: int = 1) -> dict[str, Any]:
+    """Morning idle file of the day (DEC-021)."""
+    from services.workflow_engine import run_workflow
+
+    try:
+        from config.settings import settings
+
+        if not getattr(settings, "idle_work_enabled", True):
+            return {"success": False, "skipped": True, "reason": "IDLE_WORK_ENABLED=0"}
+    except Exception:
+        pass
+    return run_workflow("idle_plan_day", {"autonomy_level": autonomy_level})
+
+
+def run_scheduled_idle_drain() -> dict[str, Any]:
+    """Periodic idle drain — L0–L1 free; L2 needs CEO-validated day file."""
+    from services.workflow_engine import run_workflow
+
+    try:
+        from config.settings import settings
+
+        if not getattr(settings, "idle_work_enabled", True):
+            return {"success": False, "skipped": True, "reason": "IDLE_WORK_ENABLED=0"}
+        autonomy = int(getattr(settings, "idle_default_autonomy_level", 1) or 1)
+    except Exception:
+        autonomy = 1
+    return run_workflow("idle_drain", {"autonomy_level": autonomy})

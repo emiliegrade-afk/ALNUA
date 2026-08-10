@@ -138,6 +138,12 @@ def learn_from_outcome(
             )
             remember(memory_entry, agent_id=canonical_id)
             logger.info("skill_agent_learning: leçon enregistrée pour %s", canonical_id)
+            try:
+                from services.collective_learning import record_lesson_candidate
+
+                record_lesson_candidate(canonical_id, lesson, task=task)
+            except Exception:
+                pass
 
         except Exception as exc:
             logger.warning("skill_agent_learning: échec apprentissage %s: %s", agent_id, exc)

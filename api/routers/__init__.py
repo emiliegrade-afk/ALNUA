@@ -81,6 +81,10 @@ from api.routers.metrics import router as metrics_router
 from api.routers.plugins import router as plugins_router
 from api.routers.personality import router as personality_router
 from api.routers.trust import router as trust_router
+from api.routers.isolation import router as isolation_router
+from api.routers.missions import router as missions_router
+from api.routers.review_chain import router as review_chain_router
+from api.routers.context_memory import router as context_memory_router
 from api.routers.ue58_bridge import router as ue58_bridge_router
 from api.routers.robo_phase21 import router as robo_phase21_router
 
@@ -162,6 +166,10 @@ ALL_ROUTERS = [
     plugins_router,
     personality_router,
     trust_router,
+    isolation_router,
+    missions_router,
+    review_chain_router,
+    context_memory_router,
     ue58_bridge_router,
     robo_phase21_router,
 ]
