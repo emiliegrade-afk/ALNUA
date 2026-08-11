@@ -8,6 +8,7 @@ import {
   Megaphone,
   Network,
   Palette,
+  Scale,
   UserRound,
   type LucideIcon,
 } from "lucide-react";
@@ -59,6 +60,19 @@ const POLES: PoleDef[] = [
     icon: UserRound,
     dept: "secretary",
     bureau: "secretary",
+    glow: "#E09B6A",
+  },
+  {
+    id: "legal",
+    code: "02b",
+    name: "Juridique",
+    tagline: "Contrats · Avis · Pré-signature",
+    description:
+      "Solène Hariri — avocate d'entreprise UE / USA / Asie (indépendante de Nadia).",
+    href: "/legal",
+    icon: Scale,
+    dept: "legal",
+    bureau: "legal",
     glow: "#E09B6A",
   },
   {

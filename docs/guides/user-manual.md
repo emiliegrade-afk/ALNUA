@@ -5,7 +5,10 @@ Objectif : comprendre **à quoi sert** chaque écran, **où cliquer**, et commen
 
 **Dans le Hub :** bureau CEO (`/ceo`) · Bibliothèque (`/library`) · Documents (`/docs`) → ce manuel s’ouvre en page lisible (`/docs/guides/user-manual`).
 
+**Nadia vs Aria vs Solène :** Nadia = assistante LLM générale (NL réel). Aria = COO ops/stratégie. Solène = avocate d'entreprise (UE/USA/Asie), **indépendante**, en contact avec Nadia pour relecture avant signature.
+
 Si tu n’as pas encore installé le Hub → [Installation](../getting-started/installation.md).  
+Templates contrats → [catalogue](./contract-templates-catalog.md).  
 Première session courte → [Premiers 15 minutes](../getting-started/first-15-minutes.md).  
 Vocabulaire produit → [Concepts](../getting-started/concepts.md).
 

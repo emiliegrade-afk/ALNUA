@@ -18,7 +18,6 @@ from telegram.ext import (
     filters,
 )
 
-from agents.secretary_agent import SecretaryAgent
 from bots.base import log_bot_action
 from bots.telegram_common import acquire_single_instance_lock, presence_callbacks, split_message
 from bots.telegram_secretary_auth import is_authorized, reject_unauthorized
@@ -43,7 +42,7 @@ _START_MESSAGE = (
     "• « Demande à Aria de… » — je transmets au COO\n\n"
     "Raccourcis :\n"
     "/rapport — bilan Academy de la nuit\n"
-    "/briefing — priorités du jour\n"
+    "/briefing ou /priorities — priorités du jour\n"
     "/status — Hub en ligne ou non\n"
     "/connect gmail — lier Gmail\n"
     "/connect calendar — lier Google Calendar\n"
@@ -80,10 +79,20 @@ class TelegramSecretaryBot:
         return f"tg:{chat_id}" if chat_id is not None else "hub"
 
     def _run_nadia(self, instruction: str, chat_id: int | None) -> str:
-        return SecretaryAgent(self.db).handle_instruction(
+        from services.assistant_router import assistant_chat
+
+        result = assistant_chat(
             instruction,
+            agent="secretary",
+            telegram_chat_id=chat_id,
             session_id=self._session_id(chat_id),
+            channel="telegram_secretary",
         )
+        name = result.get("agent_name") or "Nadia"
+        body = result.get("response") or ""
+        if result.get("agent_id") == "coo":
+            return f"[{name}]\n{body}"
+        return body
 
     def _morning_message(self) -> str:
         from services.secretary_intents import build_combined_morning_message
@@ -112,6 +121,12 @@ class TelegramSecretaryBot:
             return
         for job in application.job_queue.get_jobs_by_name(_MORNING_JOB):
             job.schedule_removal()
+        # Hub scheduler owns 8h when SCHEDULER_LEADER=1 — avoid duplicate Telegram digests
+        if getattr(self.settings, "scheduler_leader", True):
+            logger.info(
+                "Brief 8h Nadia bot désactivé (SCHEDULER_LEADER=1 — Hub envoie le digest)"
+            )
+            return
         if self._chat_id() is None:
             logger.warning(
                 "Brief 8h Nadia désactivé — définis TELEGRAM_SECRETARY_CHAT_ID "
@@ -235,6 +250,7 @@ class TelegramSecretaryBot:
             app.add_handler(CommandHandler("start", self._handle_start))
             app.add_handler(CommandHandler("rapport", self._handle_rapport))
             app.add_handler(CommandHandler("briefing", self._handle_briefing))
+            app.add_handler(CommandHandler("priorities", self._handle_briefing))
             app.add_handler(CommandHandler("status", cmd_status))
             app.add_handler(CommandHandler("connect", cmd_connect))
             app.add_handler(CommandHandler("apps", cmd_apps))

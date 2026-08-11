@@ -14,7 +14,14 @@ ROOMS: dict[str, dict] = {
         "description": "Filtrage, agenda, emails et coordination exécutive",
         "accent_color": "#D4AF37",
         "style": "executive_assistant",
-        "agents": ["secretary"],
+        "agents": ["secretary", "housekeeper"],
+    },
+    "legal_office": {
+        "label": "Conseil juridique",
+        "description": "Avocate d'entreprise — UE / USA / Asie (indépendante de Nadia)",
+        "accent_color": "#D4AF37",
+        "style": "law_library",
+        "agents": ["legal_counsel"],
     },
     "app_office": {
         "label": "Pôle App",
@@ -86,6 +93,13 @@ TEAMS: dict[str, dict] = {
         "color": "#D4AF37",
         "agents": ["spec", "qa", "pm"],  # coo + secretary exclus de la compétition
         "compete_metric": "validations_croisées",
+    },
+    "legal": {
+        "label": "Conseil juridique",
+        "color": "#D4AF37",
+        "agents": ["legal_counsel"],
+        "compete_metric": "avis_et_reviews",
+        "intra_competition": False,
     },
     "app": {
         "label": "Pôle App",

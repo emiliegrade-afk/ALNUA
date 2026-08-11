@@ -14,6 +14,7 @@ const LIVE_DEPTS = [
   "robo",
   "ceo",
   "secretary",
+  "legal",
   "brand",
   "hub",
   "analytics",
@@ -57,6 +58,12 @@ describe("department primary routes are live (not MockupShell)", () => {
     expect(ceo).toMatch(/CeoCockpitPanel/);
     expect(ceo).toMatch(/CeoIdleQueueCard/);
     expect(sec).toMatch(/NadiaDesktopPanel|SecretaryConsole/);
+  });
+
+  it("/legal uses Solène persona + counsel panel", () => {
+    const legal = readFileSync(join(process.cwd(), "src", "app", "legal", "page.tsx"), "utf8");
+    expect(legal).toMatch(/LegalPersonaCard/);
+    expect(legal).toMatch(/LegalCounselPanel/);
   });
 
   it("/hub and /analytics are live shells", () => {

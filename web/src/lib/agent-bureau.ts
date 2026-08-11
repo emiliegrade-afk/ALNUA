@@ -7,6 +7,7 @@ import type { DeptKey } from "@/lib/dept-colors";
 export type BureauKey =
   | "hub"
   | "secretary"
+  | "legal"
   | "app"
   | "academy"
   | "gaming"
@@ -20,6 +21,7 @@ export type BureauKey =
 export const BUREAU_ROOMS: Record<BureauKey, string> = {
   hub: "direction",
   secretary: "secretary_office",
+  legal: "legal_office",
   app: "app_office",
   academy: "app_office",
   gaming: "gaming_studio",
@@ -103,6 +105,36 @@ export const BUREAU_AGENTS: BureauAgentDef[] = [
     branch: "hub",
     description: "Patrouille le Hub : intrusion, fuites, lockdown.",
     skills: ["Patrol", "Lockdown", "Alertes"],
+  },
+  {
+    id: "legal_counsel",
+    room: "legal_office",
+    icon: "⚖️",
+    name: "Solène Hariri",
+    role: "Avocate d'entreprise — UE / USA / Asie",
+    branch: "legal",
+    description:
+      "Droit des affaires international : avis, review, validation pré-signature. Indépendante de Nadia.",
+    skills: [
+      "Avis UE/USA/Asie",
+      "Review contrats",
+      "Pré-signature",
+      "NDA & partenariats",
+      "Influenceurs & pub",
+      "IP & data/privacy",
+      "Clauses & risques",
+      "Comparatif juridictions",
+    ],
+  },
+  {
+    id: "housekeeper",
+    room: "secretary_office",
+    icon: "🧹",
+    name: "Clara Nest",
+    role: "Intendante PC",
+    branch: "secretary",
+    description: "Range Desktop/Documents — propose, déplace, quarantaine avant delete.",
+    skills: ["Scan", "Quarantaine", "Rapports"],
   },
   // app_office (/app)
   {

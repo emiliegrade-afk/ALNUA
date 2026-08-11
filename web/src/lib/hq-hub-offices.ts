@@ -305,6 +305,18 @@ export const HQ_MAP_OFFICES: HqMapOffice[] = [
 /** Quick-access shortcuts not duplicated on map (empty when all rooms are on artwork). */
 export const HQ_OFF_MAP_ACCESS: HqOffMapAccess[] = [
   {
+    id: "legal",
+    number: 12,
+    title: "Bureau juridique",
+    shortcutLabel: "Juridique",
+    subtitle: "Solène Hariri · contrats · avis UE/USA/Asie",
+    href: "/legal",
+    icon: "⚖️",
+    dept: "legal",
+    bureau: "legal",
+    primaryAgentId: "legal_counsel",
+  },
+  {
     id: "library",
     number: 14,
     title: "Bibliothèque",
@@ -380,6 +392,8 @@ export function getOfficeBadge(
         : { label: "CEO" };
     case "secretary":
       return { label: `${countAgentsForBureau("secretary")} agent` };
+    case "legal":
+      return { label: `${countAgentsForBureau("legal")} agent` };
     case "direction":
       return stats.hubPrCount > 0
         ? { label: `${stats.hubPrCount} PR`, highlight: true }

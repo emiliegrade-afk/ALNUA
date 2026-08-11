@@ -23,6 +23,8 @@ from api.routers.releases import router as releases_router
 from api.routers.competition import router as competition_router
 from api.routers.agents_pole import router as agents_pole_router
 from api.routers.agents_secretary import router as agents_secretary_router
+from api.routers.agents_legal import router as agents_legal_router
+from api.routers.nadia_tools import router as nadia_tools_router
 from api.routers.agents_dev import router as agents_dev_router
 from api.routers.agents_gaming_studio import router as agents_gaming_studio_router
 from api.routers.agents_rnd_persona import router as agents_rnd_persona_router
@@ -110,6 +112,8 @@ ALL_ROUTERS = [
     competition_router,
     agents_pole_router,
     agents_secretary_router,
+    agents_legal_router,
+    nadia_tools_router,
     agents_dev_router,
     agents_gaming_studio_router,
     agents_rnd_persona_router,

@@ -21,6 +21,7 @@ import {
   Palette,
   Settings,
   UserRound,
+  Scale,
   Users,
   X,
   Zap,
@@ -53,6 +54,7 @@ const TOOL_ICONS: Record<string, LucideIcon> = {
 const DEPT_ICONS: Record<string, LucideIcon> = {
   hub: Compass,
   secretary: UserRound,
+  legal: Scale,
   ceo: Crown,
   rd: FlaskConical,
   app: AppWindow,

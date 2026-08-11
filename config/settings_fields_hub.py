@@ -55,6 +55,11 @@ class SettingsHubMixin:
         alias="SECURITY_AUTO_LOCKDOWN",
         description="Security Sentinel auto-enables localhost lockdown on critical findings",
     )
+    housekeeper_roots: str = Field(
+        default="",
+        alias="HOUSEKEEPER_ROOTS",
+        description="Semicolon-separated extra dirs for PC housekeeper (Desktop/Documents always included)",
+    )
     jwt_secret: str = Field(default="", alias="JWT_SECRET")
     environment: str = Field(default="development", alias="ENVIRONMENT")
     alnua_workspace: str = Field(

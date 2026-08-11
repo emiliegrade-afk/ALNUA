@@ -22,34 +22,34 @@ const AGENT_META: Record<
   auto: {
     label: "Auto",
     welcome:
-      "Salut Emilie. Je route vers **Aria** (ops, Academy, R&D) ou **Nadia** (mails, planning, contrats) selon ta demande.",
+      "Salut Emilie. **Nadia** filtre le quotidien (mails, agenda, brief, Academy). **Aria** garde la stratégie (R&D, plans, délégation).",
     suggestions: [
-      "Rapport de la nuit Academy",
       "Priorités du jour",
+      "Rapport de la nuit Academy",
       "Rédige un mail de relance partenaire",
-      "État du pipeline Academy",
+      "Lance une investigation R&D sur…",
     ],
   },
   coo: {
     label: "Aria",
     welcome:
-      "Aria ici — COO ALNUA. Dis-moi ce que tu veux déléguer ou piloter.",
+      "Aria ici — COO. Stratégie, R&D, tickets, délégation. Pour mails / brief / Academy → bascule sur Nadia.",
     suggestions: [
-      "État du pipeline Academy",
       "Lance une investigation R&D sur…",
       "Priorise mes tickets",
       "Note cette idée : …",
+      "Délègue au pôle APP…",
     ],
   },
   secretary: {
     label: "Nadia",
     welcome:
-      "Nadia Faure, secrétaire. Mails, contrats, agenda ou rapport de nuit — en langage naturel.",
+      "Nadia Faure, secrétaire. Mails, contrats, agenda, brief du matin et rapport Academy — en langage naturel.",
     suggestions: [
-      "Connecte mon Gmail",
-      "Trier mes emails urgents",
+      "Priorités du jour",
       "Rapport de la nuit",
-      "Rédige un mail de relance (puis « envoie le mail »)",
+      "Trier mes emails urgents",
+      "Connecte mon Gmail",
     ],
   },
 };
@@ -203,8 +203,8 @@ export function AssistantChat({
         className
       )}
     >
-      {!embedded ? (
-        <CardHeader className="border-b border-copper/10 pb-3">
+      {/* Toggle always visible — even in drawer — so Auto / Aria / Nadia is clear */}
+      <CardHeader className="border-b border-copper/10 pb-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-copper/20 ring-1 ring-copper/30">
@@ -213,7 +213,9 @@ export function AssistantChat({
               <div>
                 <CardTitle className="text-base text-ivory">{title}</CardTitle>
                 <p className="text-xs text-titanium">
-                  Langage naturel · Aria & Nadia
+                  {embedded
+                    ? "Auto route · ou force Aria / Nadia"
+                    : "Langage naturel · Aria & Nadia"}
                 </p>
               </div>
             </div>
@@ -236,7 +238,6 @@ export function AssistantChat({
             </div>
           </div>
         </CardHeader>
-      ) : null}
 
       <CardContent className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-0">
         <ScrollArea className="min-h-0 flex-1">

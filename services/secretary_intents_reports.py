@@ -46,9 +46,11 @@ def build_academy_status_brief() -> str:
     return "\n".join(lines)
 
 
-def build_combined_morning_message() -> str:
+def build_combined_morning_message(
+    briefing_result: dict | None = None,
+) -> str:
     """Single 8h Telegram digest — Nadia voice, priorities + night stats."""
-    brief = build_morning_brief_for_secretary()
+    brief = build_morning_brief_for_secretary(briefing_result=briefing_result)
     night = build_night_report()
     return f"{brief}\n\n---\n\n{night}"
 
@@ -135,17 +137,21 @@ def build_night_report() -> str:
     return "\n".join(lines)
 
 
-def build_morning_brief_for_secretary() -> str:
-    """Lighter morning brief — Nadia voice, delegates data to COO briefing when possible."""
+def build_morning_brief_for_secretary(
+    briefing_result: dict | None = None,
+) -> str:
+    """Lighter morning brief — Nadia voice; reuses cached LLM brief when provided."""
     try:
-        from services.daily_briefing import run_daily_briefing
+        result = briefing_result
+        if result is None:
+            from services.daily_briefing import run_daily_briefing
 
-        result = run_daily_briefing(
-            context="Brief matinal pour Emilie — ton secrétariat, concis.",
-            include_trends=False,
-            include_costs=True,
-            include_events=True,
-        )
+            result = run_daily_briefing(
+                context="Brief matinal pour Emilie — ton secrétariat, concis.",
+                include_trends=False,
+                include_costs=True,
+                include_events=True,
+            )
         brief = (result or {}).get("coo_brief") or {}
         if brief.get("headline"):
             parts = [

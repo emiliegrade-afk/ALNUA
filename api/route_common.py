@@ -67,6 +67,7 @@ from agents.rnd_agent import RndAgent
 from agents.qa_robot_agent import QaRobotAgent
 from agents.safety_agent import SafetyAgent
 from agents.secretary_agent import SecretaryAgent
+from agents.legal_counsel_agent import LegalCounselAgent
 from agents.simulation_agent import SimulationAgent
 from agents.sound_designer_agent import SoundDesignerAgent
 from agents.spec_agent import SpecAgent

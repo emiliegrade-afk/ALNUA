@@ -45,6 +45,26 @@ class SecretaryHandlersOpsMixin:
                 self._finish_instruction(instruction, out[:200])
                 return out
 
+        lower = instruction.lower()
+        if any(k in lower for k in ("deep research", "recherche profonde", "approfond")):
+            try:
+                from services.deep_research import quick_research
+
+                report = quick_research(query, agent_id="secretary")
+                if isinstance(report, dict):
+                    summary = (
+                        report.get("executive_summary")
+                        or report.get("summary")
+                        or str(report)[:2000]
+                    )
+                else:
+                    summary = str(report)[:2000]
+                out = f"🔬 **Recherche approfondie** — « {query} »\n\n{summary}"
+                self._finish_instruction(instruction, out[:200])
+                return out
+            except Exception as exc:
+                logger.warning("deep research fallback: %s", exc)
+
         result = run_bureau_research(
             query,
             requested_by="nadia",
@@ -100,6 +120,103 @@ class SecretaryHandlersOpsMixin:
         self._finish_instruction(instruction, out[:200])
         return out
 
+    def _handle_ask_lawyer(self, instruction: str, *, session_id: str = "hub") -> str:
+        """Escalate to enterprise legal counsel (separate agent)."""
+        try:
+            from agents.legal_counsel_agent import LegalCounselAgent
+            from services.input_sanitizer import sanitize_user_input
+
+            clean = sanitize_user_input(instruction, max_length=4000, redact_pii_enabled=False)
+            result = LegalCounselAgent().advise(clean, regions=["UE", "USA", "ASIE"])
+            body = result.get("advice") or result.get("summary") or str(result)
+            out = (
+                "⚖️ **Nadia → Avocat d'entreprise ALNUA**\n\n"
+                f"{body}\n\n"
+                "_Avis d'aide à la décision — pas un conseil juridique opposable. "
+                "Fais valider avant signature._"
+            )
+        except Exception as exc:
+            logger.warning("ask_lawyer failed: %s", exc)
+            out = (
+                "Je n'ai pas pu joindre l'avocat d'entreprise pour l'instant. "
+                "Reformule ta question juridique ou réessaie dans un instant."
+            )
+        self._finish_instruction(instruction, out[:200])
+        return out
+
+    def _handle_write_doc(self, instruction: str, *, session_id: str = "hub") -> str:
+        from services.input_sanitizer import sanitize_user_input
+        from services.nadia_docs import create_document, list_documents
+
+        clean = sanitize_user_input(instruction, max_length=4000, redact_pii_enabled=False)
+        # Ask LLM for title + body quickly
+        prompt = (
+            f"Emilie demande un document : {clean}\n\n"
+            'JSON : {"title":"...","content":"markdown complet","doc_type":"note|contrat|cr"}'
+        )
+        try:
+            raw = self._complete(prompt, temperature=0.4, max_tokens=4000)
+            from agents.base import parse_json_response
+
+            data = parse_json_response(raw)
+            if not isinstance(data, dict):
+                raise ValueError("bad json")
+            entry = create_document(
+                str(data.get("title") or "Document Nadia"),
+                str(data.get("content") or clean),
+                doc_type=str(data.get("doc_type") or "note"),
+            )
+        except Exception:
+            entry = create_document("Note Nadia", f"# Note\n\n{clean}\n", doc_type="note")
+        docs = list_documents()[:5]
+        out = (
+            f"📝 **Document créé** — « {entry.get('title')} »\n"
+            f"Fichier : `{entry.get('path')}`\n"
+            f"ID : `{entry.get('id')}` — éditable dans Nadia Desktop / data/nadia_docs.\n"
+            f"Docs récents : {', '.join(d.get('title', '') for d in docs)}"
+        )
+        self._finish_instruction(instruction, out[:200])
+        return out
+
+    def _handle_housekeep(self, instruction: str, *, session_id: str = "hub") -> str:
+        from agents.housekeeper_agent import HousekeeperAgent
+
+        agent = HousekeeperAgent()
+        lower = instruction.lower()
+        if "quarantaine" in lower or "supprim" in lower:
+            st = agent.status()
+            out = (
+                f"🧹 **Quarantaine** : {st.get('quarantine_count', 0)} élément(s)\n"
+                f"Dossier : `{st.get('quarantine_dir')}`\n"
+                "Dis les chemins exacts à mettre en quarantaine, ou demande un scan/propose d'abord."
+            )
+        elif "applique" in lower or "déplace" in lower or "deplace" in lower:
+            result = agent.apply(dry_run=False)
+            n = len(result.get("moves") or [])
+            out = (
+                f"🧹 **Déplacements** : {n} fichier(s)\n"
+                f"Rapport : `{result.get('report_path')}`\n"
+                f"Erreurs : {len(result.get('errors') or [])}"
+            )
+        elif "propos" in lower:
+            result = agent.propose()
+            n = len(result.get("proposals") or [])
+            out = (
+                f"🧹 **Proposition de rangement** : {n} fichier(s)\n"
+                f"Rapport : `{result.get('report_path')}`\n"
+                "Rien n'a été déplacé. Dis « applique le rangement » pour exécuter."
+            )
+        else:
+            result = agent.scan()
+            out = (
+                f"🧹 **Scan PC** : {result.get('count', 0)} éléments sur "
+                f"{len(result.get('roots') or [])} racines\n"
+                f"Racines : {', '.join(result.get('roots') or [])}\n"
+                "Dis « propose un rangement » pour un plan, ou donne des chemins extra."
+            )
+        self._finish_instruction(instruction, out[:200])
+        return out
+
     def _handle_conversation(
         self,
         instruction: str,
@@ -120,18 +237,23 @@ class SecretaryHandlersOpsMixin:
 
 {history}
 
-Contexte ALNUA :
+Contexte ALNUA (indicatif, pas obligatoire à réciter) :
 {context}
 État technique : {hub_line}
 
-Réponds comme Nadia Faure, secrétaire personnelle d'Emilie (CEO) chez ALNUA.
-Français, professionnel et chaleureux, 3 à 8 phrases max.
-Tu tutoies Emilie. C'est SON agenda, SES mails.
+Tu es Nadia Faure — assistante personnelle d'Emilie (CEO ALNUA), niveau ChatGPT/Claude
+branchée sur le Hub : tu comprends le langage naturel, tu aides sur tout sujet utile
+(organisation, rédaction, idées, explications, planning, mails, contrats, recherches).
+Tu tutoies Emilie. Français clair, chaleureux, concret. 3 à 12 phrases selon le besoin.
 
-Si la demande est hors de ton périmètre (ops lourdes, R&D, pipeline) :
-dis-le clairement et propose de transmettre à Aria ou une alternative concrète.
-Si tu ne comprends pas : demande une précision au lieu de rester vague.
-Pas de JSON — texte direct.""",
+Règles :
+- Ne demande PAS de « mots magiques » (pipeline, academy…). Comprends la paraphrase.
+- Si une action Hub précise est requise (envoyer un mail, relancer Théo, ouvrir l'agenda),
+  dis ce que tu peux faire et propose la prochaine étape concrète.
+- Ops stratégiques lourdes / multi-pôles → propose de transmettre à Aria (COO).
+- Questions juridiques / contrats à valider avant signature → propose l'avocat d'entreprise ALNUA.
+- Si tu ne sais pas : dis-le et pose UNE question précise.
+- Pas de JSON — texte direct.""",
             self.AGENT_NAME,
             instruction[:80],
         )

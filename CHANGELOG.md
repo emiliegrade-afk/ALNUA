@@ -7,6 +7,41 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-11 — Bureau juridique Solène + version complète Nadia (feat)
+
+- **Type :** feat
+- **Details :**
+  - **Bureau `/legal`** : persona Solène (skills, catchphrase, méthode) + panel
+    avis/review/templates ; nav console / HQ off-map ; team `legal`.
+  - **Docs Nadia** : `services/nadia_docs` + API `/nadia/docs*` (md + export txt/docx).
+  - **Desktop v2** : fenêtre paned chat + éditeur ; boot logon lance l’UI.
+  - **Housekeeper** Clara Nest — scan/propose/apply + quarantaine (DEC-030).
+  - **Templates** enrichis (`contract_template_bodies`) ; research deep depuis Nadia.
+
+## 2026-08-11 — Nadia NL réel + avocate entreprise + templates (feat)
+
+- **Type :** feat
+- **Details :**
+  - **Lot A :** intent LLM Nadia (`secretary_intent_llm`) — paraphrases OK ;
+    conversation = vraie assistante (plus de bot à mots magiques).
+  - **Lot B :** agent `legal_counsel` (Solène Hariri) — avis / review / validate
+    UE·USA·Asie ; endpoints `/agents/legal-counsel/*` ; escalation depuis Nadia.
+  - **Lot C :** catalogue templates (`contract_templates_registry` + doc guide) ;
+    `draft_contract` branché scaffolds ; disclaimer juridique.
+  - Ménage PC (quarantaine) **reporté** — prochain lot.
+
+## 2026-08-11 — H4 Nadia filtre + Aria stratégique (feat)
+
+- **Type :** feat
+- **Details :**
+  - Routing Assistants : Academy / brief / mails → Nadia ; R&D / plans → Aria ;
+    toggle Auto/Aria/Nadia visible dans le tiroir ; défauts bureau-aware.
+  - Morning brief LLM **une seule fois** (cache passé au digest Nadia) ; bot
+    Telegram Nadia ne double plus 8h si `SCHEDULER_LEADER=1`.
+  - `/ceo` : brief du jour + dossiers pending + chat ; `/secretary` : chat Nadia
+    + SAV ; bots Telegram via `assistant_chat`.
+  - Tests `tests/test_assistant_router.py`.
+
 ## 2026-08-11 — H3 manuel in-app CEO + bibliothèque (feat/docs)
 
 - **Type :** feat / docs

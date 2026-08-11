@@ -20,6 +20,7 @@ const COPPER_DIM = {
 export const DEPT_COLORS = {
   ceo: COPPER,
   secretary: COPPER,
+  legal: COPPER,
   hub: COPPER,
   app: COPPER_LIGHT,
   gaming: COPPER,
@@ -43,6 +44,7 @@ export type DeptTier = "active" | "support";
 export const DEPT_TIERS: Record<DeptKey, DeptTier> = {
   ceo: "active",
   secretary: "active",
+  legal: "support",
   hub: "active",
   app: "active",
   gaming: "active",

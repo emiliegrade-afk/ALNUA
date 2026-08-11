@@ -67,7 +67,22 @@ export function CooDrawer() {
         </div>
 
         <div className="h-[calc(100vh-72px)] overflow-hidden p-3">
-          {isOpen ? <AssistantChat embedded /> : null}
+          {isOpen ? (
+            <AssistantChat
+              key={pathname || "drawer"}
+              embedded
+              defaultAgent={
+                pathname?.startsWith("/secretary") ? "secretary" : "auto"
+              }
+              variant={
+                pathname?.startsWith("/secretary")
+                  ? "secretary"
+                  : pathname?.startsWith("/ceo")
+                    ? "ceo"
+                    : "default"
+              }
+            />
+          ) : null}
         </div>
       </div>
     </>

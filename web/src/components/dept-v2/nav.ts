@@ -16,6 +16,7 @@ export const DEPT_V2_TOOLS_NAV = [
 export const DEPT_V2_ICONS: Record<string, string> = {
   hub: "◎",
   secretary: "🗂",
+  legal: "⚖",
   rd: "◇",
   app: "▦",
   marketing: "📣",

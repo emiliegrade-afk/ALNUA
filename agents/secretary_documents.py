@@ -83,12 +83,18 @@ Réponds en JSON :
         compensation: str = "",
         special_clauses: str = "",
     ) -> dict[str, Any]:
-        """Rédige un contrat de collaboration.
+        """Rédige un contrat de collaboration à partir du catalogue templates.
 
-        contract_type: 'partenariat' | 'prestation' | 'nda' | 'freelance'
+        contract_type: nda|partenariat|influenceur|pub|prestation|affiliation|freelance
         """
+        from config.contract_templates_registry import template_prompt_block
+
+        scaffold = template_prompt_block(contract_type)
         prompt = inject_learning_context(
-            f"""Rédige un contrat de {contract_type} professionnel entre ALNUA et {party_name}.
+            f"""Rédige un contrat professionnel entre ALNUA et {party_name}.
+Type demandé : {contract_type}
+
+{scaffold}
 
 Périmètre / objet : {scope}
 Durée : {duration}
@@ -98,17 +104,14 @@ Clauses spéciales : {special_clauses or 'Aucune'}
 Réponds en JSON :
 {{
   "title": "Titre officiel du contrat",
+  "template_id": "{contract_type}",
   "preamble": "Préambule",
   "articles": [
-    {{ "number": 1, "title": "Objet", "content": "..." }},
-    {{ "number": 2, "title": "Durée", "content": "..." }},
-    {{ "number": 3, "title": "Obligations des parties", "content": "..." }},
-    {{ "number": 4, "title": "Rémunération", "content": "..." }},
-    {{ "number": 5, "title": "Confidentialité", "content": "..." }},
-    {{ "number": 6, "title": "Résiliation", "content": "..." }},
-    {{ "number": 7, "title": "Droit applicable", "content": "..." }}
+    {{ "number": 1, "title": "Objet", "content": "..." }}
   ],
-  "signature_block": "Bloc signature standard"
+  "signature_block": "Bloc signature standard",
+  "needs_legal_review": true,
+  "note": "Brouillon Nadia — à faire relire par Solène (legal_counsel) avant signature"
 }}""",
             self.AGENT_NAME, f"contrat {contract_type} {party_name}",
         )

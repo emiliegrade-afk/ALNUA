@@ -52,6 +52,7 @@ const SELF_CONTAINED_V2_ROUTES = [
   "/finances-v2",
   "/ceo",
   "/secretary",
+  "/legal",
   "/brand",
   "/hub",
   "/analytics",

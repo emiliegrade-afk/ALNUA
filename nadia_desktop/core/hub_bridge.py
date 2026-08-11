@@ -136,6 +136,43 @@ class HubBridge:
     def mode(self) -> str:
         return self._mode
 
+    # ── Documents (data/nadia_docs via Hub) ───────────────────────────────────
+
+    def list_docs(self) -> list[dict]:
+        if not _inject_hub_path():
+            return []
+        try:
+            from services.nadia_docs import list_documents
+
+            return list_documents()
+        except Exception as e:
+            logger.warning("list_docs: %s", e)
+            return []
+
+    def load_doc(self, doc_id: str) -> dict | None:
+        if not _inject_hub_path():
+            return None
+        try:
+            from services.nadia_docs import read_document
+
+            return read_document(doc_id)
+        except Exception as e:
+            logger.warning("load_doc: %s", e)
+            return None
+
+    def save_doc(self, doc_id: str, content: str, title: str | None = None) -> dict | None:
+        if not _inject_hub_path():
+            return None
+        try:
+            from services.nadia_docs import create_document, update_document
+
+            if doc_id:
+                return update_document(doc_id, content, title=title)
+            return create_document(title or "Sans titre", content, doc_type="note")
+        except Exception as e:
+            logger.warning("save_doc: %s", e)
+            return None
+
 
 # ── Persona Nadia (fallback quand le Hub n'est pas dispo) ───────────────────
 

@@ -59,29 +59,17 @@ def try_fast_intents(
             return "❌ Idée vide — précise ce que tu veux garder."
 
     from services.secretary_intents import (
-        build_academy_status_brief,
         detect_academy_intent,
         detect_wake_ops,
     )
 
-    if detect_wake_ops(instruction):
-        from services.agent_wake import wake_agents
-
-        result = wake_agents(notify=False, retry_failed=True)
-        ack = f"✅ Pipeline Academy relancé — Théo reprend le codage.\n{result.get('summary', '')}"
-        try:
-            coo.create_task_log(coo.AGENT_NAME, "wake_agents", instruction, ack[:200])
-        except Exception:
-            pass
-        return ack
-
-    if detect_academy_intent(instruction):
-        brief = build_academy_status_brief()
-        try:
-            coo.create_task_log(coo.AGENT_NAME, "academy_status", instruction, brief[:200])
-        except Exception:
-            pass
-        return brief
+    if detect_wake_ops(instruction) or detect_academy_intent(instruction):
+        return (
+            "🎓 Academy / pipeline → **Nadia** filtre ça pour toi.\n"
+            "Ouvre le tiroir Assistants → **Nadia**, ou dis `@nadia rapport de la nuit` "
+            "/ `@nadia relance Théo`.\n"
+            "Moi (Aria) je reste sur la stratégie, R&D et la délégation multi-agents."
+        )
 
     # Commandes R&D
     if any(kw in msg_lower for kw in RND_KEYWORDS):

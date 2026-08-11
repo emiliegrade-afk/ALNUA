@@ -62,7 +62,18 @@ class TestSecretaryAgent:
         assert "urgent" in result
 
     def test_handle_instruction_email_routing(self, agent: SecretaryAgent) -> None:
-        with patch.object(agent, "_handle_email_nl", return_value="Email draft OK") as mock:
+        with (
+            patch(
+                "services.secretary_intent_llm.classify_secretary_intent",
+                return_value={
+                    "intent": "email",
+                    "confidence": 0.92,
+                    "slots": {},
+                    "reason": "mail",
+                },
+            ),
+            patch.object(agent, "_handle_email_nl", return_value="Email draft OK") as mock,
+        ):
             out = agent.handle_instruction("rédige un mail à client@corp.com pour relance")
         assert out == "Email draft OK"
         mock.assert_called_once()

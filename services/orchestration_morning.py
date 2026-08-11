@@ -108,14 +108,18 @@ def run_morning_orchestration(*, weekly_plan: bool = False, notify: bool = True)
 
 def run_secretary_morning_notify(*, weekly_plan: bool = False) -> dict[str, Any]:
     """
-    8h Paris — briefing COO (sans Telegram) puis un message Nadia via son bot dédié.
+    8h Paris — briefing LLM une seule fois, puis message Nadia (Telegram dédié).
     """
     from services import orchestration as orch_mod
     from services.secretary_intents import build_combined_morning_message
     from skills.skill_telegram_notify import notify_telegram_secretary
 
     morning_result = run_morning_orchestration(weekly_plan=weekly_plan, notify=False)
-    message = build_combined_morning_message()
+    cached = morning_result.get("briefing_result")
+    if isinstance(cached, dict):
+        message = build_combined_morning_message(briefing_result=cached)
+    else:
+        message = build_combined_morning_message()
     telegram_ok = False
     try:
         from services.notify_dedup import should_send_notify

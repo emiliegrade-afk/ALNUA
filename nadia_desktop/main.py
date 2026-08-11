@@ -89,6 +89,9 @@ def main() -> None:
     win = NadiaWindow(
         on_send=handle_message,
         on_mic_toggle=toggle_mic,
+        on_doc_save=bridge.save_doc,
+        on_doc_list=bridge.list_docs,
+        on_doc_load=bridge.load_doc,
         mic_enabled=False,
     )
     win.set_hub_mode(bridge.mode)

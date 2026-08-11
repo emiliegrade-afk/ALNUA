@@ -17,7 +17,6 @@ from telegram.ext import (
     filters,
 )
 
-from agents.coo_agent import COOAgent
 from bots.base import log_bot_action
 from bots.telegram_auth import is_authorized, reject_unauthorized
 from bots.telegram_bot_morning import schedule_morning_brief, start_reply
@@ -87,12 +86,24 @@ class TelegramBot:
         return token
 
     def _run_coo(self, instruction: str, chat_id: int | None = None) -> str:
-        agent = COOAgent(self.db)
-        return agent.handle_instruction(instruction, telegram_chat_id=chat_id)
+        from services.assistant_router import assistant_chat
+
+        result = assistant_chat(
+            instruction,
+            agent="auto",
+            telegram_chat_id=chat_id,
+            channel="telegram_coo",
+        )
+        name = result.get("agent_name") or "Aria"
+        body = result.get("response") or ""
+        if result.get("agent_id") == "secretary":
+            return f"[{name}]\n{body}"
+        return body
 
     def _run_morning_briefing(self) -> str:
-        agent = COOAgent(self.db)
-        return agent.run_daily_briefing()
+        from services.secretary_intents import build_morning_brief_for_secretary
+
+        return build_morning_brief_for_secretary()
 
     async def _handle_start(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE

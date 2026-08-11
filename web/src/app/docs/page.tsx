@@ -12,6 +12,7 @@ const GUIDES: (GuideLink | GuideDoc)[] = [
     file: "guides/user-manual.md",
     desc: "Mode d'emploi complet — lisible dans le Hub",
   },
+  { title: "Templates contrats", file: "guides/contract-templates-catalog.md" },
   { title: "First 15 minutes", file: "getting-started/first-15-minutes.md" },
   { title: "Installation", file: "getting-started/installation.md" },
   { title: "Concepts", file: "getting-started/concepts.md" },

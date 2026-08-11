@@ -97,3 +97,18 @@ if ($ready) {
 } else {
     Write-NadiaLog "Hub pas pret apres attente — lance Demarrer-Hub.bat manuellement"
 }
+
+# Lance Nadia Desktop (chat + éditeur) si pas déjà ouvert
+$desktopPy = Join-Path $Root "nadia_desktop\main.py"
+$already = Get-CimInstance Win32_Process -ErrorAction SilentlyContinue |
+    Where-Object { $_.CommandLine -and $_.CommandLine -like "*nadia_desktop*main.py*" }
+if (-not $already -and (Test-Path $Python) -and (Test-Path $desktopPy)) {
+    Write-NadiaLog "Lancement Nadia Desktop UI"
+    Start-Process `
+        -FilePath $Python `
+        -ArgumentList @($desktopPy) `
+        -WorkingDirectory (Join-Path $Root "nadia_desktop") `
+        -WindowStyle Normal | Out-Null
+} else {
+    Write-NadiaLog "Nadia Desktop deja active ou script manquant"
+}

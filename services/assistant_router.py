@@ -19,9 +19,12 @@ _EXPLICIT_SECRETARY = re.compile(
     re.I,
 )
 
+# Nadia = filtre CEO quotidien (mails, agenda, brief, Academy status)
 _SECRETARY_KEYWORDS = (
     "email",
     "mail",
+    "gmail",
+    "inbox",
     "courrier",
     "contrat",
     " nda",
@@ -43,19 +46,27 @@ _SECRETARY_KEYWORDS = (
     "rédige un mail",
     "redige un mail",
     "rapport de la nuit",
+    "rapport de nuit",
     "briefing du jour",
-)
-
-_COO_KEYWORDS = (
-    "pipeline",
+    "briefing matin",
+    "priorités du jour",
+    "priorites du jour",
+    "au programme",
     "academy",
     "académie",
-    "agent-ready",
+    "academie",
+    "pipeline academy",
+    "relance théo",
+    "relance theo",
+    "sav",
+)
+
+# Aria = stratégie / ops / R&D / délégation multi-agents
+_COO_KEYWORDS = (
     "délègue",
     "delegue",
+    "délègue à",
     "projet ",
-    "priorité",
-    "priorite",
     "r&d",
     "rnd",
     "investiguer",
@@ -67,6 +78,25 @@ _COO_KEYWORDS = (
     "aria",
     "ops",
     "orchestration",
+    "plan d'action",
+    "plan d action",
+    "priorise mes",
+    "priorise les tickets",
+    "coding",
+    "github issue",
+)
+
+_SECRETARY_DEFAULT_PHRASES = (
+    "quoi faire",
+    "que faire",
+    "au programme",
+    "aujourd'hui",
+    "aujourd hui",
+    "bonjour",
+    "salut",
+    "status",
+    "ça va",
+    "ca va",
 )
 
 
@@ -85,7 +115,8 @@ def strip_explicit_prefix(message: str) -> tuple[AssistantAgent | None, str]:
 def resolve_assistant_agent(message: str, preferred: AssistantAgent = "auto") -> str:
     """
     Pick coo or secretary.
-    preferred='coo'|'secretary' forces; 'auto' uses prefix then keywords; default coo.
+    preferred='coo'|'secretary' forces; 'auto' uses prefix then keywords.
+    Default (no match): Nadia for short admin phrases, else Aria for ops.
     """
     forced, cleaned = strip_explicit_prefix(message)
     if forced:
@@ -101,8 +132,9 @@ def resolve_assistant_agent(message: str, preferred: AssistantAgent = "auto") ->
         return "secretary"
     if coo_score > sec_score and coo_score > 0:
         return "coo"
-    # Short admin-ish messages → Nadia; ops-ish default Aria
     if sec_score == coo_score and sec_score > 0:
+        return "secretary"
+    if any(p in lower for p in _SECRETARY_DEFAULT_PHRASES):
         return "secretary"
     return "coo"
 

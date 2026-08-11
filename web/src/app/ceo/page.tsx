@@ -3,9 +3,12 @@
 import { ConsoleProvider } from "@/components/console/console-provider";
 import { DeptV2PageShell } from "@/components/dept-v2";
 import { CeoIdleQueueCard } from "@/components/ceo/ceo-idle-queue-card";
+import { CeoMorningBriefCard } from "@/components/ceo/ceo-morning-brief-card";
+import { CeoPendingDossiersCard } from "@/components/ceo/ceo-pending-dossiers-card";
 import { CeoUserManualCard } from "@/components/ceo/ceo-user-manual-card";
 import { CeoWorkflowsPendingCard } from "@/components/ceo/ceo-workflows-pending-card";
 import { CeoCockpitPanel } from "@/components/hub/ceo-cockpit";
+import { AssistantChat } from "@/components/assistant/assistant-chat";
 import { C } from "@/app/app-v2/shared";
 import { ROUTES } from "@/lib/routes";
 
@@ -26,13 +29,18 @@ export default function CeoPage() {
               </span>
             </h1>
             <p className="mt-0.5 text-[11px]" style={{ color: C.dim }}>
-              Gate Academy · dossiers · file idle · autonomie
+              Brief · décisions · dossiers · autonomie
             </p>
           </div>
+          <CeoMorningBriefCard />
           <CeoUserManualCard />
+          <CeoPendingDossiersCard />
           <CeoIdleQueueCard />
           <CeoWorkflowsPendingCard />
           <CeoCockpitPanel />
+          <div className="min-h-[420px]">
+            <AssistantChat variant="ceo" defaultAgent="auto" />
+          </div>
         </div>
       </DeptV2PageShell>
     </ConsoleProvider>

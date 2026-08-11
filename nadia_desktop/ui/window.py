@@ -1,8 +1,5 @@
 """
-ui.py — Interface graphique Nadia Desktop.
-
-Fenêtre chat minimaliste aux couleurs ALNUA.
-Voix activable via bouton micro.
+ui/window.py — Interface graphique Nadia Desktop (chat + éditeur docs).
 """
 
 from __future__ import annotations
@@ -11,173 +8,140 @@ import logging
 import queue
 import re
 import tkinter as tk
-from tkinter import scrolledtext
 from datetime import datetime
-from typing import Callable
+from tkinter import scrolledtext
+from typing import Any, Callable
 
 logger = logging.getLogger(__name__)
 
 
 def _strip_markdown(text: str) -> str:
-    """Supprime les symboles Markdown pour affichage propre dans tkinter."""
-    # Gras **texte** ou *texte*
-    text = re.sub(r'\*{1,3}(.*?)\*{1,3}', r'\1', text, flags=re.DOTALL)
-    # Italique _texte_
-    text = re.sub(r'_{1,2}(.*?)_{1,2}', r'\1', text, flags=re.DOTALL)
-    # Code `texte`
-    text = re.sub(r'`{1,3}(.*?)`{1,3}', r'\1', text, flags=re.DOTALL)
-    # Titres ## Titre
-    text = re.sub(r'^#{1,6}\s*', '', text, flags=re.MULTILINE)
-    # Bullets - item ou • item → · item
-    text = re.sub(r'^\s*[-•]\s*', '  · ', text, flags=re.MULTILINE)
-    # Lignes vides multiples
-    text = re.sub(r'\n{3,}', '\n\n', text)
+    text = re.sub(r"\*{1,3}(.*?)\*{1,3}", r"\1", text, flags=re.DOTALL)
+    text = re.sub(r"_{1,2}(.*?)_{1,2}", r"\1", text, flags=re.DOTALL)
+    text = re.sub(r"`{1,3}(.*?)`{1,3}", r"\1", text, flags=re.DOTALL)
+    text = re.sub(r"^#{1,6}\s*", "", text, flags=re.MULTILINE)
+    text = re.sub(r"^\s*[-•]\s*", "  · ", text, flags=re.MULTILINE)
+    text = re.sub(r"\n{3,}", "\n\n", text)
     return text.strip()
 
 
 class NadiaWindow:
-    """Fenêtre principale de Nadia Desktop."""
+    """Fenêtre principale — panneau chat + éditeur markdown."""
 
     def __init__(
         self,
-        on_send:    "Callable[[str], None]",
-        on_mic_toggle: "Callable[[], None]",
+        on_send: Callable[[str], None],
+        on_mic_toggle: Callable[[], None],
+        *,
+        on_doc_save: Callable[[str, str, str | None], dict[str, Any] | None] | None = None,
+        on_doc_list: Callable[[], list[dict[str, Any]]] | None = None,
+        on_doc_load: Callable[[str], dict[str, Any] | None] | None = None,
         mic_enabled: bool = False,
     ) -> None:
-        self.on_send       = on_send
+        self.on_send = on_send
         self.on_mic_toggle = on_mic_toggle
-        self.mic_enabled   = mic_enabled
+        self.on_doc_save = on_doc_save
+        self.on_doc_list = on_doc_list
+        self.on_doc_load = on_doc_load
+        self.mic_enabled = mic_enabled
         self._response_q: queue.Queue[str] = queue.Queue()
-
         self._build()
-
-    # ── Construction UI ──────────────────────────────────────────────────────
 
     def _build(self) -> None:
         from nadia_config import (
-            THEME_ACCENT, THEME_BG, THEME_MUTED,
-            THEME_SURFACE, THEME_TEXT, WINDOW_HEIGHT,
-            WINDOW_TITLE, WINDOW_WIDTH,
+            THEME_ACCENT,
+            THEME_BG,
+            THEME_MUTED,
+            THEME_SURFACE,
+            THEME_TEXT,
+            WINDOW_HEIGHT,
+            WINDOW_TITLE,
+            WINDOW_WIDTH,
         )
+        from ui.editor_pane import DocEditorPane
 
         self.root = tk.Tk()
         self.root.title(WINDOW_TITLE)
         self.root.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}")
-        self.root.resizable(False, True)
+        self.root.resizable(True, True)
         self.root.configure(bg=THEME_BG)
         self.root.protocol("WM_DELETE_WINDOW", self._on_close)
 
-        # ── Header ───────────────────────────────────────────────────────────
         header = tk.Frame(self.root, bg=THEME_SURFACE, height=56)
         header.pack(fill="x")
         header.pack_propagate(False)
-
         tk.Label(
-            header,
-            text="NADIA",
-            font=("Space Grotesk", 14, "bold"),
-            fg=THEME_ACCENT,
-            bg=THEME_SURFACE,
+            header, text="NADIA", font=("Space Grotesk", 14, "bold"),
+            fg=THEME_ACCENT, bg=THEME_SURFACE,
         ).pack(side="left", padx=16, pady=10)
-
         self._status_var = tk.StringVar(value="● Hub")
-        self._status_lbl = tk.Label(
-            header,
-            textvariable=self._status_var,
-            font=("Inter", 9),
-            fg=THEME_MUTED,
-            bg=THEME_SURFACE,
-        )
-        self._status_lbl.pack(side="right", padx=16)
-
         tk.Label(
-            header,
-            text="Secrétaire de direction · ALNUA",
-            font=("Inter", 9),
-            fg=THEME_MUTED,
-            bg=THEME_SURFACE,
+            header, textvariable=self._status_var, font=("Inter", 9),
+            fg=THEME_MUTED, bg=THEME_SURFACE,
+        ).pack(side="right", padx=16)
+        tk.Label(
+            header, text="Assistante · docs · Hub", font=("Inter", 9),
+            fg=THEME_MUTED, bg=THEME_SURFACE,
         ).pack(side="left")
 
-        # ── Zone de chat ─────────────────────────────────────────────────────
+        pane = tk.PanedWindow(self.root, orient=tk.HORIZONTAL, bg=THEME_BG, sashwidth=4)
+        pane.pack(fill="both", expand=True)
+
+        left = tk.Frame(pane, bg=THEME_BG)
+        pane.add(left, stretch="always", minsize=320)
         self._chat = scrolledtext.ScrolledText(
-            self.root,
-            bg=THEME_BG,
-            fg=THEME_TEXT,
-            font=("Inter", 10),
-            wrap=tk.WORD,
-            bd=0,
-            padx=12,
-            pady=8,
-            state="disabled",
+            left, bg=THEME_BG, fg=THEME_TEXT, font=("Inter", 10),
+            wrap=tk.WORD, bd=0, padx=12, pady=8, state="disabled",
             insertbackground=THEME_ACCENT,
         )
-        self._chat.pack(fill="both", expand=True, padx=0, pady=0)
+        self._chat.pack(fill="both", expand=True)
+        for tag, kw in (
+            ("nadia", {"foreground": THEME_ACCENT, "font": ("Inter", 10, "bold")}),
+            ("emilie", {"foreground": THEME_TEXT, "font": ("Inter", 10, "bold")}),
+            ("time", {"foreground": THEME_MUTED, "font": ("Inter", 8)}),
+            ("msg", {"foreground": THEME_TEXT, "font": ("Inter", 10)}),
+            ("system", {"foreground": THEME_MUTED, "font": ("Inter", 9, "italic")}),
+        ):
+            self._chat.tag_config(tag, **kw)
 
-        # Tags couleur
-        self._chat.tag_config("nadia",  foreground=THEME_ACCENT, font=("Inter", 10, "bold"))
-        self._chat.tag_config("emilie", foreground=THEME_TEXT,   font=("Inter", 10, "bold"))
-        self._chat.tag_config("time",   foreground=THEME_MUTED,  font=("Inter", 8))
-        self._chat.tag_config("msg",    foreground=THEME_TEXT,   font=("Inter", 10))
-        self._chat.tag_config("system", foreground=THEME_MUTED,  font=("Inter", 9, "italic"))
+        colors = {"bg": THEME_BG}
+        if self.on_doc_save and self.on_doc_list and self.on_doc_load:
+            right = DocEditorPane(
+                pane,
+                on_save=self.on_doc_save,
+                on_list=self.on_doc_list,
+                on_load=self.on_doc_load,
+                colors=colors,
+            )
+            pane.add(right, stretch="always", minsize=280)
 
-        # ── Barre de saisie ──────────────────────────────────────────────────
         bar = tk.Frame(self.root, bg=THEME_SURFACE, height=56)
         bar.pack(fill="x", side="bottom")
         bar.pack_propagate(False)
-
-        # Bouton micro
         self._mic_btn = tk.Button(
-            bar,
-            text="🎤",
-            font=("Inter", 14),
-            bg=THEME_SURFACE,
-            fg=THEME_MUTED,
-            activebackground=THEME_SURFACE,
-            activeforeground=THEME_ACCENT,
-            bd=0,
-            cursor="hand2",
-            command=self._toggle_mic,
+            bar, text="🎤", font=("Inter", 14), bg=THEME_SURFACE, fg=THEME_MUTED,
+            activebackground=THEME_SURFACE, activeforeground=THEME_ACCENT, bd=0,
+            cursor="hand2", command=self._toggle_mic,
         )
         self._mic_btn.pack(side="left", padx=8)
-
-        # Champ texte
         self._entry = tk.Entry(
-            bar,
-            bg=THEME_BG,
-            fg=THEME_TEXT,
-            font=("Inter", 11),
-            bd=0,
-            insertbackground=THEME_ACCENT,
-            relief="flat",
+            bar, bg=THEME_BG, fg=THEME_TEXT, font=("Inter", 11), bd=0,
+            insertbackground=THEME_ACCENT, relief="flat",
         )
         self._entry.pack(side="left", fill="x", expand=True, ipady=8)
         self._entry.bind("<Return>", self._on_enter)
         self._entry.focus()
-
-        # Bouton envoyer
         tk.Button(
-            bar,
-            text="↑",
-            font=("Inter", 14, "bold"),
-            bg=THEME_ACCENT,
-            fg=THEME_BG,
-            activebackground=THEME_TEXT,
-            bd=0,
-            padx=14,
-            cursor="hand2",
+            bar, text="↑", font=("Inter", 14, "bold"), bg=THEME_ACCENT, fg=THEME_BG,
+            activebackground=THEME_TEXT, bd=0, padx=14, cursor="hand2",
             command=self._on_send_click,
         ).pack(side="right", pady=6, padx=6)
 
-        # Message de bienvenue
         self._append_nadia(
-            "Bonjour Emilie. Je suis là — dis-moi ce dont tu as besoin "
-            "(mails, agenda, contrat, délégation à l'équipe…)."
+            "Bonjour Emilie. Chat à gauche, documents à droite — "
+            "mails, contrats, recherches, rangement PC…"
         )
-
-        # Polling des réponses async
         self.root.after(100, self._poll_responses)
-
-    # ── Actions ──────────────────────────────────────────────────────────────
 
     def _on_enter(self, event=None) -> None:
         self._on_send_click()
@@ -194,13 +158,12 @@ class NadiaWindow:
     def _toggle_mic(self) -> None:
         self.mic_enabled = not self.mic_enabled
         from nadia_config import THEME_ACCENT, THEME_MUTED
+
         self._mic_btn.config(fg=THEME_ACCENT if self.mic_enabled else THEME_MUTED)
         self.on_mic_toggle()
 
     def _on_close(self) -> None:
         self.root.destroy()
-
-    # ── Affichage messages ───────────────────────────────────────────────────
 
     def _append_emilie(self, text: str) -> None:
         self._chat.config(state="normal")
@@ -230,22 +193,18 @@ class NadiaWindow:
     def _set_status(self, text: str) -> None:
         self._status_var.set(text)
 
-    # ── API publique ─────────────────────────────────────────────────────────
-
     def push_response(self, text: str) -> None:
-        """Thread-safe : enqueue une réponse de Nadia."""
         self._response_q.put(text)
 
     def push_stt_text(self, text: str) -> None:
-        """Appelé depuis le thread STT — affiche la transcription."""
         self._response_q.put(f"__STT__{text}")
 
     def set_hub_mode(self, mode: str) -> None:
         labels = {
-            "hub":        "● Hub",
+            "hub": "● Hub",
             "glm_direct": "● GLM-5.2",
-            "ollama":     "● Ollama",
-            "offline":    "○ Offline",
+            "ollama": "● Ollama",
+            "offline": "○ Offline",
         }
         self._response_q.put(f"__STATUS__{labels.get(mode, mode)}")
 

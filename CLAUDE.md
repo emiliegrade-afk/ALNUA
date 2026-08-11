@@ -53,7 +53,7 @@ api/
 
 ---
 
-## 51 agents ALNUA (36 existants + 15 rôles spécialisés Gaming/Robotique — Phase 13, ROADMAP.md)
+## 53 agents ALNUA (38 existants + 15 rôles spécialisés Gaming/Robotique — Phase 13, ROADMAP.md)
 
 > Source de vérité pour room/team/tier : `config/agent_personas.py` (`AGENT_PERSONAS`, `ROOMS`, `TEAMS`) + `config/agent_models.py` (`AGENT_TIERS`). Cette table est une vue de lecture — en cas de divergence, ce sont ces deux fichiers qui font foi, pas ce document.
 
@@ -65,6 +65,17 @@ api/
 | `qa` | `agents/qa_agent.py` | Alex Okafor — QA | standard |
 | `pm` | `agents/pm_agent.py` | Sam Rivera — PM | standard |
 | `security_sentinel` | `agents/security_sentinel_agent.py` | Hugo Brandt — Security Sentinel | fast |
+
+### Secrétariat (`secretary_office`)
+| Agent ID | Fichier | Persona | Tier |
+|----------|---------|---------|------|
+| `secretary` | `agents/secretary_agent.py` | Nadia Faure — Secrétaire | standard |
+| `housekeeper` | `agents/housekeeper_agent.py` | Clara Nest — Intendante PC | fast |
+
+### Conseil juridique (`legal_office`)
+| Agent ID | Fichier | Persona | Tier |
+|----------|---------|---------|------|
+| `legal_counsel` | `agents/legal_counsel_agent.py` | Solène Hariri — Avocate d'entreprise | premium |
 
 > Note : `agents/coo_agent.py` a `AGENT_NAME = "coo_agent"` en interne (pas `"coo"`), sans alias dans `AGENT_ID_ALIASES` (`config/agent_models.py`) contrairement aux autres agents en `_agent`. Historique connu, pas encore corrigé — vérifier avant de router dynamiquement sur cet agent_id.
 
@@ -142,9 +153,8 @@ api/
 | `analyst_data` | `agents/analyst_data_agent.py` | Axel Roux | standard |
 
 ### Sans room fixe
-| Agent ID | Fichier | Persona | Tier |
-|----------|---------|---------|------|
-| `secretary` | `agents/secretary_agent.py` | Nadia Faure | standard |
+
+_(aucun persona orphelin — Nadia est dans `secretary_office`.)_
 
 Agents infra/orchestrateurs sans `AGENT_NAME` persona (pas dans `AGENT_PERSONAS`, pas de compétition) : `agents/rnd_center.py` (orchestrateur Centre R&D), `agents/bug_watchdog.py` (boucle de surveillance, délègue à `agents/fix_pipeline.py`), `agents/project_scanner.py`, `agents/skill_synthesizer.py`, `agents/brand_agent.py`.
 

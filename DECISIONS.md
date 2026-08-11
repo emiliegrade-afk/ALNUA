@@ -38,6 +38,7 @@
 | DEC-027 | Context Engine L1–L4 + collective promotion (AAF Phase F) | 2026-08-10 | Active |
 | DEC-028 | Clés Hub scopées + allowlist IP optionnelle (H2 sécurité) | 2026-08-11 | Active |
 | DEC-029 | Security Sentinel (Hugo) — patrouille Hub ≠ Sentry | 2026-08-11 | Active |
+| DEC-030 | PC housekeeper — quarantaine avant delete + autonomie progressive | 2026-08-11 | Active |
 
 ---
 
@@ -485,3 +486,18 @@ pour cockpit privé / futur VPS VPN, sans SSO multi-user.
 3. Cron 30 min + endpoints `/ops/security/*` ; notify Hub sur high/critical.
 **Alternatives rejetées :** fusionner avec Sentry ; WAF cloud obligatoire.
 **Pourquoi :** prévention Hub mono-user sans confondre monitoring crash produit.
+
+### DEC-030 — PC housekeeper : quarantaine avant delete
+**Contexte :** Emilie veut qu’un agent range le PC (Desktop/Documents/Downloads)
+avec un vrai accès fichiers, sans risque de suppressions silencieuses.
+**Décision (2026-08-11) :**
+1. Agent `housekeeper` (Clara Nest) + `services/pc_housekeeper*` — scan →
+   propose → apply (moves) ; delete uniquement via **quarantaine** puis
+   `purge_quarantine(confirm=True)`.
+2. Rapport JSON de chaque apply/quarantine dans `data/housekeeper_reports/`.
+3. Racines : Desktop/Documents/Downloads + `HOUSEKEEPER_ROOTS` (`;`-séparé).
+4. Chemins système bloqués (`.git`, `AppData`, etc.). Autonomie (`set_autonomy`)
+   après confiance (bons rapports) — jamais de delete auto sans confirm.
+5. Nadia NL `housekeep` + API `/housekeeper/*` ; UI secrétariat.
+**Alternatives rejetées :** delete direct ; agent avec shell libre.
+**Pourquoi :** rangement utile + filet de sécurité CEO-friendly.

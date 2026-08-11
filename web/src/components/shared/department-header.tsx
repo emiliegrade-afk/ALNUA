@@ -15,6 +15,7 @@ import {
   Megaphone,
   Network,
   Palette,
+  Scale,
   Ticket,
   UserRound,
   Users,
@@ -31,6 +32,7 @@ import { cn } from "@/lib/utils";
 const DEPT_ICONS: Record<string, LucideIcon> = {
   hub: Compass,
   secretary: UserRound,
+  legal: Scale,
   ceo: Crown,
   rd: FlaskConical,
   app: AppWindow,

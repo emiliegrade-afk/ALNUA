@@ -41,6 +41,8 @@ AGENT_CAPABILITY_PACKS: dict[str, frozenset[str]] = {
     "qa": _DIRECTION,
     "pm": _DIRECTION,
     "security_sentinel": _DIRECTION,
+    "legal_counsel": _DIRECTION,
+    "housekeeper": frozenset({"data:write:path"}),
     # App / coding
     "dev_app": _DEV,
     "dev_backend": _DEV,
