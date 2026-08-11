@@ -13,7 +13,7 @@ export function CeoUserManualCard() {
       className="flex items-start gap-3 rounded-xl border px-4 py-3 transition"
       style={{
         borderColor: C.copperLine,
-        background: C.obsidian2,
+        background: "transparent",
       }}
     >
       <BookOpen className="mt-0.5 h-4 w-4 shrink-0" style={{ color: C.copper }} />

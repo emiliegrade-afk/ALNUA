@@ -137,7 +137,7 @@ export function SavLitePanel() {
   );
 
   return (
-    <Card className="mb-8 border-copper/20 bg-obsidian-2/90">
+    <Card className="mb-8 border-copper/20 bg-transparent">
       <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-4">
         <div>
           <CardTitle className="flex items-center gap-2 font-title text-base text-ivory">

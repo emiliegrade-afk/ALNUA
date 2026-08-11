@@ -110,7 +110,7 @@ export function CeoPendingDossiersCard() {
   const total = toValidate.length + toPrepare.length;
 
   return (
-    <Card className="border-copper/30 bg-obsidian-2/90 shadow-[0_0_24px_rgba(201,149,108,0.06)]">
+    <Card className="border-copper/30 bg-transparent shadow-[0_0_24px_rgba(201,149,108,0.06)]">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">

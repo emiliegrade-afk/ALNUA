@@ -71,13 +71,13 @@ export function NadiaToolsPanel() {
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
-      <Card className="border-copper/30 bg-obsidian-2/90">
+      <Card className="border-copper/30 bg-transparent">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-title text-base text-ivory">
             <NotebookPen className="h-4 w-4 text-copper" />
             Documents Nadia
           </CardTitle>
-          <p className="label-caps">Markdown dans data/nadia_docs</p>
+          <p className="label-caps">Word (.docx) pour contrats · notes md</p>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex gap-2">
@@ -102,7 +102,7 @@ export function NadiaToolsPanel() {
         </CardContent>
       </Card>
 
-      <Card className="border-copper/30 bg-obsidian-2/90">
+      <Card className="border-copper/30 bg-transparent">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-title text-base text-ivory">
             <HardDrive className="h-4 w-4 text-copper" />

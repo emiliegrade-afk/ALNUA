@@ -55,7 +55,7 @@ export function NadiaDesktopPanel() {
   }
 
   return (
-    <Card className="mb-8 border-copper/30 bg-obsidian-2/90">
+    <Card className="mb-8 border-copper/30 bg-transparent">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 font-title text-base text-ivory">
           <Monitor className="h-4 w-4 text-copper" />

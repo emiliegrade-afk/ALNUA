@@ -1,5 +1,7 @@
 """
-ui/window.py — Interface graphique Nadia Desktop (chat + éditeur docs).
+ui/window.py — Interface graphique Nadia Desktop (chat only).
+
+Le traitement de texte / contrats vit dans le Hub (/secretary), pas ici.
 """
 
 from __future__ import annotations
@@ -10,7 +12,7 @@ import re
 import tkinter as tk
 from datetime import datetime
 from tkinter import scrolledtext
-from typing import Any, Callable
+from typing import Callable
 
 logger = logging.getLogger(__name__)
 
@@ -26,23 +28,17 @@ def _strip_markdown(text: str) -> str:
 
 
 class NadiaWindow:
-    """Fenêtre principale — panneau chat + éditeur markdown."""
+    """Fenêtre principale — chat uniquement."""
 
     def __init__(
         self,
         on_send: Callable[[str], None],
         on_mic_toggle: Callable[[], None],
         *,
-        on_doc_save: Callable[[str, str, str | None], dict[str, Any] | None] | None = None,
-        on_doc_list: Callable[[], list[dict[str, Any]]] | None = None,
-        on_doc_load: Callable[[str], dict[str, Any] | None] | None = None,
         mic_enabled: bool = False,
     ) -> None:
         self.on_send = on_send
         self.on_mic_toggle = on_mic_toggle
-        self.on_doc_save = on_doc_save
-        self.on_doc_list = on_doc_list
-        self.on_doc_load = on_doc_load
         self.mic_enabled = mic_enabled
         self._response_q: queue.Queue[str] = queue.Queue()
         self._build()
@@ -58,7 +54,6 @@ class NadiaWindow:
             WINDOW_TITLE,
             WINDOW_WIDTH,
         )
-        from ui.editor_pane import DocEditorPane
 
         self.root = tk.Tk()
         self.root.title(WINDOW_TITLE)
@@ -80,17 +75,12 @@ class NadiaWindow:
             fg=THEME_MUTED, bg=THEME_SURFACE,
         ).pack(side="right", padx=16)
         tk.Label(
-            header, text="Assistante · docs · Hub", font=("Inter", 9),
+            header, text="Assistante · Hub", font=("Inter", 9),
             fg=THEME_MUTED, bg=THEME_SURFACE,
         ).pack(side="left")
 
-        pane = tk.PanedWindow(self.root, orient=tk.HORIZONTAL, bg=THEME_BG, sashwidth=4)
-        pane.pack(fill="both", expand=True)
-
-        left = tk.Frame(pane, bg=THEME_BG)
-        pane.add(left, stretch="always", minsize=320)
         self._chat = scrolledtext.ScrolledText(
-            left, bg=THEME_BG, fg=THEME_TEXT, font=("Inter", 10),
+            self.root, bg=THEME_BG, fg=THEME_TEXT, font=("Inter", 10),
             wrap=tk.WORD, bd=0, padx=12, pady=8, state="disabled",
             insertbackground=THEME_ACCENT,
         )
@@ -103,17 +93,6 @@ class NadiaWindow:
             ("system", {"foreground": THEME_MUTED, "font": ("Inter", 9, "italic")}),
         ):
             self._chat.tag_config(tag, **kw)
-
-        colors = {"bg": THEME_BG}
-        if self.on_doc_save and self.on_doc_list and self.on_doc_load:
-            right = DocEditorPane(
-                pane,
-                on_save=self.on_doc_save,
-                on_list=self.on_doc_list,
-                on_load=self.on_doc_load,
-                colors=colors,
-            )
-            pane.add(right, stretch="always", minsize=280)
 
         bar = tk.Frame(self.root, bg=THEME_SURFACE, height=56)
         bar.pack(fill="x", side="bottom")
@@ -138,8 +117,8 @@ class NadiaWindow:
         ).pack(side="right", pady=6, padx=6)
 
         self._append_nadia(
-            "Bonjour Emilie. Chat à gauche, documents à droite — "
-            "mails, contrats, recherches, rangement PC…"
+            "Bonjour Emilie. Docs et contrats : dans le Hub Secrétariat. "
+            "Ici on parle — mails, agenda, recherches, délégation…"
         )
         self.root.after(100, self._poll_responses)
 
@@ -181,12 +160,6 @@ class NadiaWindow:
         self._chat.insert(tk.END, f"\n{ts}  ", "time")
         self._chat.insert(tk.END, "Nadia  ", "nadia")
         self._chat.insert(tk.END, f"{text}\n", "msg")
-        self._chat.config(state="disabled")
-        self._chat.see(tk.END)
-
-    def _append_system(self, text: str) -> None:
-        self._chat.config(state="normal")
-        self._chat.insert(tk.END, f"\n{text}\n", "system")
         self._chat.config(state="disabled")
         self._chat.see(tk.END)
 

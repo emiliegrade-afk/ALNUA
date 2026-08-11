@@ -7,6 +7,18 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-11 — Portraits all + CEO/Direction/Secrétariat redo (feat/style)
+
+- **Type :** feat / style
+- **Details :**
+  - Portraits pour **tous** les agents (`public/agents/portraits` + sync) ;
+    portraits IA pour Direction / Nadia / Solène / Clara + chefs de pôle.
+  - Refonte `/ceo`, `/hub`, `/secretary` : void (plus de slabs gris), roster
+    portraits, liens visibles **HQ · Repas & détente · Compétition**.
+  - Page `/competition` ; OpenRoom = salle de repas ; nav outils mise à jour.
+  - Nadia Desktop = **chat only** (plus d’éditeur) ; contrats Hub en **`.docx`**.
+  - Pilules barre commande + X ALNUA réduites ; `Card` fond transparent.
+
 ## 2026-08-11 — H5 polish HQ immersif (feat)
 
 - **Type :** feat

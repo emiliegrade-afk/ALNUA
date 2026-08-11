@@ -171,8 +171,8 @@ class SecretaryHandlersOpsMixin:
         docs = list_documents()[:5]
         out = (
             f"📝 **Document créé** — « {entry.get('title')} »\n"
-            f"Fichier : `{entry.get('path')}`\n"
-            f"ID : `{entry.get('id')}` — éditable dans Nadia Desktop / data/nadia_docs.\n"
+            f"Format : `{entry.get('format') or 'md'}` · Fichier : `{entry.get('path')}`\n"
+            f"ID : `{entry.get('id')}` — dans le Hub Secrétariat (`data/nadia_docs`).\n"
             f"Docs récents : {', '.join(d.get('title', '') for d in docs)}"
         )
         self._finish_instruction(instruction, out[:200])

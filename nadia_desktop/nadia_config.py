@@ -40,8 +40,8 @@ WAKE_WORD_ENABLED = os.getenv("NADIA_WAKE_WORD", "0") == "1"  # activer plus tar
 
 # ── UI ───────────────────────────────────────────────────────────────────────
 WINDOW_TITLE  = "Nadia — ALNUA"
-WINDOW_WIDTH  = 920
-WINDOW_HEIGHT = 720
+WINDOW_WIDTH  = 420
+WINDOW_HEIGHT = 680
 THEME_BG      = "#0E1014"      # Obsidienne ALNUA
 THEME_SURFACE = "#16181D"
 THEME_ACCENT  = "#B87333"      # Or Rosé Cuivré

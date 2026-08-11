@@ -56,9 +56,21 @@ describe("department primary routes are live (not MockupShell)", () => {
   it("/ceo and /secretary use live panels", () => {
     const ceo = readFileSync(join(process.cwd(), "src", "app", "ceo", "page.tsx"), "utf8");
     const sec = readFileSync(join(process.cwd(), "src", "app", "secretary", "page.tsx"), "utf8");
-    expect(ceo).toMatch(/CeoCockpitPanel/);
-    expect(ceo).toMatch(/CeoIdleQueueCard/);
-    expect(sec).toMatch(/NadiaDesktopPanel|SecretaryConsole/);
+    expect(ceo).toMatch(/CeoMorningBriefCard/);
+    expect(ceo).toMatch(/SiegeLifeLinks/);
+    expect(sec).toMatch(/NadiaDesktopPanel|NadiaToolsPanel/);
+    expect(sec).toMatch(/SiegeLifeLinks/);
+  });
+
+  it("/hub uses direction roster", () => {
+    const hub = readFileSync(join(process.cwd(), "src", "app", "hub", "page.tsx"), "utf8");
+    expect(hub).toMatch(/BureauRoster/);
+    expect(hub).toMatch(/SiegeLifeLinks/);
+  });
+
+  it("/competition shows leaderboard page", () => {
+    const page = readFileSync(join(process.cwd(), "src", "app", "competition", "page.tsx"), "utf8");
+    expect(page).toMatch(/fetchLeaderboard/);
   });
 
   it("/legal uses Solène persona + counsel panel", () => {
@@ -80,6 +92,7 @@ describe("department primary routes are live (not MockupShell)", () => {
       "utf8",
     );
     expect(hub).toMatch(/DeptV2PageShell/);
+    expect(hub).toMatch(/BureauRoster/);
     expect(analytics).toMatch(/DeptV2PageShell/);
   });
 });

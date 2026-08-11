@@ -44,8 +44,18 @@ def list_documents() -> list[dict[str, Any]]:
 
 
 def create_document(title: str, content: str = "", *, doc_type: str = "note") -> dict[str, Any]:
+    """Create a Hub document.
+
+    Notes stay markdown for editing; **contracts** are saved as `.docx`
+    (Word) — never as the primary contract artifact in `.md`.
+    """
     title = (title or "Sans titre").strip()[:200]
     slug = _slug(title)
+    is_contract = doc_type in {"contrat", "contract", "nda", "partenariat", "influenceur", "pub", "prestation", "affiliation"}
+
+    if is_contract:
+        return _create_contract_docx(title, content, slug=slug, doc_type=doc_type)
+
     path = DOCS_DIR / f"{slug}.md"
     n = 1
     while path.exists():
@@ -60,6 +70,62 @@ def create_document(title: str, content: str = "", *, doc_type: str = "note") ->
         "title": title,
         "path": str(path.relative_to(ROOT)).replace("\\", "/"),
         "doc_type": doc_type,
+        "format": "md",
+        "updated_at": _utc(),
+        "created_at": _utc(),
+    }
+    entries = _load_index()
+    entries = [e for e in entries if e.get("id") != entry["id"]]
+    entries.insert(0, entry)
+    _save_index(entries[:200])
+    return entry
+
+
+def _create_contract_docx(
+    title: str,
+    content: str,
+    *,
+    slug: str,
+    doc_type: str,
+) -> dict[str, Any]:
+    """Write contract body to Word (.docx) under data/nadia_docs/contracts/."""
+    contracts_dir = DOCS_DIR / "contracts"
+    contracts_dir.mkdir(parents=True, exist_ok=True)
+    path = contracts_dir / f"{slug}.docx"
+    n = 1
+    while path.exists():
+        path = contracts_dir / f"{slug}-{n}.docx"
+        n += 1
+
+    try:
+        from docx import Document  # type: ignore
+    except ImportError as exc:
+        raise RuntimeError("python-docx requis pour les contrats Word") from exc
+
+    document = Document()
+    document.add_heading(title, level=1)
+    for line in (content or "").splitlines():
+        if line.startswith("## "):
+            document.add_heading(line[3:].strip(), level=2)
+        elif line.startswith("# "):
+            document.add_heading(line[2:].strip(), level=1)
+        elif line.strip():
+            document.add_paragraph(line)
+        else:
+            document.add_paragraph("")
+    document.save(str(path))
+
+    # Keep a short .txt sidecar for Hub preview / LLM re-read
+    preview = contracts_dir / f"{path.stem}.txt"
+    preview.write_text(f"# {title}\n\n{content}", encoding="utf-8")
+
+    entry = {
+        "id": path.stem,
+        "title": title,
+        "path": str(path.relative_to(ROOT)).replace("\\", "/"),
+        "preview_path": str(preview.relative_to(ROOT)).replace("\\", "/"),
+        "doc_type": doc_type if doc_type != "contrat" else "contrat",
+        "format": "docx",
         "updated_at": _utc(),
         "created_at": _utc(),
     }
@@ -71,14 +137,23 @@ def create_document(title: str, content: str = "", *, doc_type: str = "note") ->
 
 
 def read_document(doc_id: str) -> dict[str, Any] | None:
+    meta = next((e for e in _load_index() if e.get("id") == doc_id), None)
+    if meta and meta.get("format") == "docx":
+        preview = ROOT / str(meta.get("preview_path") or "")
+        text = ""
+        if preview.is_file():
+            text = preview.read_text(encoding="utf-8")
+        return {**meta, "content": text}
+
     path = DOCS_DIR / f"{doc_id}.md"
     if not path.is_file():
         return None
     text = path.read_text(encoding="utf-8")
-    meta = next((e for e in _load_index() if e.get("id") == doc_id), None) or {
+    meta = meta or {
         "id": doc_id,
         "title": doc_id,
         "path": str(path.relative_to(ROOT)).replace("\\", "/"),
+        "format": "md",
     }
     return {**meta, "content": text}
 

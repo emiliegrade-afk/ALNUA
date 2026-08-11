@@ -54,6 +54,7 @@ const SELF_CONTAINED_V2_ROUTES = [
   "/secretary",
   "/legal",
   "/hq",
+  "/competition",
   "/brand",
   "/hub",
   "/analytics",

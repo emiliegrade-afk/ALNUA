@@ -117,6 +117,28 @@ Réponds en JSON :
         )
         raw = self._complete(prompt, temperature=0.3, max_tokens=6000)
         result = parse_json_response(raw)
+        # Persist as Word (.docx) in Hub — not markdown
+        try:
+            from services.nadia_docs import create_document
+
+            articles = result.get("articles") or []
+            body_parts = [str(result.get("preamble") or ""), ""]
+            for art in articles:
+                if not isinstance(art, dict):
+                    continue
+                body_parts.append(f"## Article {art.get('number', '')} — {art.get('title', '')}")
+                body_parts.append(str(art.get("content") or ""))
+                body_parts.append("")
+            body_parts.append(str(result.get("signature_block") or ""))
+            saved = create_document(
+                str(result.get("title") or f"Contrat {contract_type}"),
+                "\n".join(body_parts),
+                doc_type="contrat",
+            )
+            result["hub_document"] = saved
+            result["format"] = "docx"
+        except Exception:
+            result["format"] = "json_only"
         log_agent_action(
             self.db, self.AGENT_NAME, "draft_contract",
             input_summary=f"Type: {contract_type} | Partie: {party_name}",

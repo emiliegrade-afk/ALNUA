@@ -317,6 +317,16 @@ export const HQ_OFF_MAP_ACCESS: HqOffMapAccess[] = [
     primaryAgentId: "legal_counsel",
   },
   {
+    id: "competition",
+    number: 17,
+    title: "Compétition",
+    shortcutLabel: "Compétition",
+    subtitle: "Classement agents · points du mois",
+    href: "/competition",
+    icon: "🏆",
+    dept: "hub",
+  },
+  {
     id: "library",
     number: 14,
     title: "Bibliothèque",

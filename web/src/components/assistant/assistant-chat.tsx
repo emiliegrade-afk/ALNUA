@@ -198,7 +198,7 @@ export function AssistantChat({
   return (
     <Card
       className={cn(
-        "flex h-full flex-col border-copper/15 bg-surface/80 backdrop-blur-sm",
+        "flex h-full flex-col border-copper/20 bg-transparent",
         !embedded && "min-h-[480px]",
         className
       )}
@@ -335,7 +335,7 @@ export function AssistantChat({
                 type="button"
                 onClick={() => handleSend(s)}
                 disabled={loading}
-                className="rounded-full bg-obsidian-deep/50 px-2.5 py-1 text-[11px] text-titanium/80 ring-1 ring-copper/15 transition hover:bg-copper/10 hover:text-copper-glow disabled:opacity-50"
+                className="border border-copper/30 bg-transparent px-1.5 py-0.5 text-[10px] text-titanium/80 transition hover:border-copper hover:text-copper disabled:opacity-50"
               >
                 {s}
               </button>

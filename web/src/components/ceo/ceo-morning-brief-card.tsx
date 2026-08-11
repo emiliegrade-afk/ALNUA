@@ -38,7 +38,7 @@ export function CeoMorningBriefCard() {
   return (
     <div
       className="rounded-xl border px-4 py-3"
-      style={{ borderColor: C.copperLine, background: C.obsidian2 }}
+      style={{ borderColor: C.copperLine, background: "transparent" }}
     >
       <div className="mb-2 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">

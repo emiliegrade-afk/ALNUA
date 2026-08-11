@@ -8,10 +8,10 @@ export const DEPT_V2_DASHBOARD_NAV = [
 
 export const DEPT_V2_TOOLS_NAV = [
   { icon: "⌂", label: "Plan HQ", href: ROUTES.hq },
+  { icon: "☕", label: "Repas & détente", href: ROUTES.openroom },
+  { icon: "🏆", label: "Compétition", href: ROUTES.competition },
   { icon: "📄", label: "Documents", href: "/docs" },
   { icon: "📖", label: "Connaissances", href: ROUTES.library },
-  { icon: "🗒", label: "Modèles", href: ROUTES.settings },
-  { icon: "⚙", label: "Automatisations", href: ROUTES.settings },
 ] as const;
 
 export const DEPT_V2_ICONS: Record<string, string> = {

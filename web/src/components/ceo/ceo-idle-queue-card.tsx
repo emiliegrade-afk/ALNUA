@@ -132,7 +132,7 @@ export function CeoIdleQueueCard() {
   }
 
   return (
-    <Card className="mb-8 border-copper/30 bg-obsidian-2/95">
+    <Card className="mb-8 border-copper/30 bg-transparent">
       <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
         <div>
           <CardTitle className="flex items-center gap-2 font-title text-lg text-ivory">

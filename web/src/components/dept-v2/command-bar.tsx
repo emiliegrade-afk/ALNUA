@@ -35,7 +35,7 @@ export function DeptV2CommandBar({
       </span>
       <div className="relative z-[3] flex items-center justify-center">
         <AlnuaStar
-          size={46}
+          size={32}
           glow
           animated
           sparkMid={ALNUA_STAR_SPARK_MID}
@@ -43,7 +43,7 @@ export function DeptV2CommandBar({
           glowColorRgb={ALNUA_STAR_GLOW_RGB}
         />
       </div>
-      <div className="relative z-[1] flex items-center justify-end gap-4 justify-self-end text-[11px] text-titanium">
+      <div className="relative z-[1] flex items-center justify-end gap-2 justify-self-end text-[10px] text-titanium">
         {actions.map((qa) =>
           qa.onClick ? (
             <button
@@ -51,18 +51,18 @@ export function DeptV2CommandBar({
               type="button"
               onClick={qa.onClick}
               title={qa.label}
-              className="flex items-center gap-2 bg-metal-copper px-2.5 py-1 text-[11px] font-medium tracking-wide transition-opacity hover:opacity-90"
+              className="flex items-center gap-1 bg-metal-copper px-1.5 py-0.5 text-[10px] font-medium tracking-wide transition-opacity hover:opacity-90"
             >
-              <span className="text-[10px]">{qa.icon}</span>
+              <span className="text-[9px]">{qa.icon}</span>
               <span>{qa.label}</span>
             </button>
           ) : (
             <span
               key={qa.label}
               title={qa.label}
-              className="hidden items-center gap-1.5 text-titanium/55 xl:flex"
+              className="hidden items-center gap-1 text-titanium/55 xl:flex"
             >
-              <span className="text-[10px] text-metal-copper">{qa.icon}</span>
+              <span className="text-[9px] text-metal-copper">{qa.icon}</span>
               {qa.label}
             </span>
           ),

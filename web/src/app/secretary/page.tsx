@@ -6,13 +6,14 @@ import { AssistantChat } from "@/components/assistant/assistant-chat";
 import { NadiaDesktopPanel } from "@/components/secretary/nadia-desktop-panel";
 import { NadiaToolsPanel } from "@/components/secretary/nadia-tools-panel";
 import { SavLitePanel } from "@/components/secretary/sav-lite-panel";
-import { SecretaryConsole } from "@/components/secretary/secretary-console";
 import { BureauIdentityStrip } from "@/components/shared/bureau-identity-strip";
+import { BureauRoster } from "@/components/shared/bureau-roster";
+import { SiegeLifeLinks } from "@/components/shared/siege-life-links";
 import { C } from "@/app/app-v2/shared";
 import { ROUTES } from "@/lib/routes";
 import Link from "next/link";
 
-/** Live Secrétariat — Nadia filtre le quotidien CEO. */
+/** Secrétariat — chat + outils Hub (docs/contrats Word), pas d'éditeur desktop. */
 export default function SecretaryPage() {
   return (
     <ConsoleProvider>
@@ -22,37 +23,44 @@ export default function SecretaryPage() {
         coreSubtitle="Bureau Nadia"
       >
         <div
-          className="alnua-scroll flex min-w-0 flex-1 flex-col gap-4 overflow-y-auto px-4 pb-4 pt-3.5"
+          className="alnua-scroll flex min-w-0 flex-1 flex-col gap-5 overflow-y-auto px-4 pb-4 pt-3.5"
           style={{ color: C.ivory }}
         >
-          <div>
-            <h1 className="text-[23px] leading-[1.1] tracking-[1px]">
-              <span className="font-bold">SECRÉTARIAT</span>{" "}
-              <span className="font-light tracking-[4px]" style={{ color: C.titanium }}>
-                NADIA
-              </span>
-            </h1>
-            <p className="mt-0.5 text-[11px]" style={{ color: C.dim }}>
-              Filtre CEO · docs · ménage PC · SAV · Academy · escalade{" "}
-              <Link href={ROUTES.legal} className="text-copper hover:underline">
-                juridique
-              </Link>
-            </p>
-          </div>
+          <header className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h1 className="text-[26px] leading-[1.05] tracking-[1px]">
+                <span className="font-bold">SECRÉTARIAT</span>{" "}
+                <span className="font-light tracking-[0.35em]" style={{ color: C.titanium }}>
+                  NADIA
+                </span>
+              </h1>
+              <p className="mt-1 text-[12px]" style={{ color: C.dim }}>
+                Mails · agenda · docs Word · contrats · ménage PC · escalade{" "}
+                <Link href={ROUTES.legal} className="text-copper hover:underline">
+                  Solène
+                </Link>
+              </p>
+            </div>
+            <SiegeLifeLinks />
+          </header>
+
           <BureauIdentityStrip
             agentId="secretary"
             name="Nadia Faure"
-            role="Secrétaire de direction — mails, agenda, docs"
-            href={ROUTES.hq}
-            hrefLabel="Plan HQ"
+            role="Secrétaire — traitement de texte & organisation dans le Hub"
+            href={ROUTES.legal}
+            hrefLabel="Avocate"
           />
+
           <NadiaDesktopPanel />
-          <div className="min-h-[400px]">
-            <AssistantChat variant="secretary" defaultAgent="secretary" />
+
+          <div className="min-h-[400px] border border-titanium/20 bg-transparent p-1">
+            <AssistantChat variant="secretary" defaultAgent="secretary" embedded />
           </div>
+
           <NadiaToolsPanel />
+          <BureauRoster bureau="secretary" title="Bureau Nadia · Clara" />
           <SavLitePanel />
-          <SecretaryConsole />
         </div>
       </DeptV2PageShell>
     </ConsoleProvider>

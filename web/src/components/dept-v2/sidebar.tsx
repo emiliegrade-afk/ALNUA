@@ -243,7 +243,7 @@ export function DeptV2Sidebar({
         >
           {coreSubtitle}
         </p>
-        <div className="relative mt-1.5 flex h-[100px] items-center justify-center">
+        <div className="relative mt-1.5 flex h-[64px] items-center justify-center">
           <svg
             viewBox="0 0 168 112"
             className="absolute inset-0 m-auto h-full w-full opacity-35"
@@ -262,7 +262,7 @@ export function DeptV2Sidebar({
             </g>
           </svg>
           <AlnuaStar
-            size={48}
+            size={32}
             glow
             className="relative"
             sparkMid={ALNUA_STAR_SPARK_MID}
