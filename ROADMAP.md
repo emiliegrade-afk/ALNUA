@@ -73,10 +73,9 @@ dumps, orphan `coding_facade`, checklist `AGENTS.md`, tests HTTP budgets).
 budgets manuelles seulement — DEC-016 inchangé, pas de paiement/transfert auto).
 **Prochain audit santé :** ≤ **2026-08-30** (Audit 005). **P0 + Vagues A–F +
 debt paydown :** bible `docs/` ; **0 fichiers Python >1000 / >500 / >300**.
-**2026-08-11 H1–H4 + Nadia A–C :** sécurité / Sentinel / launch / manuel /
-routing + **Nadia NL réel** + **avocate Solène** (UE/US/Asie) + templates
-contrats. Suite : desktop Nadia v2 (D), ménage PC quarantaine (E), HQ (H5),
-VPS/UE/Pi (H6).
+**2026-08-11 H1–H5 :** sécurité / Sentinel / launch / manuel / Nadia complète
+(docs, desktop, housekeeper, Solène) + **HQ immersif** (carte `/hq`, portraits
+clés, repas/détente OpenRoom). Suite : VPS/UE/Pi (**H6**) ; Audit 005.
 
 ## Points tranchés le 2026-07-25 (anciennement ouverts)
 

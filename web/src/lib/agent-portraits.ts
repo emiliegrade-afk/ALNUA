@@ -4,7 +4,9 @@
 
 /** Extension du portrait disponible, par id d'agent. Vide = aucun portrait. */
 export const AGENT_PORTRAITS: Record<string, string> = {
-
+  "coo": ".png",
+  "legal_counsel": ".png",
+  "secretary": ".png",
 };
 
 /** URL du portrait d'un agent, ou null s'il n'y en a pas sur disque. */

@@ -239,4 +239,5 @@ Invoke-RestMethod http://127.0.0.1:8003/health
 | [MCP Cursor](./MCP_CURSOR_SETUP.md) | Brancher le Hub dans Cursor |
 | [Sécurité](./SECURITY_HARDENING.md) | Durcissement VPS |
 
-Suite produit prévue hors ce manuel : polish Nadia/COO (H4), HQ immersif (H5), VPS/UE/Pi (H6).
+Suite produit prévue hors ce manuel : VPS / UE / Pi (H6). HQ immersif (H5) est
+livré — ouvre `/hq` pour la carte.

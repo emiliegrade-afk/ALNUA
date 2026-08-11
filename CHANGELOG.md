@@ -7,6 +7,16 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-11 — H5 polish HQ immersif (feat)
+
+- **Type :** feat
+- **Details :**
+  - `/hq` : carte interactive (hotspots `hq-hub-offices` + asset 17 bureaux) ;
+    rail off-map (juridique, bibliothèque, IDE, admin).
+  - Portraits clés : Nadia, Aria, Solène (`public/agents/portraits`).
+  - OpenRoom = salle de repas & détente ; identity strips CEO/Secrétaire/Legal ;
+    nav « Plan HQ ».
+
 ## 2026-08-11 — Bureau juridique Solène + version complète Nadia (feat)
 
 - **Type :** feat

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { BureauPage } from "@/components/shared/bureau-page";
 import { OpenRoomAgentTile } from "@/components/openroom/openroom-agent-tile";
 import { AgentFocusPanel } from "@/components/openroom/agent-focus-panel";
+import { OpenRoomLeaderboardStrip } from "@/components/openroom/openroom-leaderboard-strip";
 import { BUREAU_AGENTS } from "@/lib/agent-bureau";
 import {
   countActiveAgents,
@@ -65,7 +66,15 @@ export default function OpenRoomPage() {
   }${pipelineActive ? " · Pipeline en cours" : ""}`;
 
   return (
-    <BureauPage dept="openroom" title="OpenRoom" subtitle={subtitle}>
+    <BureauPage
+      dept="openroom"
+      title="Salle de repas & détente"
+      subtitle={`${subtitle} · vie du siège`}
+    >
+      <p className="rounded-lg border border-copper/20 bg-obsidian-2/70 px-3 py-2 text-xs text-titanium/75">
+        Ici tu vois qui travaille, qui est en pause, et l&apos;ambiance OpenRoom —
+        l&apos;équivalent de la cantine / café du siège ALNUA.
+      </p>
       {statusError ? (
         <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 font-body text-sm text-amber-200">
           {statusError}
@@ -87,6 +96,8 @@ export default function OpenRoomPage() {
           />
         ))}
       </div>
+
+      <OpenRoomLeaderboardStrip />
 
       <div className="rounded-xl border border-copper/15 bg-obsidian-2 p-4">
         <h3 className="label-caps mb-3">Log temps réel</h3>

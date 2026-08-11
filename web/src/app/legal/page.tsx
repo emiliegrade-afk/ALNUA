@@ -4,6 +4,7 @@ import { ConsoleProvider } from "@/components/console/console-provider";
 import { DeptV2PageShell } from "@/components/dept-v2";
 import { LegalCounselPanel } from "@/components/secretary/legal-counsel-panel";
 import { LegalPersonaCard } from "@/components/legal/legal-persona-card";
+import { BureauIdentityStrip } from "@/components/shared/bureau-identity-strip";
 import { C } from "@/app/app-v2/shared";
 import { ROUTES } from "@/lib/routes";
 import Link from "next/link";
@@ -39,6 +40,13 @@ export default function LegalPage() {
               · templates contrats enrichis
             </p>
           </div>
+          <BureauIdentityStrip
+            agentId="legal_counsel"
+            name="Solène Hariri"
+            role="Avocate d'entreprise — UE / USA / Asie"
+            href={ROUTES.hq}
+            hrefLabel="Plan HQ"
+          />
           <LegalPersonaCard />
           <LegalCounselPanel />
         </div>

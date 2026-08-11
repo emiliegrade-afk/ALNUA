@@ -7,6 +7,7 @@ import { NadiaDesktopPanel } from "@/components/secretary/nadia-desktop-panel";
 import { NadiaToolsPanel } from "@/components/secretary/nadia-tools-panel";
 import { SavLitePanel } from "@/components/secretary/sav-lite-panel";
 import { SecretaryConsole } from "@/components/secretary/secretary-console";
+import { BureauIdentityStrip } from "@/components/shared/bureau-identity-strip";
 import { C } from "@/app/app-v2/shared";
 import { ROUTES } from "@/lib/routes";
 import Link from "next/link";
@@ -38,6 +39,13 @@ export default function SecretaryPage() {
               </Link>
             </p>
           </div>
+          <BureauIdentityStrip
+            agentId="secretary"
+            name="Nadia Faure"
+            role="Secrétaire de direction — mails, agenda, docs"
+            href={ROUTES.hq}
+            hrefLabel="Plan HQ"
+          />
           <NadiaDesktopPanel />
           <div className="min-h-[400px]">
             <AssistantChat variant="secretary" defaultAgent="secretary" />

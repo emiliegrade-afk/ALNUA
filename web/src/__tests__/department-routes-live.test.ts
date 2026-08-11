@@ -18,6 +18,7 @@ const LIVE_DEPTS = [
   "brand",
   "hub",
   "analytics",
+  "hq",
 ] as const;
 
 describe("department primary routes are live (not MockupShell)", () => {
@@ -64,6 +65,12 @@ describe("department primary routes are live (not MockupShell)", () => {
     const legal = readFileSync(join(process.cwd(), "src", "app", "legal", "page.tsx"), "utf8");
     expect(legal).toMatch(/LegalPersonaCard/);
     expect(legal).toMatch(/LegalCounselPanel/);
+  });
+
+  it("/hq uses immersive floor map", () => {
+    const hq = readFileSync(join(process.cwd(), "src", "app", "hq", "page.tsx"), "utf8");
+    expect(hq).toMatch(/HqFloorMap/);
+    expect(hq).not.toMatch(/MockupDirectory/);
   });
 
   it("/hub and /analytics are live shells", () => {

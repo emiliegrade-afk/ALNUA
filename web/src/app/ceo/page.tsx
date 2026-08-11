@@ -9,6 +9,7 @@ import { CeoUserManualCard } from "@/components/ceo/ceo-user-manual-card";
 import { CeoWorkflowsPendingCard } from "@/components/ceo/ceo-workflows-pending-card";
 import { CeoCockpitPanel } from "@/components/hub/ceo-cockpit";
 import { AssistantChat } from "@/components/assistant/assistant-chat";
+import { BureauIdentityStrip } from "@/components/shared/bureau-identity-strip";
 import { C } from "@/app/app-v2/shared";
 import { ROUTES } from "@/lib/routes";
 
@@ -32,6 +33,13 @@ export default function CeoPage() {
               Brief · décisions · dossiers · autonomie
             </p>
           </div>
+          <BureauIdentityStrip
+            agentId="coo"
+            name="Aria Voss"
+            role="COO — orchestration & brief du matin"
+            href={ROUTES.hq}
+            hrefLabel="Plan HQ"
+          />
           <CeoMorningBriefCard />
           <CeoUserManualCard />
           <CeoPendingDossiersCard />
