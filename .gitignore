@@ -37,6 +37,8 @@ data/rnd_ideas.json
 data/rnd_concepts/
 data/rnd_competitive/
 data/agent_models.json
+# Contient potentiellement une clé API locale — jamais commité
+data/llm_connectivity.json
 data/ide_sandbox/
 # Runtime-generated state — never commit (see CLAUDE.md invariant on data/agent_scores.json)
 data/academy_progress.json
