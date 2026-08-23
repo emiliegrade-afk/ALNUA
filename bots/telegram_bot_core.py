@@ -17,12 +17,10 @@ from telegram.ext import (
     filters,
 )
 
-from bots.base import log_bot_action
 from bots.telegram_auth import is_authorized, reject_unauthorized
 from bots.telegram_bot_morning import schedule_morning_brief, start_reply
 from bots.telegram_callbacks import button_callback
 from bots.telegram_commands import (
-    BOT_NAME,
     agents_command,
     cmd_apps,
     cmd_connect,
@@ -33,6 +31,7 @@ from bots.telegram_commands import (
     prs_command,
 )
 from bots.telegram_common import acquire_single_instance_lock, presence_callbacks
+from bots.telegram_coo_voice import handle_voice, reply_aria
 from config.settings import get_settings
 from database.supabase_client import get_supabase
 from services.telegram_presence import BACK_MESSAGE_ARIA, COFFEE_MESSAGE_ARIA
@@ -43,8 +42,9 @@ _LOCK_FILE = Path(__file__).resolve().parent.parent / ".telegram_bot.lock"
 
 START_MESSAGE = (
     "Salut Emilie ! Je suis **Aria Voss**, COO ALNUA.\n\n"
-    "Parle-moi en langage naturel — comme un chat. Je réponds toujours, "
-    "même si je ne peux pas tout exécuter.\n\n"
+    "Parle-moi en langage naturel — texte ou **vocal** Telegram. "
+    "Je réponds toujours ; je ne parle à voix haute que s'il y a une alerte, "
+    "une action ou une décision.\n\n"
     "Raccourcis :\n"
     "/idee … — idée Centre R&D\n"
     "/pipeline · /prs · /costs · /agents · /status\n\n"
@@ -145,24 +145,12 @@ class TelegramBot:
         if not text:
             return
 
-        chat_id = update.effective_chat.id if update.effective_chat else None
+        await reply_aria(self, update, text)
 
-        from bots.telegram_delivery import reply_with_ack
-        from services.telegram_ack import summarize_task_aria
-
-        def _log(inp: str, out: str, status: str) -> None:
-            log_bot_action(self.db, BOT_NAME, "message_received", inp, "")
-            log_bot_action(self.db, BOT_NAME, "coo_response", inp, out, status=status)
-
-        await reply_with_ack(
-            update,
-            agent_name="Aria",
-            task_summary=summarize_task_aria(text),
-            run=lambda: self._run_coo(text, chat_id),
-            on_logged=_log,
-            chat_id=chat_id,
-            instruction=text,
-        )
+    async def _handle_voice(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> None:
+        await handle_voice(self, update, context)
 
     def build_application(self) -> Application:
         if self._application is None:
@@ -204,6 +192,9 @@ class TelegramBot:
             app.add_handler(CallbackQueryHandler(button_callback))
             app.add_handler(
                 MessageHandler(filters.TEXT & ~filters.COMMAND, self._handle_text)
+            )
+            app.add_handler(
+                MessageHandler(filters.VOICE, self._handle_voice)
             )
             app.add_error_handler(on_error)
             self._application = app

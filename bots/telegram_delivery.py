@@ -27,6 +27,7 @@ async def reply_with_ack(
     on_logged: Callable[[str, str, str], None] | None = None,
     chat_id: int | None = None,
     instruction: str = "",
+    voice_agent_id: str | None = None,
 ) -> None:
     """
     1. Confirm message received immediately (plain text — no silent fail).
@@ -52,6 +53,7 @@ async def reply_with_ack(
         pass
 
     status = "ok"
+    facts_for_voice = ""
     try:
         response = await asyncio.wait_for(
             asyncio.to_thread(run),
@@ -67,6 +69,7 @@ async def reply_with_ack(
         if prefix and not hub_online(force_refresh=True):
             body = prefix + body
         ok = not body.lstrip().startswith("❌")
+        facts_for_voice = body if ok else ""
         response = format_done_reply(body, ok=ok)
     except asyncio.TimeoutError:
         logger.warning("%s Telegram handler timeout", agent_name)
@@ -107,3 +110,13 @@ async def reply_with_ack(
     if chat_id is not None and instruction:
         append_turn(chat_id, "user", instruction)
         append_turn(chat_id, "assistant", plain_response[:800])
+
+    if voice_agent_id and status == "ok" and facts_for_voice:
+        try:
+            from services.telegram_voice import maybe_send_voice_reply
+
+            await maybe_send_voice_reply(
+                update, facts_for_voice, agent_id=voice_agent_id
+            )
+        except Exception:
+            logger.warning("telegram voice overlay skipped", exc_info=True)
