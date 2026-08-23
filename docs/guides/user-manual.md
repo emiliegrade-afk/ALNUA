@@ -36,7 +36,7 @@ Les **agents** sont des collaborateurs virtuels (Aria la COO, Nadia la secrétai
 
 | Action | Comment |
 |--------|---------|
-| **Installer une fois** | Double-clic `Installer ALNUA Hub.bat` → raccourci Bureau |
+| **Installer une fois** | Double-clic `Installer ALNUA Hub.bat` → 3 raccourcis Bureau (voir `LIRE-MOI.txt`) |
 | **Démarrer** | Double-clic **ALNUA Hub** sur le Bureau |
 | **Interface** | Le navigateur s’ouvre sur http://localhost:3000 |
 | **Arrêter** | Double-clic `Arreter ALNUA Hub.bat` |
@@ -92,7 +92,7 @@ Tu n’as pas besoin de tout maîtriser le premier jour. Commence par : **parler
 |-------|-----|----------------|
 | Plan HQ | `/hq` | Carte immersive des bureaux |
 | Briefing | `/briefing` | Synthèse du matin (+ brief COO) — via HQ « Salle de réunion » |
-| OpenRoom | `/openroom` | Salon / focus agents (espace détente sur le plan) |
+| Agent Lounge | `/lounge` | Expérimentation / gamification agents (`/openroom` redirige ici) |
 | Academy | `/academy` | Niveaux, sprints, validation agents |
 | Bibliothèque | `/library` | Connaissances / archives |
 | Documents | `/docs` | Index des guides (ce manuel y est listé) |

@@ -24,9 +24,12 @@
 | Apprentissage + compression mémoire (Mem0) | ✅ Implémenté | `skills/skill_agent_learning.py` |
 | Suivi coûts LLM | ✅ Implémenté | `services/cost_monitor.py`, étendu à ElevenLabs + hosting (2026-07-24) |
 | A/B test prompts/agents | ✅ Implémenté | `services/a_b_tester.py` |
-| Bus d'événements inter-agents | ✅ Implémenté + fan-out MVP | `event_bus` + `cross_dept_handlers` (Phase 36 MVP) ; briefing cross-dept encore à faire |
+| Bus d'événements inter-agents | ✅ Depth+ | `event_bus` + `cross_dept_handlers` + `cross_dept_drain` (Phase 36) |
 | Briefing quotidien COO | ✅ Implémenté | `services/daily_briefing.py` |
-| Workflow engine (ship/ops/dossier/sav + validation) | ✅ MVP Phase 30 | `workflow_engine` + `workflow_validation_recipes` ; `budget_transfer` encore absent |
+| Workflow engine (ship/ops/dossier/sav + validation) | ✅ Complete | Phase 30 Vague 2 — UI `/hub` + `/ceo` ; `budget_transfer` hors scope DEC-032 |
+| Agent Trust (Phase 31) | ✅ Complete | DEC-032 — MVP `/trust` accepté |
+| Review Board + gates (Phase 32) | ✅ Complete | DEC-032 — structural + LLM optionnel |
+| Finance Depth+ (Phase 34) | ✅ Complete | sans `budget_transfer` (DEC-032) |
 | MCP Server (`fastapi-mcp` sur `/mcp`) | ✅ Implémenté | Protégé par `X-Hub-Key` |
 
 ## Centre R&D (dossier hub + v2)
@@ -44,7 +47,7 @@
 | Arbre d'hypothèses | ✅ Implémenté | `services/rnd_hypothesis_tree.py` |
 | R&D v2 — coquille `/rnd-v2` (Phases 22-27) | ✅ Implémenté | Pipeline, Incubateur, Conseil (réceptacle), Arbres, Dossiers |
 | R&D v2 — Explorer veille externe (Phase 28) | ✅ Vague E | `rnd_explorer` + onglet Explorer `/rnd-v2` |
-| Brand design system (Phase 35) | 🔄 MVP Slice Vague D | tokens + Review Board brand + Brand Center |
+| Brand design system (Phase 35) | ✅ Depth+ | tokens + Review Board + débat Élise↔Anouk + Brand Center |
 | R&D council agent / router | ✅ Implémenté | `agents/rnd_council_agent.py`, `api/routers/rnd_council.py` |
 
 ## Marketing & Finances
@@ -56,10 +59,10 @@
 | Mesure perf Reach/Engagement/ROI/Funnel (Phase 37) | ✅ Implémenté | `api/routers/marketing_funnel.py` + saisie manuelle (DEC-014) |
 | Finance Cockpit visuel (Phase 29) | ✅ Implémenté | `/finances-v2` (onglets de base) |
 | Finance profondeur — invoices / SaaS / Revolut (Phase 34 / DEC-016) | ✅ Backend + UI | API + `SaasInvoicesPanel` + KPI à payer |
-| Budgets / obligations fiscales (Phase 34 / Vague 3) | ✅ JSON + UI | `/finances/budgets` + `/finances/fiscal-obligations` + onglet « Budgets & Fiscal » ; pas de paiement/transfert auto ; `budget_transfer` reporté |
-| Phase 21 skills Gaming/Robo | 🔄 In progress | Vague A/B + DEC-020 : UE5.8, agency Claude Code, probes robo ; Nwiro = legacy DEC-017 |
-| Eve sourcing / montage BOM | ✅ | alternatives + assembly-plan + infra-blueprint + UI `/robo` ; Pi différable (DEC-018) |
-| Finance cockpit forecast (Vague C) | ✅ | `GET /finances/cockpit-forecast` + UI Budgets/Fiscal ; `budget_transfer` reporté |
+| Budgets / obligations fiscales (Phase 34 / Vague 3) | ✅ JSON + UI | Complete DEC-032 — pas de `budget_transfer` |
+| Phase 21 skills Gaming/Robo | ✅ Hub Complete | Live UE/Pi = Vague 8 (fin) ; Nwiro legacy DEC-017 |
+| Eve sourcing / montage BOM | ✅ | alternatives + assembly-plan + infra-blueprint + UI `/robo` ; Pi = Vague 8 |
+| Finance cockpit forecast (Vague C) | ✅ | `GET /finances/cockpit-forecast` ; transfert auto hors scope DEC-032 |
 | Review Board LLM (flag) | ✅ Optionnel | `REVIEW_BOARD_LLM` → `review_board_llm.py` ; défaut = structural |
 | Daily briefing cross-dept | ✅ Branché | `_collect_cross_dept` dans `daily_briefing.py` |
 
@@ -68,17 +71,17 @@
 | Zone | Status | Notes |
 |------|--------|-------|
 | Dashboard v3 — lobby + bureaux par département | ✅ Implémenté | Next.js 16.3.0 |
-| Agent Trust UI (`/trust`) | ✅ MVP | Vague 1 — `GET /agents/trust` + jauges DEC-011 |
-| OpenRoom (war room visuelle, avatars live) | ✅ Implémenté | |
+| Agent Trust UI (`/trust`) | ✅ Complete | DEC-032 — jauges + Review Board + cross-dept drain |
+| Agent Lounge (`/lounge`, ex-OpenRoom) | ✅ Complete | Phase 46 / DEC-031 ; `/openroom` redirect |
 | Page Comptabilité — coûts combinés | ✅ Implémenté | 2026-07-24 |
 | Jalons à venir (Google Calendar) | ✅ Implémenté | 2026-07-24 |
 | Page Admin Costs | 🔄 Implémenté, **désactivé par défaut** | `ADMIN_COSTS_PAGE_ENABLED=false` |
 | Page Admin Events | 🔄 Implémenté, **désactivé par défaut** | `ADMIN_EVENTS_PAGE_ENABLED=false` |
 | Page Admin A/B Test | 🔄 Implémenté, **désactivé par défaut** | `ADMIN_AB_TEST_PAGE_ENABLED=false` |
-| Onglet exécutif COO sur `/briefing` | 🔄 Implémenté, **désactivé par défaut** | `BRIEFING_COO_SECTION_ENABLED=false` |
+| Onglet exécutif COO sur `/briefing` | ✅ Flag on (local/prod example) | `BRIEFING_COO_SECTION_ENABLED=1` dans `.env` / deploy examples ; UI gated via `/admin/flags` |
 | GDD Manager (router + endpoints) | 🔄 Implémenté, **désactivé par défaut** | `GDD_MANAGER_ENABLED=false` — `gdd.py` monté conditionnellement |
 | Redesign UI départements App/Gaming/Robo | ✅ Implémenté | `web/src/app/{app,gaming,robo}-v2/` — `/app`, `/gaming`, `/robo` ré-exportent vers `-v2` |
-| Real-data Gaming/Robo (builds, assets, labo, télémétrie, communauté) | ✅ Implémenté (réceptacle) | Phases 15-20 — pas de pipeline UE5/Steam/robot physique derrière |
+| Real-data Gaming/Robo (builds, assets, labo, télémétrie, communauté) | ✅ Hub-side 100 % | Phases 15-21 — last known API ou « — » / Non configuré ; live UE/Pi = env externe |
 | Harmonisation visuelle MockupShell (Phase 38) | ✅ Rendu + routes reconnectées | Toutes routes primaires live (dont `/hub` `/analytics` `/ceo` `/secretary` `/brand`). Mockups sous `components/mockup/` pour preview design uniquement. |
 
 > Les 5 features admin/GDD/briefing COO sont codées et testées (flags forcés à `1`
@@ -102,24 +105,25 @@
 | Sentry / security-ingest (Résonance) | ✅ Implémenté | Ops 2026-08-08 |
 | Revolut Business (lecture) | 🔄 Branché API | DEC-016 — credentials requis |
 
-## Planifié (ROADMAP — suite MVP / hygiène)
+## Planifié (ROADMAP — suite Hub 100 % logiciel, DEC-032)
 
-| Phase | Objectif |
-|-------|---------|
-| 21 | Suite skills Gaming/Robo (UE_PROJECT_PATH + Pi + serveur UE5.8 studio) |
-| 30 | Suite : `budget_transfer` (reporté DEC-016) + UI workflows |
-| 32 | Suite : débat LLM Review Board multi-personas (flag `REVIEW_BOARD_LLM` ✅) |
-| 35 | Suite Brand : persona multi-room + débat LLM (MVP Vague D ✅) |
-| Audit 005 | Santé 10 dimensions ≤ **2026-08-30** |
+| Vague | Objectif | Statut |
+|-------|---------|--------|
+| 0 | DEC-032 critères 100 % | ✅ |
+| 1 | Clôture doc ROADMAP / status | ✅ |
+| 2 | Phase 30 UI workflows → ✅ | ✅ |
+| 3 | Phase 39 idle polish → ✅ | ✅ |
+| 4 | Anti-mensonge résiduel | ✅ |
+| 5 | Dette fichiers >300 | ✅ |
+| 6 | Apps NAÏA/NUAWAY coding | ⏸️ |
+| 7 | Audit 005 | ⏸️ |
+| 8 (fin) | Pi / UE5.8 / Revolut / ads OAuth | ⏸️ |
 
 ## Gap connu (pas un audit exhaustif)
 
-- **Gouvernance drift** : resync Vague F (2026-08-10) — 44 routers, 433 tests
-  collectés, Next 16.3.0 ; Audit 005 toujours dû ≤ 2026-08-30.
-- **Real-data Gaming/Robo (Phases 15-20)** : réceptacle honnête ; pont UE5.8 /
-  agency prêts, dépendent de la config studio / `UE_PROJECT_PATH`.
-- **Academy** : pipeline corrigé (BUG-008) ; risque OpenRouter 402 (crédits) toujours
-  possible.
-- **Dette structurelle :** ~74 fichiers Python >300 lignes (hotspots
-  `api/schemas.py`, `rnd.py`, `skill_coding_agent.py`…) — split ciblé seulement
-  si on y touche ; BUG-004 façades fermé.
+- **Plan 100 % (DEC-032) :** rester = Vagues 6–7 ; fin = Vague 8 (externe).
+- **Gouvernance :** Audit 005 dû ≤ 2026-08-30 ; Next 16.3.0.
+- **Live studio Gaming/Robo :** Hub-side ✅ ; `UE_PROJECT_PATH` / `PI_HOST` = Vague 8.
+- **Academy :** pipeline OK ; risque OpenRouter 402 possible.
+- **Dette structurelle :** Python packages **0** fichier ≥300 (Vague 5) ; front TS encore gros (hors critère packages).
+- **Revolut / ads OAuth :** code prêt ou hors scope — credentials = Vague 8.

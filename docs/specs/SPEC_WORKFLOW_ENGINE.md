@@ -146,14 +146,15 @@ Branch : `app` | `gaming` | `robotics` | `hub` | `other`
 1. ~~**P1** — `sav_lite`~~ ✅ fait
 2. ~~**P1** — `semaine`~~ ✅ fait
 3. ~~**P2** — `ship_game` / `ship_robo`~~ ✅ MVP fait
-4. **UI** — panneau workflows dans Hub CEO / Ops
+4. **UI** — panneau workflows dans Hub CEO / Ops (**Vague 2** plan 100 %, DEC-032)
 5. **IA** — DiffusionGemma local (2e SSD) branché sur benchmark existant
 6. **Phase 30 ROADMAP** — recettes de **validation** :
    - ~~`content_validation`~~ ✅ MVP (2026-08-09)
    - ~~`campaign_validation`~~ ✅ MVP (2026-08-09)
-   - `budget_transfer` (lié Phase 34)
+   - ~~`budget_transfer`~~ **abandonné pour tampon 100 %** (DEC-016 / DEC-032 —
+     Phase 34 close sans transfert auto)
    (+ niveaux d'autonomie 0–3 MVP — voir `ROADMAP.md` Phase 30, DEC-012)
    Extension via `services/workflow_validation_recipes.py` (ne pas grossir
    `workflow_engine.py` — BUG-004).
 7. **Phase 39 ROADMAP** — idle agent work (`idle_plan_day` / `idle_drain`) :
-   voir `SPEC_IDLE_AGENT_WORK.md`, DEC-021.
+   voir `SPEC_IDLE_AGENT_WORK.md`, DEC-021 — polish = Vague 3.

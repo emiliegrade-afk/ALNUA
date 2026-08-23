@@ -44,6 +44,9 @@ class TestSecretaryIntents:
     def test_aria_delegation(self) -> None:
         assert intents.detect_aria_delegation("demande à aria de prioriser") is True
 
+    def test_weather_intent(self) -> None:
+        assert intents.detect_weather_intent("quel temps à Paris") is True
+
 
 class TestSecretaryAgent:
     def test_draft_email_parses_json(self, agent: SecretaryAgent) -> None:

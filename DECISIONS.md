@@ -39,6 +39,9 @@
 | DEC-028 | Clés Hub scopées + allowlist IP optionnelle (H2 sécurité) | 2026-08-11 | Active |
 | DEC-029 | Security Sentinel (Hugo) — patrouille Hub ≠ Sentry | 2026-08-11 | Active |
 | DEC-030 | PC housekeeper — quarantaine avant delete + autonomie progressive | 2026-08-11 | Active |
+| DEC-031 | Agent Lounge remplace OpenRoom ; scores séparés | 2026-08-11 | Active |
+| DEC-032 | Critères « Hub 100 % logiciel » + phases 31/32/34 closes | 2026-08-12 | Active |
+| DEC-033 | Overlay Jarvis — faits texte / réplique voix ; Edge TTS v1 | 2026-08-14 | Active |
 
 ---
 
@@ -259,6 +262,8 @@ sécurité / conformité inacceptable pour une solopreneuse.
 **explicitement reporté** — pas de stub, pas de paiement/transfert auto entre
 départements. Les enveloppes budgets manuelles (ledger JSON Vague 3) suffisent
 jusqu’à besoin métier réel.
+**Note DEC-032 (2026-08-12) :** Phase 34 close **sans** `budget_transfer` ;
+hors tampon « Hub 100 % logiciel ».
 
 ### DEC-017 — Pont Gaming = serveur UE5.8 ; Nwiro abandonné
 **Contexte :** Emilie abandonne le plugin Nwiro comme pont agents↔éditeur. Besoin
@@ -501,3 +506,76 @@ avec un vrai accès fichiers, sans risque de suppressions silencieuses.
 5. Nadia NL `housekeep` + API `/housekeeper/*` ; UI secrétariat.
 **Alternatives rejetées :** delete direct ; agent avec shell libre.
 **Pourquoi :** rangement utile + filet de sécurité CEO-friendly.
+
+### DEC-031 — Agent Lounge remplace OpenRoom ; scores séparés
+**Contexte :** besoin d’un espace expérimental / gamifié pour les agents (changement
+de contexte, challenges, collab), sans confondre avec la compétition métier ni le
+trust. OpenRoom était devenu « salle de repas & détente » — trop faible comme
+couche Agentic OS. Brief Emilie 2026-08-11 + maquette Agent Lounge.
+**Décision (2026-08-11) :**
+1. **OpenRoom / repas disparaît** — remplacé par **Agent Lounge** (`/lounge` ;
+   redirect `/openroom` ; hotspot HQ + SiegeLifeLinks).
+2. **Deux classements indépendants** : `competition.py` (prod) vs
+   `lounge_scores` (Lounge) ; **reset mensuel** sur les deux rails. Badges Lounge
+   lifetime OK ; XP mois reset. Lounge ≠ productivité ≠ trust (DEC-011 inchangé).
+3. **Boucle entreprise** : artefact Lounge → proposition (ticket / Review / CEO)
+   → validation ; jamais write prod / secrets / config depuis une session.
+4. **Autonomie** : sessions via idle **L0–L1** filler (DEC-021), après travail
+   prioritaire ; budget `cost_monitor` partagé ; sandbox pour tout code.
+5. **UI** : structure maquette (hero + activités + live + agents + événements) ;
+   palette Hub (obsidienne / titanium / cuivre) ; glow retenu.
+6. Spec : `docs/specs/SPEC_AGENT_LOUNGE.md` ; gate Academy :
+   `data/lounge_product.json` ; Phase 46 ROADMAP (V0→V6).
+7. **Modèle LLM Lounge (2026-08-11 V4/V5) :** les sessions utilisent un modèle
+   **CN pas cher et compétent** par défaut —
+   `deepseek/deepseek-chat-v3.2` (`get_lounge_model()` / `LOUNGE_MODEL`), **pas**
+   le modèle métier de l’agent. Alternatives documentées : `z-ai/glm-4.5-air`,
+   `minimax/minimax-m2.7`. L’`agent_id` reste pour XP / coûts / persona.
+**Alternatives rejetées :** fusionner XP Lounge dans `competition.py` ; garder
+OpenRoom « repas » à côté du Lounge ; auto-apply des découvertes Lounge en prod ;
+réutiliser le modèle métier de chaque agent pour le Lounge.
+**Pourquoi :** culture expérimentale sans contaminer gouvernance ni scores métier ;
+coût LLM maîtrisé sur le filler idle.
+
+### DEC-032 — Critères « Hub 100 % logiciel » (Vague 0 plan 100 %)
+**Contexte :** Emilie veut clôturer le Hub logiciel à 100 % (ROADMAP + code)
+avant les branchements machine / banque / ads. Plan 2026-08-12 : vagues 0→7,
+fin reportée = Pi, UE5.8, Revolut, réseaux sociaux.
+**Décision (2026-08-12) :**
+1. **Phase 31 (Trust) = Complete** — MVP accepté (`agent_trust` + `/trust`).
+2. **Phase 32 (Review Board) = Complete** — MVP + gates + LLM optionnel
+   (`REVIEW_BOARD_LLM`) accepté.
+3. **Phase 34 (Finance Depth+) = Complete** **sans** `budget_transfer` —
+   DEC-016 inchangé ; enveloppes manuelles + alerts/factures/fiscal suffisent.
+4. **Phase 30** = Complete (Vague 2, 2026-08-12) — UI `/hub` + `/ceo` ; 
+   `budget_transfer` **hors scope** définitif pour le tampon 100 %.
+5. **Phase 39** = Complete (Vague 3, 2026-08-12) — preview + promote + auto
+   tickets `[idle-ok]` à la 1ʳᵉ validation L2.
+6. **« Hub 100 % logiciel »** = phases 0–46 ✅ (hors live studio) + Audit 005
+   vert + dette >300 en baisse (Vague 5). **Hors tampon 100 %** (Vague 8 fin) :
+   Pi (`PI_HOST`), UE5.8 (`UE_PROJECT_PATH` / serveur), Revolut credentials,
+   OAuth Meta/Google/TikTok Ads, branchements NAÏA/NUAWAY coding (Vague 6
+   apps, après polish produit).
+**Alternatives rejetées :** attendre `budget_transfer` / ads API / Pi-UE pour
+dire « 100 % » ; rouvrir AAF ou Lounge V7 avant clôture.
+**Pourquoi :** séparer logiciel Hub actionnable CEO des dépendances externes.
+
+### DEC-033 — Overlay Jarvis (faits texte / réplique voix)
+**Contexte :** Emilie veut Nadia (et Aria) aussi fluides qu’un Jarvis : dicter,
+agir, entendre une réplique — sans cloner Marvel ni recopier n8n. Le persona
+Nadia actuel reste « pro / chaleureux » ; on le recale **après** avoir vu
+le comportement réel (Lots 1+).
+**Décision (2026-08-14) :**
+1. **Deux canaux :** texte = faits ; voix = overlay 1–2 phrases qui **ne
+   relit pas** emails, numéros, heures en liste, corps de mail.
+2. **Deux bots inchangés :** Nadia = quotidien (voix fréquente) ; Aria = ops
+   (voix seulement alerte / fin d’action / décision). Pas de bot unique Jarvis.
+3. **TTS v1 = Edge TTS** (déjà ALNUA Desk). ElevenLabs = Lot 5 optionnel,
+   voix originales, fallback Edge. Jamais clone Marvel.
+4. **Métier Python Hub** ; n8n = trigger seulement. Flag
+   `TELEGRAM_VOICE_REPLIES` off par défaut. Échec STT/TTS/overlay ≠ échec du texte.
+5. Spec : `docs/specs/SPEC_JARVIS_OVERLAY.md` ; Phase 47 ROADMAP ; 5 exemples
+   gold (agenda, mail, contact, météo, relance Théo).
+**Alternatives rejetées :** graphe n8n type vidéo Zubair ; fusion Nadia+Aria ;
+réécrire le persona avant d’avoir un overlay live ; ElevenLabs dès le Lot 1.
+**Pourquoi :** livrer le feeling Jarvis sans dettes de persona ni de stack.

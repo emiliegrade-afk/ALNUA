@@ -57,7 +57,7 @@ Humain (Emilie) + Cursor (MCP) + bots Discord/Telegram + n8n
 |-------|-----|----------------|
 | `/` | **Command Center** | Tableau de bord ops global (KPIs, activité, incidents, décisions du jour) |
 | `/hq` | **Annuaire des pôles** | Grille des départements (raccourcis vers chaque bureau) |
-| Carte HQ (lobby) | **Plan du siège** | Hotspots cliquables vers bureaux + espaces (réunion, openroom, IT…) |
+| Carte HQ (lobby) | **Plan du siège** | Hotspots cliquables vers bureaux + espaces (réunion, Lounge, IT…) |
 
 La carte du siège (`HQ_MAP_OFFICES`) place physiquement les bureaux dans un atrium (rez-de-chaussée + mezzanine) : CEO, Secrétariat, Direction, App, Gaming, Robotique, Finance, Marketing, R&D, Academy, Brand, Analytics, Connections, etc.
 
@@ -272,7 +272,7 @@ Fonctions : progression, seed niveau, wake agents, sprint, statut pipeline, lien
 
 | Route | Nom | Fonction |
 |-------|-----|----------|
-| `/openroom` | Espace détente / OpenRoom | Tous les agents visibles ; focus + logs / pipeline live |
+| `/lounge` | Agent Lounge | Expérimentation / gamification ; présence agents ; `/openroom` → redirect |
 | `/connections` | IT Connections | Intégrations OAuth (Composio : Gmail, GitHub, Slack…) |
 | `/library` | Bibliothèque | Connaissances, archives par bureau, rapport CEO |
 | `/ide` | IDE Hub | Explorateur, terminal, agent live, coach Luca |
@@ -303,7 +303,7 @@ Fonctions : progression, seed niveau, wake agents, sprint, statut pipeline, lien
                           ▼
               /finances  ·  /analytics  ·  /brand
                           ▼
-         /academy · /ide · /library · /tickets · /openroom
+         /academy · /ide · /library · /tickets · /lounge
 ```
 
 ---

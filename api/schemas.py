@@ -7,6 +7,7 @@ from fastapi import Header, HTTPException
 from services.beta_portal import decode_tester_token
 
 from api.schemas_agents_core import *  # noqa: F403
+from api.schemas_agents_studio import *  # noqa: F403
 from api.schemas_agents_pole import *  # noqa: F403
 from api.schemas_hub import *  # noqa: F403
 from api.schemas_finance import *  # noqa: F403

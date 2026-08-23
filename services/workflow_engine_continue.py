@@ -194,3 +194,62 @@ def approve_workflow_step(
     continued["approved_step_id"] = step_id
     continued["approved_by"] = approver_agent_id
     return continued
+
+
+def reject_workflow_step(
+    run_id: str,
+    step_id: str,
+    *,
+    rejector_agent_id: str = "ceo",
+    reason: str = "",
+) -> dict[str, Any]:
+    """CEO rejects an A_VERIFIER step — stop the run, do not continue."""
+    run = get_run(run_id)
+    if not run:
+        return {"ok": False, "error": "not_found", "run_id": run_id}
+
+    step_idx = next((i for i, s in enumerate(run.steps) if s.step_id == step_id), None)
+    if step_idx is None:
+        return {"ok": False, "error": "step_not_found", "step_id": step_id}
+
+    step = run.steps[step_idx]
+    if step.status != "A_VERIFIER":
+        return {
+            "ok": False,
+            "error": "not_a_verifier",
+            "step_id": step_id,
+            "status": step.status,
+        }
+
+    note = (reason or "Refusé par le CEO").strip()[:400]
+    step.status = "ECART"
+    step.detail = f"Rejeté par {rejector_agent_id}: {note}"
+    step.gaps = list(step.gaps or []) + ["ceo_rejected"]
+    step.finished_at = _now_iso()
+
+    for later in run.steps[step_idx + 1 :]:
+        if later.status in {"PENDING", "IN_PROGRESS", "RETRYABLE", "A_VERIFIER"}:
+            later.status = "ECART"
+            later.detail = f"Annulé — étape {step_id} rejetée par {rejector_agent_id}"
+            later.finished_at = step.finished_at
+
+    run.status = "cancelled"
+    run.blocked_at_step = step_id
+    run.summary = f"Rejeté par {rejector_agent_id} à « {step.label} » : {note}"
+    run.finished_at = step.finished_at
+    save_run(run)
+
+    return {
+        "ok": True,
+        "success": False,
+        "blocked": True,
+        "rejected": True,
+        "run_id": run.run_id,
+        "recipe_id": run.recipe_id,
+        "status": run.status,
+        "blocked_at_step": run.blocked_at_step,
+        "summary": run.summary,
+        "rejected_step_id": step_id,
+        "rejected_by": rejector_agent_id,
+        "steps": [s.model_dump() for s in run.steps],
+    }

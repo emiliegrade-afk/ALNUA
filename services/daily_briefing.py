@@ -131,18 +131,22 @@ def _collect_memory_health() -> dict[str, Any]:
 
 
 def _collect_cross_dept() -> dict[str, Any]:
-    """Phase 36 — inject queued cross-dept actions into the morning brief."""
+    """Phase 36 — inject queued + recently drained cross-dept actions."""
     try:
         from services.cross_dept_handlers import list_cross_dept_queue
 
-        items = list_cross_dept_queue(limit=15)
+        items = list_cross_dept_queue(limit=30)
         queued = [i for i in items if i.get("status") == "queued"]
+        done = [i for i in items if i.get("status") == "done"]
+        failed = [i for i in items if i.get("status") == "failed"]
         by_dept: dict[str, int] = {}
         for item in queued:
             d = str(item.get("department") or "other")
             by_dept[d] = by_dept.get(d, 0) + 1
         return {
             "queued_count": len(queued),
+            "done_count": len(done),
+            "failed_count": len(failed),
             "by_department": by_dept,
             "sample": [
                 {
@@ -150,8 +154,18 @@ def _collect_cross_dept() -> dict[str, Any]:
                     "action": i.get("action"),
                     "title": i.get("title"),
                     "event_type": i.get("event_type"),
+                    "status": i.get("status"),
                 }
                 for i in queued[:5]
+            ],
+            "recent_done": [
+                {
+                    "department": i.get("department"),
+                    "action": i.get("action"),
+                    "title": i.get("title"),
+                    "result_summary": i.get("result_summary"),
+                }
+                for i in done[:3]
             ],
         }
     except Exception as e:

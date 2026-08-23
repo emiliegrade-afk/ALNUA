@@ -93,13 +93,25 @@ if (-not (Test-Path $LaunchTarget)) {
 $Desktop = [Environment]::GetFolderPath("Desktop")
 $ShortcutPath = Join-Path $Desktop "ALNUA Hub.lnk"
 $IconCandidates = @(
+    (Join-Path $Root "assets\alnua-x-round.ico"),
     (Join-Path $Root "assets\alnua-hub.ico"),
-    (Join-Path $Root "web\public\icon-512.png")
+    (Join-Path $Root "web\public\brand\alnua-mark.png")
 )
 
 $wsh = New-Object -ComObject WScript.Shell
 $shortcut = $wsh.CreateShortcut($ShortcutPath)
-$shortcut.TargetPath = $LaunchTarget
+$ext = [System.IO.Path]::GetExtension($LaunchTarget).ToLowerInvariant()
+if ($ext -eq ".vbs") {
+    $shortcut.TargetPath = Join-Path $env:SystemRoot "System32\wscript.exe"
+    $shortcut.Arguments = "//nologo `"$LaunchTarget`""
+}
+elseif ($ext -eq ".bat" -or $ext -eq ".cmd") {
+    $shortcut.TargetPath = Join-Path $env:SystemRoot "System32\cmd.exe"
+    $shortcut.Arguments = "/c `"$LaunchTarget`""
+}
+else {
+    $shortcut.TargetPath = $LaunchTarget
+}
 $shortcut.WorkingDirectory = $Root
 $shortcut.Description = 'ALNUA Hub — demarrage silencieux (pas de fenetre CMD)'
 foreach ($icon in $IconCandidates) {
@@ -111,7 +123,21 @@ foreach ($icon in $IconCandidates) {
 $shortcut.Save()
 Write-Host '(OK) Raccourci Bureau :' $ShortcutPath -ForegroundColor Green
 
-# 5. Demarrage a la connexion (optionnel)
+# 4b. Raccourcis clairs (demarrer / arreter / Nadia) + purge des anciens
+$shortcutScript = Join-Path $Root "scripts\setup-hub-shortcuts.ps1"
+if (Test-Path $shortcutScript) {
+    & $shortcutScript -DesktopOnly -CleanOld
+}
+
+# 4c. Fenetre desktop (icone barre des taches)
+$buildWindow = Join-Path $Root "scripts\build-hub-window.ps1"
+if (Test-Path $buildWindow) {
+    try {
+        & $buildWindow
+    } catch {
+        Write-Host "[!] Fenetre ALNUAHub.exe non compilee :" $_.Exception.Message -ForegroundColor Yellow
+    }
+}
 if ($Startup) {
     $startupScript = Join-Path $Root "scripts\install_hub_daemon_startup.ps1"
     & $startupScript
@@ -123,13 +149,17 @@ Write-Host "========================================" -ForegroundColor Green
 Write-Host "  Installation terminee" -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Green
 Write-Host ""
+Write-Host "A la racine du projet : 4 .bat seulement" -ForegroundColor Cyan
+Write-Host "  Installer / ALNUA Hub / Arreter / ALNUA Desk" -ForegroundColor White
+Write-Host "  (voir LIRE-MOI.txt)" -ForegroundColor DarkGray
+Write-Host ""
 Write-Host "Comment demarrer :" -ForegroundColor Cyan
 Write-Host "  1. Double-clic sur le raccourci Bureau ""ALNUA Hub""" -ForegroundColor White
 Write-Host "     (aucune fenetre CMD qui reste ouverte)" -ForegroundColor White
 Write-Host "  2. Le navigateur s'ouvre sur http://localhost:3000" -ForegroundColor White
 Write-Host ""
 Write-Host "Arreter le Hub :" -ForegroundColor Cyan
-Write-Host "  Double-clic sur ""Arreter ALNUA Hub.bat""" -ForegroundColor White
+Write-Host "  Raccourci Bureau ""Arreter ALNUA Hub"" ou le .bat a la racine" -ForegroundColor White
 Write-Host ""
 Write-Host "Verifier l'etat :" -ForegroundColor Cyan
 Write-Host "  .\scripts\hub-status.ps1" -ForegroundColor White

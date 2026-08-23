@@ -13,6 +13,9 @@ param(
 $ErrorActionPreference = "Continue"
 $Root = Split-Path -Parent $PSScriptRoot
 $Python = Join-Path $Root ".venv\Scripts\python.exe"
+# pythonw = pas de console Windows (evite les flashes PowerShell/CMD)
+$PythonW = Join-Path $Root ".venv\Scripts\pythonw.exe"
+if (-not (Test-Path $PythonW)) { $PythonW = $Python }
 $Supervisor = Join-Path $Root "scripts\hub_supervisor.py"
 
 function Write-Step([string]$Msg) {
@@ -56,7 +59,7 @@ function Start-BotIfNeeded([string]$Module, [string]$LockName) {
     $scriptPath = Join-Path $Root "scripts\$scriptName"
     Start-Process powershell.exe -ArgumentList @(
         "-NoProfile", "-ExecutionPolicy", "Bypass", "-WindowStyle", "Hidden", "-File", $scriptPath
-    ) -WorkingDirectory $Root
+    ) -WorkingDirectory $Root -WindowStyle Hidden | Out-Null
     Write-Host "  demarre" -ForegroundColor Green
 }
 
@@ -80,7 +83,7 @@ if (Test-HubHealth $HubPort) {
         "--web-port", "3000"
     )
     if ($SkipWeb) { $runArgs += "--skip-web" }
-    Start-Process -FilePath $Python -ArgumentList $runArgs -WorkingDirectory $Root -WindowStyle Hidden
+    Start-Process -FilePath $PythonW -ArgumentList $runArgs -WorkingDirectory $Root -WindowStyle Hidden | Out-Null
     Write-Host "  Supervisor lance en arriere-plan" -ForegroundColor Green
 }
 
@@ -115,6 +118,21 @@ if (-not $SkipWeb) {
     }
 }
 
+# Ouvre la fenetre app des que possible (ne pas attendre bots/wake)
+# Prefer ALNUAHub.exe (icone X barre des taches) — pas Edge --app.
+if ($OpenBrowser) {
+    $launchScript = Join-Path $Root "scripts\launch-hub-app.ps1"
+    if (Test-Path $launchScript) {
+        Start-Process powershell.exe -ArgumentList @(
+            "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass",
+            "-WindowStyle", "Hidden", "-File", $launchScript
+        ) -WindowStyle Hidden | Out-Null
+        Write-Host "  Fenetre app ALNUA Hub lancee (Edge)" -ForegroundColor Green
+    } else {
+        Start-Process "http://localhost:3000" | Out-Null
+    }
+}
+
 if (-not $SkipBots) {
     Write-Step "Nadia (Telegram)"
     Start-BotIfNeeded "bots.telegram_secretary_bot" ".telegram_secretary_bot.lock"
@@ -129,14 +147,9 @@ if (-not $SkipWake) {
 
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Yellow
-Write-Host " Hub UI   : http://localhost:3000" -ForegroundColor White
+Write-Host " Hub UI   : fenetre app (localhost:3000)" -ForegroundColor White
 Write-Host " Hub API  : http://127.0.0.1:$HubPort" -ForegroundColor White
 Write-Host " Logs     : data\hub_supervisor.log" -ForegroundColor DarkGray
-Write-Host " Arret    : Arreter-Hub.bat" -ForegroundColor DarkGray
+Write-Host " Arret    : Arreter ALNUA Hub.bat (racine)" -ForegroundColor DarkGray
 Write-Host "========================================" -ForegroundColor Yellow
 Write-Host ""
-
-if ($OpenBrowser) {
-    $launchScript = Join-Path $Root "scripts\launch-hub-app.ps1"
-    & $launchScript -WaitSeconds 25 -MaxWait 90
-}

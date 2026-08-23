@@ -37,6 +37,36 @@ HEALTH_RETRIES = 3
 CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 
 
+def _no_window() -> dict:
+    """Hide console flashes on Windows (powershell/cmd/taskkill children)."""
+    if sys.platform != "win32":
+        return {}
+    return {"creationflags": CREATE_NO_WINDOW}
+
+
+def _run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:
+    kw = {**_no_window(), **kwargs}
+    return subprocess.run(cmd, **kw)
+
+
+def _run_ps(command: str) -> subprocess.CompletedProcess:
+    return _run(
+        [
+            "powershell.exe",
+            "-NoProfile",
+            "-NonInteractive",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-WindowStyle",
+            "Hidden",
+            "-Command",
+            command,
+        ],
+        capture_output=True,
+        text=True,
+    )
+
+
 def log(msg: str) -> None:
     DATA.mkdir(parents=True, exist_ok=True)
     line = f"{time.strftime('%Y-%m-%d %H:%M:%S')} {msg}"
@@ -63,26 +93,48 @@ def write_port(port: int) -> None:
     PORT_FILE.write_text(str(port), encoding="ascii")
 
 
+def _env_get(path: Path, name: str) -> str:
+    if not path.exists():
+        return ""
+    prefix = f"{name}="
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        if line.startswith(prefix):
+            return line.split("=", 1)[1].strip()
+    return ""
+
+
+def _env_set_lines(lines: list[str], name: str, value: str) -> list[str]:
+    prefix = f"{name}="
+    out = list(lines)
+    for i, line in enumerate(out):
+        if line.startswith(prefix):
+            out[i] = f"{name}={value}"
+            return out
+    out.append(f"{name}={value}")
+    return out
+
+
 def sync_web_env(api_port: int) -> None:
-    script = ROOT / "scripts" / "sync-hub-env.ps1"
-    if not script.exists():
-        write_port(api_port)
-        return
-    subprocess.run(
-        [
-            "powershell",
-            "-NoProfile",
-            "-ExecutionPolicy",
-            "Bypass",
-            "-File",
-            str(script),
-            "-Port",
-            str(api_port),
-        ],
-        cwd=str(ROOT),
-        capture_output=True,
-        text=True,
-    )
+    """Mirror HUB_API_* into web/.env.local without spawning PowerShell."""
+    write_port(api_port)
+    web_env = WEB / ".env.local"
+    root_env = ROOT / ".env"
+    hub_key = _env_get(root_env, "HUB_API_KEY")
+    backend_url = f"http://127.0.0.1:{api_port}"
+    if web_env.exists():
+        lines = web_env.read_text(encoding="utf-8", errors="replace").splitlines()
+    else:
+        example = WEB / ".env.example"
+        lines = (
+            example.read_text(encoding="utf-8", errors="replace").splitlines()
+            if example.exists()
+            else []
+        )
+    lines = _env_set_lines(lines, "HUB_API_BACKEND_URL", backend_url)
+    if hub_key:
+        lines = _env_set_lines(lines, "HUB_API_KEY", hub_key)
+    web_env.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    log(f"Sync OK: HUB_API_BACKEND_URL={backend_url}")
 
 
 def health_ok(port: int, timeout: float = HEALTH_TIMEOUT_S) -> bool:
@@ -121,12 +173,12 @@ def _alive(pid: int | None) -> bool:
     if not pid or pid <= 0:
         return False
     if sys.platform == "win32":
-        r = subprocess.run(
+        r = _run(
             ["tasklist", "/FI", f"PID eq {pid}"],
             capture_output=True,
             text=True,
         )
-        return str(pid) in r.stdout
+        return str(pid) in (r.stdout or "")
     try:
         os.kill(pid, 0)
         return True
@@ -138,7 +190,7 @@ def kill_tree(pid: int | None) -> None:
     if not pid or pid <= 0:
         return
     if sys.platform == "win32":
-        subprocess.run(
+        _run(
             ["taskkill", "/F", "/T", "/PID", str(pid)],
             capture_output=True,
         )
@@ -152,19 +204,12 @@ def kill_tree(pid: int | None) -> None:
 def kill_supervisor_orphans(keep_pid: int | None = None) -> None:
     if sys.platform != "win32":
         return
-    keep = str(keep_pid or 0)
-    subprocess.run(
-        [
-            "powershell",
-            "-NoProfile",
-            "-Command",
-            "Get-CimInstance Win32_Process -Filter \"Name='python.exe'\" | "
-            "Where-Object { $_.CommandLine -match 'hub_supervisor\\.py run' } | "
-            f"Where-Object {{ $_.ProcessId -ne {keep} }} | "
-            "ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }",
-        ],
-        capture_output=True,
-        text=True,
+    keep = int(keep_pid or 0)
+    _run_ps(
+        "Get-CimInstance Win32_Process -Filter \"Name='python.exe'\" | "
+        "Where-Object { $_.CommandLine -match 'hub_supervisor\\.py run' } | "
+        f"Where-Object {{ $_.ProcessId -ne {keep} }} | "
+        "ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }"
     )
 
 
@@ -180,17 +225,10 @@ def owns_lock() -> bool:
 def kill_uvicorn_orphans() -> None:
     if sys.platform != "win32":
         return
-    subprocess.run(
-        [
-            "powershell",
-            "-NoProfile",
-            "-Command",
-            "Get-CimInstance Win32_Process -Filter \"Name='python.exe'\" | "
-            "Where-Object { $_.CommandLine -match 'uvicorn api\\.main' } | "
-            "ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }",
-        ],
-        capture_output=True,
-        text=True,
+    _run_ps(
+        "Get-CimInstance Win32_Process -Filter \"Name='python.exe'\" | "
+        "Where-Object { $_.CommandLine -match 'uvicorn api\\.main' } | "
+        "ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }"
     )
 
 
@@ -248,29 +286,30 @@ def wait_api(port: int, max_wait_s: int = 120) -> bool:
 def free_port(port: int) -> None:
     if sys.platform != "win32":
         return
-    subprocess.run(
-        [
-            "powershell",
-            "-NoProfile",
-            "-Command",
-            f"Get-NetTCPConnection -LocalPort {port} -State Listen -ErrorAction SilentlyContinue | "
-            "ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }",
-        ],
-        capture_output=True,
-        text=True,
+    _run_ps(
+        f"Get-NetTCPConnection -LocalPort {port} -State Listen -ErrorAction SilentlyContinue | "
+        "ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }"
     )
 
 
 def start_web(port: int) -> subprocess.Popen:
+    """Start Next without npx.cmd (cmd.exe flashes a console even with CREATE_NO_WINDOW)."""
     DATA.mkdir(parents=True, exist_ok=True)
     log_file = WEB_LOG.open("a", encoding="utf-8")
-    npx = "npx.cmd" if sys.platform == "win32" else "npx"
+    next_cli = WEB / "node_modules" / "next" / "dist" / "bin" / "next"
+    node = "node.exe" if sys.platform == "win32" else "node"
+    if next_cli.exists():
+        cmd = [node, str(next_cli), "dev", "-p", str(port)]
+    else:
+        # Fallback — still hide the console
+        npx = "npx.cmd" if sys.platform == "win32" else "npx"
+        cmd = [npx, "next", "dev", "-p", str(port)]
     proc = subprocess.Popen(
-        [npx, "next", "dev", "-p", str(port)],
+        cmd,
         cwd=str(WEB),
         stdout=log_file,
         stderr=subprocess.STDOUT,
-        creationflags=CREATE_NO_WINDOW,
+        **_no_window(),
     )
     log(f"Web demarre PID {proc.pid} -> http://localhost:{port}")
     return proc
@@ -505,19 +544,14 @@ def cmd_start(args: argparse.Namespace) -> int:
     if args.skip_web:
         cmd.append("--skip-web")
     if sys.platform == "win32":
-        args_ps = ",".join(
-            "'" + str(c).replace("'", "''") + "'" for c in cmd[1:]
-        )
-        subprocess.run(
-            [
-                "powershell",
-                "-NoProfile",
-                "-Command",
-                f"Start-Process -FilePath '{py}' -ArgumentList {args_ps} "
-                f"-WorkingDirectory '{ROOT}' -WindowStyle Hidden",
-            ],
+        # Prefer pythonw so the detached supervisor has no console at all
+        pyw = ROOT / ".venv" / "Scripts" / "pythonw.exe"
+        launch = [str(pyw if pyw.exists() else VENV_PY), *cmd[1:]]
+        subprocess.Popen(
+            launch,
             cwd=str(ROOT),
-            check=False,
+            close_fds=True,
+            **_no_window(),
         )
     else:
         subprocess.Popen(cmd, cwd=str(ROOT), start_new_session=True, close_fds=True)

@@ -20,7 +20,7 @@ class TicketCreate(BaseModel):
     description: str = ""
     source: str = Field(
         default="emilie",
-        pattern="^(qa_agent|sav_bot|reviews_bot|emilie|quick_capture|beta_tester|partnerships_bot)$",
+        pattern="^(qa_agent|sav_bot|reviews_bot|emilie|quick_capture|beta_tester|partnerships_bot|lounge)$",
     )
     assignee_agent_id: str | None = None
     story_points: int | None = Field(default=None, ge=1, le=21)

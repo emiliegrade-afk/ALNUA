@@ -77,9 +77,9 @@ y compris `tests/test_devex_phase6.py` réécrit pour le nouveau comportement.
 |--------|------:|
 | Ouverts | **0** |
 | Fermés remédiation + Vague 0–4 + BUG-004 | 15 (+ `BUG-004`) |
-| Routers / tests / Next | voir `api/routers/__init__.py` / **524** passed / **16.3.0** |
+| Routers / tests / Next | voir `api/routers/__init__.py` / **597** passed / **16.3.0** |
 | npm audit (web) | **0** |
-| Python >300 lignes | **0** (packages agents/services/api/skills/bots/config/database) |
+| Python >300 lignes | **0** (packages agents/services/api/skills/bots/config/database) — Vague 5 DEC-032 |
 | Residual mockup routes (working tree) | **0** |
 | Corrigés (SEC) | 6 (`SEC-001`–`006`) |
 | Corrigés (BUG) | 19 (`BUG-001`–`019`) |

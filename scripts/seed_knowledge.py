@@ -25,9 +25,9 @@ from skills.skill_mem0 import remember
 
 GLOBAL_KNOWLEDGE = [
     # Emilie & contexte
-    "Emilie est fondatrice et seule humaine de la société virtuelle ALNUA. Elle est nomade, vit en van, et gère 3 branches en parallèle : App (NUAWAY), Gaming (Wyrdheim), Robotique (Eve).",
+    "Emilie est CEO et seule humaine de la société virtuelle ALNUA (solopreneuse). Elle pilote plusieurs branches en parallèle : App (NUAWAY), Gaming (Wyrdheim), Robotique (Eve), plus le Hub IA.",
     "Emilie est débutante en code mais apprend très vite. Elle utilise Cursor et Claude comme co-pilotes. Toujours aller droit au but, pas de blabla.",
-    "Objectif principal d'Emilie : que le Hub gère sa société de façon autonome pour qu'elle n'ait pas à s'inquiéter de la gestion au quotidien.",
+    "Objectif principal d'Emilie : que le Hub gère sa société de façon autonome pour qu'elle n'ait pas à s'inquiéter de la gestion au quotidien. Ne pas centrer les décisions ou le ton sur un mode de vie personnel.",
 
     # Architecture Hub
     "Le ALNUA Hub est une plateforme multi-agent : Next.js 14 (frontend port 3000) + FastAPI (API port 8000) + 12 agents spécialisés via CrewAI.",
@@ -40,11 +40,11 @@ GLOBAL_KNOWLEDGE = [
 # ---------------------------------------------------------------------------
 
 NUAWAY_KNOWLEDGE = [
-    "NUAWAY (anciennement NOMAD) est l'application principale de la branche App ALNUA. C'est un mix Park4Night + Signal pour nomades et vanlifers.",
-    "NUAWAY est en phase de beta test imminente — c'est la priorité absolue actuellement (juin 2026).",
+    "NUAWAY (anciennement NOMAD) est un produit de la branche App ALNUA — pas l'identité de toute la société. Mix Park4Night + Signal pour voyageurs / vanlifers.",
+    "NUAWAY est un produit App parmi d'autres priorités ALNUA (gaming, robotique, Hub) — arbitrage via la roadmap CEO.",
     "Repo GitHub NUAWAY : emiliegrade-afk/NUAWAY. Branche App ALNUA.",
-    "NUAWAY cible les nomades, vanlifers, roadtrippers. Fonctionnalités : spots de camping, communauté, messagerie sécurisée.",
-    "Le local repo NUAWAY est à C:/Dev/nomad sur la machine d'Emilie.",
+    "Audience produit NUAWAY : voyageurs, vanlifers, roadtrippers. Fonctionnalités : spots, communauté, messagerie. Ne pas confondre avec le positionnement corporate ALNUA.",
+    "Le local repo NUAWAY est à C:/Dev/nomad sur la machine d'Emilie (chemin historique du clone).",
 ]
 
 NAIA_KNOWLEDGE = [

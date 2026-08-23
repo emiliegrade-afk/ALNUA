@@ -25,8 +25,8 @@ LESSONS = [
 
     # ── NUAWAY / dev_app ─────────────────────────────────────────────────
     ("dev_app", (
-        "NUAWAY doit fonctionner 100% offline. Les nomades et vanlifers sont souvent "
-        "sans réseau dans les zones naturelles. Toutes les données (spots, cartes, favoris) "
+        "NUAWAY doit fonctionner 100% offline. Le public produit (voyageurs, vanlifers) "
+        "est souvent sans réseau. Toutes les données (spots, cartes, favoris) "
         "doivent être accessibles sans connexion. C'est le critère n°1 de l'app."
     )),
     ("dev_app", (
@@ -35,7 +35,7 @@ LESSONS = [
         "et absence de filtre 'van/camping-car de grande taille'. Ce sont nos axes de différenciation."
     )),
     ("dev_app", (
-        "Les nomades utilisent leur téléphone en tant que principal appareil de navigation. "
+        "Les utilisateurs NUAWAY utilisent surtout le téléphone pour naviguer. "
         "L'app doit être utilisable avec une seule main, en conduite (commandes vocales à prévoir), "
         "et avec un écran lumineux en plein soleil. UX mobile-first avant tout."
     )),
@@ -45,8 +45,8 @@ LESSONS = [
         "Signal (app communautaire nomades) a prouvé ce besoin."
     )),
     ("dev_app", (
-        "La monétisation la moins rejetée chez les nomades : abonnement annuel unique à prix raisonnable "
-        "(< 30€/an). Les pubs et microtransactions sont très mal perçues dans cette communauté. "
+        "Monétisation NUAWAY la moins rejetée : abonnement annuel unique à prix raisonnable "
+        "(< 30€/an). Les pubs et microtransactions sont mal perçues sur ce segment. "
         "Le freemium avec limite de spots sauvegardés est une approche acceptée."
     )),
 
@@ -62,9 +62,10 @@ LESSONS = [
         "que la pub payante pour NUAWAY."
     )),
     ("marketing_agent", (
-        "Les vanlifers ont une méfiance forte envers les apps 'corporate'. "
-        "ALNUA doit se positionner comme 'fait par des nomades pour des nomades'. "
-        "Emilie, solopreneuse nomade, est le meilleur visage de la marque — communication authentique."
+        "Les utilisateurs de NUAWAY méfient souvent les apps trop 'corporate'. "
+        "Positionner le produit sur l'utilité réelle (offline, communauté, confiance), "
+        "pas sur le mode de vie de la fondatrice. Emilie (CEO) parle en fondatrice tech "
+        "solopreneuse — ton direct et authentique, sans storytelling lifestyle."
     )),
 
     # ── Naïa / game_director ─────────────────────────────────────────────
@@ -86,9 +87,9 @@ LESSONS = [
 
     # ── Hub / qa_agent ────────────────────────────────────────────────────
     ("qa_agent", (
-        "Pour les apps nomades, les tests doivent inclure : mode avion (offline), "
+        "Pour NUAWAY (app mobilité), les tests doivent inclure : mode avion (offline), "
         "GPS sans données, batterie faible, connexion instable (2G). "
-        "Les bugs qui apparaissent en conditions réelles de van life sont souvent ignorés en dev."
+        "Les bugs en conditions terrain réelles sont souvent ignorés en dev."
     )),
 
     # ── Hub / spec_agent ─────────────────────────────────────────────────
@@ -100,14 +101,14 @@ LESSONS = [
 
     # ── Hub / coo ────────────────────────────────────────────────────────
     ("coo", (
-        "ALNUA a trois produits : NUAWAY (app nomades, beta Q3 2026), "
-        "Naïa (monde 3D IA open world, concept phase), Hub IA (12 agents autonomes, opérationnel). "
-        "Priorité actuelle : finaliser NUAWAY pour la beta du 1er juillet 2026."
+        "ALNUA a plusieurs produits : NUAWAY (app mobilité / voyage, beta), "
+        "Naïa (bien-être / monde IA selon branche), Wyrdheim (gaming), Eve (robotique), "
+        "Hub IA (agents autonomes). Prioriser selon la roadmap CEO, pas un seul lifestyle."
     )),
     ("coo", (
-        "Emilie est solopreneuse nomade. Elle gère tout en solo avec les agents IA. "
-        "Ses ressources sont limitées : prioriser les actions à fort impact, "
-        "éviter la sur-ingénierie. Le MVP vaut mieux que le produit parfait."
+        "Emilie est CEO solopreneuse. Elle gère tout en solo avec les agents IA. "
+        "Ressources limitées : prioriser l'impact, éviter la sur-ingénierie. "
+        "Le MVP vaut mieux que le produit parfait. Ne pas cadrer ALNUA comme une marque 'nomade'."
     )),
 ]
 

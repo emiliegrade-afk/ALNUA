@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from services.pc_housekeeper_core import (
-    DEFAULT_PROPOSALS,
+    DEFAULT_PROPOSALS,  # noqa: F401 — re-export for tests / callers
     DEFAULT_QUARANTINE,
     REPORT_DIR,
     _is_blocked,

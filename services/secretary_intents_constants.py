@@ -163,6 +163,19 @@ ARIA_DELEGATION_MARKERS = (
     "parle a aria",
 )
 
+WEATHER_MARKERS = (
+    "météo",
+    "meteo",
+    "quel temps",
+    "il fait quel temps",
+    "weather",
+    "il pleut",
+    "parapluie",
+    "température à",
+    "temperature a",
+    "température a",
+)
+
 RESEARCH_MARKERS = (
     "recherche ",
     "rechercher ",

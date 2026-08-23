@@ -7,6 +7,258 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-14 — Phase 47 Lot 4 Aria vocal (feat)
+
+- **Type :** feat
+- **Details :**
+  - Aria Telegram : vocal → Whisper, même pipeline COO que le texte.
+  - Overlay vocal seulement si alerte / action / décision ; silence sur un état.
+  - Bots Nadia et Aria inchangés (pas de Jarvis unique).
+
+## 2026-08-14 — Phase 47 Lot 3 brief 8h + météo (feat)
+
+- **Type :** feat
+- **Details :**
+  - Brief 8h Nadia : faits en texte + overlay vocal (sans relire le digest).
+  - Météo en tool HTTP (`wttr.in`) — pas d'OpenRouter, pas de LLM local.
+  - Recherche déjà tool ; overlay local + repli mots-clés si crédits à sec.
+
+## 2026-08-14 — Phase 47 Lot 2 Desk overlay (feat)
+
+- **Type :** feat
+- **Details :**
+  - ALNUA Desk lit l'overlay, plus le pavé à l'écran ; stop TTS à chaque envoi.
+  - Repli local sans LLM (`VOICE_OVERLAY_LLM=0`) si OpenRouter est à sec.
+  - Pas de modèle open source local (contrainte disque).
+
+## 2026-08-14 — Phase 47 Lot 1 Nadia vocal Telegram (feat)
+
+- **Type :** feat
+- **Details :**
+  - Vocal Telegram → Whisper → même pipeline Nadia que le texte.
+  - Overlay LLM : réplique parlée sans relire faits (DEC-033).
+  - Edge TTS en note vocale ; flag `TELEGRAM_VOICE_REPLIES` (off par défaut).
+  - Échec STT/TTS/overlay n'empêche jamais la réponse texte.
+
+## 2026-08-14 — Phase 47 Lot 0 overlay Jarvis (docs)
+
+- **Type :** docs
+- **Details :**
+  - Contrat faits-texte / réplique-voix pour Nadia et Aria (DEC-033).
+  - Spec `docs/specs/SPEC_JARVIS_OVERLAY.md` + 5 exemples gold.
+  - TTS v1 = Edge ; persona Nadia **pas** réécrit (après Lot 1 live).
+
+## 2026-08-12 — Vague 5 dette Python ≤300 (refactor)
+
+- **Type :** refactor
+- **Details :**
+  - Hotspots scindés : `idle_work_plan`, `schemas_agents_studio`,
+    `telegram_secretary_handlers`, `agent_wake_queue`.
+  - Packages Python : **0** fichier ≥300 (était 4) ; 0 >500 / >1000.
+  - `get_pipeline_status` tolère GitHub 401 sans crash.
+  - `ruff` OK ; `pytest` 597 passed / 4 skipped.
+
+## 2026-08-12 — Vague 4 anti-mensonge résiduel (fix)
+
+- **Type :** fix
+- **Details :**
+  - Backlog App : colonnes par priorité réelle (plus de votes/sprint/hash).
+  - Missions partagées : assignee / points / avancement réels ; plus de
+    risques / heures inventés.
+  - Documentation App : champs bibliothèque réels (timing, topics) — plus de
+    catégorie / projet / statut hashés.
+  - SEO Marketing : libellé « non branché ».
+
+## 2026-08-12 — Vague 3 Phase 39 idle polish (feat)
+
+- **Type :** feat
+- **Details :**
+  - Validation CEO L2 → auto-promote tickets `[idle-ok]` une seule fois
+    (`tickets_promoted_at` + toast `/ceo`).
+  - Phase 39 ✅ (preview + promote déjà en place ; polish auto branché).
+
+## 2026-08-12 — Vague 2 Phase 30 UI workflows (feat)
+
+- **Type :** feat
+- **Details :**
+  - `HubWorkflowsPanel` monté sur `/hub` (ops / ship / recettes validation /
+    historique + bandeau A_VERIFIER → `/ceo`).
+  - Parcours CEO ↔ Direction lié ; Phase 30 ✅ (sans `budget_transfer`).
+  - Test HTTP `waiting=a_verifier` + `approve-step`.
+
+## 2026-08-12 — Vague 1 clôture doc Hub 100 % (docs)
+
+- **Type :** docs
+- **Details :**
+  - Resync `implementation-status` (31/32/34/21/Lounge) + plan vagues 0–8.
+  - `API_ROUTES` : emit/drain cross-dept ; SPEC workflow : `budget_transfer`
+    abandonné pour tampon 100 % (DEC-032).
+
+## 2026-08-12 — DEC-032 Hub 100 % logiciel Vague 0 (docs)
+
+- **Type :** docs
+- **Details :**
+  - DEC-032 : critères 100 % Hub logiciel ; 31/32/34 closes ; 30/39 restent
+    pour polish ; fin reportée = Pi / UE5.8 / Revolut / ads OAuth.
+  - ROADMAP overview + Current phase alignés.
+
+## 2026-08-12 — Phase 36 Depth+ cross-dept drain (feat)
+
+- **Type :** feat
+- **Details :**
+  - Queue items avec `id` + statuts `queued|running|done|failed`.
+  - `services/cross_dept_drain.py` — drain exécutable (launch plan / forecast /
+    KPI sheet ou checklists) + artifacts `data/cross_dept_artifacts/`.
+  - API `POST /cross-dept/emit-project`, `POST /cross-dept/drain` ; UI `/trust`.
+  - Briefing COO enrichi (`done_count` / `recent_done`).
+
+## 2026-08-11 — Détail projet anti-mensonge (fix)
+
+- **Type :** fix
+- **Details :**
+  - Purge `mock-data` (phases/hash, features inventées, KPI agent) → `project-nav` only.
+  - Vue d'ensemble : santé modules réels + synthèse live ; plus de Sprint faux / COO insight.
+  - Modules / Équipe : empty states honnêtes quand le détail n'est pas en DB.
+
+## 2026-08-11 — Vague D Gaming/Robo 100 % Hub (fix)
+
+- **Type :** fix
+- **Details :**
+  - Analytics Gaming : FPS/crashs/draw_calls depuis `gaming_builds` ; plus de `pct()`.
+  - Analytics Robo : télémétrie + lab réels ; manufacturing = « — ».
+  - Projets/Backlog/Missions/Docs : données tickets/modules/topics réels.
+  - Purge générateurs hash trompeurs ; Phase 21 Hub Complete.
+  - Live studio (UE5.8 / Pi) reste config machine, pas faux chiffres UI.
+
+## 2026-08-11 — Vague C Brand Depth+ (feat)
+
+- **Type :** feat
+- **Details :**
+  - `brand_voice_debate` — débat LLM Élise (brand) ↔ Anouk (content_company).
+  - `POST /brand/debate` + Brand Center « Débat Élise ↔ Anouk ».
+  - Review Board LLM : sièges brand → débat dédié (`REVIEW_BOARD_LLM`).
+  - Split `brand-view` (577 → hook + workspace panels).
+  - Phase 35 Depth+ Complete.
+
+## 2026-08-11 — Vague B produit égal — anti-mensonge UI (fix)
+
+- **Type :** fix
+- **Details :**
+  - `/hub` : KPIs inventés → trust moyen + budget LLM live (ou « — »).
+  - `/ceo` : objectifs %, réunions et jauge 78 % fictifs retirés.
+  - Gaming/Robo analytics : badge **Démo** sur tuiles non branchées.
+  - `/trust` : mini Review Board (`POST /review-board/evaluate`).
+  - Briefing COO : flag déjà `=1` en local ; statut doc resync.
+
+## 2026-08-11 — Agent Lounge V6 spaces + tournaments (feat)
+
+- **Type :** feat
+- **Details :**
+  - 7 modules `lounge_activities/*` (arcade, strategy, puzzle, code Q&A,
+    simulation, exploration, creative) + catalog unifié.
+  - Runtime multi-activité ; idle rotation ; tournois seedés + API.
+  - UI : toutes tuiles live, panneau play générique, events depuis API.
+  - Phase 46 **Complete** (DEC-031).
+
+## 2026-08-11 — Agent Lounge V5 propose + DeepSeek (feat)
+
+- **Type :** feat
+- **Details :**
+  - Défaut LLM Lounge = `deepseek/deepseek-chat-v3.2` (CN pas cher) ;
+    override `LOUNGE_MODEL` (GLM / MiniMax OK).
+  - `POST /lounge/propose` → ticket Hub `source=lounge` + journal local ;
+    UI « Proposer au département » après Puzzle.
+  - Phase 46 V5 (DEC-031). Suite : V6 autres espaces.
+
+## 2026-08-11 — Agent Lounge V4 idle + modèle fast (feat)
+
+- **Type :** feat
+- **Details :**
+  - Idle `lounge_session` L0 filler (dernier dans la file) ; reporté si budget
+    warning ; exécution puzzle via drain.
+  - **LLM Lounge = tier fast dédié** (`get_lounge_model` / `LOUNGE_MODEL`) —
+    pas le modèle métier de l’agent (DEC-031 §7).
+  - Phase 46 V4. Suite : V5 propose → département.
+
+## 2026-08-11 — Agent Lounge V3 Puzzle (feat)
+
+- **Type :** feat
+- **Details :**
+  - Catalog puzzles + `lounge_runtime` sessions isolées ; XP via
+    `challenge_won` / `session_completed`.
+  - API `/lounge/puzzles`, `/lounge/sessions*` (start / run LLM / complete).
+  - UI : tuile Puzzle « Jouer », panneau session, live dans le rail droit.
+  - Phase 46 V3 (DEC-031). Suite : V4 idle `lounge_session`.
+
+## 2026-08-11 — Agent Lounge V2 scores (feat)
+
+- **Type :** feat
+- **Details :**
+  - `services/lounge_scores.py` — XP Lounge indépendant (reset mensuel, badges
+    lifetime) ; API `/lounge/scores|leaderboard|profile` ; panneau classement live.
+  - Strip agents : tous les agents (scroll horizontal), plus de plafond à 6.
+  - Phase 46 V2 (DEC-031). Suite : V3 Puzzle jouable.
+
+## 2026-08-11 — Agent Lounge V1 shell Hub (feat)
+
+- **Type :** feat
+- **Details :**
+  - Page `/lounge` : hero ambiance, 7 tuiles activités (stubs), bande agents
+    (présence OpenRoom réutilisée), panneau live + classement stub, events.
+  - `/openroom` redirige vers `/lounge` (`?agent=` conservé). HQ / SiegeLifeLinks /
+    nav outils / overview / manuel : vocabulaire « Agent Lounge ».
+  - Phase 46 V1 (DEC-031). Suite : V2 `lounge_scores`.
+
+## 2026-08-11 — Agent Lounge V0 contrat (docs)
+
+- **Type :** docs
+- **Details :**
+  - Phase 46 V0 : `docs/specs/SPEC_AGENT_LOUNGE.md` + DEC-031 — OpenRoom/repas
+    → Agent Lounge ; scores Lounge ≠ competition/trust ; reset mensuel ; idle
+    filler ; propose→validation ; UI structure maquette / palette Hub.
+  - `data/lounge_product.json` (scaffold) ferme la gate Academy
+    `lounge_product_ready` ; runtime scores iront dans `lounge_scores.json`
+    (gitignore). Suite : V1 shell `/lounge`.
+
+## 2026-08-11 — Identité CEO : solopreneuse, pas « nomade » (docs/chore)
+
+- **Type :** docs / chore
+- **Details :**
+  - Retrait du framing « Emilie nomade / vit en van » dans la vision R&D,
+    `seed_knowledge`, leçons Mem0 (`inject_lessons`) et brand voice company.
+  - Emilie = CEO solopreneuse ; NUAWAY reste un produit mobilité (audience OK),
+    pas l’identité de toute ALNUA. Placeholders analytics génériques.
+  - Relancer `python scripts/seed_knowledge.py` (+ `inject_lessons` si besoin)
+    pour rafraîchir Mem0 si d’anciennes leçons lifestyle y sont encore.
+
+## 2026-08-11 — Maquette CEO / Secrétariat / Direction (style)
+
+- **Type :** style / feat
+- **Details :**
+  - Infrastructure visuelle command center (panneaux, anneaux, quick links)
+    alignée maquette ; **palette ALNUA** (cuivre `#E09B6A`, obsidienne, ivoire,
+    teal / danger).
+  - Composants `web/src/components/siege/*` branchés sur `/ceo`, `/secretary`,
+    `/hub` ; actions live (chat, dossiers, outils Nadia) conservées sous le
+    dashboard.
+
+## 2026-08-11 — ALNUA Desk (Spark) renomme Nadia Desktop (chore)
+
+- **Type :** chore / brand
+- **Details :**
+  - Produit desktop : **ALNUA Desk** · tagline **Spark** ; persona chat = Nadia.
+  - Lanceur `ALNUA Desk.bat` ; `Nadia Desktop.bat` = alias de compat.
+  - Titre fenêtre / header UI / raccourcis Bureau mis à jour.
+
+## 2026-08-11 — Nettoyage lanceurs Windows (chore)
+
+- **Type :** chore / docs
+- **Details :**
+  - Racine : **4 `.bat` seulement** (`Installer` / `ALNUA Hub` / `Arreter` /
+    `Nadia Desktop`) + `LIRE-MOI.txt`.
+  - Doublons (ouvrir, relancer, réparer…) déplacés dans `scripts/windows/`.
+  - Raccourcis Bureau limités à 3 ; purge des anciens noms confus.
+
 ## 2026-08-11 — Portraits all + CEO/Direction/Secrétariat redo (feat/style)
 
 - **Type :** feat / style

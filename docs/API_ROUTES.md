@@ -81,6 +81,8 @@ Some capabilities overlap historically — prefer **orchestration** for schedule
 | Quality gate thresholds | `GET /quality-gates` |
 | Review board (structural) | `POST /review-board/evaluate` |
 | Cross-dept work queue | `GET /cross-dept/queue` |
+| Cross-dept emit project | `POST /cross-dept/emit-project` |
+| Cross-dept drain | `POST /cross-dept/drain` |
 | Validation recipes | `POST /workflows/run` with `content_validation` / `campaign_validation` |
 
 **Router:** `api/routers/trust.py`. Trust ≠ competition (`DEC-011`).

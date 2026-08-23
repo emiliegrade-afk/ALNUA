@@ -26,7 +26,7 @@ class SecretaryInstructionMixin:
             classify_secretary_intent,
             should_dispatch_tool,
         )
-        from services.secretary_intents import detect_send_confirm
+        from services.secretary_intents import detect_send_confirm, detect_weather_intent
 
         try:
             log_agent_action(
@@ -43,6 +43,10 @@ class SecretaryInstructionMixin:
         # Safety: explicit send confirm stays keyword-gated (évite envoi accidentel)
         if detect_send_confirm(instruction):
             return self._handle_send_confirm(session_id)
+
+        # Weather is a free HTTP tool — no OpenRouter needed
+        if detect_weather_intent(instruction):
+            return self._handle_weather(instruction)
 
         classified = classify_secretary_intent(instruction)
         intent = str(classified.get("intent") or "conversation")
@@ -80,6 +84,8 @@ class SecretaryInstructionMixin:
             return self._handle_wake_ops(instruction)
         if intent == "research":
             return self._handle_research(instruction, session_id=session_id)
+        if intent == "weather":
+            return self._handle_weather(instruction)
         if intent == "aria_delegation":
             return self._handle_aria_delegation(instruction)
         if intent == "academy":
