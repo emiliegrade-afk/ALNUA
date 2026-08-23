@@ -204,7 +204,8 @@ def ping_local_llm() -> dict[str, Any]:
     }
     start = time.perf_counter()
     try:
-        with httpx.Client(timeout=15.0) as client:
+        # 120s : le 1er appel charge le modèle en mémoire (4-36 Go) avant de répondre.
+        with httpx.Client(timeout=120.0) as client:
             response = client.post(
                 _completions_url(base_url), json=body, headers=_headers(cfg)
             )
