@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Spark</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <aside class="sidebar">
+      <div class="brand">SPARK</div>
+      <button class="btn-new" id="btnNew" type="button">+ New Discussion</button>
+      <div class="disc-list" id="discList"></div>
+      <div class="side-foot" title="Profil · Réglages · Thème">
+        <span>👤</span><span>⚙</span><span>☾</span>
+      </div>
+    </aside>
+
+    <section class="main">
+      <header class="topbar">
+        <div class="agent-status">
+          <span class="dot"></span>
+          <span>Spark Agent (Actif)</span>
+        </div>
+        <div class="status-right" id="statusRight">
+          Accès PC: <b class="ok">Actif</b> &nbsp;|&nbsp; Deep Search: <b>Connecté</b>
+        </div>
+      </header>
+
+      <div class="chat" id="chat"></div>
+
+      <footer class="composer">
+        <div class="attach" id="attachChip">📎 <span id="attachName"></span></div>
+        <div class="input-glow">
+          <button class="icon-btn" id="btnAttach" type="button" title="Joindre">📎</button>
+          <input id="input" type="text" placeholder="Écris à Spark…" autocomplete="off" />
+          <button class="icon-btn send" id="btnSend" type="button" title="Envoyer">➤</button>
+        </div>
+        <div class="toggles">
+          <div class="toggle on" id="togDeep" data-on="1">
+            <span class="switch"></span>
+            <span>Deep Search <b>ON</b></span>
+          </div>
+          <div class="toggle on" id="togPc" data-on="1">
+            <span class="switch"></span>
+            <span>PC Access <b>ON</b></span>
+          </div>
+          <button class="icon-btn mic" id="btnMic" type="button" title="Micro">🎤</button>
+        </div>
+      </footer>
+    </section>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
