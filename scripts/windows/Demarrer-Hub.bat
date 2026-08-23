@@ -1,6 +1,6 @@
 @echo off
 title ALNUA Hub
-cd /d "%~dp0"
+cd /d "%~dp0\..\.."
 
 echo.
 echo  ========================================
@@ -12,7 +12,7 @@ echo  (port 3000), les bots Telegram et ouvre
 echo  ton navigateur.
 echo.
 
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\start-all.ps1" -OpenBrowser
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0..\start-all.ps1" -OpenBrowser
 if errorlevel 1 (
     echo.
     echo  ERREUR au demarrage — voir le message ci-dessus.

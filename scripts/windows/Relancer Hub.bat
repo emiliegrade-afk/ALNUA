@@ -2,7 +2,7 @@
 
 title ALNUA Hub - redemarrage
 
-cd /d "%~dp0"
+cd /d "%~dp0\..\.."
 
 
 
@@ -18,7 +18,7 @@ echo.
 
 
 
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\restart-all.ps1"
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0..\restart-all.ps1"
 
 if errorlevel 1 (
 

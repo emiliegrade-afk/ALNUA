@@ -1,0 +1,17 @@
+ALNUA Hub — quoi cliquer ?
+==========================
+
+A la racine du projet, 4 lanceurs principaux :
+
+  1. Installer ALNUA Hub.bat   ← UNE FOIS (apres clone / mise a jour)
+  2. ALNUA Hub.bat             ← CHAQUE JOUR pour demarrer (ou le raccourci Bureau)
+  3. Arreter ALNUA Hub.bat     ← pour tout couper
+  4. Spark.bat                 ← assistante PC (persona Nadia)
+
+Le reste (reparer, relancer, ouvrir…) est range dans :
+  scripts\windows\
+
+Apres installation, utilise surtout le raccourci Bureau "ALNUA Hub".
+Hub = fenetre app desktop (pas un onglet navigateur).
+
+Anciens noms : "ALNUA Desk.bat" / "Nadia Desktop.bat" redirigent vers Spark.
