@@ -9,7 +9,7 @@ export default function SettingsPage() {
     <BureauPage
       dept="hub"
       title="Paramètres"
-      subtitle="Modèles LLM · Configuration agents"
+      subtitle="Connectivité IA · Modèles LLM · Agents"
     >
       <div className="space-y-6">
         <ConnectivitySettings />

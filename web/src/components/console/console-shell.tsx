@@ -155,7 +155,7 @@ export function ConsoleShell({ children }: ConsoleShellProps) {
                     },
                     {
                       icon: "⚙",
-                      label: "Automatisation",
+                      label: "Paramètres",
                       onClick: () => router.push(ROUTES.settings),
                     },
                   ]}

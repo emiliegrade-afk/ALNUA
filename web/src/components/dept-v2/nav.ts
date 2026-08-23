@@ -12,6 +12,7 @@ export const DEPT_V2_TOOLS_NAV = [
   { icon: "🏆", label: "Compétition", href: ROUTES.competition },
   { icon: "📄", label: "Documents", href: "/docs" },
   { icon: "📖", label: "Connaissances", href: ROUTES.library },
+  { icon: "⚙", label: "Paramètres", href: ROUTES.settings },
 ] as const;
 
 export const DEPT_V2_ICONS: Record<string, string> = {
