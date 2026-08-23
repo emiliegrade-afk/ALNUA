@@ -9,7 +9,10 @@ export const ROUTES = {
   activity: "/activity",
   hq: "/hq",
   briefing: "/briefing",
-  openroom: "/openroom",
+  /** Agent Lounge — remplace OpenRoom / repas (DEC-031). */
+  lounge: "/lounge",
+  /** @deprecated Alias → `/lounge` (bookmarks & liens historiques). */
+  openroom: "/lounge",
   competition: "/competition",
   ceo: "/ceo",
   secretary: "/secretary",
@@ -49,8 +52,13 @@ export function ticketHref(id: string): string {
   return `${ROUTES.tickets}?id=${encodeURIComponent(id)}`;
 }
 
+export function loungeAgentHref(agentId: string): string {
+  return `${ROUTES.lounge}?agent=${encodeURIComponent(agentId)}`;
+}
+
+/** @deprecated Prefer `loungeAgentHref`. */
 export function openroomAgentHref(agentId: string): string {
-  return `${ROUTES.openroom}?agent=${encodeURIComponent(agentId)}`;
+  return loungeAgentHref(agentId);
 }
 
 export function rdDossierHref(dossierId: string): string {
@@ -64,7 +72,7 @@ export const DEPARTMENT_ROUTES = [
   ROUTES.activity,
   ROUTES.hq,
   ROUTES.briefing,
-  ROUTES.openroom,
+  ROUTES.lounge,
   ROUTES.competition,
   ROUTES.ceo,
   ROUTES.secretary,

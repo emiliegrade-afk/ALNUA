@@ -9,22 +9,11 @@ import type { ConsoleActivityItem } from "@/lib/console/types";
 import type { Project } from "@/lib/types";
 import { C, KIND_META } from "./shared";
 
-/* Backlog — tableau d'idées. Les tickets réels n'ont qu'un statut "open" pour
- * tout ce qui n'est pas démarré : les 5 colonnes "pré-rejet" sont donc une
- * subdivision provisoire de ce seul statut (hash stable de l'id du ticket,
- * pas de tirage aléatoire) — seule la colonne REJETÉES est réelle (statut
- * `wont_fix`). Le donut de répartition par type est 100% réel (champ `type`
- * du ticket). Votes, sprint, dépendance : provisoires, commentés. Décision
- * du 2026-07-30. */
+/* Backlog App — tickets open / wont_fix. Colonnes par priorité réelle
+ * (pas de hash / votes / sprint inventés). Donut type = champ `type`. */
 
-function hash(seed: string): number {
-  let h = 0;
-  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
-  return h;
-}
-
-const STAGES = ["Nouvelles idées", "À prioriser", "En attente", "Validées", "Planifiées"] as const;
-type Stage = (typeof STAGES)[number] | "Rejetées";
+const STAGES = ["À prioriser", "Nouvelles idées", "Basse priorité", "Rejetées"] as const;
+type Stage = (typeof STAGES)[number];
 
 const TYPE_LABEL: Record<string, string> = {
   feature: "Fonctionnalités",
@@ -47,7 +36,9 @@ const TYPE_ICON: Record<string, string> = {
 
 function stageOf(ticket: TicketWithProject): Stage {
   if (ticket.status === "wont_fix") return "Rejetées";
-  return STAGES[hash(ticket.id) % STAGES.length];
+  if (ticket.priority === "critical" || ticket.priority === "high") return "À prioriser";
+  if (ticket.priority === "low") return "Basse priorité";
+  return "Nouvelles idées";
 }
 
 function relTime(iso: string) {
@@ -59,18 +50,12 @@ function relTime(iso: string) {
 
 function IdeaCard({
   ticket,
-  agents,
   onReject,
 }: {
   ticket: TicketWithProject;
-  agents: BureauAgentDef[];
   onReject: (ticket: TicketWithProject) => void;
 }) {
   const stage = stageOf(ticket);
-  const author = agents.length > 0 ? agents[hash(`${ticket.id}-author`) % agents.length] : undefined;
-  const votes = 8 + (hash(`${ticket.id}-votes`) % 30);
-  const sprint = 18 + (hash(`${ticket.id}-sprint`) % 6);
-  const hasDependency = hash(`${ticket.id}-dep`) % 4 === 0;
 
   return (
     <div className="rounded-lg border p-2.5" style={{ borderColor: C.line, background: "rgba(13,11,9,.5)" }}>
@@ -99,40 +84,14 @@ function IdeaCard({
         {TYPE_LABEL[ticket.type] ?? ticket.type}
       </span>
       <div className="mt-2 flex items-center justify-between gap-2">
-        {author ? (
-          <span className="flex min-w-0 items-center gap-1.5">
-            <AgentAvatar agentId={author.id} name={author.name} size={16} />
-            <span className="truncate text-[8.5px]" style={{ color: C.faint }}>
-              {author.name.split(" ")[0]} · {relTime(ticket.created_at)}
-            </span>
-          </span>
-        ) : (
-          <span />
-        )}
+        <span className="truncate text-[8.5px]" style={{ color: C.faint }}>
+          {ticket.priority} · {relTime(ticket.created_at)}
+        </span>
         {stage === "Rejetées" ? (
           <span className="shrink-0 text-[8.5px]" style={{ color: "#f87171" }}>
-            Rejetée · {relTime(ticket.updated_at)}
+            Rejetée
           </span>
-        ) : stage === "Validées" ? (
-          <span className="shrink-0 text-[11px]" style={{ color: C.online }}>
-            ✓
-          </span>
-        ) : stage === "Planifiées" ? (
-          <span className="shrink-0 text-[8.5px]" style={{ color: C.copperLight }}>
-            Sprint {sprint}
-          </span>
-        ) : stage === "En attente" ? (
-          <span
-            className="shrink-0 rounded-full border px-1.5 py-px text-[8px]"
-            style={{ borderColor: "rgba(224,155,106,.25)", color: C.warm }}
-          >
-            {hasDependency ? "Dépendance" : "En attente"}
-          </span>
-        ) : (
-          <span className="shrink-0 text-[8.5px]" style={{ color: C.dim }}>
-            ↑ {votes}
-          </span>
-        )}
+        ) : null}
       </div>
     </div>
   );
@@ -187,11 +146,9 @@ export function BacklogTab({
 
   const buckets = useMemo(() => {
     const map: Record<Stage, TicketWithProject[]> = {
-      "Nouvelles idées": [],
       "À prioriser": [],
-      "En attente": [],
-      Validées: [],
-      Planifiées: [],
+      "Nouvelles idées": [],
+      "Basse priorité": [],
       Rejetées: [],
     };
     for (const t of backlogTickets) map[stageOf(t)].push(t);
@@ -255,9 +212,9 @@ export function BacklogTab({
           <div className="grid flex-1 grid-cols-4 gap-2.5">
             {[
               { label: "Items au total", value: backlogTickets.length },
-              { label: "Nouvelles idées", value: buckets["Nouvelles idées"].length },
               { label: "À prioriser", value: buckets["À prioriser"].length },
-              { label: "Déjà planifiés", value: buckets["Planifiées"].length },
+              { label: "Nouvelles idées", value: buckets["Nouvelles idées"].length },
+              { label: "Rejetées", value: buckets["Rejetées"].length },
             ].map((s) => (
               <div key={s.label} className="rounded-xl border p-3 text-center" style={{ borderColor: C.line, background: "#000000" }}>
                 <p className="text-[20px] font-semibold" style={{ color: C.ivory }}>
@@ -292,7 +249,7 @@ export function BacklogTab({
         </div>
 
         <div className="grid grid-cols-2 gap-3 xl:grid-cols-3">
-          {([...STAGES, "Rejetées"] as Stage[]).map((stage) => (
+          {STAGES.map((stage) => (
             <div key={stage} className="flex min-h-[200px] flex-col rounded-xl border" style={{ borderColor: C.line, background: "rgba(19,22,27,.5)" }}>
               <div className="flex items-center justify-between border-b px-3 py-2.5" style={{ borderColor: C.lineSoft }}>
                 <span className="text-[9px] tracking-[1.2px]" style={{ color: C.copperLight }}>
@@ -308,7 +265,7 @@ export function BacklogTab({
                     Aucune idée.
                   </p>
                 ) : (
-                  buckets[stage].map((t) => <IdeaCard key={t.id} ticket={t} agents={agents} onReject={(tk) => void reject(tk)} />)
+                  buckets[stage].map((t) => <IdeaCard key={t.id} ticket={t} onReject={(tk) => void reject(tk)} />)
                 )}
               </div>
               <button

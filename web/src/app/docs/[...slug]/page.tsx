@@ -39,7 +39,7 @@ export default async function HubDocPage({ params }: PageProps) {
           </Link>
           <span className="text-titanium/40">·</span>
           <Link href={ROUTES.ceo} className="text-titanium/70 transition hover:text-copper-light">
-            Bureau CEO
+            Bureau du CEO
           </Link>
         </div>
 

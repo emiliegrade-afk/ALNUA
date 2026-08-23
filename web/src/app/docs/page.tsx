@@ -6,7 +6,7 @@ type GuideLink = { href: string; title: string; desc: string };
 type GuideDoc = { title: string; file: string; desc?: string };
 
 const GUIDES: (GuideLink | GuideDoc)[] = [
-  { href: ROUTES.ceo, title: "Bureau CEO", desc: "Cockpit — manuel en tête de page + décisions" },
+  { href: ROUTES.ceo, title: "Bureau du CEO", desc: "Cockpit — manuel en tête de page + décisions" },
   {
     title: "Manuel utilisateur (noob)",
     file: "guides/user-manual.md",

@@ -38,8 +38,19 @@ interface PoleDef {
 
 const POLES: PoleDef[] = [
   {
-    id: "hub",
+    id: "ceo",
     code: "01",
+    name: "Bureau du CEO",
+    tagline: "Vision · Décisions · Brief",
+    description: "Bureau d'Emilie — cockpit exécutif et décisions stratégiques.",
+    href: "/ceo",
+    icon: Crown,
+    dept: "ceo",
+    glow: "#E09B6A",
+  },
+  {
+    id: "hub",
+    code: "02",
     name: "Direction",
     tagline: "Orchestration · Spec · QA · PM",
     description:
@@ -52,7 +63,7 @@ const POLES: PoleDef[] = [
   },
   {
     id: "secretary",
-    code: "02",
+    code: "03",
     name: "Secrétariat",
     tagline: "Coordination · Agenda · Mails",
     description: "Nadia Faure — filtre, priorise et coordonne la direction.",
@@ -64,7 +75,7 @@ const POLES: PoleDef[] = [
   },
   {
     id: "legal",
-    code: "02b",
+    code: "04",
     name: "Juridique",
     tagline: "Contrats · Avis · Pré-signature",
     description:
@@ -76,19 +87,8 @@ const POLES: PoleDef[] = [
     glow: "#E09B6A",
   },
   {
-    id: "ceo",
-    code: "03",
-    name: "Bureau CEO",
-    tagline: "Vision · Décisions · Brief",
-    description: "Cockpit exécutif et décisions stratégiques.",
-    href: "/ceo",
-    icon: Crown,
-    dept: "ceo",
-    glow: "#E09B6A",
-  },
-  {
     id: "rd",
-    code: "04",
+    code: "05",
     name: "Pôle R&D",
     tagline: "Recherche · Idéation · Prototypes",
     description: "Laboratoire R&D — veille, dossiers et expérimentation.",
@@ -100,7 +100,7 @@ const POLES: PoleDef[] = [
   },
   {
     id: "app",
-    code: "05",
+    code: "06",
     name: "Pôle APP",
     tagline: "Applications · Backend · Academy",
     description: "Développement applicatif web, mobile et formations.",
@@ -112,7 +112,7 @@ const POLES: PoleDef[] = [
   },
   {
     id: "gaming",
-    code: "06",
+    code: "07",
     name: "Pôle Gaming",
     tagline: "Studio · Lore · Godot",
     description: "Studio jeu — Wyrdheim, level design et dev gaming.",
@@ -124,7 +124,7 @@ const POLES: PoleDef[] = [
   },
   {
     id: "robo",
-    code: "07",
+    code: "08",
     name: "Robotique",
     tagline: "Hardware · Embedded · Eve",
     description: "Atelier hardware et firmware embarqué.",
@@ -136,7 +136,7 @@ const POLES: PoleDef[] = [
   },
   {
     id: "marketing",
-    code: "08",
+    code: "09",
     name: "Marketing",
     tagline: "Contenu · Campagnes · Social",
     description: "Comms Hub — marketing et rédaction produit.",
@@ -148,7 +148,7 @@ const POLES: PoleDef[] = [
   },
   {
     id: "finances",
-    code: "09",
+    code: "10",
     name: "Comptabilité",
     tagline: "Finance · Budget · Reporting · Conformité",
     description: "Comptabilité et contrôle de gestion ALNUA.",
@@ -160,7 +160,7 @@ const POLES: PoleDef[] = [
   },
   {
     id: "analytics",
-    code: "10",
+    code: "11",
     name: "Analytics",
     tagline: "BI · Data · Stratégie",
     description: "Analyse business et data pour la direction.",
@@ -172,7 +172,7 @@ const POLES: PoleDef[] = [
   },
   {
     id: "brand",
-    code: "11",
+    code: "12",
     name: "Brand Design",
     tagline: "Identité · Kits · Assets",
     description: "Brand kits, palettes et assets visuels.",

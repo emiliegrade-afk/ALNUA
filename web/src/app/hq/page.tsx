@@ -31,7 +31,7 @@ export default function HqPage() {
             </div>
             <div className="flex flex-wrap gap-2 text-[11px]">
               <Link href={ROUTES.ceo} className="text-copper hover:underline">
-                Bureau CEO
+                Bureau du CEO
               </Link>
               <span style={{ color: C.dim }}>·</span>
               <Link href={ROUTES.secretary} className="text-copper hover:underline">
@@ -42,8 +42,8 @@ export default function HqPage() {
                 Juridique
               </Link>
               <span style={{ color: C.dim }}>·</span>
-              <Link href={ROUTES.openroom} className="text-copper hover:underline">
-                Repas / détente
+              <Link href={ROUTES.lounge} className="text-copper hover:underline">
+                Agent Lounge
               </Link>
             </div>
           </div>

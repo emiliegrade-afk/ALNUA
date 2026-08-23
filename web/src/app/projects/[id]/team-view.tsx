@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { AgentAvatar } from "@/components/shared/agent-avatar";
 import { getAgentById, type BureauAgentDef } from "@/lib/agent-bureau";
@@ -9,12 +9,9 @@ import { ROUTES } from "@/lib/routes";
 import type { Project } from "@/lib/types";
 import type { AgentStatus } from "@/lib/openroom-api";
 import { C, STATUS_COLOR, STATUS_TEXT } from "../../app-v2/shared";
-import { agentStats } from "./mock-data";
 import { ConversationView } from "./conversation-view";
 
-/* Onglet Équipe du détail projet : liste + bascule "Flow" (graphe des
-   connexions), drill-down vers la fiche agent (Panel 2), qui ouvre elle-même
-   la conversation (Panel 5). */
+/* Onglet Équipe : statut live + skills déclarés (sans % inventés). */
 
 function AgentFiche({
   agent,
@@ -30,7 +27,6 @@ function AgentFiche({
   const [tab, setTab] = useState<"Aperçu" | "Missions" | "Activité" | "Compétences" | "Documents" | "Mémoire" | "Paramètres">(
     "Aperçu",
   );
-  const stats = useMemo(() => agentStats(agent.id, agent.skills), [agent.id, agent.skills]);
   const online = status?.status === "working" || status?.status === "waiting";
 
   return (
@@ -55,6 +51,7 @@ function AgentFiche({
             <p className="mt-1 flex items-center gap-1.5 text-[10px]" style={{ color: online ? C.online : C.faint }}>
               <span className="h-1.5 w-1.5 rounded-full" style={{ background: online ? C.online : C.faint }} />
               {online ? "En activité" : "En veille"}
+              {status?.status ? ` · ${STATUS_TEXT[status.status] ?? status.status}` : ""}
             </p>
           </div>
         </div>
@@ -75,24 +72,6 @@ function AgentFiche({
           >
             Assigner une tâche
           </Link>
-        </div>
-
-        <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-[10.5px]" style={{ color: C.faint }}>
-          <span>
-            Disponibilité <b style={{ color: C.ivory }}>{stats.availability}%</b>
-          </span>
-          <span>
-            Charge actuelle <b style={{ color: C.ivory }}>{stats.currentLoad}%</b>
-          </span>
-          <span>
-            Depuis <b style={{ color: C.ivory }}>{Math.floor(stats.tenureMonths / 12)} ans {stats.tenureMonths % 12} mois</b>
-          </span>
-          <span>
-            Localisation <b style={{ color: C.ivory }}>{stats.location}</b>
-          </span>
-          <span>
-            Langues <b style={{ color: C.ivory }}>{stats.languages}</b>
-          </span>
         </div>
       </div>
 
@@ -132,24 +111,23 @@ function AgentFiche({
               <p className="mb-2.5 text-[9.5px] tracking-[1.5px]" style={{ color: C.faint }}>
                 COMPÉTENCES
               </p>
-              <div className="flex flex-col gap-2">
-                {stats.skills.map((s) => (
-                  <div key={s.label} className="flex items-center gap-2">
-                    <span className="w-[110px] shrink-0 truncate text-[10px]" style={{ color: C.warm }}>
-                      {s.label}
+              {agent.skills.length === 0 ? (
+                <p className="text-[10.5px]" style={{ color: C.faint }}>
+                  Aucune compétence déclarée.
+                </p>
+              ) : (
+                <div className="flex flex-wrap gap-1.5">
+                  {agent.skills.map((s) => (
+                    <span
+                      key={s}
+                      className="rounded-full border px-2.5 py-0.5 text-[10px]"
+                      style={{ borderColor: C.lineSoft, color: C.warm }}
+                    >
+                      {s}
                     </span>
-                    <span className="h-1.5 flex-1 overflow-hidden rounded-full" style={{ background: "rgba(200,127,78,.15)" }}>
-                      <span
-                        className="block h-full rounded-full"
-                        style={{ width: `${s.value}%`, background: `linear-gradient(90deg,#8A5230,${C.copperLight})` }}
-                      />
-                    </span>
-                    <span className="w-8 shrink-0 text-right text-[10px]" style={{ color: C.ivory }}>
-                      {s.value}%
-                    </span>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </section>
           </div>
 
@@ -172,23 +150,9 @@ function AgentFiche({
               </div>
             </section>
 
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                { label: "Missions terminées", value: `${stats.missionsDone}` },
-                { label: "Qualité du code", value: `${stats.codeQuality}%` },
-                { label: "Respect délais", value: `${stats.onTime}%` },
-                { label: "Collaboration", value: `${stats.collaboration}%` },
-              ].map((s) => (
-                <div key={s.label} className="rounded-xl border p-3 text-center" style={{ borderColor: C.line, background: "rgba(22,17,13,.5)" }}>
-                  <p className="text-[17px] font-semibold" style={{ color: C.ivory }}>
-                    {s.value}
-                  </p>
-                  <p className="text-[8.5px]" style={{ color: C.faint }}>
-                    {s.label}
-                  </p>
-                </div>
-              ))}
-            </div>
+            <p className="rounded-xl border p-3 text-[10.5px]" style={{ borderColor: C.line, color: C.faint, background: "rgba(22,17,13,.5)" }}>
+              Pas de KPI inventés (missions terminées, qualité, délais) — compteurs agent non branchés.
+            </p>
           </div>
         </div>
       ) : (

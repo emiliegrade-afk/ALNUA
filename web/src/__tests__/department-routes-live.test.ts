@@ -68,6 +68,22 @@ describe("department primary routes are live (not MockupShell)", () => {
     expect(hub).toMatch(/SiegeLifeLinks/);
   });
 
+  it("/lounge is Agent Lounge shell (not OpenRoom repas)", () => {
+    const page = readFileSync(join(process.cwd(), "src", "app", "lounge", "page.tsx"), "utf8");
+    expect(page).toMatch(/LoungePageClient/);
+    const client = readFileSync(
+      join(process.cwd(), "src", "app", "lounge", "lounge-page-client.tsx"),
+      "utf8",
+    );
+    expect(client).toMatch(/Agent Lounge/);
+    expect(client).toMatch(/LoungeHero/);
+    const openroom = readFileSync(
+      join(process.cwd(), "src", "app", "openroom", "page.tsx"),
+      "utf8",
+    );
+    expect(openroom).toMatch(/redirect\(`\/lounge/);
+  });
+
   it("/competition shows leaderboard page", () => {
     const page = readFileSync(join(process.cwd(), "src", "app", "competition", "page.tsx"), "utf8");
     expect(page).toMatch(/fetchLeaderboard/);

@@ -5,7 +5,7 @@ import { ROUTES } from "@/lib/routes";
 
 const LINKS = [
   { href: ROUTES.hq, label: "Plan HQ", hint: "Carte des bureaux" },
-  { href: ROUTES.openroom, label: "Repas & détente", hint: "OpenRoom · vie du siège" },
+  { href: ROUTES.lounge, label: "Agent Lounge", hint: "Expérimentation · gamification" },
   { href: ROUTES.competition, label: "Compétition", hint: "Classement agents" },
 ] as const;
 

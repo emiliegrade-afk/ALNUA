@@ -3,38 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { fetchLibraryEntries, type LibraryEntry } from "@/lib/library-api";
 import { AgentAvatar } from "@/components/shared/agent-avatar";
-import { getAgentById, type BureauAgentDef } from "@/lib/agent-bureau";
-import type { Project } from "@/lib/types";
+import { getAgentById } from "@/lib/agent-bureau";
 import { C } from "./shared";
 
-/* Documentation — le Hub a un vrai système de bibliothèque (fetchLibraryEntries :
- * titre, résumé, auteur (agent_id), date, "épinglé" via le champ réel
- * `timing==="now"`), déjà utilisé par l'ancien onglet Documentation. Ce que
- * la maquette montre en plus (catégorie Spécifications/Guides/ADR/..., projet
- * lié, statut À jour/En révision) n'existe pas dans ce système : dérivé de
- * façon stable (hash de l'id de l'entrée) plutôt qu'inventé au hasard.
- * Contributions aujourd'hui/semaine/mois et activité récente sont 100%
- * réelles (dates de création des entrées). Décision du 2026-07-30. */
-
-function hash(seed: string): number {
-  let h = 0;
-  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
-  return h;
-}
-
-const CATEGORIES = ["Spécifications", "Guides", "Architecture", "Décisions (ADR)", "Recherche", "Processus", "Design", "API", "Autres"] as const;
-const STATUSES = ["À jour", "En révision"] as const;
-
-function categoryOf(entry: LibraryEntry): string {
-  return CATEGORIES[hash(entry.id) % CATEGORIES.length];
-}
-function statusOf(entry: LibraryEntry): string {
-  return hash(`${entry.id}-status`) % 5 === 0 ? STATUSES[1] : STATUSES[0];
-}
-function projectOf(entry: LibraryEntry, projects: Project[]): string {
-  if (projects.length === 0) return "—";
-  return projects[hash(`${entry.id}-proj`) % projects.length].name;
-}
+/* Documentation App — champs bibliothèque réels uniquement (titre, résumé,
+ * timing, topics, agent, date). Pas de catégorie / statut / projet hashés
+ * (Vague 4 anti-mensonge, DEC-032). */
 
 function relTime(iso: string) {
   const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
@@ -44,13 +18,18 @@ function relTime(iso: string) {
   return new Date(iso).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" });
 }
 
-function authorFor(entry: LibraryEntry): BureauAgentDef | undefined {
+function authorFor(entry: LibraryEntry) {
   return entry.agent_id ? getAgentById(entry.agent_id) : undefined;
 }
 
-export function DocumentationTab({ projects }: { projects: Project[] }) {
+function timingLabel(t: LibraryEntry["timing"]) {
+  return t === "now" ? "Épinglé" : "À plus tard";
+}
+
+export function DocumentationTab() {
   const [entries, setEntries] = useState<LibraryEntry[] | "loading" | "error">("loading");
   const [search, setSearch] = useState("");
+  const [timingFilter, setTimingFilter] = useState<"all" | "now" | "later">("all");
 
   useEffect(() => {
     let cancelled = false;
@@ -66,21 +45,21 @@ export function DocumentationTab({ projects }: { projects: Project[] }) {
     };
   }, []);
 
-  const categoryCounts = useMemo(() => {
-    if (!Array.isArray(entries)) return {};
-    const counts: Record<string, number> = {};
-    for (const e of entries) counts[categoryOf(e)] = (counts[categoryOf(e)] ?? 0) + 1;
-    return counts;
-  }, [entries]);
-
   const filtered = useMemo(() => {
     if (!Array.isArray(entries)) return [];
     const sorted = [...entries].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-    if (!search.trim()) return sorted;
-    return sorted.filter((e) => e.title.toLowerCase().includes(search.toLowerCase()));
-  }, [entries, search]);
+    return sorted.filter((e) => {
+      if (timingFilter !== "all" && e.timing !== timingFilter) return false;
+      if (search.trim() && !e.title.toLowerCase().includes(search.toLowerCase()) && !e.summary.toLowerCase().includes(search.toLowerCase())) {
+        return false;
+      }
+      return true;
+    });
+  }, [entries, search, timingFilter]);
 
-  const pinned = Array.isArray(entries) ? entries.filter((e) => e.timing === "now").slice(0, 4) : [];
+  const pinned = Array.isArray(entries) ? entries.filter((e) => e.timing === "now") : [];
+  const later = Array.isArray(entries) ? entries.filter((e) => e.timing === "later") : [];
+  const withTopics = Array.isArray(entries) ? entries.filter((e) => e.topics.length > 0).length : 0;
 
   const contributions = useMemo(() => {
     if (!Array.isArray(entries)) return { today: 0, week: 0, month: 0 };
@@ -91,6 +70,17 @@ export function DocumentationTab({ projects }: { projects: Project[] }) {
       week: entries.filter((e) => now - new Date(e.created_at).getTime() < 7 * day).length,
       month: entries.filter((e) => now - new Date(e.created_at).getTime() < 30 * day).length,
     };
+  }, [entries]);
+
+  const topicCounts = useMemo(() => {
+    if (!Array.isArray(entries)) return [];
+    const counts: Record<string, number> = {};
+    for (const e of entries) {
+      for (const t of e.topics) counts[t] = (counts[t] ?? 0) + 1;
+    }
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 12);
   }, [entries]);
 
   if (entries === "loading") {
@@ -117,26 +107,36 @@ export function DocumentationTab({ projects }: { projects: Project[] }) {
               DOCUMENTATION
             </h2>
             <p className="truncate text-[10.5px]" style={{ color: C.dim }}>
-              Toutes les ressources et documents du département APP
+              Bibliothèque App — entrées réelles du Hub
             </p>
           </div>
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Rechercher un document…"
-            className="w-[220px] rounded-lg border bg-transparent px-3 py-1.5 text-[10.5px] outline-none"
-            style={{ borderColor: C.line, color: C.ivory }}
-          />
+          <div className="flex shrink-0 items-center gap-2">
+            <select
+              value={timingFilter}
+              onChange={(e) => setTimingFilter(e.target.value as "all" | "now" | "later")}
+              className="rounded-lg border bg-transparent px-2.5 py-1.5 text-[10.5px] outline-none"
+              style={{ borderColor: C.line, color: C.warm }}
+            >
+              <option value="all">Tous</option>
+              <option value="now">Épinglés</option>
+              <option value="later">À plus tard</option>
+            </select>
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Rechercher…"
+              className="w-[200px] rounded-lg border bg-transparent px-3 py-1.5 text-[10.5px] outline-none"
+              style={{ borderColor: C.line, color: C.ivory }}
+            />
+          </div>
         </div>
 
-        <div className="grid grid-cols-6 gap-2.5">
+        <div className="grid grid-cols-4 gap-2.5">
           {[
             { label: "Documents", value: entries.length },
-            { label: "Spécifications", value: categoryCounts["Spécifications"] ?? 0 },
-            { label: "Guides", value: categoryCounts["Guides"] ?? 0 },
-            { label: "Décisions (ADR)", value: categoryCounts["Décisions (ADR)"] ?? 0 },
-            { label: "Recherches", value: categoryCounts["Recherche"] ?? 0 },
-            { label: "Autres", value: entries.length - (categoryCounts["Spécifications"] ?? 0) - (categoryCounts["Guides"] ?? 0) - (categoryCounts["Décisions (ADR)"] ?? 0) - (categoryCounts["Recherche"] ?? 0) },
+            { label: "Épinglés", value: pinned.length },
+            { label: "À plus tard", value: later.length },
+            { label: "Avec sujets", value: withTopics },
           ].map((s) => (
             <div key={s.label} className="rounded-xl border p-3 text-center" style={{ borderColor: C.line, background: "#000000" }}>
               <p className="text-[19px] font-semibold" style={{ color: C.ivory }}>
@@ -152,16 +152,22 @@ export function DocumentationTab({ projects }: { projects: Project[] }) {
         <div className="grid gap-3 lg:grid-cols-[180px_1fr]">
           <div className="dept-instrument p-3.5">
             <p className="mb-2.5 text-[9.5px] tracking-[1.5px]" style={{ color: C.faint }}>
-              CATÉGORIES
+              SUJETS
             </p>
-            <div className="flex flex-col gap-1.5">
-              {CATEGORIES.map((cat) => (
-                <div key={cat} className="flex items-center justify-between text-[10.5px]" style={{ color: C.warm }}>
-                  <span className="truncate">{cat}</span>
-                  <span style={{ color: C.faint }}>{categoryCounts[cat] ?? 0}</span>
-                </div>
-              ))}
-            </div>
+            {topicCounts.length === 0 ? (
+              <p className="text-[10px]" style={{ color: C.faint }}>
+                Aucun sujet indexé.
+              </p>
+            ) : (
+              <div className="flex flex-col gap-1.5">
+                {topicCounts.map(([topic, n]) => (
+                  <div key={topic} className="flex items-center justify-between text-[10.5px]" style={{ color: C.warm }}>
+                    <span className="truncate">{topic}</span>
+                    <span style={{ color: C.faint }}>{n}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="dept-instrument p-3.5">
@@ -170,14 +176,14 @@ export function DocumentationTab({ projects }: { projects: Project[] }) {
             </p>
             {filtered.length === 0 ? (
               <p className="py-6 text-center text-[11px]" style={{ color: C.faint }}>
-                Aucun document{search ? " ne correspond à cette recherche." : " archivé pour ce bureau."}
+                Aucun document{search || timingFilter !== "all" ? " ne correspond à ce filtre." : " archivé pour ce bureau."}
               </p>
             ) : (
               <div className="overflow-hidden rounded-lg border" style={{ borderColor: C.lineSoft }}>
                 <table className="w-full text-[10px]">
                   <thead>
                     <tr style={{ background: "rgba(22,17,13,.6)" }}>
-                      {["Nom", "Catégorie", "Auteur", "Dernière MAJ", "Projet", "Statut"].map((h) => (
+                      {["Nom", "Timing", "Auteur", "Créé", "Sujets"].map((h) => (
                         <th key={h} className="px-2.5 py-2 text-left font-medium" style={{ color: C.faint }}>
                           {h}
                         </th>
@@ -185,9 +191,8 @@ export function DocumentationTab({ projects }: { projects: Project[] }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {filtered.slice(0, 10).map((e) => {
+                    {filtered.slice(0, 12).map((e) => {
                       const author = authorFor(e);
-                      const status = statusOf(e);
                       return (
                         <tr key={e.id} className="border-t" style={{ borderColor: C.lineSoft }}>
                           <td className="px-2.5 py-2">
@@ -195,11 +200,11 @@ export function DocumentationTab({ projects }: { projects: Project[] }) {
                               {e.title}
                             </p>
                             <p className="truncate text-[9px]" style={{ color: C.faint }}>
-                              {e.summary}
+                              {e.summary || "—"}
                             </p>
                           </td>
-                          <td className="px-2.5 py-2 truncate" style={{ color: C.copperLight }}>
-                            {categoryOf(e)}
+                          <td className="px-2.5 py-2" style={{ color: e.timing === "now" ? C.online : C.copperLight }}>
+                            {timingLabel(e.timing)}
                           </td>
                           <td className="px-2.5 py-2">
                             {author ? (
@@ -217,10 +222,7 @@ export function DocumentationTab({ projects }: { projects: Project[] }) {
                             {relTime(e.created_at)}
                           </td>
                           <td className="px-2.5 py-2 truncate" style={{ color: C.dim }}>
-                            {projectOf(e, projects)}
-                          </td>
-                          <td className="px-2.5 py-2" style={{ color: status === "À jour" ? C.online : C.copperLight }}>
-                            {status}
+                            {e.topics.length > 0 ? e.topics.slice(0, 3).join(", ") : "—"}
                           </td>
                         </tr>
                       );
@@ -244,7 +246,7 @@ export function DocumentationTab({ projects }: { projects: Project[] }) {
             </p>
           ) : (
             <div className="flex flex-col gap-2">
-              {pinned.map((e) => {
+              {pinned.slice(0, 4).map((e) => {
                 const author = authorFor(e);
                 return (
                   <div key={e.id} className="flex items-center justify-between gap-2 rounded-lg border p-2" style={{ borderColor: C.lineSoft }}>
@@ -276,7 +278,7 @@ export function DocumentationTab({ projects }: { projects: Project[] }) {
             ].map((c) => (
               <div key={c.label} className="flex items-center justify-between text-[10.5px]">
                 <span style={{ color: C.warm }}>{c.label}</span>
-                <span style={{ color: C.ivory }}>{c.value} documents modifiés</span>
+                <span style={{ color: C.ivory }}>{c.value} créés</span>
               </div>
             ))}
           </div>

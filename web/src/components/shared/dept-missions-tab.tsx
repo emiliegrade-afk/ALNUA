@@ -11,15 +11,11 @@ import type { ConsoleActivityItem } from "@/lib/console/types";
 import type { Project } from "@/lib/types";
 import { C, resolveAgentLoad, agentLoadChip, KIND_META, formatDueDate } from "@/app/app-v2/shared";
 
-/* Tableau de bord Missions partagé (App / Gaming / Robo) — Vague 2 / BUG-004.
-   Tags métier optionnels via `renderCardTags`. Tickets contrôlés (App) ou
-   auto-fetch filtrés par projets (Gaming/Robo). */
+/* Tableau de bord Missions partagé (App / Gaming / Robo).
+   Données tickets réelles uniquement — pas d'assignee / points / % / risques
+   dérivés d'un hash (Vague 4 anti-mensonge, DEC-032). */
 
-function hash(seed: string): number {
-  let h = 0;
-  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
-  return h;
-}
+export type MissionsCardTagsFn = (ticketId: string) => ReactNode;
 
 const BOARD_COLUMNS: { status: TicketStatus; label: string }[] = [
   { status: "open", label: "À FAIRE" },
@@ -35,58 +31,21 @@ const PRIORITY_LABEL: Record<TicketPriority, string> = {
   low: "Basse",
 };
 
-function pseudoAssignee(ticketId: string, agents: BureauAgentDef[]): BureauAgentDef | undefined {
-  if (agents.length === 0) return undefined;
-  return agents[hash(ticketId) % agents.length];
-}
-
-function pseudoPoints(ticketId: string): number {
-  return 2 + (hash(`${ticketId}-pts`) % 7);
-}
-
-function pseudoProgress(ticketId: string): number {
-  return 15 + (hash(`${ticketId}-prog`) % 80);
-}
-
-interface MockRisk {
-  id: string;
-  title: string;
-  detail: string;
-  level: "Risque élevé" | "Risque moyen";
-}
-
-const DEFAULT_RISK_DETAILS = ["Retard estimé", "Dépendance bloquante", "Charge trop élevée"];
-
-function risksFromTickets(tickets: TicketWithProject[], details: string[]): MockRisk[] {
-  const candidates = tickets.filter((t) => t.status === "in_progress" || t.status === "in_review").slice(0, 3);
-  const pool = details.length > 0 ? details : DEFAULT_RISK_DETAILS;
-  return candidates.map((t, i) => ({
-    id: t.id,
-    title: t.title,
-    detail: pool[i % pool.length],
-    level: hash(`${t.id}-risk`) % 3 === 0 ? "Risque moyen" : "Risque élevé",
-  }));
-}
-
-export type MissionsCardTagsFn = (ticketId: string) => ReactNode;
-
 function TicketCard({
   ticket,
-  agents,
   onMove,
   canMoveBack,
   canMoveForward,
   renderCardTags,
 }: {
   ticket: TicketWithProject;
-  agents: BureauAgentDef[];
   onMove: (dir: 1 | -1) => void;
   canMoveBack: boolean;
   canMoveForward: boolean;
   renderCardTags?: MissionsCardTagsFn;
 }) {
-  const assignee = (ticket.assignee_agent_id && getAgentById(ticket.assignee_agent_id)) || pseudoAssignee(ticket.id, agents);
-  const points = ticket.story_points ?? pseudoPoints(ticket.id);
+  const assignee = ticket.assignee_agent_id ? getAgentById(ticket.assignee_agent_id) : undefined;
+  const points = ticket.story_points;
   const due = ticket.due_date ? formatDueDate(ticket.due_date) : null;
   const typeLabel = TYPE_STYLES[ticket.type as keyof typeof TYPE_STYLES]?.label ?? ticket.type;
   const extraTags = renderCardTags?.(ticket.id);
@@ -116,27 +75,21 @@ function TicketCard({
             </span>
           </span>
         ) : (
-          <span />
+          <span className="text-[9px]" style={{ color: C.faint }}>
+            Non assigné
+          </span>
         )}
         {ticket.status === "done" ? (
           <span className="flex items-center gap-1 text-[9.5px]" style={{ color: C.online }}>
-            100% ✓
+            Terminé
           </span>
-        ) : ticket.status === "in_progress" || ticket.status === "in_review" ? (
-          <span className="flex items-center gap-1.5">
-            <span className="h-1 w-10 overflow-hidden rounded-full" style={{ background: "rgba(224,155,106,.18)" }}>
-              <span
-                className="block h-full rounded-full"
-                style={{ width: `${pseudoProgress(ticket.id)}%`, background: C.copper }}
-              />
-            </span>
-            <span className="text-[9px]" style={{ color: C.dim }}>
-              {pseudoProgress(ticket.id)}%
-            </span>
-          </span>
-        ) : (
+        ) : points != null ? (
           <span className="text-[9px]" style={{ color: C.dim }}>
             {points} pts
+          </span>
+        ) : (
+          <span className="text-[9px]" style={{ color: C.faint }}>
+            —
           </span>
         )}
       </div>
@@ -178,7 +131,6 @@ export function DeptMissionsTab({
   statuses,
   activityFeed,
   renderCardTags,
-  riskDetails = DEFAULT_RISK_DETAILS,
 }: {
   /** Si omis, charge les tickets filtrés par `projects` (Gaming/Robo). */
   tickets?: TicketWithProject[];
@@ -189,7 +141,6 @@ export function DeptMissionsTab({
   statuses: Record<string, AgentStatus>;
   activityFeed: ConsoleActivityItem[];
   renderCardTags?: MissionsCardTagsFn;
-  riskDetails?: string[];
 }) {
   const controlled = controlledTickets !== undefined;
   const [localTickets, setLocalTickets] = useState<TicketWithProject[]>([]);
@@ -265,10 +216,11 @@ export function DeptMissionsTab({
     { key: "À venir", items: tickets.filter((t) => t.status === "open") },
   ];
 
-  const risks = useMemo(() => risksFromTickets(tickets, riskDetails), [tickets, riskDetails]);
-  const efficiency = tickets.length > 0 ? Math.round((counts.done / tickets.length) * 100) : 0;
-  const estimatedHours = tickets.length * 8;
-  const spentHours = Math.round(estimatedHours * (efficiency / 100 || 0.6));
+  const inProgress = useMemo(
+    () => tickets.filter((t) => t.status === "in_progress" || t.status === "in_review").slice(0, 5),
+    [tickets],
+  );
+  const donePct = tickets.length > 0 ? Math.round((counts.done / tickets.length) * 100) : 0;
 
   function openCreateFor(projectId?: string) {
     setCreateDefaultProject(projectId);
@@ -375,7 +327,6 @@ export function DeptMissionsTab({
                         <TicketCard
                           key={t.id}
                           ticket={t}
-                          agents={agents}
                           onMove={(dir) => void moveTicket(t, dir)}
                           canMoveBack={colIdx > 0}
                           canMoveForward={colIdx < BOARD_COLUMNS.length - 1}
@@ -594,29 +545,32 @@ export function DeptMissionsTab({
 
         <div className="rounded-xl border p-3.5" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
           <p className="mb-2.5 text-[9.5px] tracking-[1.5px]" style={{ color: C.faint }}>
-            MISSIONS À RISQUE
+            EN COURS / EN TEST
           </p>
-          {risks.length === 0 ? (
+          {inProgress.length === 0 ? (
             <p className="text-[10px]" style={{ color: C.faint }}>
-              Aucune mission à risque identifiée.
+              Aucune mission en cours.
             </p>
           ) : (
             <div className="flex flex-col gap-2">
-              {risks.map((r) => (
-                <div key={r.id} className="rounded-lg border p-2" style={{ borderColor: "rgba(248,113,113,.2)" }}>
+              {inProgress.map((t) => (
+                <div key={t.id} className="rounded-lg border p-2" style={{ borderColor: C.lineSoft }}>
                   <div className="flex items-center justify-between gap-2">
                     <span className="min-w-0 flex-1 truncate text-[10.5px] font-medium" style={{ color: C.ivory }}>
-                      {r.title}
+                      {t.title}
                     </span>
                     <span
                       className="shrink-0 rounded-full px-1.5 py-px text-[8px]"
-                      style={{ background: r.level === "Risque élevé" ? "rgba(248,113,113,.18)" : "rgba(224,155,106,.18)", color: r.level === "Risque élevé" ? "#f87171" : C.copperLight }}
+                      style={{ background: "rgba(224,155,106,.18)", color: C.copperLight }}
                     >
-                      {r.level}
+                      {TICKET_STATUSES.find((s) => s.id === t.status)?.label ?? t.status}
                     </span>
                   </div>
                   <p className="text-[9px]" style={{ color: C.faint }}>
-                    {r.detail}
+                    {t.assignee_agent_id
+                      ? (getAgentById(t.assignee_agent_id)?.name ?? t.assignee_agent_id)
+                      : "Non assigné"}
+                    {t.story_points != null ? ` · ${t.story_points} pts` : ""}
                   </p>
                 </div>
               ))}
@@ -626,7 +580,7 @@ export function DeptMissionsTab({
 
         <div className="flex flex-col items-center gap-2 rounded-xl border p-3.5" style={{ borderColor: C.line, background: "rgba(19,22,27,.55)" }}>
           <p className="w-full text-[9.5px] tracking-[1.5px]" style={{ color: C.faint }}>
-            PERFORMANCE GLOBALE
+            AVANCEMENT
           </p>
           <div className="relative h-[70px] w-[70px]">
             <svg width="70" height="70" viewBox="0 0 70 70">
@@ -639,23 +593,23 @@ export function DeptMissionsTab({
                 stroke={C.copper}
                 strokeWidth="5"
                 strokeLinecap="round"
-                strokeDasharray={`${((efficiency / 100) * 2 * Math.PI * 29).toFixed(1)} ${(2 * Math.PI * 29).toFixed(1)}`}
+                strokeDasharray={`${((donePct / 100) * 2 * Math.PI * 29).toFixed(1)} ${(2 * Math.PI * 29).toFixed(1)}`}
                 transform="rotate(-90 35 35)"
               />
             </svg>
             <span className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-[15px] font-semibold">{efficiency}%</span>
+              <span className="text-[15px] font-semibold">{donePct}%</span>
               <span className="text-[7px]" style={{ color: C.faint }}>
-                Efficacité
+                Terminées
               </span>
             </span>
           </div>
           <div className="flex w-full justify-between text-[9.5px]" style={{ color: C.faint }}>
             <span>
-              Temps estimé <b style={{ color: C.ivory }}>{estimatedHours}h</b>
+              Ouvertes <b style={{ color: C.ivory }}>{counts.open}</b>
             </span>
             <span>
-              Temps passé <b style={{ color: C.ivory }}>{spentHours}h</b>
+              Terminées <b style={{ color: C.ivory }}>{counts.done}</b>
             </span>
           </div>
         </div>

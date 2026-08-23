@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   ArrowLeft,
   AppWindow,
@@ -43,6 +43,7 @@ const DEPT_ICONS: Record<string, LucideIcon> = {
   analytics: Compass,
   brand: Palette,
   academy: Users,
+  lounge: Gamepad2,
 };
 
 interface DepartmentHeaderProps {
@@ -52,6 +53,8 @@ interface DepartmentHeaderProps {
   breadcrumb?: string;
   /** Renseigné → pastille « N agents actifs » et délégation contextualisée. */
   bureau?: BureauKey;
+  /** Actions à droite du titre (ex. badge POINTS LOUNGE). */
+  actions?: ReactNode;
   className?: string;
 }
 
@@ -69,6 +72,7 @@ export function DepartmentHeader({
   subtitle,
   breadcrumb,
   bureau,
+  actions,
   className,
 }: DepartmentHeaderProps) {
   const { navigate } = useHubNavigate();
@@ -144,6 +148,8 @@ export function DepartmentHeader({
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
+          {actions}
+
           {bureau ? (
             <span className="inline-flex items-center gap-2 rounded-full border border-bronze-faint bg-obsidian/70 px-3 py-1.5 text-xs text-titane/75">
               <span

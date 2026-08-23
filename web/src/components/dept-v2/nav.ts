@@ -3,12 +3,12 @@ import { ROUTES } from "@/lib/routes";
 export const DEPT_V2_DASHBOARD_NAV = [
   { icon: "◉", label: "Command Center", href: ROUTES.home },
   { icon: "〰", label: "Activité en direct", href: ROUTES.activity },
-  { icon: "▤", label: "Décisions", href: ROUTES.ceo, badge: true as const },
+  { icon: "▤", label: "Bureau du CEO", href: ROUTES.ceo, badge: true as const },
 ] as const;
 
 export const DEPT_V2_TOOLS_NAV = [
   { icon: "⌂", label: "Plan HQ", href: ROUTES.hq },
-  { icon: "☕", label: "Repas & détente", href: ROUTES.openroom },
+  { icon: "🎮", label: "Agent Lounge", href: ROUTES.lounge },
   { icon: "🏆", label: "Compétition", href: ROUTES.competition },
   { icon: "📄", label: "Documents", href: "/docs" },
   { icon: "📖", label: "Connaissances", href: ROUTES.library },

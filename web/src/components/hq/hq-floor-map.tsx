@@ -90,6 +90,17 @@ export function HqFloorMap() {
                     : "border-transparent bg-transparent group-hover:border-copper/50 group-hover:bg-copper/10"
                 }`}
               />
+              {office.number > 0 ? (
+                <span
+                  className={`absolute left-1 top-1 z-20 flex h-5 min-w-5 items-center justify-center rounded px-1 font-mono text-[10px] font-semibold ${
+                    office.number === 1
+                      ? "bg-copper text-obsidian"
+                      : "bg-obsidian/80 text-copper ring-1 ring-copper/40"
+                  }`}
+                >
+                  {office.number}
+                </span>
+              ) : null}
               {badge?.highlight ? (
                 <span className="absolute -right-1 -top-1 z-20 rounded bg-copper px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-obsidian">
                   {badge.label}
@@ -110,6 +121,9 @@ export function HqFloorMap() {
             )}
             <div className="min-w-0 flex-1">
               <p className="font-title text-sm text-ivory">
+                {hovered.number > 0 ? (
+                  <span className="mr-1.5 font-mono text-copper">n°{hovered.number}</span>
+                ) : null}
                 {hovered.icon} {hovered.title}
               </p>
               <p className="truncate text-xs text-titanium/70">{hovered.subtitle}</p>

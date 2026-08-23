@@ -8,32 +8,11 @@ import { getAgentById, type BureauAgentDef } from "@/lib/agent-bureau";
 import type { ConsoleActivityItem } from "@/lib/console/types";
 import type { Project } from "@/lib/types";
 import { C, KIND_META, formatDueDate } from "../app-v2/shared";
-import { hash, pick, pct } from "./mock-data";
 
-/* Idea Forge — les tickets ouverts réels servent de pool d'idées ; la
- * catégorie thématique (Nouvelle créature, Biome...), les votes, l'impact et
- * le coût n'existent pas dans le modèle de ticket réel : dérivés de façon
- * stable, commentés. Depuis la Phase 12 (ROADMAP.md, 2026-07-30), le
- * "recommandé" utilise le vrai `assignee_agent_id` du ticket quand il est
- * renseigné, et l'échéance réelle (`due_date`) remplace l'ETA en semaines
- * quand elle existe. */
+/* Idea Forge — tickets ouverts réels uniquement (type / priorité / échéance /
+ * assignee). Plus de votes / catégories / ETA inventés. */
 
-const CATEGORIES = ["Nouvelle créature", "Nouveau biome", "Donjons", "Évènements", "Classes", "Montures", "Crafting", "Housing"] as const;
-const IMPACT = ["Élevé", "Moyen", "Faible"] as const;
-
-function ideaMeta(ticket: TicketWithProject, agents: BureauAgentDef[]) {
-  const ticketId = ticket.id;
-  const recommended = (ticket.assignee_agent_id && getAgentById(ticket.assignee_agent_id)) || (agents.length > 0 ? agents[hash(`${ticketId}-rec`) % agents.length] : undefined);
-  return {
-    category: pick(`${ticketId}-cat`, CATEGORIES),
-    votes: pct(`${ticketId}-votes`, 5, 60),
-    impact: pick(`${ticketId}-impact`, IMPACT),
-    costDays: pct(`${ticketId}-cost`, 2, 20),
-    etaWeeks: pct(`${ticketId}-eta`, 1, 8),
-    due: ticket.due_date ? formatDueDate(ticket.due_date) : null,
-    recommended,
-  };
-}
+const TYPE_FILTERS = ["Toutes", "feature", "bug", "chore", "idea", "other"] as const;
 
 export function BacklogTab({
   projects,
@@ -46,7 +25,7 @@ export function BacklogTab({
 }) {
   const [tickets, setTickets] = useState<TicketWithProject[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<(typeof CATEGORIES)[number] | "Toutes">("Toutes");
+  const [filter, setFilter] = useState<(typeof TYPE_FILTERS)[number]>("Toutes");
   const [createOpen, setCreateOpen] = useState(false);
 
   useEffect(() => {
@@ -59,7 +38,9 @@ export function BacklogTab({
     const ids = new Set(projects.map((p) => p.id));
     fetchTicketsList({ limit: 100 })
       .then((all) => {
-        if (!cancelled) setTickets(all.filter((t) => ids.has(t.project_id) && t.status === "open"));
+        if (!cancelled) {
+          setTickets(all.filter((t) => ids.has(t.project_id) && t.status === "open"));
+        }
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -69,18 +50,23 @@ export function BacklogTab({
     };
   }, [projects]);
 
-  const ideas = useMemo(
-    () =>
-      tickets
-        .map((t) => ({ ticket: t, meta: ideaMeta(t, agents) }))
-        .filter((i) => filter === "Toutes" || i.meta.category === filter)
-        .sort((a, b) => b.meta.votes - a.meta.votes),
-    [tickets, agents, filter],
-  );
+  const ideas = useMemo(() => {
+    const list = tickets.filter(
+      (t) => filter === "Toutes" || (t.type || "other").toLowerCase() === filter,
+    );
+    return [...list].sort((a, b) => {
+      const pa = a.priority === "critical" ? 0 : a.priority === "high" ? 1 : 2;
+      const pb = b.priority === "critical" ? 0 : b.priority === "high" ? 1 : 2;
+      return pa - pb;
+    });
+  }, [tickets, filter]);
 
   if (loading) {
     return (
-      <div className="flex min-h-[220px] flex-1 items-center justify-center rounded-xl text-[11px]" style={{ border: `1px solid ${C.line}`, color: C.faint }}>
+      <div
+        className="flex min-h-[220px] flex-1 items-center justify-center rounded-xl text-[11px]"
+        style={{ border: `1px solid ${C.line}`, color: C.faint }}
+      >
         Chargement de l&apos;Idea Forge…
       </div>
     );
@@ -97,14 +83,18 @@ export function BacklogTab({
             type="button"
             onClick={() => setCreateOpen(true)}
             className="rounded-[18px] border px-3.5 py-1.5 text-[11px]"
-            style={{ borderColor: "rgba(224,155,106,.45)", background: "rgba(224,155,106,.12)", color: C.copperLight }}
+            style={{
+              borderColor: "rgba(224,155,106,.45)",
+              background: "rgba(224,155,106,.12)",
+              color: C.copperLight,
+            }}
           >
             ＋ Nouvelle idée
           </button>
         </div>
 
         <div className="flex gap-2 overflow-x-auto">
-          {(["Toutes", ...CATEGORIES] as const).map((c) => (
+          {TYPE_FILTERS.map((c) => (
             <button
               key={c}
               type="button"
@@ -122,53 +112,69 @@ export function BacklogTab({
         </div>
 
         {ideas.length === 0 ? (
-          <div className="flex min-h-[180px] flex-1 items-center justify-center rounded-xl border text-[11px]" style={{ borderColor: C.line, color: C.faint }}>
-            Aucune idée dans cette catégorie.
+          <div
+            className="flex min-h-[180px] flex-1 items-center justify-center rounded-xl border text-[11px]"
+            style={{ borderColor: C.line, color: C.faint }}
+          >
+            Aucun ticket ouvert.
           </div>
         ) : (
           <div className="grid grid-cols-[repeat(auto-fill,minmax(230px,1fr))] gap-2.5">
-            {ideas.map(({ ticket, meta }) => (
-              <div key={ticket.id} className="flex flex-col gap-2 dept-instrument p-3">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="rounded-full border px-1.5 py-px text-[8px]" style={{ borderColor: "rgba(224,155,106,.22)", color: C.copperLight }}>
-                    {meta.category}
-                  </span>
-                  <span className="text-[9.5px]" style={{ color: C.dim }}>
-                    ↑ {meta.votes}
-                  </span>
-                </div>
-                <p className="text-[11.5px] font-medium" style={{ color: C.ivory }}>
-                  {ticket.title}
-                </p>
-                <div className="grid grid-cols-2 gap-1 text-[9px]" style={{ color: C.faint }}>
-                  <span>
-                    Impact <b style={{ color: meta.impact === "Élevé" ? C.online : C.warm }}>{meta.impact}</b>
-                  </span>
-                  <span>
-                    Coût <b style={{ color: C.warm }}>{meta.costDays}j</b>
-                  </span>
-                  <span>
-                    {meta.due ? (
-                      <>
-                        Échéance <b style={{ color: meta.due.overdue ? "#f87171" : C.warm }}>{meta.due.label}</b>
-                      </>
-                    ) : (
-                      <>
-                        ETA <b style={{ color: C.warm }}>{meta.etaWeeks} sem.</b>
-                      </>
-                    )}
-                  </span>
-                </div>
-                {meta.recommended ? (
-                  <div className="flex items-center gap-1.5 border-t pt-1.5" style={{ borderColor: C.lineSoft }}>
-                    <AgentAvatar agentId={meta.recommended.id} name={meta.recommended.name} size={16} />
-                    <span className="truncate text-[9px]" style={{ color: C.faint }}>
-                      {ticket.assignee_agent_id ? "Assigné" : "Recommandé"} : {meta.recommended.name.split(" ")[0]}
+            {ideas.map((ticket) => {
+              const due = ticket.due_date ? formatDueDate(ticket.due_date) : null;
+              const assignee = ticket.assignee_agent_id
+                ? getAgentById(ticket.assignee_agent_id)
+                : undefined;
+              return (
+                <div key={ticket.id} className="flex flex-col gap-2 dept-instrument p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <span
+                      className="rounded-full border px-1.5 py-px text-[8px]"
+                      style={{ borderColor: "rgba(224,155,106,.22)", color: C.copperLight }}
+                    >
+                      {ticket.type || "ticket"}
+                    </span>
+                    <span className="text-[9.5px]" style={{ color: C.dim }}>
+                      {ticket.priority || "—"}
                     </span>
                   </div>
-                ) : null}
-              </div>
-            ))}
+                  <p className="text-[11.5px] font-medium" style={{ color: C.ivory }}>
+                    {ticket.title}
+                  </p>
+                  <div className="grid grid-cols-2 gap-1 text-[9px]" style={{ color: C.faint }}>
+                    <span>
+                      Points{" "}
+                      <b style={{ color: C.warm }}>
+                        {ticket.story_points ?? "—"}
+                      </b>
+                    </span>
+                    <span>
+                      {due ? (
+                        <>
+                          Échéance{" "}
+                          <b style={{ color: due.overdue ? "#f87171" : C.warm }}>
+                            {due.label}
+                          </b>
+                        </>
+                      ) : (
+                        <>Échéance <b style={{ color: C.warm }}>—</b></>
+                      )}
+                    </span>
+                  </div>
+                  {assignee ? (
+                    <div
+                      className="flex items-center gap-1.5 border-t pt-1.5"
+                      style={{ borderColor: C.lineSoft }}
+                    >
+                      <AgentAvatar agentId={assignee.id} name={assignee.name} size={16} />
+                      <span className="truncate text-[9px]" style={{ color: C.faint }}>
+                        Assigné : {assignee.name.split(" ")[0]}
+                      </span>
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
@@ -205,7 +211,13 @@ export function BacklogTab({
         </div>
       </div>
 
-      <CreateTicketModal open={createOpen} onOpenChange={setCreateOpen} projects={projects} onCreated={(t) => setTickets((prev) => [...prev, t])} agents={agents} />
+      <CreateTicketModal
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        projects={projects}
+        onCreated={(t) => setTickets((prev) => [...prev, t])}
+        agents={agents}
+      />
     </div>
   );
 }

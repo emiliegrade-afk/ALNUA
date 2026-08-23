@@ -68,7 +68,9 @@ function ItemRow({
         </button>
       </div>
       {item.detail ? (
-        <p className="mt-1 truncate text-[10px] text-titanium/45">{item.detail}</p>
+        <p className="mt-1 whitespace-pre-wrap text-[11px] leading-snug text-titanium/65">
+          {item.detail}
+        </p>
       ) : null}
     </li>
   );
@@ -132,17 +134,24 @@ export function CeoIdleQueueCard() {
   }
 
   return (
-    <Card className="mb-8 border-copper/30 bg-transparent">
+    <Card className="min-w-0 border-copper/30 bg-transparent">
       <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
         <div>
           <CardTitle className="flex items-center gap-2 font-title text-lg text-ivory">
             <ListTodo className="h-5 w-5 text-copper" />
             File du jour — Idle
           </CardTitle>
-          <p className="mt-1 text-xs leading-relaxed text-titanium/65">
-            L0–L1 auto · L2 après validation CEO (DEC-021)
-            {queue?.date ? ` · ${queue.date}` : ""}
-            {queue?.ceo_validated ? " · L2 ouvert" : ""}
+          <p className="mt-2 max-w-3xl rounded-lg border border-copper/20 bg-copper/[0.06] px-3 py-2 text-[12px] leading-relaxed text-ivory/85">
+            <span className="font-medium text-copper">Idle = travail sans brief de ta part.</span>{" "}
+            Quand tu ne donnes pas d’ordre précis, Aria propose une liste de petites tâches
+            utiles (ops, tickets, brouillons entreprise).{" "}
+            <strong className="font-medium text-ivory">L0–L1</strong> peuvent tourner seuls ;{" "}
+            <strong className="font-medium text-ivory">L2</strong> seulement après « Valider file ».{" "}
+            <strong className="font-medium text-ivory">Drain maintenant</strong> = exécuter tout de
+            suite le prochain item éligible de cette liste (pas tout le Hub d’un coup).
+            {queue?.date ? ` · Date file : ${queue.date}` : ""}
+            {queue?.ceo_validated ? " · L2 ouvert" : " · L2 encore verrouillé"}
+            {queue?.tickets_promoted_at ? " · tickets idle-ok déjà poussés" : ""}
           </p>
         </div>
         <Button
@@ -194,7 +203,7 @@ export function CeoIdleQueueCard() {
                 ) : (
                   <RefreshCw className="mr-1 h-3 w-3" />
                 )}
-                Replanifier
+                Replanifier la liste
               </Button>
               <Button
                 size="sm"
@@ -203,8 +212,20 @@ export function CeoIdleQueueCard() {
                 disabled={busy != null || !!queue?.ceo_validated}
                 onClick={() =>
                   void withBusy("validate", async () => {
-                    await validateIdleQueue(true);
-                    toast.success("File validée — L2 autorisé");
+                    const r = await validateIdleQueue(true, true);
+                    const created = Number(r.promote?.created_count ?? 0);
+                    if (created > 0) {
+                      toast.success(
+                        `File validée — L2 ouvert · ${created} ticket(s) [idle-ok]`,
+                      );
+                    } else {
+                      toast.success("File validée — L2 autorisé");
+                      if (r.promote && r.promote.project_id == null) {
+                        toast.message(
+                          "Tickets idle-ok non créés — aucun projet Hub",
+                        );
+                      }
+                    }
                   })
                 }
               >
@@ -213,7 +234,7 @@ export function CeoIdleQueueCard() {
                 ) : (
                   <CheckCircle2 className="mr-1 h-3 w-3" />
                 )}
-                Valider file (L2)
+                Valider file (débloque L2)
               </Button>
               <Button
                 size="sm"
@@ -234,7 +255,7 @@ export function CeoIdleQueueCard() {
                 ) : (
                   <Play className="mr-1 h-3 w-3" />
                 )}
-                Drain maintenant
+                Drain = faire 1 tâche maintenant
               </Button>
               <Button
                 size="sm"
@@ -261,8 +282,8 @@ export function CeoIdleQueueCard() {
               </Button>
             </div>
 
-            <ul className="space-y-2">
-              {(queue?.items ?? []).slice(0, 12).map((item) => (
+            <ul className="alnua-scroll max-h-[320px] space-y-2 overflow-y-auto pr-1">
+              {(queue?.items ?? []).map((item) => (
                 <ItemRow key={item.id} item={item} onPreview={(id) => void handlePreview(id)} />
               ))}
               {(queue?.items?.length ?? 0) === 0 ? (
@@ -275,17 +296,17 @@ export function CeoIdleQueueCard() {
             {deliverables.length > 0 ? (
               <div className="rounded-lg border border-copper/15 p-3">
                 <p className="mb-2 text-xs font-medium text-titanium/50">Livrables récents</p>
-                <ul className="space-y-1.5 text-xs text-titanium/70">
-                  {deliverables.slice(0, 6).map((d) => (
+                <ul className="alnua-scroll max-h-40 space-y-1.5 overflow-y-auto text-xs text-titanium/70">
+                  {deliverables.slice(0, 12).map((d) => (
                     <li key={d.item_id}>
                       <button
                         type="button"
-                        className="text-left hover:text-copper"
+                        className="w-full text-left hover:text-copper"
                         onClick={() => void handlePreview(d.item_id)}
                       >
                         <span className="text-ivory/80">{d.title ?? d.item_id}</span>
                         {d.preview ? (
-                          <span className="mt-0.5 block truncate text-[10px] text-titanium/45">
+                          <span className="mt-0.5 block whitespace-pre-wrap text-[11px] leading-snug text-titanium/55">
                             {d.preview}
                           </span>
                         ) : null}
@@ -297,7 +318,7 @@ export function CeoIdleQueueCard() {
             ) : null}
 
             {preview ? (
-              <pre className="max-h-64 overflow-auto rounded-lg border border-copper/15 bg-obsidian-deep/60 p-3 text-[10px] text-titanium/80 whitespace-pre-wrap">
+              <pre className="max-h-72 overflow-auto rounded-lg border border-copper/15 bg-obsidian-deep/60 p-3 text-[11px] leading-relaxed text-titanium/85 whitespace-pre-wrap">
                 {preview}
               </pre>
             ) : null}

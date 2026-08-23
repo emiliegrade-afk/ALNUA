@@ -1,28 +1,54 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { fetchLatestGamingBuild } from "@/lib/gaming-builds";
 import { fetchGamingCommunityStats } from "@/lib/gaming-community";
-import type { GamingCommunityStats, Project } from "@/lib/types";
+import type { GamingBuild, GamingCommunityStats, Project } from "@/lib/types";
 import { C } from "../app-v2/shared";
-import { pct } from "./mock-data";
 
-/* Analytics Gaming — PERFORMANCE MOTEUR et RENDU (Lumen/Nanite) restent des
- * valeurs de démonstration : aucune télémétrie de build/perf n'est branchée
- * (voir Phase 16, ROADMAP.md — pas de pipeline UE5 réel). COMMUNAUTÉ &
- * DISTRIBUTION est réel depuis la Phase 18 (ROADMAP.md, 2026-07-30) :
- * joueurs Steam simultanés + membres Discord via @/lib/gaming-community,
- * "—" tant que STEAM_APP_ID/DISCORD_BOT_TOKEN+DISCORD_GUILD_ID ne sont pas
- * configurés (.env). Steam Wishlist n'est volontairement pas affiché : Valve
- * n'expose pas ce chiffre via une API publique (accès Steamworks Partner
- * requis) — voir skills/skill_steam.py. Rétention D7/Playtests restent
- * provisoires, hors scope. */
+/* Analytics Gaming — 100 % Hub-side :
+ * - FPS / crashs / draw_calls = dernier build rapporté (gaming_builds)
+ * - Steam / Discord = community-stats
+ * - Métriques non instrumentées = « — » (plus de pct() / Démo)
+ */
 
-function Tile({ label, value, unit, warn }: { label: string; value: number | string; unit?: string; warn?: boolean }) {
+function Tile({
+  label,
+  value,
+  unit,
+  warn,
+  empty,
+}: {
+  label: string;
+  value: number | string;
+  unit?: string;
+  warn?: boolean;
+  empty?: boolean;
+}) {
   return (
-    <div className="rounded-xl border p-3 text-center" style={{ borderColor: C.line, background: "#000000" }}>
+    <div
+      className="relative rounded-xl border p-3 text-center"
+      style={{
+        borderColor: empty ? `${C.line}` : C.line,
+        background: "#000000",
+        opacity: empty ? 0.75 : 1,
+      }}
+    >
+      {empty ? (
+        <span
+          className="absolute right-1.5 top-1.5 rounded px-1 py-0.5 text-[7px] font-bold uppercase tracking-wider"
+          style={{ color: C.faint, background: "rgba(255,255,255,0.04)" }}
+        >
+          N/A
+        </span>
+      ) : null}
       <p className="text-[19px] font-semibold" style={{ color: warn ? "#f87171" : C.ivory }}>
         {value}
-        {unit ? <span className="text-[11px]" style={{ color: C.faint }}>{unit}</span> : null}
+        {unit && value !== "—" ? (
+          <span className="text-[11px]" style={{ color: C.faint }}>
+            {unit}
+          </span>
+        ) : null}
       </p>
       <p className="text-[8.5px]" style={{ color: C.faint }}>
         {label}
@@ -31,54 +57,92 @@ function Tile({ label, value, unit, warn }: { label: string; value: number | str
   );
 }
 
-export function AnalyticsTab({ projects }: { projects: Project[] }) {
-  const seed = projects[0]?.id ?? "gaming-default";
-  const fps = pct(`${seed}-fps`, 45, 120);
-  const ram = pct(`${seed}-ram`, 4, 12);
-  const gpu = pct(`${seed}-gpu`, 40, 95);
-  const buildMin = pct(`${seed}-buildtime`, 8, 45);
-  const drawCalls = pct(`${seed}-draw`, 800, 4000);
-  const triangles = pct(`${seed}-tri`, 2, 18);
-  const retention = pct(`${seed}-retention`, 20, 65);
-  const playtests = pct(`${seed}-playtests`, 3, 40);
+function dash(n: number | null | undefined): string | number {
+  return n == null ? "—" : n;
+}
 
+export function AnalyticsTab({ projects }: { projects: Project[] }) {
+  const projectId = projects[0]?.id;
+  const [build, setBuild] = useState<GamingBuild | null>(null);
   const [community, setCommunity] = useState<GamingCommunityStats | null>(null);
+  const [loaded, setLoaded] = useState(false);
+
   useEffect(() => {
     let cancelled = false;
-    fetchGamingCommunityStats().then((s) => {
-      if (!cancelled) setCommunity(s);
+    void Promise.all([
+      projectId ? fetchLatestGamingBuild(projectId) : Promise.resolve(null),
+      fetchGamingCommunityStats(),
+    ]).then(([b, c]) => {
+      if (cancelled) return;
+      setBuild(b);
+      setCommunity(c);
+      setLoaded(true);
     });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [projectId]);
+
+  const fps = build?.fps_avg ?? null;
+  const crashes = build?.crashes ?? null;
+  const drawCalls = build?.draw_calls ?? null;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pb-2">
       <section>
         <p className="mb-2 text-[9.5px] tracking-[1.5px]" style={{ color: C.faint }}>
           PERFORMANCE MOTEUR
+          {loaded && !build ? (
+            <span className="ml-2" style={{ color: C.dim }}>
+              · aucun build rapporté
+            </span>
+          ) : null}
         </p>
         <div className="grid grid-cols-3 gap-2.5 lg:grid-cols-6">
-          <Tile label="FPS moyen" value={fps} warn={fps < 60} />
-          <Tile label="RAM" value={ram} unit="Go" />
-          <Tile label="GPU" value={gpu} unit="%" warn={gpu > 90} />
-          <Tile label="Temps de build" value={buildMin} unit="min" />
-          <Tile label="Draw calls" value={drawCalls} />
-          <Tile label="Triangles" value={`${triangles}M`} />
+          <Tile
+            label="FPS moyen"
+            value={dash(fps)}
+            warn={fps != null && fps < 60}
+            empty={fps == null}
+          />
+          <Tile label="RAM" value="—" empty />
+          <Tile label="GPU" value="—" empty />
+          <Tile label="Temps de build" value="—" empty />
+          <Tile label="Draw calls" value={dash(drawCalls)} empty={drawCalls == null} />
+          <Tile label="Triangles" value="—" empty />
         </div>
       </section>
 
       <section>
         <p className="mb-2 text-[9.5px] tracking-[1.5px]" style={{ color: C.faint }}>
-          RENDU (LUMEN / NANITE)
+          STABILITÉ &amp; BUILD
         </p>
         <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
-          <Tile label="Lumen — coût GI" value={pct(`${seed}-lumen`, 2, 9)} unit="ms" />
-          <Tile label="Nanite — clusters" value={`${pct(`${seed}-nanite`, 1, 8)}M`} />
-          <Tile label="Packaging" value={pct(`${seed}-pkg`, 1, 5)} unit="Go" />
-          <Tile label="Crashs (7j)" value={pct(`${seed}-crash7`, 0, 15)} warn={pct(`${seed}-crash7`, 0, 15) > 8} />
+          <Tile
+            label="Crashs (dernier build)"
+            value={dash(crashes)}
+            warn={crashes != null && crashes > 5}
+            empty={crashes == null}
+          />
+          <Tile
+            label="Build #"
+            value={build ? `#${build.build_number}` : "—"}
+            empty={!build}
+          />
+          <Tile
+            label="Moteur"
+            value={build?.engine_version ?? "—"}
+            empty={!build?.engine_version}
+          />
+          <Tile
+            label="Branche"
+            value={build?.branch ?? "—"}
+            empty={!build?.branch}
+          />
         </div>
+        <p className="mt-2 text-[8.5px]" style={{ color: C.faint }}>
+          Lumen / Nanite / packaging : non instrumentés — pas de chiffres inventés.
+        </p>
       </section>
 
       <section>
@@ -88,17 +152,28 @@ export function AnalyticsTab({ projects }: { projects: Project[] }) {
         <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
           <Tile
             label="Joueurs en ligne (Steam)"
-            value={community?.steam_configured ? (community.steam_concurrent_players?.toLocaleString("fr-FR") ?? "—") : "Non configuré"}
+            value={
+              community?.steam_configured
+                ? (community.steam_concurrent_players?.toLocaleString("fr-FR") ?? "—")
+                : "Non configuré"
+            }
+            empty={!community?.steam_configured}
           />
           <Tile
             label="Membres Discord"
-            value={community?.discord_configured ? (community.discord_member_count?.toLocaleString("fr-FR") ?? "—") : "Non configuré"}
+            value={
+              community?.discord_configured
+                ? (community.discord_member_count?.toLocaleString("fr-FR") ?? "—")
+                : "Non configuré"
+            }
+            empty={!community?.discord_configured}
           />
-          <Tile label="Rétention D7" value={retention} unit="%" />
-          <Tile label="Playtests menés" value={playtests} />
+          <Tile label="Rétention D7" value="—" empty />
+          <Tile label="Playtests menés" value="—" empty />
         </div>
         <p className="mt-2 text-[8.5px]" style={{ color: C.faint }}>
-          Steam Wishlist non affiché : non exposé par une API publique Valve (accès Steamworks Partner requis).
+          Steam Wishlist : non exposé par l&apos;API publique Valve (Steamworks Partner
+          requis).
         </p>
       </section>
     </div>

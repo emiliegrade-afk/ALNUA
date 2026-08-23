@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { C } from "../app-v2/shared";
 import {
+  debateBrandText,
   fetchDesignSystem,
   reviewBrandText,
+  type BrandDebateResult,
   type BrandDesignSystem,
   type BrandReviewResult,
 } from "@/lib/brand-system-api";
@@ -14,7 +16,8 @@ export function BrandCenterTab() {
   const [loadErr, setLoadErr] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
   const [review, setReview] = useState<BrandReviewResult | null>(null);
-  const [busy, setBusy] = useState(false);
+  const [debate, setDebate] = useState<BrandDebateResult | null>(null);
+  const [busy, setBusy] = useState<"review" | "debate" | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -33,7 +36,7 @@ export function BrandCenterTab() {
   }, []);
 
   async function onReview() {
-    setBusy(true);
+    setBusy("review");
     setReview(null);
     try {
       const result = await reviewBrandText({
@@ -54,7 +57,35 @@ export function BrandCenterTab() {
         recommendation: "revise",
       });
     } finally {
-      setBusy(false);
+      setBusy(null);
+    }
+  }
+
+  async function onDebate() {
+    setBusy("debate");
+    setDebate(null);
+    try {
+      const result = await debateBrandText({
+        text: draft,
+        department: "marketing",
+        sector: "company",
+        rounds: 1,
+      });
+      setDebate(result);
+    } catch (err: unknown) {
+      setDebate({
+        ok: false,
+        recommendation: "revise",
+        deliberated: false,
+        mode: "error",
+        rounds: [],
+        debate: {
+          verdict: "revise",
+          elise: err instanceof Error ? err.message : "erreur",
+        },
+      });
+    } finally {
+      setBusy(null);
     }
   }
 
@@ -65,8 +96,8 @@ export function BrandCenterTab() {
           Brand Center
         </h2>
         <p className="max-w-2xl text-[11.5px] leading-relaxed" style={{ color: C.muted }}>
-          Design system transversal (Phase 35) — tokens + voix Anouk, review de cohérence
-          avant publication. Pas de débat LLM ici : flags structurels uniquement.
+          Design system transversal (Phase 35) — tokens + voix Anouk. Review structurelle
+          ou débat LLM Élise ↔ Anouk avant publication.
         </p>
       </header>
 
@@ -81,7 +112,10 @@ export function BrandCenterTab() {
           className="rounded-2xl border p-4"
           style={{ borderColor: C.line, background: "rgba(19,19,22,.45)" }}
         >
-          <h3 className="mb-3 text-[12px] font-medium uppercase tracking-wide" style={{ color: C.warm }}>
+          <h3
+            className="mb-3 text-[12px] font-medium uppercase tracking-wide"
+            style={{ color: C.warm }}
+          >
             Couleurs
           </h3>
           <div className="flex flex-wrap gap-2">
@@ -112,7 +146,10 @@ export function BrandCenterTab() {
           className="rounded-2xl border p-4"
           style={{ borderColor: C.line, background: "rgba(19,19,22,.45)" }}
         >
-          <h3 className="mb-3 text-[12px] font-medium uppercase tracking-wide" style={{ color: C.warm }}>
+          <h3
+            className="mb-3 text-[12px] font-medium uppercase tracking-wide"
+            style={{ color: C.warm }}
+          >
             Voix & guidelines
           </h3>
           <ul className="space-y-1.5 text-[11.5px] leading-relaxed" style={{ color: C.ivory }}>
@@ -124,12 +161,6 @@ export function BrandCenterTab() {
               </li>
             ))}
           </ul>
-          {ds?.layout_tokens ? (
-            <p className="mt-3 text-[10.5px]" style={{ color: C.muted }}>
-              Layout : radius md {ds.layout_tokens.radius_md ?? "—"} · gap{" "}
-              {ds.layout_tokens.gap_md ?? "—"}
-            </p>
-          ) : null}
         </div>
       </section>
 
@@ -137,8 +168,11 @@ export function BrandCenterTab() {
         className="rounded-2xl border p-4"
         style={{ borderColor: C.line, background: "rgba(19,19,22,.45)" }}
       >
-        <h3 className="mb-2 text-[12px] font-medium uppercase tracking-wide" style={{ color: C.warm }}>
-          Review cohérence
+        <h3
+          className="mb-2 text-[12px] font-medium uppercase tracking-wide"
+          style={{ color: C.warm }}
+        >
+          Review & débat
         </h3>
         <textarea
           value={draft}
@@ -148,10 +182,10 @@ export function BrandCenterTab() {
           className="w-full resize-y rounded-xl border bg-transparent px-3 py-2 text-[12px] outline-none"
           style={{ borderColor: C.line, color: C.ivory }}
         />
-        <div className="mt-3 flex items-center gap-3">
+        <div className="mt-3 flex flex-wrap items-center gap-3">
           <button
             type="button"
-            disabled={busy || draft.trim().length < 1}
+            disabled={busy !== null || draft.trim().length < 1}
             onClick={() => void onReview()}
             className="rounded-full border px-4 py-1.5 text-[11.5px] disabled:opacity-40"
             style={{
@@ -160,18 +194,55 @@ export function BrandCenterTab() {
               background: "rgba(224,155,106,.12)",
             }}
           >
-            {busy ? "Review…" : "Lancer la review Brand"}
+            {busy === "review" ? "Review…" : "Review structurelle"}
+          </button>
+          <button
+            type="button"
+            disabled={busy !== null || draft.trim().length < 20}
+            onClick={() => void onDebate()}
+            className="rounded-full border px-4 py-1.5 text-[11.5px] disabled:opacity-40"
+            style={{
+              borderColor: "rgba(224,155,106,.65)",
+              color: C.ivory,
+              background: "rgba(224,155,106,.22)",
+            }}
+          >
+            {busy === "debate" ? "Débat…" : "Débat Élise ↔ Anouk"}
           </button>
           {review ? (
             <span
               className="text-[11.5px]"
               style={{ color: review.ok ? "#8FBF9A" : C.copperLight }}
             >
-              {review.recommendation}
-              {review.flags.length ? ` — ${review.flags.join(", ")}` : " — aucun flag"}
+              Struct : {review.recommendation}
+              {review.flags.length ? ` — ${review.flags.join(", ")}` : ""}
             </span>
           ) : null}
         </div>
+
+        {debate ? (
+          <div
+            className="mt-3 space-y-2 rounded-xl border px-3 py-2.5 text-[11.5px]"
+            style={{ borderColor: C.line, color: C.ivory }}
+          >
+            <p style={{ color: debate.ok ? "#8FBF9A" : C.copperLight }}>
+              {debate.deliberated ? "Délibéré" : "Structurel seul"} ·{" "}
+              {debate.recommendation}
+              {debate.debate?.verdict ? ` · verdict ${debate.debate.verdict}` : ""}
+            </p>
+            {debate.debate?.elise ? (
+              <p style={{ color: C.muted }}>Élise : {debate.debate.elise}</p>
+            ) : null}
+            {debate.debate?.anouk ? (
+              <p style={{ color: C.muted }}>Anouk : {debate.debate.anouk}</p>
+            ) : null}
+            {(debate.debate?.actions ?? []).map((a) => (
+              <p key={a} style={{ color: C.copperLight }}>
+                → {a}
+              </p>
+            ))}
+          </div>
+        ) : null}
       </section>
     </div>
   );

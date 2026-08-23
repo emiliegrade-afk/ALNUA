@@ -57,6 +57,21 @@ export const HQ_HUB_ASPECT = 1536 / 1024;
  */
 export const HQ_MAP_OFFICES: HqMapOffice[] = [
   {
+    id: "ceo",
+    number: 1,
+    title: "Bureau du CEO",
+    shortcutLabel: "CEO",
+    subtitle: "Emilie · Brief & décisions — bureau n°1",
+    href: "/ceo",
+    icon: "👑",
+    dept: "ceo",
+    x: 49.5,
+    y: 31,
+    w: 13,
+    h: 10,
+    level: "ground",
+  },
+  {
     id: "meeting",
     number: 0,
     title: "Salle de réunion",
@@ -89,21 +104,6 @@ export const HQ_MAP_OFFICES: HqMapOffice[] = [
     level: "ground",
   },
   {
-    id: "ceo",
-    number: 1,
-    title: "CEO Office",
-    shortcutLabel: "CEO",
-    subtitle: "Emilie · Brief & décisions",
-    href: "/ceo",
-    icon: "👑",
-    dept: "ceo",
-    x: 49.5,
-    y: 31,
-    w: 13,
-    h: 10,
-    level: "ground",
-  },
-  {
     id: "direction",
     number: 3,
     title: "Direction",
@@ -123,11 +123,11 @@ export const HQ_MAP_OFFICES: HqMapOffice[] = [
   {
     id: "dev_lounge",
     number: 0,
-    title: "Salle de repas & détente",
-    shortcutLabel: "Repas",
-    subtitle: "Pause · Café · Déjeuner · OpenRoom",
-    href: "/openroom",
-    icon: "☕",
+    title: "Agent Lounge",
+    shortcutLabel: "Lounge",
+    subtitle: "Expérimentation · challenges · collab",
+    href: "/lounge",
+    icon: "🎮",
     dept: "lounge",
     x: 50,
     y: 56.5,
@@ -361,9 +361,9 @@ export const HQ_OFF_MAP_ACCESS: HqOffMapAccess[] = [
 export const HQ_CEO_ACCESS: HqOffMapAccess = {
   id: "ceo",
   number: 1,
-  title: "CEO Office",
+  title: "Bureau du CEO",
   shortcutLabel: "CEO",
-  subtitle: "Emilie · Brief & décisions",
+  subtitle: "Emilie · Brief & décisions — bureau n°1",
   href: "/ceo",
   icon: "👑",
   dept: "ceo",
@@ -445,7 +445,7 @@ export function getOfficeBadge(
     case "admin":
       return { label: "Outils" };
     case "dev_lounge":
-      return { label: "Détente" };
+      return { label: "Lounge" };
     default:
       return { label: "" };
   }

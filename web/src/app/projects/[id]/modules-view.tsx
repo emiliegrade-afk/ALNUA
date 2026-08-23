@@ -3,16 +3,11 @@
 import { useState } from "react";
 import { updateModule } from "@/lib/modules";
 import { CreateModuleModal } from "@/components/shared/create-module-modal";
-import type { BureauAgentDef } from "@/lib/agent-bureau";
 import type { ModuleStatus, Project, ProjectModule } from "@/lib/types";
 import { C } from "../../app-v2/shared";
-import { featuresForModule, dependenciesForModule } from "./mock-data";
 
-/* Modules — table réelle `project_modules` depuis la Phase 14 (ROADMAP.md,
- * 2026-07-30) : nom/statut/progression/fonctionnalités/tests/bugs viennent de
- * Supabase. `featuresForModule`/`dependenciesForModule` (le détail ligne par
- * ligne d'un module — sous-fonctionnalités et dépendances) restent provisoires
- * (mock-data.ts) : il n'existe pas encore de table pour ce niveau de détail. */
+/* Modules — agrégats réels `project_modules` (Phase 14). Pas de liste
+ * features/dépendances inventée : ces tables n'existent pas encore. */
 
 const MODULE_TABS = ["Fonctionnalités", "Missions", "Équipe", "Documentation", "Analytics"] as const;
 
@@ -74,20 +69,16 @@ function ModuleCard({ module, onOpen }: { module: ProjectModule; onOpen: () => v
 function ModuleDetail({
   module,
   projectName,
-  agents,
   onBack,
   onModuleUpdated,
 }: {
   module: ProjectModule;
   projectName: string;
-  agents: BureauAgentDef[];
   onBack: () => void;
   onModuleUpdated: (m: ProjectModule) => void;
 }) {
   const [tab, setTab] = useState<(typeof MODULE_TABS)[number]>("Fonctionnalités");
   const [savingStatus, setSavingStatus] = useState(false);
-  const features = featuresForModule(module.id, agents.map((a) => a.name));
-  const deps = dependenciesForModule(module.id);
 
   async function handleStatusChange(next: ModuleStatus) {
     setSavingStatus(true);
@@ -195,36 +186,14 @@ function ModuleDetail({
       <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
         <div className="flex flex-col gap-4">
           {tab === "Fonctionnalités" ? (
-            <div className="overflow-hidden rounded-xl border" style={{ borderColor: C.line }}>
-              <table className="w-full text-[10.5px]">
-                <thead>
-                  <tr style={{ background: "rgba(22,17,13,.6)" }}>
-                    {["Fonctionnalité", "Statut", "Responsable", "Progression"].map((h) => (
-                      <th key={h} className="px-3 py-2 text-left font-medium" style={{ color: C.faint }}>
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {features.map((f) => (
-                    <tr key={f.name} className="border-t" style={{ borderColor: C.lineSoft }}>
-                      <td className="px-3 py-2" style={{ color: C.ivory }}>
-                        {f.name}
-                      </td>
-                      <td className="px-3 py-2" style={{ color: f.status === "Terminé" ? C.online : C.warm }}>
-                        {f.status}
-                      </td>
-                      <td className="px-3 py-2 truncate" style={{ color: C.dim }}>
-                        {f.responsible}
-                      </td>
-                      <td className="px-3 py-2" style={{ color: C.ivory }}>
-                        {f.progress}%
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div
+              className="flex min-h-[160px] flex-col items-center justify-center gap-1 rounded-xl border px-4 text-center text-[11px]"
+              style={{ borderColor: C.line, color: C.faint }}
+            >
+              <p>
+                Compteur module : {module.features_done}/{module.features_total} fonctionnalités.
+              </p>
+              <p>Détail ligne à ligne — pas encore de table Supabase.</p>
             </div>
           ) : (
             <div
@@ -239,18 +208,9 @@ function ModuleDetail({
             <p className="mb-2 text-[9.5px] tracking-[1.5px]" style={{ color: C.faint }}>
               DÉPENDANCES
             </p>
-            <div className="flex flex-wrap gap-2">
-              {deps.map((d) => (
-                <span
-                  key={d.label}
-                  className="flex flex-col rounded-lg border px-3 py-1.5 text-[10px]"
-                  style={{ borderColor: C.lineSoft }}
-                >
-                  <span style={{ color: C.warm }}>{d.label}</span>
-                  <span style={{ color: d.status === "Terminé" ? C.online : C.copperLight }}>{d.status}</span>
-                </span>
-              ))}
-            </div>
+            <p className="text-[10.5px]" style={{ color: C.faint }}>
+              Aucune dépendance trackée — modèle non branché.
+            </p>
           </div>
         </div>
 
@@ -266,17 +226,17 @@ function ModuleDetail({
             style={{ borderColor: "#2A231C", background: "#0C0A08" }}
           >
             <span className="text-[9px]" style={{ color: C.faint }}>
-              Aujourd&apos;hui
+              Progression
             </span>
             <span className="text-[24px] font-semibold" style={{ color: C.ivory }}>
-              {module.features_done * 20}
+              {module.progress}%
             </span>
             <span className="text-[8px]" style={{ color: C.faint }}>
-              unités
+              module
             </span>
           </div>
           <p className="text-center text-[9px]" style={{ color: C.faint }}>
-            Aperçu illustratif — pas de rendu mobile réel branché.
+            Pas de preview mobile — agrégats module seulement.
           </p>
         </div>
       </div>
@@ -286,13 +246,11 @@ function ModuleDetail({
 
 export function ModulesView({
   project,
-  agents,
   modules,
   loading,
   onModulesChange,
 }: {
   project: Project;
-  agents: BureauAgentDef[];
   modules: ProjectModule[];
   loading: boolean;
   onModulesChange: (modules: ProjectModule[]) => void;
@@ -314,7 +272,6 @@ export function ModulesView({
       <ModuleDetail
         module={active}
         projectName={project.name}
-        agents={agents}
         onBack={() => setOpenId(null)}
         onModuleUpdated={(updated) => onModulesChange(modules.map((m) => (m.id === updated.id ? updated : m)))}
       />

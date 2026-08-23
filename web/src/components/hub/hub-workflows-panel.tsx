@@ -1,13 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { AlertTriangle, CheckCircle2, Loader2, Play, RefreshCw } from "lucide-react";
+import Link from "next/link";
+import { AlertTriangle, CheckCircle2, Loader2, Play, RefreshCw, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   fetchWorkflowRecipes,
   fetchWorkflowRuns,
+  fetchWorkflowRunsWaiting,
   runOpsNow,
   runSemaineNow,
   shipGameRelease,
@@ -15,20 +17,30 @@ import {
   type WorkflowRecipe,
   type WorkflowRunSummary,
 } from "@/lib/workflow-api";
+import { ROUTES } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 
 const P0_RECIPES = new Set(["run_ops", "semaine", "ship_hub", "dossier_ceo"]);
 const P2_RECIPES = new Set(["ship_game", "ship_robo"]);
+const VALIDATION_RECIPES = new Set(["content_validation", "campaign_validation"]);
 
 function statusIcon(status: string) {
   if (status === "blocked") return <AlertTriangle className="h-3.5 w-3.5 text-red-400" />;
   if (status === "completed") return <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />;
+  if (status === "waiting") return <ShieldAlert className="h-3.5 w-3.5 text-amber-400" />;
   return null;
 }
 
+function waitingStepCount(run: WorkflowRunSummary): number {
+  return run.steps_a_verifier?.length ?? 0;
+}
+
+/** Phase 30 — ops + historique + lien CEO pour A_VERIFIER. */
 export function HubWorkflowsPanel() {
   const [recipes, setRecipes] = useState<WorkflowRecipe[]>([]);
   const [runs, setRuns] = useState<WorkflowRunSummary[]>([]);
+  const [waitingIds, setWaitingIds] = useState<Set<string>>(() => new Set());
+  const [waitingCount, setWaitingCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState<string | null>(null);
   const [shipSlug, setShipSlug] = useState("wyrdheim");
@@ -36,15 +48,22 @@ export function HubWorkflowsPanel() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [r, h] = await Promise.all([
+      const [r, h, w] = await Promise.all([
         fetchWorkflowRecipes(),
         fetchWorkflowRuns(15),
+        fetchWorkflowRunsWaiting(20).catch(() => ({ runs: [] as WorkflowRunSummary[] })),
       ]);
       setRecipes(r);
       setRuns(h.runs);
+      setWaitingIds(new Set(w.runs.map((run) => run.run_id)));
+      setWaitingCount(
+        w.runs.reduce((n, run) => n + Math.max(1, waitingStepCount(run)), 0),
+      );
     } catch {
       setRecipes([]);
       setRuns([]);
+      setWaitingIds(new Set());
+      setWaitingCount(0);
     } finally {
       setLoading(false);
     }
@@ -71,16 +90,23 @@ export function HubWorkflowsPanel() {
     }
   }
 
+  const shownRecipes = recipes.filter(
+    (r) => P0_RECIPES.has(r.id) || P2_RECIPES.has(r.id) || VALIDATION_RECIPES.has(r.id),
+  );
+
   return (
-    <Card className="mb-8 border-copper/20 bg-obsidian-2/90">
+    <Card className="border-copper/20 bg-obsidian-2/90">
       <CardHeader className="flex flex-row items-center justify-between gap-4">
         <div>
           <CardTitle className="font-title text-base text-ivory">
-            Company OS — ops autonomes
+            Company OS — workflows
           </CardTitle>
           <p className="mt-1 font-body text-xs text-titanium/60">
-            Exécution auto lun–ven 8h15 (ops) · ven 17h (semaine). Toi : choix produit,
-            validation CEO, brainstorming.
+            Ops · validation contenu/campagne · ship. Approbations sur{" "}
+            <Link href={ROUTES.ceo} className="text-copper hover:underline">
+              /ceo
+            </Link>
+            .
           </p>
         </div>
         <Button
@@ -96,6 +122,20 @@ export function HubWorkflowsPanel() {
         </Button>
       </CardHeader>
       <CardContent className="space-y-4">
+        {waitingCount > 0 ? (
+          <Link
+            href={ROUTES.ceo}
+            className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/[0.07] px-3 py-2 text-xs text-amber-100/90 transition hover:bg-amber-500/15"
+          >
+            <ShieldAlert className="h-3.5 w-3.5 shrink-0" />
+            <span>
+              {waitingCount} étape{waitingCount > 1 ? "s" : ""} en attente — ouvrir le bureau CEO
+            </span>
+          </Link>
+        ) : (
+          <p className="text-[11px] text-titanium/50">Aucune étape A_VERIFIER — file CEO vide.</p>
+        )}
+
         <div className="flex flex-wrap gap-2">
           <Button
             type="button"
@@ -130,9 +170,9 @@ export function HubWorkflowsPanel() {
 
         <div className="rounded-lg border border-copper/10 bg-obsidian-deep/40 p-3">
           <p className="mb-2 text-[10px] font-medium uppercase tracking-wide text-titanium/45">
-            Releases P2 — gaming & robotique
+            Releases — gaming & robotique
           </p>
-          <div className="mb-2 flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <input
               className="w-40 rounded-md border border-titanium/15 bg-obsidian-3 px-2 py-1 text-xs text-ivory"
               value={shipSlug}
@@ -174,16 +214,11 @@ export function HubWorkflowsPanel() {
               Ship robo
             </Button>
           </div>
-          <p className="text-[10px] text-titanium/45">
-            Slug dans le registry · branche gaming ou robotics · GDD ou BOM requis
-          </p>
         </div>
 
-        {!loading && recipes.length > 0 && (
+        {!loading && shownRecipes.length > 0 ? (
           <div className="grid gap-2 sm:grid-cols-2">
-            {recipes
-              .filter((r) => P0_RECIPES.has(r.id) || P2_RECIPES.has(r.id))
-              .map((r) => (
+            {shownRecipes.map((r) => (
               <div
                 key={r.id}
                 className="rounded-lg border border-copper/10 bg-obsidian-deep/40 px-3 py-2"
@@ -191,12 +226,16 @@ export function HubWorkflowsPanel() {
                 <p className="text-xs font-medium text-ivory/90">{r.name}</p>
                 <p className="text-[10px] text-titanium/50">
                   {r.id}
-                  {P2_RECIPES.has(r.id) ? " · P2" : ""}
+                  {VALIDATION_RECIPES.has(r.id)
+                    ? " · validation"
+                    : P2_RECIPES.has(r.id)
+                      ? " · ship"
+                      : " · ops"}
                 </p>
               </div>
             ))}
           </div>
-        )}
+        ) : null}
 
         <div>
           <p className="mb-2 text-[10px] font-medium uppercase tracking-wide text-titanium/45">
@@ -208,26 +247,33 @@ export function HubWorkflowsPanel() {
             <p className="text-sm text-titanium/50">Aucun run enregistré.</p>
           ) : (
             <ul className="space-y-1.5">
-              {runs.slice(0, 8).map((run) => (
-                <li
-                  key={run.run_id}
-                  className="flex items-start gap-2 rounded-md border border-copper/10 px-2 py-1.5 text-xs"
-                >
-                  {statusIcon(run.status)}
-                  <div className="min-w-0 flex-1">
-                    <span className="text-copper/90">{run.recipe_id}</span>
-                    <span
-                      className={cn(
-                        "ml-2",
-                        run.status === "blocked" ? "text-red-400" : "text-titanium/60"
-                      )}
-                    >
-                      {run.status}
-                    </span>
-                    <p className="truncate text-titanium/50">{run.summary}</p>
-                  </div>
-                </li>
-              ))}
+              {runs.slice(0, 8).map((run) => {
+                const waiting = waitingIds.has(run.run_id);
+                return (
+                  <li
+                    key={run.run_id}
+                    className="flex items-start gap-2 rounded-md border border-copper/10 px-2 py-1.5 text-xs"
+                  >
+                    {statusIcon(waiting ? "waiting" : run.status)}
+                    <div className="min-w-0 flex-1">
+                      <span className="text-copper/90">{run.recipe_id}</span>
+                      <span
+                        className={cn(
+                          "ml-2",
+                          waiting
+                            ? "text-amber-400"
+                            : run.status === "blocked"
+                              ? "text-red-400"
+                              : "text-titanium/60",
+                        )}
+                      >
+                        {waiting ? "A_VERIFIER" : run.status}
+                      </span>
+                      <p className="truncate text-titanium/50">{run.summary}</p>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>

@@ -96,7 +96,7 @@ function ProjectCard({ project, agents, realBomCount, latestBuild }: { project: 
       </div>
 
       <div className="flex items-center justify-between border-t pt-2 text-[9.5px]" style={{ borderColor: C.lineSoft, color: C.faint }}>
-        <span>3D · Fusion360</span>
+        <span>{latestBuild?.branch ?? "branche —"}</span>
         {agents.length > 0 ? <span>{agents.length} agents</span> : null}
       </div>
 

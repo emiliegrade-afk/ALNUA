@@ -16,6 +16,8 @@ interface BureauPageProps {
    * la délégation contextualisée dans l'en-tête. Absent sur les pages sans
    * roster propre (ex. /brand). */
   bureau?: BureauKey;
+  /** Slot actions header (badge, CTA…). */
+  actions?: ReactNode;
   children: ReactNode;
   className?: string;
   /** Full-bleed layout (e.g. R&D tabs) */
@@ -32,6 +34,7 @@ export function BureauPage({
   subtitle,
   breadcrumb,
   bureau,
+  actions,
   children,
   className,
   flush = false,
@@ -56,6 +59,7 @@ export function BureauPage({
         subtitle={subtitle}
         breadcrumb={breadcrumb}
         bureau={bureau}
+        actions={actions}
       />
       {/* Le rail ne prend sa colonne qu'à partir de 1440px — c'est aussi le
           seuil auquel il s'ouvre tout seul. En dessous il passe en bande
