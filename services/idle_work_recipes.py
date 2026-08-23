@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from typing import Any
 
 from config.paths import get_hub_repo_path
@@ -198,6 +198,50 @@ def _execute_one(item: dict[str, Any], run_id: str | None) -> dict[str, Any]:
             # Soft fail — still mark done with note
             path = _write_deliverable(item, {"error": str(exc)[:300]})
             detail = f"self_dev soft-fail {agent_id}"
+
+    elif kind == "lounge_session":
+        try:
+            from services.lounge_activities.catalog import ACTIVITY_IDS
+            from services.lounge_runtime import run_session_with_llm, start_session
+
+            payload = item.get("payload") or {}
+            puzzle_id = payload.get("puzzle_id") or payload.get("challenge_id")
+            activity = str(payload.get("activity") or "").strip()
+            if isinstance(puzzle_id, str) and puzzle_id.strip():
+                activity = activity or "puzzle"
+                session = start_session(agent_id, activity, puzzle_id.strip())
+            else:
+                if activity not in ACTIVITY_IDS:
+                    activity = ACTIVITY_IDS[date.today().toordinal() % len(ACTIVITY_IDS)]
+                session = start_session(agent_id, activity)
+            try:
+                done = run_session_with_llm(session["id"])
+            except Exception as llm_exc:
+                logger.warning(
+                    "idle lounge_session LLM failed agent=%s: %s",
+                    agent_id,
+                    llm_exc,
+                )
+                done = {
+                    **session,
+                    "status": "active",
+                    "llm_error": str(llm_exc)[:200],
+                }
+            path = _write_deliverable(
+                item,
+                {
+                    "session": done,
+                    "model_policy": "lounge_cn_cheap",
+                },
+            )
+            detail = (
+                f"lounge {done.get('status')} won={done.get('won')} "
+                f"xp={done.get('points_awarded')} → {path}"
+            )
+        except Exception as exc:
+            logger.exception("idle lounge_session failed")
+            path = _write_deliverable(item, {"error": str(exc)[:300]})
+            detail = f"lounge soft-fail {agent_id}"
 
     else:
         path = _write_deliverable(item, {"note": f"kind {kind} not implemented — logged"})

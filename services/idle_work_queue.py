@@ -2,13 +2,13 @@
 
 Persists the CEO day file (L0–L2 items). L0–L1 runnable without validation;
 L2 requires ceo_validated. Self-dev requires trust >= 0.70.
+Plan builder lives in ``idle_work_plan`` (Vague 5 split).
 """
 
 from __future__ import annotations
 
 import json
 import logging
-import uuid
 from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -98,120 +98,45 @@ def agent_trust_score(agent_id: str) -> float:
         return 0.0
 
 
-def _item(
+def validate_day_queue(
     *,
-    level: int,
-    kind: str,
-    agent_id: str,
-    title: str,
-    family: str,
-    payload: dict[str, Any] | None = None,
+    validated: bool = True,
+    promote_tickets: bool = True,
 ) -> dict[str, Any]:
-    return {
-        "id": f"idle_{uuid.uuid4().hex[:12]}",
-        "level": level,
-        "kind": kind,
-        "agent_id": agent_id,
-        "title": title,
-        "family": family,
-        "status": "pending",
-        "payload": payload or {},
-        "run_id": None,
-        "created_at": _now_iso(),
-        "finished_at": None,
-    }
-
-
-def build_day_plan(*, autonomy_level: int = 1) -> dict[str, Any]:
-    """Build / refresh today's idle file (does not require CEO validation)."""
-    max_lvl = max_idle_level_for_autonomy(autonomy_level)
-    items: list[dict[str, Any]] = []
-
-    if max_lvl >= 0:
-        items.append(
-            _item(
-                level=0,
-                kind="ops_snapshot",
-                agent_id="coo",
-                title="Snapshot ops multi-repo",
-                family="ops",
-            )
-        )
-        items.append(
-            _item(
-                level=0,
-                kind="cost_snapshot",
-                agent_id="accounting",
-                title="Alerte budget LLM du jour",
-                family="finance",
-            )
-        )
-
-    if max_lvl >= 1:
-        items.append(
-            _item(
-                level=1,
-                kind="company_draft",
-                agent_id="content_company",
-                title="Brouillon initiative marque / process ALNUA",
-                family="company",
-                payload={"theme": "cohérence marque + process interne"},
-            )
-        )
-        items.append(
-            _item(
-                level=1,
-                kind="product_triage",
-                agent_id="pm",
-                title="Triage backlog → proposition tickets idle-ok",
-                family="product",
-            )
-        )
-
-    if max_lvl >= 2:
-        items.append(
-            _item(
-                level=2,
-                kind="academy_wake",
-                agent_id="dev_app",
-                title="Academy wake si pipeline libre",
-                family="code",
-            )
-        )
-
-    # Self-dev candidates (gated at pick time by trust).
-    if max_lvl >= 1:
-        for aid in ("coo", "marketing", "dev_app", "rnd_agent"):
-            items.append(
-                _item(
-                    level=1,
-                    kind="self_dev",
-                    agent_id=aid,
-                    title=f"Self-dev Mem0 compress — {aid}",
-                    family="self_dev",
-                )
-            )
-
-    queue = {
-        "date": date.today().isoformat(),
-        "ceo_validated": False,
-        "validated_at": None,
-        "autonomy_level": clamp_autonomy(autonomy_level),
-        "items": items,
-        "updated_at": _now_iso(),
-    }
-    save_queue(queue)
-    return queue
-
-
-def validate_day_queue(*, validated: bool = True) -> dict[str, Any]:
+    """CEO validates the day queue (unlocks L2). Optionally promotes idle-ok tickets once."""
     queue = load_queue()
     if queue.get("date") != date.today().isoformat():
         queue = build_day_plan(autonomy_level=int(queue.get("autonomy_level") or 1))
+    was_validated = bool(queue.get("ceo_validated"))
     queue["ceo_validated"] = bool(validated)
     queue["validated_at"] = _now_iso() if validated else None
+    if not validated:
+        queue.pop("tickets_promoted_at", None)
     save_queue(queue)
-    return queue
+
+    promote_result: dict[str, Any] | None = None
+    # Auto-create [idle-ok] tickets once when unlocking L2 (Vague 3 / DEC-032).
+    if (
+        validated
+        and promote_tickets
+        and not was_validated
+        and not queue.get("tickets_promoted_at")
+    ):
+        try:
+            from services.idle_work_deliverables import promote_triage_to_tickets
+
+            promote_result = promote_triage_to_tickets(dry_run=False)
+            if int(promote_result.get("created_count") or 0) > 0:
+                queue["tickets_promoted_at"] = _now_iso()
+                save_queue(queue)
+        except Exception as exc:
+            logger.warning("idle auto-promote after validate failed: %s", exc)
+            promote_result = {"ok": False, "error": str(exc)[:200]}
+
+    out = dict(queue)
+    if promote_result is not None:
+        out["promote"] = promote_result
+    return out
 
 
 def _item_eligible(item: dict[str, Any], queue: dict[str, Any], severity: str) -> str | None:
@@ -225,7 +150,7 @@ def _item_eligible(item: dict[str, Any], queue: dict[str, Any], severity: str) -
         return "l2_needs_ceo_validation"
     if severity == "critical":
         return "budget_critical"
-    if severity == "warning" and item.get("family") in {"company", "self_dev"}:
+    if severity == "warning" and item.get("family") in {"company", "self_dev", "lounge"}:
         return "budget_warning_deferred"
     if item.get("kind") == "self_dev":
         score = agent_trust_score(str(item.get("agent_id") or ""))
@@ -282,3 +207,10 @@ def mark_item(
             break
     save_queue(queue)
     return queue
+
+
+def build_day_plan(*, autonomy_level: int = 1) -> dict[str, Any]:
+    """Build / refresh today's idle file — see ``idle_work_plan``."""
+    from services.idle_work_plan import build_day_plan as _build
+
+    return _build(autonomy_level=autonomy_level)
