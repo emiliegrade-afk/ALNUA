@@ -7,6 +7,20 @@
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
 
+## 2026-08-23 — Fallback LLM local (feat)
+
+- **Type :** feat
+- **Details :**
+  - Bascule automatique vers un modèle local (Ollama / LM Studio / vLLM
+    OpenAI-compatible) quand OpenRouter renvoie HTTP 402 (crédits épuisés).
+  - Nouveau module `services/local_llm.py` + config runtime `data/llm_connectivity.json`.
+  - UI `/settings` → « Connectivité IA » : activation, toggle bascule, URL/nom du
+    modèle, clé API optionnelle, bouton « Tester la connexion ».
+  - Endpoints `GET/POST /settings/llm-connectivity` + `/test`.
+  - Variables `.env` : `LOCAL_LLM_ENABLED`, `LOCAL_LLM_FALLBACK_ON_CREDIT`,
+    `LOCAL_LLM_BASE_URL`, `LOCAL_LLM_MODEL`, `LOCAL_LLM_API_KEY`.
+
+
 ## 2026-08-14 — Phase 47 Lot 4 Aria vocal (feat)
 
 - **Type :** feat

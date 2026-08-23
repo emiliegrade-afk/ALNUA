@@ -22,6 +22,20 @@ from config.settings import Settings
 logger = logging.getLogger(__name__)
 
 
+class OpenRouterCreditExhausted(RuntimeError):
+    """OpenRouter refused the request because the account has no credits (HTTP 402)."""
+
+
+def _credit_exhausted(status_code: int, text: str) -> bool:
+    """True when OpenRouter signals insufficient credits (402 or credit markers)."""
+    try:
+        from services.local_llm import is_credit_exhausted
+
+        return is_credit_exhausted(status_code, text)
+    except Exception:
+        return status_code == 402
+
+
 def fallback_models(settings: Settings, resolved_model: str) -> list[str]:
     """Primary model, then one distinct fallback if the primary is overloaded/gone."""
     models = [resolved_model]
@@ -57,6 +71,11 @@ def send_with_retry(
                     continue
                 raise last_exc from None
             if response.status_code >= 400:
+                if _credit_exhausted(response.status_code, response.text):
+                    raise OpenRouterCreditExhausted(
+                        f"OpenRouter {response.status_code} (out of credits): "
+                        f"{response.text[:300]}"
+                    )
                 if (
                     response.status_code in LLM_RETRYABLE_STATUS
                     and attempt < attempts - 1
@@ -102,6 +121,11 @@ async def send_with_retry_async(
                     continue
                 raise last_exc from None
             if response.status_code >= 400:
+                if _credit_exhausted(response.status_code, response.text):
+                    raise OpenRouterCreditExhausted(
+                        f"OpenRouter {response.status_code} (out of credits): "
+                        f"{response.text[:300]}"
+                    )
                 if (
                     response.status_code in LLM_RETRYABLE_STATUS
                     and attempt < attempts - 1

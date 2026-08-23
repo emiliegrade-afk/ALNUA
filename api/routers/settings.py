@@ -83,3 +83,53 @@ def settings_reset_models() -> dict[str, str]:
     return {"ok": "Tous les agents repassés en mode auto"}
 
 
+class ConnectivityUpdate(BaseModel):
+    enabled: bool
+    fallback_on_credit: bool
+    base_url: str
+    model: str
+    api_key: str = ""
+
+
+@router.get("/settings/llm-connectivity")
+def settings_llm_connectivity() -> dict[str, Any]:
+    """État du fallback LLM local (clé API jamais renvoyée en clair)."""
+    from services.local_llm import get_local_llm_config, local_llm_available
+
+    cfg = get_local_llm_config()
+    return {
+        "enabled": bool(cfg.get("enabled")),
+        "fallback_on_credit": bool(cfg.get("fallback_on_credit", True)),
+        "base_url": cfg.get("base_url", ""),
+        "model": cfg.get("model", ""),
+        "api_key_set": bool((cfg.get("api_key") or "").strip()),
+        "available": local_llm_available(),
+    }
+
+
+@router.post("/settings/llm-connectivity")
+def settings_update_llm_connectivity(body: ConnectivityUpdate) -> dict[str, str]:
+    """Enregistre la config locale. api_key vide = conserver la clé existante."""
+    from services.local_llm import save_local_llm_config
+
+    api_key = body.api_key.strip() or None
+    save_local_llm_config(
+        {
+            "enabled": body.enabled,
+            "fallback_on_credit": body.fallback_on_credit,
+            "base_url": body.base_url.strip(),
+            "model": body.model.strip(),
+        },
+        api_key=api_key,
+    )
+    return {"ok": "Connectivité IA mise à jour"}
+
+
+@router.post("/settings/llm-connectivity/test")
+def settings_test_llm_connectivity() -> dict[str, Any]:
+    """Test de connectivité au LLM local (max_tokens=1)."""
+    from services.local_llm import ping_local_llm
+
+    return ping_local_llm()
+
+
