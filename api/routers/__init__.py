@@ -21,6 +21,7 @@ from api.routers.faq import router as faq_router
 from api.routers.briefing import router as briefing_router
 from api.routers.releases import router as releases_router
 from api.routers.competition import router as competition_router
+from api.routers.lounge import router as lounge_router
 from api.routers.agents_pole import router as agents_pole_router
 from api.routers.agents_secretary import router as agents_secretary_router
 from api.routers.agents_legal import router as agents_legal_router
@@ -110,6 +111,7 @@ ALL_ROUTERS = [
     briefing_router,
     releases_router,
     competition_router,
+    lounge_router,
     agents_pole_router,
     agents_secretary_router,
     agents_legal_router,
