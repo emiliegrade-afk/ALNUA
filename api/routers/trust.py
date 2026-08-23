@@ -132,8 +132,48 @@ def review_board_evaluate(body: ReviewBoardRequest) -> dict[str, Any]:
     )
 
 
+class CrossDeptEmitBody(BaseModel):
+    title: str = Field(..., min_length=1, max_length=120)
+    project_id: str | None = Field(default=None, max_length=64)
+    source_agent: str = Field(default="ceo", max_length=64)
+
+
+class CrossDeptDrainBody(BaseModel):
+    limit: int = Field(default=3, ge=1, le=10)
+    item_ids: list[str] | None = Field(default=None, max_length=10)
+
+
 @router.get("/cross-dept/queue")
-def cross_dept_queue(limit: int = Query(default=50, ge=1, le=200)) -> dict[str, Any]:
+def cross_dept_queue(
+    limit: int = Query(default=50, ge=1, le=200),
+    status: str | None = Query(default=None, max_length=32),
+) -> dict[str, Any]:
     from services.cross_dept_handlers import list_cross_dept_queue
 
-    return {"items": list_cross_dept_queue(limit=limit)}
+    return {"items": list_cross_dept_queue(limit=limit, status=status)}
+
+
+@router.post("/cross-dept/emit-project")
+def cross_dept_emit_project(body: CrossDeptEmitBody) -> dict[str, Any]:
+    """CEO trigger — project_validated → Marketing / Finance / Analytics queue."""
+    from services.cross_dept_drain import emit_project_validated
+    from services.input_sanitizer import sanitize_user_input
+
+    return emit_project_validated(
+        title=sanitize_user_input(body.title, redact_pii_enabled=False),
+        project_id=(
+            sanitize_user_input(body.project_id, redact_pii_enabled=False)
+            if body.project_id
+            else None
+        ),
+        source_agent=sanitize_user_input(body.source_agent, redact_pii_enabled=False)[:64],
+    )
+
+
+@router.post("/cross-dept/drain")
+def cross_dept_drain(body: CrossDeptDrainBody | None = None) -> dict[str, Any]:
+    """Execute queued cross-dept drafts (Rémi / Layla / Camille or checklists)."""
+    from services.cross_dept_drain import drain_cross_dept_queue
+
+    payload = body or CrossDeptDrainBody()
+    return drain_cross_dept_queue(limit=payload.limit, item_ids=payload.item_ids)

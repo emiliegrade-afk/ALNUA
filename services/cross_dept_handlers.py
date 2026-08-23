@@ -1,7 +1,7 @@
-"""Cross-department event handlers — Phase 36 MVP.
+"""Cross-department event handlers — Phase 36 queue (fan-out only).
 
-On project_validated / content_validated: enqueue honest work items for
-Marketing, Accounting, Analytics. No fabricated metrics or auto LLM calls.
+Drain / execution lives in ``cross_dept_drain`` so this file stays a thin
+pub/sub adapter (no LLM here).
 """
 
 from __future__ import annotations
@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import logging
 import threading
+import uuid
 from datetime import datetime, timezone
 from typing import Any
 
@@ -26,39 +27,71 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def _read_rows() -> list[dict[str, Any]]:
+    if not _QUEUE.exists():
+        return []
+    try:
+        rows = json.loads(_QUEUE.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+    return rows if isinstance(rows, list) else []
+
+
+def _write_rows(rows: list[dict[str, Any]]) -> None:
+    _QUEUE.parent.mkdir(parents=True, exist_ok=True)
+    _QUEUE.write_text(
+        json.dumps(rows[-_CAP:], indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+
+
 def _append(item: dict[str, Any]) -> None:
     with _LOCK:
-        rows: list[dict[str, Any]] = []
-        if _QUEUE.exists():
-            try:
-                rows = json.loads(_QUEUE.read_text(encoding="utf-8"))
-            except Exception:
-                rows = []
-        if not isinstance(rows, list):
-            rows = []
+        rows = _read_rows()
         rows.append(item)
-        rows = rows[-_CAP:]
-        _QUEUE.parent.mkdir(parents=True, exist_ok=True)
-        _QUEUE.write_text(json.dumps(rows, indent=2, ensure_ascii=False), encoding="utf-8")
+        _write_rows(rows)
 
 
-def list_cross_dept_queue(*, limit: int = 50) -> list[dict[str, Any]]:
+def list_cross_dept_queue(
+    *,
+    limit: int = 50,
+    status: str | None = None,
+) -> list[dict[str, Any]]:
     with _LOCK:
-        if not _QUEUE.exists():
-            return []
-        try:
-            rows = json.loads(_QUEUE.read_text(encoding="utf-8"))
-        except Exception:
-            return []
-    if not isinstance(rows, list):
-        return []
+        rows = _read_rows()
+    if status:
+        rows = [r for r in rows if r.get("status") == status]
     return list(reversed(rows[-max(1, min(limit, 200)) :]))
+
+
+def get_queue_item(item_id: str) -> dict[str, Any] | None:
+    with _LOCK:
+        for row in _read_rows():
+            if row.get("id") == item_id:
+                return dict(row)
+    return None
+
+
+def update_queue_item(item_id: str, patch: dict[str, Any]) -> dict[str, Any] | None:
+    with _LOCK:
+        rows = _read_rows()
+        updated: dict[str, Any] | None = None
+        for i, row in enumerate(rows):
+            if row.get("id") == item_id:
+                rows[i] = {**row, **patch, "updated_at": _now()}
+                updated = dict(rows[i])
+                break
+        if updated is None:
+            return None
+        _write_rows(rows)
+        return updated
 
 
 def _fan_out(event: Event, departments: list[tuple[str, str]]) -> None:
     title = (event.payload or {}).get("title") or (event.payload or {}).get("project_id") or ""
     for dept, action in departments:
         item = {
+            "id": f"xd_{uuid.uuid4().hex[:12]}",
             "at": _now(),
             "event_type": event.event_type,
             "event_id": event.event_id,
@@ -71,13 +104,16 @@ def _fan_out(event: Event, departments: list[tuple[str, str]]) -> None:
                 if event.payload.get(k) is not None
             },
             "status": "queued",
+            "result_summary": None,
+            "artifact_path": None,
         }
         _append(item)
         logger.info(
-            "cross_dept queued dept=%s action=%s event=%s",
+            "cross_dept queued dept=%s action=%s event=%s id=%s",
             dept,
             action,
             event.event_type,
+            item["id"],
         )
 
 
@@ -96,7 +132,6 @@ def on_project_validated(event: Event) -> None:
 
 @subscribe("content_validated")
 def on_content_validated(event: Event) -> None:
-    """Content passed gate → schedule / measure hooks (queue only)."""
     _fan_out(
         event,
         [

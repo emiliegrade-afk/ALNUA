@@ -59,3 +59,94 @@ export async function fetchTrustGraphRecent(limit = 30): Promise<TrustGraphDecis
   );
   return Array.isArray(data.decisions) ? data.decisions : [];
 }
+
+export type ReviewBoardCheck = {
+  id: string;
+  ok?: boolean;
+  weight?: number;
+  error?: string;
+  flags?: unknown;
+  reviewer?: string;
+};
+
+export type ReviewBoardResult = {
+  department: string;
+  gate_open: boolean;
+  score: number;
+  threshold: number;
+  recommendation?: string;
+  checks?: ReviewBoardCheck[];
+  brand_review?: { ok?: boolean; flags?: unknown };
+};
+
+export async function evaluateReviewBoard(input: {
+  department: string;
+  title: string;
+  body: string;
+  status?: string;
+  producer_agent_id?: string;
+  record_trust?: boolean;
+}): Promise<ReviewBoardResult> {
+  return hubFetch<ReviewBoardResult>("/review-board/evaluate", {
+    method: "POST",
+    body: JSON.stringify({
+      department: input.department,
+      producer_agent_id: input.producer_agent_id || null,
+      record_trust: input.record_trust ?? false,
+      artifact: {
+        title: input.title,
+        body: input.body,
+        status: input.status || "to_review",
+      },
+    }),
+    timeoutMs: 20_000,
+  });
+}
+
+/** Phase 36 — cross-dept work queue item. */
+export type CrossDeptItem = {
+  id: string;
+  at?: string;
+  event_type?: string;
+  department: string;
+  action: string;
+  title?: string;
+  status: string;
+  result_summary?: string | null;
+  artifact_path?: string | null;
+};
+
+export async function fetchCrossDeptQueue(limit = 30, status?: string): Promise<CrossDeptItem[]> {
+  const q = new URLSearchParams({ limit: String(limit) });
+  if (status) q.set("status", status);
+  const data = await hubFetch<{ items: CrossDeptItem[] }>(`/cross-dept/queue?${q}`);
+  return Array.isArray(data.items) ? data.items : [];
+}
+
+export async function emitCrossDeptProject(input: {
+  title: string;
+  project_id?: string;
+}): Promise<{ emitted: boolean; event_id?: string; queued?: CrossDeptItem[] }> {
+  return hubFetch("/cross-dept/emit-project", {
+    method: "POST",
+    body: JSON.stringify({
+      title: input.title,
+      project_id: input.project_id || null,
+      source_agent: "ceo",
+    }),
+    timeoutMs: 15_000,
+  });
+}
+
+export async function drainCrossDeptQueue(limit = 3): Promise<{
+  processed: number;
+  ok: number;
+  failed: number;
+  llm_enabled?: boolean;
+}> {
+  return hubFetch("/cross-dept/drain", {
+    method: "POST",
+    body: JSON.stringify({ limit }),
+    timeoutMs: 120_000,
+  });
+}
