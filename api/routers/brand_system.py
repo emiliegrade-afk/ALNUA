@@ -33,3 +33,23 @@ def brand_review(body: BrandReviewRequest) -> dict[str, Any]:
         sector=sanitize_user_input(body.sector, max_length=64),
         department=sanitize_user_input(body.department, max_length=64),
     )
+
+
+class BrandDebateRequest(BaseModel):
+    text: str = Field(..., min_length=1, max_length=8000)
+    sector: str = ""
+    department: str = ""
+    rounds: int = Field(default=1, ge=1, le=2)
+
+
+@router.post("/brand/debate")
+def brand_debate(body: BrandDebateRequest) -> dict[str, Any]:
+    """Élise (brand) ↔ Anouk (content_company) — Phase 35 Depth+."""
+    from services.brand_voice_debate import debate_brand_voice
+
+    return debate_brand_voice(
+        body.text,
+        sector=body.sector,
+        department=body.department,
+        rounds=body.rounds,
+    )
