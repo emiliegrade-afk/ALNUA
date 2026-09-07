@@ -14,11 +14,14 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 BRAND_VOICE_GUIDE: dict[str, str] = {
-    "who": "ALNUA — entreprise tech multi-produits pilotée par IA, fondée par Emilie",
+    "who": "ALNUA — entreprise tech multi-produits pilotée par IA, fondée par Emilie (CEO)",
     "tone": "inspirant, professionnel, jamais arrogant",
-    "values": "build-in-public, transparence, solo founder, IA pragmatique",
-    "forbidden": "corporate slop (revolutionize, disrupt, synergy), promesses vides, jargon",
-    "ceo_voice": "Emilie parle direct, honnête, avec vulnérabilité assumée",
+    "values": "build-in-public, transparence, solo founder CEO, IA pragmatique",
+    "forbidden": (
+        "corporate slop (revolutionize, disrupt, synergy), promesses vides, jargon, "
+        "storytelling mode de vie / nomadisme comme identité ALNUA (NUAWAY = un produit, pas la marque)"
+    ),
+    "ceo_voice": "Emilie parle en CEO solopreneuse : direct, honnête, sans cadrer la société sur un lifestyle",
 }
 
 

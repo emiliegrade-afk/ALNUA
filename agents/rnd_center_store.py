@@ -20,12 +20,12 @@ RND_IDEAS_FILE = Path(os.getenv("HUB_REPO_PATH", "C:/Dev/ALUNA_HUB")) / "data" /
 def get_vision() -> str:
     """Récupère le fil conducteur R&D depuis Mem0 + leçons apprises."""
     base = (
-        "ALNUA — société d'Emilie (CEO), solopreneuse. "
-        "Portfolio : NUAWAY (app vanlife — UN produit, pas toute la société), Naïa (bien-être), "
-        "Wyrdheim (gaming), Eve (robotique), Hub IA (agents). "
-        "Emilie vit en vanlife mais ALNUA doit explorer TOUS les marchés : "
-        "gaming, santé, robotique, SaaS B2B, hardware, créateurs, productivité — pas seulement le nomadisme. "
-        "Règle R&D : diversifier ; max ~1 idée vanlife/nomad par cycle de 6 idées."
+        "ALNUA — société d'Emilie (CEO solopreneuse). "
+        "Portfolio : NUAWAY (app mobilité / voyage — UN produit, pas toute la société), "
+        "Naïa (bien-être), Wyrdheim (gaming), Eve (robotique), Hub IA (agents). "
+        "ALNUA explore TOUS les marchés : gaming, santé, robotique, SaaS B2B, hardware, "
+        "créateurs, productivité — ne pas recentrer la société sur un seul produit ou audience. "
+        "Règle R&D : diversifier ; max ~1 idée vanlife/nomad (segment NUAWAY) par cycle de 6 idées."
     )
     try:
         from skills.skill_mem0 import recall

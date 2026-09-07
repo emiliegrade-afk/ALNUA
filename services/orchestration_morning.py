@@ -128,6 +128,14 @@ def run_secretary_morning_notify(*, weekly_plan: bool = False) -> dict[str, Any]
             telegram_ok = notify_telegram_secretary(message)
     except Exception:
         telegram_ok = notify_telegram_secretary(message)
+    voice_ok = False
+    if telegram_ok:
+        try:
+            from services.telegram_voice import send_overlay_voice_http
+
+            voice_ok = send_overlay_voice_http(message)
+        except Exception:
+            logger.warning("secretary morning voice overlay skipped", exc_info=True)
     orch_mod._log_run(
         "secretary_morning",
         (morning_result.get("coo_plan") or "partial")[:120],
@@ -136,6 +144,6 @@ def run_secretary_morning_notify(*, weekly_plan: bool = False) -> dict[str, Any]
     return {
         "workflow": "secretary_morning",
         "orchestration": morning_result,
-        "notifications": {"telegram": telegram_ok},
+        "notifications": {"telegram": telegram_ok, "telegram_voice": voice_ok},
         "message_preview": message[:300],
     }

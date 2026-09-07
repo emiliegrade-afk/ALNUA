@@ -92,6 +92,13 @@ class SecretaryHandlersOpsMixin:
         self._finish_instruction(instruction, out[:200])
         return out
 
+    def _handle_weather(self, instruction: str) -> str:
+        from services.secretary_weather import weather_reply
+
+        out = weather_reply(instruction)
+        self._finish_instruction(instruction, out[:200])
+        return out
+
     def _handle_wake_ops(self, instruction: str) -> str:
         from services.agent_wake import wake_agents
 

@@ -109,7 +109,11 @@ def _lounge_product_ready() -> bool:
         import json
 
         data = json.loads(path.read_text(encoding="utf-8"))
-        return bool(data.get("mvp_features")) and data.get("status") in ("scaffold", "active")
+        return bool(data.get("mvp_features")) and data.get("status") in (
+            "scaffold",
+            "active",
+            "live",
+        )
     except Exception:
         return False
 

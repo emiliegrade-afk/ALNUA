@@ -18,7 +18,7 @@ export const CONSOLE_DECISIONS = "/ceo";
 export const TOP_NAV = [
   { id: "dashboard", label: "Command Center", href: CONSOLE_HOME },
   { id: "activity", label: "Activité en direct", href: CONSOLE_ACTIVITY },
-  { id: "decisions", label: "Décisions", href: CONSOLE_DECISIONS, badge: "decisions" },
+  { id: "decisions", label: "Bureau du CEO", href: CONSOLE_DECISIONS, badge: "decisions" },
   { id: "agents", label: "Tous les agents", href: CONSOLE_AGENTS },
 ] as const;
 
@@ -56,6 +56,13 @@ export function consolePathTitle(pathname: string): {
   }
   if (pathname === CONSOLE_ACTIVITY) {
     return { crumb: "ALNUA", title: "Activité", sub: "Flux temps réel" };
+  }
+  if (pathname === CONSOLE_DECISIONS || pathname === "/ceo") {
+    return {
+      crumb: "ALNUA",
+      title: "Bureau du CEO",
+      sub: "Emilie · décisions & brief",
+    };
   }
   if (pathname === CONSOLE_HQ) {
     return { crumb: "ALNUA", title: "Départements", sub: "Annuaire des 11 pôles" };

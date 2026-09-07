@@ -26,6 +26,12 @@ class WorkflowApproveStepRequest(BaseModel):
     approver_agent_id: str = Field(default="ceo", min_length=1, max_length=64)
 
 
+class WorkflowRejectStepRequest(BaseModel):
+    step_id: str = Field(..., min_length=1, max_length=64)
+    rejector_agent_id: str = Field(default="ceo", min_length=1, max_length=64)
+    reason: str = Field(default="", max_length=400)
+
+
 @router.get("/recipes")
 def workflows_list_recipes() -> list[dict[str, Any]]:
     from services.workflow_engine import list_recipes
@@ -105,6 +111,33 @@ def workflows_approve_step(
     return result
 
 
+@router.post("/runs/{run_id}/reject-step")
+def workflows_reject_step(
+    run_id: str,
+    body: WorkflowRejectStepRequest,
+) -> dict[str, Any]:
+    """CEO rejects an A_VERIFIER step — cancels the run."""
+    from services.input_sanitizer import sanitize_user_input
+    from services.workflow_engine import get_run, reject_workflow_step
+
+    if not get_run(run_id):
+        raise HTTPException(status_code=404, detail="Run introuvable")
+    reason = sanitize_user_input(body.reason, redact_pii_enabled=False)[:400]
+    result = reject_workflow_step(
+        run_id,
+        body.step_id,
+        rejector_agent_id=body.rejector_agent_id,
+        reason=reason,
+    )
+    if result.get("error") == "not_found":
+        raise HTTPException(status_code=404, detail="Run introuvable")
+    if result.get("error") == "step_not_found":
+        raise HTTPException(status_code=404, detail=f"Step introuvable : {body.step_id}")
+    if result.get("error") == "not_a_verifier":
+        raise HTTPException(status_code=409, detail="Cette étape n'est plus à vérifier")
+    return result
+
+
 @router.post("/run")
 def workflows_run(body: WorkflowRunRequest) -> dict[str, Any]:
     """Execute a workflow recipe (dossier_ceo, ship_app, run_ops, explore)."""
@@ -173,14 +206,18 @@ def workflows_idle_queue() -> dict[str, Any]:
 
 class IdleValidateRequest(BaseModel):
     validated: bool = True
+    promote_tickets: bool = True
 
 
 @router.post("/idle/validate")
 def workflows_idle_validate(body: IdleValidateRequest) -> dict[str, Any]:
-    """CEO valide la file du jour → débloque items L2."""
+    """CEO valide la file du jour → débloque items L2 (+ tickets idle-ok une fois)."""
     from services.idle_work_queue import validate_day_queue
 
-    return validate_day_queue(validated=body.validated)
+    return validate_day_queue(
+        validated=body.validated,
+        promote_tickets=body.promote_tickets,
+    )
 
 
 @router.post("/idle/plan")

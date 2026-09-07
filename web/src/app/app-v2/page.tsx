@@ -429,7 +429,7 @@ function AppDepartmentView() {
                   activityFeed={activityFeed}
                 />
               ) : null}
-              {subTab === "Documentation" ? <DocumentationTab projects={projects} /> : null}
+              {subTab === "Documentation" ? <DocumentationTab /> : null}
             </div>
           ) : (
           <div className="flex min-h-[clamp(340px,44vh,420px)] flex-1 gap-3">

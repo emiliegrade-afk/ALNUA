@@ -22,7 +22,7 @@ export function AnalyticsAgentsPanel() {
             title="Analyse de marché"
             fields={[
               { name: "product", label: "Produit", required: true, placeholder: "Naïa" },
-              { name: "market", label: "Marché cible", required: true, placeholder: "Vanlife FR" },
+              { name: "market", label: "Marché cible", required: true, placeholder: "Bien-être FR" },
               {
                 name: "competitors",
                 label: "Concurrents (virgules)",
@@ -82,7 +82,7 @@ export function AnalyticsAgentsPanel() {
                 required: true,
                 rows: 2,
               },
-              { name: "user_segment", label: "Segment utilisateur", placeholder: "Vanlifers 25-40 ans" },
+              { name: "user_segment", label: "Segment utilisateur", placeholder: "Utilisateurs 25-40 ans" },
             ]}
             onSubmit={(v) =>
               analystBusinessUserResearch({

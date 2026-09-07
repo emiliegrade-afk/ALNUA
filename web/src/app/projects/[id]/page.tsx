@@ -17,19 +17,12 @@ import { ROUTES } from "@/lib/routes";
 import type { Project, ProjectBranch, ProjectModule, RoadmapItem } from "@/lib/types";
 import { C } from "../../app-v2/shared";
 import { PROJECT_COLOR, PROJECT_LABEL, PROJECT_PROGRESS } from "../../app-v2/tabs";
-import { phasesFor, phaseProgress, coordinatorInsight, backRouteFor } from "./mock-data";
+import { backRouteFor } from "./project-nav";
 import { TeamView } from "./team-view";
 import { ModulesView } from "./modules-view";
 
-/* ────────────────────────────────────────────────────────────────────────────
-   Détail projet — maquette dédiée (projet Claude Design, 5 écrans : vue
-   d'ensemble / fiche agent / flow / détail module / conversation). Reproduite
-   sans la sidebar de la maquette (remplacée par un simple bouton retour, à la
-   demande explicite du 2026-07-29) ; le reste est copié à l'identique, y
-   compris les sections sans donnée réelle derrière (phases, décisions, COO
-   insights, modules) — voir mock-data.ts pour le détail de ce qui est
-   provisoire.
-   ──────────────────────────────────────────────────────────────────────────── */
+/* Détail projet — données live (tickets, modules, roadmap) ; plus de phases /
+ * insights / stats inventés (Vague D honesty). */
 
 const TABS = ["Vue d'ensemble", "Modules", "Équipe", "Missions", "Roadmap", "Analytics", "Paramètres"] as const;
 type Tab = (typeof TABS)[number];
@@ -113,11 +106,20 @@ function ProjectDetailView() {
     );
   }
 
-  const projectPhases = phasesFor(project.branch);
-  const phases = phaseProgress(project.id, project.branch);
   const decisions = roadmapItems.filter((r) => r.status === "idea" || r.status === "planned");
   const totalFeatures = modules.reduce((s, m) => s + m.features_total, 0);
+  const featuresDone = modules.reduce((s, m) => s + m.features_done, 0);
+  const openBugs = modules.reduce((s, m) => s + m.open_bugs, 0);
   const globalProgress = PROJECT_PROGRESS[project.status];
+  const openTickets = tickets.filter((t) => t.status === "open" || t.status === "in_progress").length;
+  const insightParts = [
+    modules.length > 0
+      ? `${modules.length} module${modules.length > 1 ? "s" : ""} · ${featuresDone}/${totalFeatures || "—"} features`
+      : "Aucun module encore",
+    openTickets > 0 ? `${openTickets} ticket${openTickets > 1 ? "s" : ""} actif${openTickets > 1 ? "s" : ""}` : "Aucun ticket actif",
+    openBugs > 0 ? `${openBugs} bug${openBugs > 1 ? "s" : ""} ouvert${openBugs > 1 ? "s" : ""}` : null,
+    decisions.length > 0 ? `${decisions.length} décision${decisions.length > 1 ? "s" : ""} en attente` : null,
+  ].filter(Boolean);
 
   return (
     <div
@@ -161,7 +163,7 @@ function ProjectDetailView() {
                 className="rounded-full border px-2.5 py-0.5 text-[10px]"
                 style={{ borderColor: "rgba(200,127,78,.3)", color: C.warm }}
               >
-                Sprint {Math.max(1, Math.floor((Date.now() - new Date(project.created_at).getTime()) / (7 * 86_400_000)) + 1)}
+                Créé {new Date(project.created_at).toLocaleDateString("fr-FR")}
               </span>
             </div>
           </div>
@@ -187,15 +189,19 @@ function ProjectDetailView() {
               </span>
             </div>
             <div className="text-[10.5px]" style={{ color: C.faint }}>
-              <p style={{ color: C.warm }}>Progression globale</p>
-              <p>{totalFeatures} fonctionnalités</p>
+              <p style={{ color: C.warm }}>Progression (statut)</p>
+              <p>
+                {totalFeatures > 0
+                  ? `${featuresDone}/${totalFeatures} fonctionnalités`
+                  : "Pas de features module"}
+              </p>
             </div>
             <div
               className="flex flex-col gap-0.5 rounded-lg border px-3 py-2 text-[10px]"
               style={{ borderColor: C.line, color: C.faint }}
             >
-              <span style={{ color: C.warm }}>Prochaine milestone</span>
-              <span>v1.{phases.length}.0</span>
+              <span style={{ color: C.warm }}>Bugs ouverts</span>
+              <span>{modules.length > 0 ? openBugs : "—"}</span>
             </div>
           </div>
         </div>
@@ -224,36 +230,54 @@ function ProjectDetailView() {
               style={{ borderColor: C.line, background: "rgba(16,13,11,.55)" }}
             >
               <p className="mb-3 text-[9.5px] tracking-[1.5px]" style={{ color: C.faint }}>
-                PROGRESSION PAR PHASE
+                MODULES — SANTÉ
               </p>
-              <div className="flex flex-wrap gap-4">
-                {projectPhases.map((phase, i) => (
-                  <div key={phase} className="flex flex-1 flex-col items-center gap-1.5" style={{ minWidth: 90 }}>
-                    <div className="relative h-[46px] w-[46px]">
-                      <svg width="46" height="46" viewBox="0 0 46 46">
-                        <circle cx="23" cy="23" r="19" fill="none" stroke="rgba(200,127,78,.15)" strokeWidth="4" />
-                        <circle
-                          cx="23"
-                          cy="23"
-                          r="19"
-                          fill="none"
-                          stroke={phases[i] === 100 ? C.online : C.copper}
-                          strokeWidth="4"
-                          strokeLinecap="round"
-                          strokeDasharray={`${((phases[i] / 100) * 2 * Math.PI * 19).toFixed(1)} ${(2 * Math.PI * 19).toFixed(1)}`}
-                          transform="rotate(-90 23 23)"
-                        />
-                      </svg>
-                      <span className="absolute inset-0 flex items-center justify-center text-[10px] font-semibold">
-                        {phases[i]}%
+              {modules.length === 0 ? (
+                <p className="py-3 text-center text-[10px]" style={{ color: C.faint }}>
+                  Aucun module — crée-en dans l&apos;onglet Modules. Pas de pipeline
+                  de phases inventé.
+                </p>
+              ) : (
+                <div className="flex flex-wrap gap-4">
+                  {modules.slice(0, 6).map((m) => (
+                    <div
+                      key={m.id}
+                      className="flex flex-1 flex-col items-center gap-1.5"
+                      style={{ minWidth: 90 }}
+                    >
+                      <div className="relative h-[46px] w-[46px]">
+                        <svg width="46" height="46" viewBox="0 0 46 46">
+                          <circle
+                            cx="23"
+                            cy="23"
+                            r="19"
+                            fill="none"
+                            stroke="rgba(200,127,78,.15)"
+                            strokeWidth="4"
+                          />
+                          <circle
+                            cx="23"
+                            cy="23"
+                            r="19"
+                            fill="none"
+                            stroke={m.progress === 100 ? C.online : C.copper}
+                            strokeWidth="4"
+                            strokeLinecap="round"
+                            strokeDasharray={`${((m.progress / 100) * 2 * Math.PI * 19).toFixed(1)} ${(2 * Math.PI * 19).toFixed(1)}`}
+                            transform="rotate(-90 23 23)"
+                          />
+                        </svg>
+                        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-semibold">
+                          {m.progress}%
+                        </span>
+                      </div>
+                      <span className="line-clamp-2 text-center text-[10px]" style={{ color: C.warm }}>
+                        {m.name}
                       </span>
                     </div>
-                    <span className="text-center text-[10px]" style={{ color: C.warm }}>
-                      {phase}
-                    </span>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </section>
 
             <div className="grid gap-4 lg:grid-cols-[1.3fr_1fr]">
@@ -403,10 +427,10 @@ function ProjectDetailView() {
                   style={{ borderColor: "rgba(200,127,78,.3)", background: "rgba(22,17,13,.5)" }}
                 >
                   <p className="mb-2 text-[9.5px] tracking-[1.5px]" style={{ color: C.copperLight }}>
-                    COO INSIGHTS
+                    SYNTHÈSE LIVE
                   </p>
                   <p className="text-[11px] leading-relaxed" style={{ color: C.warm }}>
-                    {coordinatorInsight(project.id, project.name, project.branch)}
+                    {insightParts.join(" · ")}.
                   </p>
                 </section>
               </div>
@@ -417,7 +441,6 @@ function ProjectDetailView() {
         {tab === "Modules" ? (
           <ModulesView
             project={project}
-            agents={agents}
             modules={modules}
             loading={modulesLoading}
             onModulesChange={setModules}

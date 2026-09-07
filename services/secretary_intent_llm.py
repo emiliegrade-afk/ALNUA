@@ -29,6 +29,7 @@ INTENT_VALUES = frozenset(
         "ask_lawyer",
         "write_doc",
         "housekeep",
+        "weather",
     }
 )
 
@@ -57,9 +58,11 @@ Choisis UNE intention parmi :
 - ask_lawyer — avis juridique / faire relire par l'avocat d'entreprise
 - write_doc — créer / éditer un document texte (note, contrat brouillon, compte-rendu)
 - housekeep — ranger le PC, trier le bureau, quarantaine, bordel fichiers
+- weather — météo d'une ville (temps, pluie, parapluie)
 
 Paraphrases OK (ex. « remets Théo au boulot » → wake_ops ; « c'est quoi le plan aujourd'hui ? » → briefing ;
-« range mon bureau » → housekeep ; « ouvre un doc pour le NDA » → write_doc).
+« range mon bureau » → housekeep ; « ouvre un doc pour le NDA » → write_doc ;
+« quel temps à Paris » → weather).
 Si doute → conversation.
 
 JSON uniquement :
@@ -106,6 +109,16 @@ def classify_secretary_intent(message: str) -> dict[str, Any]:
         }
     except Exception as exc:
         logger.warning("secretary intent LLM failed: %s", exc)
+        from services.secretary_intents_detect import keyword_fallback_intent
+
+        kw = keyword_fallback_intent(clean)
+        if kw:
+            return {
+                "intent": kw,
+                "confidence": 0.72,
+                "slots": {},
+                "reason": f"keyword:{type(exc).__name__}",
+            }
         return {
             "intent": "conversation",
             "confidence": 0.0,

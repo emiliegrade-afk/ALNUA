@@ -449,6 +449,10 @@ export interface CeoPendingDossier {
   id: string;
   slug: string;
   title: string;
+  /** Short product pitch if known. */
+  tagline?: string | null;
+  /** One-liner teaser for the CEO card. */
+  blurb?: string | null;
   domain: string;
   branch?: string | null;
   status: DossierStatus;
@@ -458,6 +462,11 @@ export interface CeoPendingDossier {
   can_decide: boolean;
   has_committee_report?: boolean;
   needs_action?: "generate_package";
+  /** Plain-language why this is in the CEO queue. */
+  why_waiting?: string;
+  waiting_label?: string;
+  /** Plain-language definition of what a dossier is. */
+  what_is_it?: string;
 }
 
 export interface CeoQueueResponse {
@@ -469,6 +478,7 @@ function listItemToCeoPending(
   d: RndDossierListItem,
   needsAction?: "generate_package"
 ): CeoPendingDossier {
+  const canDecide = d.status === "ready_for_ceo" && !needsAction;
   return {
     id: d.id,
     slug: d.slug,
@@ -476,8 +486,15 @@ function listItemToCeoPending(
     domain: d.domain,
     status: d.status,
     ceo_status: d.ceo_status,
-    can_decide: d.status === "ready_for_ceo",
+    can_decide: canDecide,
     needs_action: needsAction,
+    waiting_label: needsAction ? "À préparer" : "À décider",
+    why_waiting: needsAction
+      ? "L'idée a avancé en R&D, mais le résumé CEO n'a pas encore été généré."
+      : "Le comité R&D a préparé ce dossier — il attend ta décision de lancer ou non.",
+    what_is_it:
+      "Dossier R&D = étude d'une idée produit avant de décider de la lancer chez ALNUA.",
+    blurb: `${d.domain} · ${d.sections_validated_count}/${d.sections_total_count} sections validées`,
   };
 }
 
@@ -562,8 +579,9 @@ export async function fetchCeoPendingDossiers(
 }
 
 export function ceoDossierHref(dossier: { slug?: string; id: string }, view = "ceo"): string {
-  const ref = dossier.slug || dossier.id;
-  return `/rd?dossier=${encodeURIComponent(ref)}&view=${view}`;
+  // Prefer id — slug deep-links can miss the workspace select.
+  const ref = dossier.id || dossier.slug || "";
+  return `/rd?tab=dossiers&dossier=${encodeURIComponent(ref)}&view=${view}`;
 }
 
 export async function fetchCeoPackage(dossierId: string): Promise<CeoPackageResponse> {

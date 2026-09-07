@@ -26,6 +26,7 @@ from services.workflow_engine_models import (  # noqa: F401 — re-export
 from services.workflow_engine_continue import (  # noqa: F401 — re-export
     approve_workflow_step,
     continue_workflow_run,
+    reject_workflow_step,
 )
 from services.workflow_engine_run import abort_workflow_run, run_workflow  # noqa: F401 — re-export
 from services.workflow_engine_store import get_run, list_runs, save_run  # noqa: F401 — re-export
@@ -43,6 +44,7 @@ __all__ = [
     "abort_workflow_run",
     "approve_workflow_step",
     "continue_workflow_run",
+    "reject_workflow_step",
     "get_recipe",
     "get_run",
     "list_recipes",

@@ -6,7 +6,10 @@ import { Button } from "@/components/ui/button";
 import { RndDossierList } from "@/components/rnd/rnd-dossier-list";
 import { RndDossierWorkspace } from "@/components/rnd/rnd-dossier-workspace";
 import { RndPitchModal } from "@/components/rnd/rnd-pitch-modal";
-import type { RndDossierListItem } from "@/lib/rnd-dossier";
+import {
+  fetchRndDossier,
+  type RndDossierListItem,
+} from "@/lib/rnd-dossier";
 
 interface RndDossiersViewProps {
   initialDossierId?: string | null;
@@ -29,10 +32,24 @@ export function RndDossiersView({
   }, [reloadKey]);
 
   useEffect(() => {
-    if (initialDossierId) {
-      setPitchDossierId(initialDossierId);
-      setPitchOpen(true);
-    }
+    if (!initialDossierId) return;
+    let cancelled = false;
+    void (async () => {
+      try {
+        const d = await fetchRndDossier(initialDossierId);
+        if (cancelled) return;
+        setSelected(d);
+        setPitchDossierId(d.id);
+        setPitchOpen(true);
+      } catch {
+        if (cancelled) return;
+        setPitchDossierId(initialDossierId);
+        setPitchOpen(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [initialDossierId, reloadKey]);
 
   function handleSelect(d: RndDossierListItem) {

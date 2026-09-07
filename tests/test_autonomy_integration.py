@@ -140,3 +140,50 @@ def test_posts_patch_triggers_validation(
     assert resp.status_code == 200, resp.text
     body = resp.json()
     assert body.get("validation_run_id")
+
+
+def test_http_waiting_and_approve_step(
+    workflow_runs_dir: Path,
+    trust_store: Path,
+    hub_client: TestClient,
+) -> None:
+    """Phase 30 Vague 2 — endpoints CEO used by /hub + /ceo UI."""
+    from services.workflow_engine import run_workflow
+
+    with patch("services.event_bus.emit"):
+        started = run_workflow(
+            "content_validation",
+            {
+                "autonomy_level": 0,
+                "producer_agent_id": "content",
+                "artifact": {
+                    "title": "HTTP gate",
+                    "body": "D" * 100,
+                    "status": "ready",
+                    "platform": "linkedin",
+                },
+            },
+        )
+    run_id = started["run_id"]
+
+    waiting = hub_client.get(
+        "/workflows/runs?limit=10&waiting=a_verifier",
+        headers=HUB_HEADERS,
+    )
+    assert waiting.status_code == 200, waiting.text
+    runs = waiting.json().get("runs") or []
+    assert any(r.get("run_id") == run_id for r in runs)
+
+    recipes = hub_client.get("/workflows/recipes", headers=HUB_HEADERS)
+    assert recipes.status_code == 200
+    ids = {r.get("id") for r in recipes.json()}
+    assert "content_validation" in ids
+
+    with patch("services.event_bus.emit"):
+        approved = hub_client.post(
+            f"/workflows/runs/{run_id}/approve-step",
+            json={"step_id": "quality_gate", "approver_agent_id": "ceo"},
+            headers=HUB_HEADERS,
+        )
+    assert approved.status_code == 200, approved.text
+    assert approved.json().get("ok") is True

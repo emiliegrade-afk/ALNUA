@@ -1,0 +1,63 @@
+{
+  "status": "live",
+  "name": "ALNUA Agent Lounge",
+  "version": "1.0.0",
+  "dec": "DEC-031",
+  "spec": "docs/specs/SPEC_AGENT_LOUNGE.md",
+  "phase": 46,
+  "replaces": ["openroom", "salle_de_repas"],
+  "route": "/lounge",
+  "mvp_features": [
+    "hub_shell_lounge",
+    "activity_tiles",
+    "agent_presence_strip",
+    "lounge_scores_monthly_reset",
+    "puzzle_activity",
+    "idle_lounge_session",
+    "propose_to_department",
+    "seven_activity_spaces",
+    "tournaments_calendar"
+  ],
+  "spaces": [
+    "arcade",
+    "strategy",
+    "puzzle",
+    "code_challenge",
+    "simulation",
+    "exploration",
+    "creative"
+  ],
+  "scoring": {
+    "rail": "lounge_scores",
+    "independent_from": ["competition", "trust"],
+    "monthly_reset": true,
+    "lifetime_badges": true
+  },
+  "security": {
+    "isolated": true,
+    "no_direct_prod_writes": true,
+    "propose_requires_validation": true,
+    "code_challenge_qa_only": true
+  },
+  "autonomy": {
+    "idle_levels": ["L0", "L1"],
+    "priority": "filler_after_prod_idle",
+    "activity_rotation": true
+  },
+  "ui": {
+    "layout": "mock_structure",
+    "palette": ["obsidian", "titanium", "rose_copper"],
+    "glow": "restrained_copper"
+  },
+  "implemented": [
+    "v0_contract",
+    "v1_shell",
+    "v2_scores",
+    "v3_puzzle",
+    "v4_idle",
+    "v5_propose",
+    "v6_spaces_tournaments"
+  ],
+  "llm_default": "deepseek/deepseek-chat-v3.2",
+  "notes": "Phase 46 Complete — 7 espaces Q&A + tournois seedés. Code Challenge = Q&A only (pas d'exécution)."
+}

@@ -31,6 +31,7 @@ data/resource_locks.json
 data/missions/
 data/idle_queue.json
 data/cross_dept_queue.json
+data/cross_dept_artifacts/
 data/rnd_dossiers/
 data/rnd_ideas.json
 data/rnd_concepts/
@@ -52,7 +53,10 @@ data/hub.supervisor.json
 data/hub.supervisor.lock
 data/hub_active_port.txt
 data/library_distribution.json
-data/lounge_product.json
+data/lounge_scores.json
+data/lounge_sessions.json
+data/lounge_proposals.json
+data/lounge_tournaments.json
 data/milestones_state.json
 data/nadia_desktop.json
 data/rnd_trees/
@@ -63,6 +67,7 @@ data/workflow_runs/
 data/invoices.json
 data/budgets.json
 data/fiscal_obligations.json
+data/hub-app-profile/
 brand_kits/
 logs/
 
@@ -103,4 +108,8 @@ vault/obsidian/library/**
 
 # One-off local patch scripts
 web/tmp-patch-*.mjs
+
+# Fenetre desktop ALNUA (compile local, DLLs NuGet)
+bin/
+tools/webview2/
 

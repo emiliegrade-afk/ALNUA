@@ -18,6 +18,7 @@ from services.secretary_intents_constants import (
     RESEARCH_MARKERS,
     SEND_CONFIRM_MARKERS,
     WAKE_OPS_MARKERS,
+    WEATHER_MARKERS,
 )
 
 
@@ -74,6 +75,37 @@ def detect_wake_ops(text: str) -> bool:
 
 def detect_aria_delegation(text: str) -> bool:
     return any(m in _norm(text) for m in ARIA_DELEGATION_MARKERS)
+
+
+def detect_weather_intent(text: str) -> bool:
+    return any(m in _norm(text) for m in WEATHER_MARKERS)
+
+
+def keyword_fallback_intent(text: str) -> str | None:
+    """Route tools without LLM when OpenRouter is dry. None → conversation."""
+    if detect_weather_intent(text):
+        return "weather"
+    if detect_night_report(text):
+        return "night_report"
+    if detect_briefing(text):
+        return "briefing"
+    if detect_research_intent(text):
+        return "research"
+    if detect_wake_ops(text):
+        return "wake_ops"
+    if detect_aria_delegation(text):
+        return "aria_delegation"
+    if detect_connect_intent(text):
+        return "connect"
+    if detect_inbox_intent(text):
+        return "inbox"
+    if detect_calendar_intent(text):
+        return "calendar"
+    if detect_academy_intent(text):
+        return "academy"
+    if detect_email_intent(text):
+        return "email"
+    return None
 
 
 def detect_research_intent(text: str) -> bool:

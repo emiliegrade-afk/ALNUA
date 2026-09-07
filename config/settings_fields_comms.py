@@ -60,6 +60,32 @@ class SettingsCommsMixin:
         alias="TELEGRAM_SECRETARY_WEBHOOK_SECRET",
         description="Secret webhook bot Nadia (prod)",
     )
+    telegram_voice_replies: bool = Field(
+        default=False,
+        alias="TELEGRAM_VOICE_REPLIES",
+        description="Nadia + Aria : note audio overlay (Phase 47). Off par défaut. Aria ne parle que alerte/action/décision.",
+    )
+    voice_overlay_llm: bool = Field(
+        default=True,
+        alias="VOICE_OVERLAY_LLM",
+        description="2e passe LLM pour la réplique parlée. 0 = repli local (pas d'OpenRouter).",
+    )
+    elevenlabs_tts: bool = Field(
+        default=False,
+        alias="ELEVENLABS_TTS",
+        description="Lot 5 : TTS overlay ElevenLabs. 0 = Edge. Jamais de clone Marvel.",
+    )
+    elevenlabs_api_key: str = Field(default="", alias="ELEVENLABS_API_KEY")
+    elevenlabs_voice_nadia: str = Field(
+        default="",
+        alias="ELEVENLABS_VOICE_NADIA",
+        description="Voice ID original Nadia (Voice Lab), pas un clone film.",
+    )
+    elevenlabs_voice_aria: str = Field(
+        default="",
+        alias="ELEVENLABS_VOICE_ARIA",
+        description="Voice ID original Aria (Voice Lab), pas un clone film.",
+    )
     telegram_polling: bool = Field(
         default=False,
         alias="TELEGRAM_POLLING",

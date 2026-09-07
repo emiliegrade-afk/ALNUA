@@ -12,6 +12,7 @@ numpy==2.4.6
 scikit-learn==1.8.0
 stripe>=11.0.0
 opencv-python-headless==4.13.0.92
+pywebview==6.2.1
 rembg==2.0.76
 torch==2.12.0
 torchvision==0.27.0
@@ -25,6 +26,8 @@ groundingdino @ git+https://github.com/IDEA-Research/GroundingDINO.git@856dde20a
 sentry-sdk[fastapi]==2.62.0
 discord.py==2.7.1
 python-telegram-bot==22.7
+edge-tts==7.2.8
+faster-whisper==1.1.1
 apscheduler==3.11.2
 PyJWT==2.13.0
 cryptography==48.0.0

@@ -147,3 +147,25 @@ def test_promote_triage_dry_run(idle_paths: Path) -> None:
     assert result["source"] == "offline_fallback"
     assert len(result["tickets"]) >= 3
     assert all(t.get("dry_run") for t in result["tickets"])
+
+
+def test_validate_auto_promotes_tickets_once(idle_paths: Path) -> None:
+    """Vague 3 — validating the day queue creates [idle-ok] tickets once."""
+    from services.idle_work_queue import build_day_plan, validate_day_queue
+
+    build_day_plan(autonomy_level=2)
+    with patch("database.supabase_client.get_supabase") as gs:
+        mock_db = gs.return_value
+        mock_db.select.return_value = [{"id": "proj-1"}]
+        mock_db.insert.side_effect = lambda _t, payload: {**payload, "id": "t1"}
+        first = validate_day_queue(validated=True, promote_tickets=True)
+    assert first["ceo_validated"] is True
+    assert first.get("promote", {}).get("created_count", 0) >= 1
+    assert first.get("tickets_promoted_at")
+
+    with patch("database.supabase_client.get_supabase") as gs:
+        mock_db = gs.return_value
+        mock_db.insert.side_effect = AssertionError("should not re-promote")
+        second = validate_day_queue(validated=True, promote_tickets=True)
+    assert "promote" not in second or second.get("promote") is None
+    assert second.get("tickets_promoted_at")

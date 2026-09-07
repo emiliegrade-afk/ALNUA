@@ -176,3 +176,22 @@ class BrandAgent(AgentBase):
         from services.brand_design_system import review_brand_coherence
 
         return review_brand_coherence(text, sector=sector, department=department)
+
+    @trace_agent("brand")
+    def debate_voice(
+        self,
+        text: str,
+        *,
+        sector: str = "",
+        department: str = "",
+        rounds: int = 1,
+    ) -> dict[str, Any]:
+        """Phase 35 Depth+ — débat Élise ↔ Anouk sur un texte."""
+        from services.brand_voice_debate import debate_brand_voice
+
+        return debate_brand_voice(
+            text,
+            sector=sector,
+            department=department,
+            rounds=rounds,
+        )

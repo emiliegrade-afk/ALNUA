@@ -291,7 +291,7 @@ export function RndCeoPanel({
                   {executionStatus === "running" ? "Agents en cours…" : "Lancer les agents"}
                 </Button>
                 <Button type="button" variant="outline" className="border-copper/15" asChild>
-                  <Link href={ROUTES.openroom}>OpenRoom</Link>
+                  <Link href={ROUTES.lounge}>Agent Lounge</Link>
                 </Button>
                 <Button type="button" variant="outline" className="border-copper/15" asChild>
                   <Link href={ROUTES.roadmap}>Roadmap</Link>

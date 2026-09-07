@@ -92,19 +92,75 @@ class RndCeoQueueMixin:
     def _ceo_queue_item(row: dict[str, Any], pkg: Any) -> dict[str, Any]:
         recommendation = None
         branch = None
+        package_summary = None
         if isinstance(pkg, dict):
             recommendation = pkg.get("recommendation")
             branch = pkg.get("branch")
+            package_summary = (
+                pkg.get("executive_summary")
+                or pkg.get("summary")
+                or pkg.get("one_liner")
+                or pkg.get("headline")
+            )
+            if isinstance(package_summary, str):
+                package_summary = package_summary.strip()[:400] or None
+            else:
+                package_summary = None
+
+        tagline = (row.get("tagline") or "").strip() or None
+        vision = (row.get("vision_snapshot") or "").strip()
+        one_pager = (row.get("one_pager_md") or "").strip()
+        blurb = tagline or package_summary
+        if not blurb and vision:
+            blurb = vision[:280]
+        if not blurb and one_pager:
+            # First non-empty markdown line as plain teaser
+            for line in one_pager.splitlines():
+                clean = line.strip().lstrip("#").strip()
+                if clean:
+                    blurb = clean[:280]
+                    break
+
+        status = row.get("status", "draft")
+        has_pkg = bool(pkg)
+        if has_pkg and status == "ready_for_ceo":
+            why_waiting = (
+                "Le comité R&D a validé ce dossier. "
+                "Il attend ta décision CEO : lancer (approuver) ou non (refuser)."
+            )
+            waiting_label = "À décider"
+        elif has_pkg:
+            why_waiting = (
+                "Un package CEO existe déjà. Ouvre-le pour lire le résumé "
+                "et décider si tu veux avancer."
+            )
+            waiting_label = "À relire"
+        else:
+            why_waiting = (
+                "L'idée a avancé en R&D, mais le résumé CEO n'a pas encore "
+                "été généré. Génère le package puis décide."
+            )
+            waiting_label = "À préparer"
+
         return {
             "id": str(row["id"]),
             "slug": row.get("slug"),
             "title": row.get("title"),
+            "tagline": tagline,
+            "blurb": blurb,
             "domain": row.get("domain", "autre"),
             "branch": branch or row.get("branch"),
-            "status": row.get("status"),
+            "status": status,
             "ceo_status": row.get("ceo_status", "pending"),
             "recommendation": recommendation,
             "updated_at": row.get("updated_at"),
-            "can_decide": bool(pkg) and row.get("status") == "ready_for_ceo",
+            "can_decide": has_pkg and status == "ready_for_ceo",
             "has_committee_report": bool((row.get("committee_report_md") or "").strip()),
+            "why_waiting": why_waiting,
+            "waiting_label": waiting_label,
+            "what_is_it": (
+                "Dossier R&D = étude d'une idée produit (problème, solution, "
+                "finance, avis du comité). Pas un fichier Word : c'est la fiche "
+                "de décision avant de lancer (ou non) un projet ALNUA."
+            ),
         }

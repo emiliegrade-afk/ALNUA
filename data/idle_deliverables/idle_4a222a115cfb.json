@@ -1,0 +1,52 @@
+{
+  "item": {
+    "id": "idle_4a222a115cfb",
+    "level": 1,
+    "kind": "product_triage",
+    "agent_id": "pm",
+    "title": "Triage backlog → proposition tickets idle-ok",
+    "family": "product",
+    "status": "pending",
+    "payload": {},
+    "run_id": null,
+    "created_at": "2026-08-10T21:06:24.607173+00:00",
+    "finished_at": null
+  },
+  "body": {
+    "status": "draft",
+    "kind": "product_triage",
+    "agent_id": "pm",
+    "triage": {
+      "tickets": [
+        {
+          "title": "[idle-ok] Hub — brancher quick actions App",
+          "branch": "hub",
+          "priority": "P2",
+          "why": "Actions décoratives encore inertes sur /app"
+        },
+        {
+          "title": "[idle-ok] Naïa — triage backlog modules",
+          "branch": "app",
+          "priority": "P2",
+          "why": "Avancer produit App sans brief CEO ponctuel"
+        },
+        {
+          "title": "[idle-ok] Wyrdheim — sync GDD consistency check",
+          "branch": "gaming",
+          "priority": "P2",
+          "why": "Gardien canon / assets sans agency UE lourde"
+        },
+        {
+          "title": "[idle-ok] Eve — BOM drift checklist",
+          "branch": "robo",
+          "priority": "P3",
+          "why": "Surveillance hardware L0–L1 sans Pi"
+        }
+      ],
+      "summary": "Triage offline (sans OpenRouter) — candidats idle-ok",
+      "offline": true
+    },
+    "note": "Brouillon idle L1 offline — aucune issue créée"
+  },
+  "written_at": "2026-08-10T21:09:23.175565+00:00"
+}

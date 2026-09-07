@@ -76,8 +76,8 @@ export default function CompetitionPage() {
           </ol>
           <p className="text-[11px]" style={{ color: C.dim }}>
             Ambiance du siège →{" "}
-            <Link href={ROUTES.openroom} className="text-copper hover:underline">
-              salle de repas & détente
+            <Link href={ROUTES.lounge} className="text-copper hover:underline">
+              Agent Lounge
             </Link>
           </p>
         </div>

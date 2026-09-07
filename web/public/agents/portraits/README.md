@@ -22,7 +22,10 @@ inès…            → voir la liste complète dans agent-bureau.ts
 ## Comportement sans fichier
 
 `web/src/components/shared/agent-avatar.tsx` charge
-`/agents/portraits/{id}.png` et bascule sur un **monogramme** (initiales,
-anneau cuivre, teinte déterministe par agent) si le fichier n'existe pas.
-Déposer un PNG suffit à le faire apparaître — aucun code à modifier, aucun
-redémarrage de build nécessaire en dev.
+`/agents/portraits/{id}.png` via le manifeste généré
+(`web/scripts/sync-portraits.mjs`, lancé en `predev`/`prebuild`) et bascule
+sur un **monogramme** si l'id n'est pas dans le manifeste.
+
+Pour remplacer des stubs monogrammes par des portraits IA (OpenRouter Images) :
+`python scripts/fill_missing_agent_portraits.py` (nécessite crédits OpenRouter).
+Déposer un PNG puis `npm run sync:portraits` (ou redémarrer `next dev`) suffit.

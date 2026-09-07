@@ -1,11 +1,16 @@
-# Ouvre ALNUA Hub en fenetre application (sans barre navigateur).
+# Ouvre ALNUA Hub dans ALNUAHub.exe (icone X dans la barre des taches).
+# Plus Edge --app : Windows affiche toujours le logo Edge pour ce process.
 param(
     [string]$Url = "http://localhost:3000",
     [int]$WaitSeconds = 0,
-    [int]$MaxWait = 45
+    [int]$MaxWait = 90
 )
 
 $ErrorActionPreference = "SilentlyContinue"
+$Root = Split-Path -Parent $PSScriptRoot
+$Exe = Join-Path $Root "bin\ALNUAHub.exe"
+$Build = Join-Path $PSScriptRoot "build-hub-window.ps1"
+. (Join-Path $PSScriptRoot "alnua-shortcut-identity.ps1")
 
 function Test-HubWeb {
     try {
@@ -14,6 +19,14 @@ function Test-HubWeb {
     } catch {
         return $false
     }
+}
+
+function Stop-HubEdgeApp {
+    Get-CimInstance Win32_Process -Filter "Name='msedge.exe'" -ErrorAction SilentlyContinue |
+        Where-Object { $_.CommandLine -and $_.CommandLine -like "*hub-app-profile*" } |
+        ForEach-Object {
+            Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue
+        }
 }
 
 if ($WaitSeconds -gt 0) {
@@ -27,29 +40,22 @@ while (-not (Test-HubWeb) -and $elapsed -lt $MaxWait) {
 }
 
 if (-not (Test-HubWeb)) {
-    Write-Host "Hub web pas pret sur $Url" -ForegroundColor Yellow
-    Write-Host "Lance ALNUA Hub.bat pour tout demarrer." -ForegroundColor Yellow
+    $log = Join-Path $Root "data\hub_web.log"
+    Add-Content -Path $log -Value "$(Get-Date -Format o) launch-hub-app: web pas pret sur $Url"
     exit 1
 }
 
-$candidates = @(
-    @{ Name = "Edge"; Path = "${env:ProgramFiles(x86)}\Microsoft\Edge\Application\msedge.exe" },
-    @{ Name = "Edge"; Path = "$env:ProgramFiles\Microsoft\Edge\Application\msedge.exe" },
-    @{ Name = "Chrome"; Path = "$env:ProgramFiles\Google\Chrome\Application\chrome.exe" },
-    @{ Name = "Chrome"; Path = "${env:ProgramFiles(x86)}\Google\Chrome\Application\chrome.exe" }
-)
-
-foreach ($browser in $candidates) {
-    if (Test-Path $browser.Path) {
-        # Fenêtre navigateur normale (le mode --app casse souvent le layout Hub).
-        Start-Process $browser.Path -ArgumentList @(
-            $Url,
-            "--new-window"
-        )
-        Write-Host "ALNUA Hub ouvert via $($browser.Name)" -ForegroundColor Green
-        exit 0
-    }
+if (-not (Test-Path $Exe)) {
+    $ErrorActionPreference = "Stop"
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $Build
+    if (-not (Test-Path $Exe)) { exit 1 }
 }
 
-Start-Process $Url
-Write-Host "ALNUA Hub ouvert dans le navigateur" -ForegroundColor Green
+Stop-HubEdgeApp
+
+$IconPath = Get-AlnuaHubIconPath -Root $Root
+$lnk = Install-AlnuaHubWindowShortcut -Root $Root -BrowserPath $Exe `
+    -Arguments "`"$Url`"" -AppId "ALNUA.Hub" -IconPath $IconPath
+
+Start-Process -FilePath $Exe -ArgumentList $Url -WorkingDirectory (Split-Path $Exe) | Out-Null
+exit 0

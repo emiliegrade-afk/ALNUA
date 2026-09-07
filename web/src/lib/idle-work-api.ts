@@ -19,9 +19,11 @@ export interface IdleDayQueue {
   date: string;
   ceo_validated: boolean;
   validated_at?: string | null;
+  tickets_promoted_at?: string | null;
   autonomy_level?: number;
   items: IdleQueueItem[];
   updated_at?: string;
+  promote?: Record<string, unknown>;
 }
 
 export interface IdleDeliverableSummary {
@@ -39,10 +41,13 @@ export async function fetchIdleQueue(): Promise<IdleDayQueue> {
   return hubFetch<IdleDayQueue>("/workflows/idle/queue");
 }
 
-export async function validateIdleQueue(validated = true): Promise<IdleDayQueue> {
-  return hubFetch<IdleDayQueue>("/workflows/idle/validate", {
+export async function validateIdleQueue(
+  validated = true,
+  promoteTickets = true,
+): Promise<IdleDayQueue & { promote?: Record<string, unknown> }> {
+  return hubFetch("/workflows/idle/validate", {
     method: "POST",
-    body: JSON.stringify({ validated }),
+    body: JSON.stringify({ validated, promote_tickets: promoteTickets }),
   });
 }
 

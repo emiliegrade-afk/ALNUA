@@ -37,6 +37,29 @@ export interface BrandReviewResult {
   recommendation: "approve" | "revise" | string;
 }
 
+export type BrandDebateRound = {
+  round: number;
+  agent: string;
+  name: string;
+  payload: Record<string, unknown>;
+};
+
+export type BrandDebateResult = {
+  ok: boolean;
+  recommendation: "approve" | "revise" | string;
+  deliberated: boolean;
+  mode: string;
+  structural?: BrandReviewResult;
+  rounds: BrandDebateRound[];
+  debate: {
+    verdict?: string;
+    elise?: string;
+    anouk?: string;
+    dissent?: string[];
+    actions?: string[];
+  } | null;
+};
+
 export function fetchDesignSystem() {
   return hubFetch<BrandDesignSystem>("/brand/design-system");
 }
@@ -49,5 +72,18 @@ export function reviewBrandText(payload: {
   return hubFetch<BrandReviewResult>("/brand/review", {
     method: "POST",
     body: JSON.stringify(payload),
+  });
+}
+
+export function debateBrandText(payload: {
+  text: string;
+  sector?: string;
+  department?: string;
+  rounds?: number;
+}) {
+  return hubFetch<BrandDebateResult>("/brand/debate", {
+    method: "POST",
+    body: JSON.stringify(payload),
+    timeoutMs: 90_000,
   });
 }

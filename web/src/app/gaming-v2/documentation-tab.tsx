@@ -6,16 +6,11 @@ import { AgentAvatar } from "@/components/shared/agent-avatar";
 import { getAgentById } from "@/lib/agent-bureau";
 import type { Project } from "@/lib/types";
 import { C } from "../app-v2/shared";
-import { hash } from "./mock-data";
 
-/* Documentation Gaming — même vraie bibliothèque que le département App
- * (fetchLibraryEntries, bureau "gaming"), catégories orientées Game Design
- * dérivées de façon stable (pas de champ "catégorie" réel dans ce système). */
+/* Documentation — topics réels (library.topics), plus de catégories hashées. */
 
-const CATEGORIES = ["Lore", "GDD", "Quest Design", "Economy", "Dialogue", "Factions", "Crafting", "Monsters", "Items", "Blueprint Docs", "API UE5"] as const;
-
-function categoryOf(entry: LibraryEntry): string {
-  return CATEGORIES[hash(entry.id) % CATEGORIES.length];
+function topicOf(entry: LibraryEntry): string {
+  return entry.topics?.[0]?.trim() || "Bibliothèque";
 }
 
 function relTime(iso: string) {
@@ -25,13 +20,21 @@ function relTime(iso: string) {
   return `il y a ${days} j`;
 }
 
-export function DocumentationTab({ projects }: { projects: Project[] }) {
+export function DocumentationTab({
+  projects,
+  bureau = "gaming",
+  title = "DOCUMENTATION — GAME DESIGN",
+}: {
+  projects: Project[];
+  bureau?: string;
+  title?: string;
+}) {
   const [entries, setEntries] = useState<LibraryEntry[] | "loading" | "error">("loading");
-  const [filter, setFilter] = useState<(typeof CATEGORIES)[number] | "Toutes">("Toutes");
+  const [filter, setFilter] = useState<string>("Toutes");
 
   useEffect(() => {
     let cancelled = false;
-    fetchLibraryEntries({ bureau: "gaming", limit: 100 })
+    fetchLibraryEntries({ bureau, limit: 100 })
       .then((r) => {
         if (!cancelled) setEntries(r.entries ?? []);
       })
@@ -41,31 +44,49 @@ export function DocumentationTab({ projects }: { projects: Project[] }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [bureau]);
+
+  const topics = useMemo(() => {
+    if (!Array.isArray(entries)) return [] as string[];
+    const set = new Set<string>();
+    for (const e of entries) set.add(topicOf(e));
+    return [...set].sort((a, b) => a.localeCompare(b, "fr"));
+  }, [entries]);
 
   const filtered = useMemo(() => {
     if (!Array.isArray(entries)) return [];
-    const sorted = [...entries].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-    return filter === "Toutes" ? sorted : sorted.filter((e) => categoryOf(e) === filter);
+    const sorted = [...entries].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    );
+    return filter === "Toutes" ? sorted : sorted.filter((e) => topicOf(e) === filter);
   }, [entries, filter]);
 
-  const categoryCounts = useMemo(() => {
-    if (!Array.isArray(entries)) return {};
+  const topicCounts = useMemo(() => {
+    if (!Array.isArray(entries)) return {} as Record<string, number>;
     const counts: Record<string, number> = {};
-    for (const e of entries) counts[categoryOf(e)] = (counts[categoryOf(e)] ?? 0) + 1;
+    for (const e of entries) {
+      const t = topicOf(e);
+      counts[t] = (counts[t] ?? 0) + 1;
+    }
     return counts;
   }, [entries]);
 
   if (entries === "loading") {
     return (
-      <div className="flex min-h-[220px] flex-1 items-center justify-center rounded-xl text-[11px]" style={{ border: `1px solid ${C.line}`, color: C.faint }}>
+      <div
+        className="flex min-h-[220px] flex-1 items-center justify-center rounded-xl text-[11px]"
+        style={{ border: `1px solid ${C.line}`, color: C.faint }}
+      >
         Chargement de la documentation…
       </div>
     );
   }
   if (entries === "error") {
     return (
-      <div className="flex min-h-[220px] flex-1 items-center justify-center rounded-xl text-[11px]" style={{ border: `1px solid ${C.line}`, color: C.faint }}>
+      <div
+        className="flex min-h-[220px] flex-1 items-center justify-center rounded-xl text-[11px]"
+        style={{ border: `1px solid ${C.line}`, color: C.faint }}
+      >
         La bibliothèque du Hub est injoignable.
       </div>
     );
@@ -76,7 +97,7 @@ export function DocumentationTab({ projects }: { projects: Project[] }) {
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="text-[9.5px] tracking-[1.5px]" style={{ color: C.faint }}>
-            DOCUMENTATION — GAME DESIGN ({entries.length})
+            {title} ({entries.length})
           </p>
           {projects[0] ? (
             <p className="text-[10px]" style={{ color: C.dim }}>
@@ -87,7 +108,7 @@ export function DocumentationTab({ projects }: { projects: Project[] }) {
       </div>
 
       <div className="flex gap-2 overflow-x-auto">
-        {(["Toutes", ...CATEGORIES] as const).map((c) => (
+        {["Toutes", ...topics].map((c) => (
           <button
             key={c}
             type="button"
@@ -100,14 +121,21 @@ export function DocumentationTab({ projects }: { projects: Project[] }) {
             }}
           >
             {c}
-            {c !== "Toutes" ? <span className="ml-1" style={{ color: C.faint }}>{categoryCounts[c] ?? 0}</span> : null}
+            {c !== "Toutes" ? (
+              <span className="ml-1" style={{ color: C.faint }}>
+                {topicCounts[c] ?? 0}
+              </span>
+            ) : null}
           </button>
         ))}
       </div>
 
       {filtered.length === 0 ? (
-        <div className="flex min-h-[180px] flex-1 items-center justify-center rounded-xl border text-[11px]" style={{ borderColor: C.line, color: C.faint }}>
-          Aucun document dans cette catégorie.
+        <div
+          className="flex min-h-[180px] flex-1 items-center justify-center rounded-xl border text-[11px]"
+          style={{ borderColor: C.line, color: C.faint }}
+        >
+          Aucun document.
         </div>
       ) : (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-2.5">
@@ -116,8 +144,11 @@ export function DocumentationTab({ projects }: { projects: Project[] }) {
             return (
               <div key={e.id} className="flex flex-col gap-1.5 dept-instrument p-3">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="rounded-full border px-1.5 py-px text-[8px]" style={{ borderColor: "rgba(224,155,106,.22)", color: C.copperLight }}>
-                    {categoryOf(e)}
+                  <span
+                    className="rounded-full border px-1.5 py-px text-[8px]"
+                    style={{ borderColor: "rgba(224,155,106,.22)", color: C.copperLight }}
+                  >
+                    {topicOf(e)}
                   </span>
                   {e.timing === "now" ? (
                     <span className="text-[8px]" style={{ color: C.online }}>
@@ -131,7 +162,10 @@ export function DocumentationTab({ projects }: { projects: Project[] }) {
                 <p className="line-clamp-2 text-[9.5px]" style={{ color: C.dim }}>
                   {e.summary}
                 </p>
-                <div className="flex items-center justify-between border-t pt-1.5 text-[9px]" style={{ borderColor: C.lineSoft, color: C.faint }}>
+                <div
+                  className="flex items-center justify-between border-t pt-1.5 text-[9px]"
+                  style={{ borderColor: C.lineSoft, color: C.faint }}
+                >
                   {author ? (
                     <span className="flex items-center gap-1">
                       <AgentAvatar agentId={author.id} name={author.name} size={14} />

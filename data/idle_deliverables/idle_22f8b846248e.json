@@ -1,0 +1,20 @@
+{
+  "item": {
+    "id": "idle_22f8b846248e",
+    "level": 0,
+    "kind": "ops_snapshot",
+    "agent_id": "coo",
+    "title": "Snapshot ops multi-repo",
+    "family": "ops",
+    "status": "pending",
+    "payload": {},
+    "run_id": null,
+    "created_at": "2026-08-16T06:10:00.026313+00:00",
+    "finished_at": null
+  },
+  "body": {
+    "ops": "Recette RUN — surveillance multi-repo terminée",
+    "run_id": "wf_a214df0d9b42"
+  },
+  "written_at": "2026-08-16T07:16:57.761269+00:00"
+}

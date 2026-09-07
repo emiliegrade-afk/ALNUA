@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { AgentAvatar } from "@/components/shared/agent-avatar";
 import { getAgentsForBureau, type BureauKey } from "@/lib/agent-bureau";
-import { ROUTES } from "@/lib/routes";
+import { loungeAgentHref } from "@/lib/routes";
 
 type Props = {
   bureau: BureauKey;
@@ -22,7 +22,7 @@ export function BureauRoster({ bureau, title = "Équipe" }: Props) {
         {agents.map((a) => (
           <li key={a.id}>
             <Link
-              href={ROUTES.openroom}
+              href={loungeAgentHref(a.id)}
               className="flex items-center gap-3 border border-transparent px-1 py-1 transition hover:border-copper/30"
             >
               <AgentAvatar agentId={a.id} name={a.name} size={48} ring />

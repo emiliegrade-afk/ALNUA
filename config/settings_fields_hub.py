@@ -157,6 +157,16 @@ class SettingsHubMixin:
         alias="IDLE_OFFLINE_MODE",
         description="Force L1 idle drafts without OpenRouter (templates / offline triage)",
     )
+    lounge_model: str = Field(
+        default="",
+        alias="LOUNGE_MODEL",
+        description=(
+            "OpenRouter slug for Agent Lounge LLM (DEC-031). "
+            "Empty = deepseek/deepseek-chat-v3.2 (CN cheap). "
+            "Never the agent's métier model. Alternatives: z-ai/glm-4.5-air, "
+            "minimax/minimax-m2.7."
+        ),
+    )
     # Phase C Loop Engine (DEC-024)
     loop_max_iterations: int = Field(
         default=3,

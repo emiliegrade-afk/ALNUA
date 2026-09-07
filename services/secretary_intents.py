@@ -16,6 +16,7 @@ from services.secretary_intents_constants import (  # noqa: F401 — re-export
     RESEARCH_MARKERS,
     SEND_CONFIRM_MARKERS,
     WAKE_OPS_MARKERS,
+    WEATHER_MARKERS,
 )
 from services.secretary_intents_detect import (  # noqa: F401 — re-export
     detect_academy_intent,
@@ -31,8 +32,10 @@ from services.secretary_intents_detect import (  # noqa: F401 — re-export
     detect_research_intent,
     detect_send_confirm,
     detect_wake_ops,
+    detect_weather_intent,
     extract_aria_delegation_message,
     extract_research_query,
+    keyword_fallback_intent,
 )
 from services.secretary_intents_format import format_json_reply  # noqa: F401 — re-export
 from services.secretary_intents_reports import (  # noqa: F401 — re-export
@@ -56,6 +59,7 @@ __all__ = [
     "RESEARCH_MARKERS",
     "SEND_CONFIRM_MARKERS",
     "WAKE_OPS_MARKERS",
+    "WEATHER_MARKERS",
     "build_academy_status_brief",
     "build_combined_morning_message",
     "build_morning_brief_for_secretary",
@@ -73,7 +77,9 @@ __all__ = [
     "detect_research_intent",
     "detect_send_confirm",
     "detect_wake_ops",
+    "detect_weather_intent",
     "extract_aria_delegation_message",
     "extract_research_query",
     "format_json_reply",
+    "keyword_fallback_intent",
 ]

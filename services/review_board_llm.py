@@ -25,16 +25,48 @@ def run_optional_debate(
     """Return debate payload or None if flag off / LLM failure (caller keeps structural)."""
     if not llm_debate_enabled():
         return None
+
+    roles = reviewers or ["qa", "pm", "coo"]
+    roles = [str(r)[:40] for r in roles[:5]]
+    brand_seats = {"brand", "content_company"}
+    if brand_seats.intersection(roles):
+        try:
+            from services.brand_design_system import artifact_text
+            from services.brand_voice_debate import debate_brand_voice
+
+            text = artifact_text(artifact)
+            if not text.strip():
+                text = str(artifact.get("title") or artifact.get("name") or "artifact")
+            debate = debate_brand_voice(
+                text,
+                department=department,
+                sector=str(artifact.get("sector") or ""),
+                rounds=1,
+            )
+            if not debate.get("deliberated"):
+                return None
+            return {
+                "deliberated": True,
+                "mode": "brand_elise_anouk",
+                "debate": debate.get("debate") or {},
+                "rounds": debate.get("rounds") or [],
+                "reviewers": roles,
+                "structural_brand": debate.get("structural"),
+            }
+        except Exception:
+            return None
+
     try:
         from agents.base import LLMClient, parse_json_response
         from config.agent_personas import persona_prompt_intro
     except Exception:
         return None
 
-    roles = reviewers or ["qa", "pm", "coo"]
-    roles = [str(r)[:40] for r in roles[:5]]
-    title = sanitize_user_input(str(artifact.get("title") or artifact.get("name") or "artifact"), 200)
-    dept = sanitize_user_input(department, 40)
+    title = sanitize_user_input(
+        str(artifact.get("title") or artifact.get("name") or "artifact"),
+        max_length=200,
+    )
+    dept = sanitize_user_input(department, max_length=40)
     score = gate.get("score")
     threshold = gate.get("threshold")
 

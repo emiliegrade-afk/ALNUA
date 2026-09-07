@@ -6,7 +6,7 @@ const ROUTES = [
   "/secretary",
   "/ceo",
   "/hub",
-  "/openroom",
+  "/lounge",
   "/gaming",
   "/app",
   "/robo",

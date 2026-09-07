@@ -2,11 +2,8 @@
 
 import { C } from "../app-v2/shared";
 
-/* Onglet placeholder honnête — Phase 38, ROADMAP.md. Pour les sections de
-   la maquette d'Emilie (SEO, Brand Center) qui n'ont aucune donnée source
-   dans le code aujourd'hui : plutôt que de fabriquer des chiffres ou
-   d'omettre silencieusement l'onglet, on l'affiche avec la raison exacte de
-   l'absence et ce qu'il faudrait pour le rendre réel. */
+/* Onglet placeholder honnête — sections sans source de données (ex. SEO).
+   Libellé « non branché » plutôt que « coming soon » trompeur. */
 
 export function ComingSoonTab({ title, reason }: { title: string; reason: string }) {
   return (
@@ -15,7 +12,7 @@ export function ComingSoonTab({ title, reason }: { title: string; reason: string
         ⏳
       </span>
       <h3 className="text-[15px] font-semibold" style={{ color: C.ivory }}>
-        {title} — pas encore disponible
+        {title} — non branché
       </h3>
       <p className="max-w-md text-[11.5px] leading-relaxed" style={{ color: C.muted }}>
         {reason}

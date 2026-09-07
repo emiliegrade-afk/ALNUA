@@ -3,10 +3,12 @@
 import { ConsoleProvider } from "@/components/console/console-provider";
 import { DeptV2PageShell } from "@/components/dept-v2";
 import { AgentTrustView } from "@/components/trust/agent-trust-view";
+import { CrossDeptQueuePanel } from "@/components/trust/cross-dept-queue-panel";
+import { ReviewBoardPanel } from "@/components/trust/review-board-panel";
 import { C } from "@/app/app-v2/shared";
 import { ROUTES } from "@/lib/routes";
 
-/** Phase 31 — jauge trust agents (MVP UI). */
+/** Phase 31 — trust + Review Board + cross-dept drain (Phase 36). */
 export default function TrustPage() {
   return (
     <ConsoleProvider>
@@ -23,9 +25,11 @@ export default function TrustPage() {
               </span>
             </h1>
             <p className="mt-0.5 text-[11px]" style={{ color: C.dim }}>
-              Fiabilité récente · pas les points compétition
+              Fiabilité · Review Board · orchestration inter-départements
             </p>
           </div>
+          <CrossDeptQueuePanel />
+          <ReviewBoardPanel />
           <AgentTrustView />
         </div>
       </DeptV2PageShell>

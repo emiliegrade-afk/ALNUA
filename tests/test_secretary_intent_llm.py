@@ -36,12 +36,20 @@ def test_classify_paraphrase_wake_ops():
             out = classify_secretary_intent("remets Théo au boulot sur les exercices")
     assert out["intent"] == "wake_ops"
     assert out["intent"] in INTENT_VALUES
+    assert "weather" in INTENT_VALUES
 
 
 def test_classify_failure_falls_back_to_conversation():
     with patch("services.secretary_intent_llm.LLMClient", side_effect=RuntimeError("down")):
         out = classify_secretary_intent("bonjour ça va")
     assert out["intent"] == "conversation"
+
+
+def test_classify_failure_keyword_weather():
+    with patch("services.secretary_intent_llm.LLMClient", side_effect=RuntimeError("down")):
+        out = classify_secretary_intent("météo à Paris")
+    assert out["intent"] == "weather"
+    assert out["confidence"] >= 0.55
 
 
 def test_dispatch_ask_lawyer_intent():

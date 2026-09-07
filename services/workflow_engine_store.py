@@ -41,6 +41,74 @@ def _run_has_a_verifier(run: WorkflowRun) -> bool:
     return any(s.status == "A_VERIFIER" for s in run.steps)
 
 
+def _subject_from_context(ctx: dict[str, Any]) -> dict[str, Any]:
+    """Human-readable linked object for CEO waiting queue (dossier, app, SAV…)."""
+    dossier_id = str(ctx.get("dossier_id") or ctx.get("dossierId") or "").strip()
+    slug = str(ctx.get("slug") or ctx.get("app_slug") or ctx.get("product_slug") or "").strip()
+    title = str(
+        ctx.get("title")
+        or ctx.get("dossier_title")
+        or ctx.get("name")
+        or ctx.get("product_name")
+        or ""
+    ).strip()
+    topic = str(ctx.get("topic") or "").strip()
+    ticket_id = str(ctx.get("ticket_id") or ctx.get("sav_id") or "").strip()
+
+    if dossier_id and not title:
+        try:
+            from services.rnd_repository import get_rnd_repository
+
+            d = get_rnd_repository().get_dossier(dossier_id)
+            if d is not None:
+                title = getattr(d, "title", None) or ""
+                if not slug:
+                    slug = getattr(d, "slug", None) or ""
+        except Exception:
+            pass
+
+    if dossier_id:
+        label = title or slug or dossier_id[:12]
+        return {
+            "kind": "dossier",
+            "label": label,
+            "blurb": f"Idée / dossier R&D : {label}",
+            "dossier_id": dossier_id,
+            "slug": slug or None,
+            "href": f"/rd?tab=dossiers&dossier={dossier_id}&view=ceo",
+        }
+    if slug:
+        label = title or slug
+        return {
+            "kind": "app",
+            "label": label,
+            "blurb": f"Produit / projet : {label}",
+            "slug": slug,
+            "href": f"/apps?slug={slug}",
+        }
+    if ticket_id:
+        return {
+            "kind": "ticket",
+            "label": title or ticket_id,
+            "blurb": f"Ticket / SAV : {title or ticket_id}",
+            "ticket_id": ticket_id,
+            "href": f"/tickets?id={ticket_id}",
+        }
+    if topic:
+        return {
+            "kind": "topic",
+            "label": topic,
+            "blurb": f"Sujet : {topic}",
+        }
+    if title:
+        return {"kind": "generic", "label": title, "blurb": title}
+    return {
+        "kind": "none",
+        "label": "Sans objet lié",
+        "blurb": "Cette procédure n’a pas de dossier / app attaché dans son contexte.",
+    }
+
+
 def list_runs(
     *,
     limit: int = 30,
@@ -62,6 +130,7 @@ def list_runs(
             break
     out: list[dict[str, Any]] = []
     for _, run in items:
+        subject = _subject_from_context(run.context if isinstance(run.context, dict) else {})
         row: dict[str, Any] = {
             "run_id": run.run_id,
             "recipe_id": run.recipe_id,
@@ -69,14 +138,19 @@ def list_runs(
             "blocked_at_step": run.blocked_at_step,
             "created_at": run.created_at,
             "finished_at": run.finished_at,
-            "summary": run.summary[:200],
+            "summary": run.summary[:280],
+            "subject": subject,
+            "context_keys": sorted(
+                k for k in (run.context or {}) if not str(k).startswith("_")
+            )[:20],
         }
         if waiting_a_verifier:
             row["steps_a_verifier"] = [
                 {
                     "step_id": s.step_id,
                     "label": s.label,
-                    "detail": (s.detail or "")[:200],
+                    "detail": (s.detail or "")[:500],
+                    "gaps": list(s.gaps or [])[:8],
                 }
                 for s in run.steps
                 if s.status == "A_VERIFIER"

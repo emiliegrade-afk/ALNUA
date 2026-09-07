@@ -3,7 +3,10 @@ $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent $PSScriptRoot
 $VbsPath = Join-Path $Root "scripts\launch-hub-silent.vbs"
 $BatPath = Join-Path $Root "ALNUA Hub.bat"
-$IconPath = Join-Path $Root "web\public\icon-512.png"
+$IconPath = Join-Path $Root "assets\alnua-x-round.ico"
+if (-not (Test-Path $IconPath)) {
+    $IconPath = Join-Path $Root "assets\alnua-hub.ico"
+}
 $Desktop = [Environment]::GetFolderPath("Desktop")
 $ShortcutPath = Join-Path $Desktop "ALNUA Hub.lnk"
 
@@ -15,7 +18,19 @@ if (-not (Test-Path $Target)) {
 
 $wsh = New-Object -ComObject WScript.Shell
 $shortcut = $wsh.CreateShortcut($ShortcutPath)
-$shortcut.TargetPath = $Target
+# Passer par wscript.exe pour que Windows honore IconLocation (X rond).
+$ext = [System.IO.Path]::GetExtension($Target).ToLowerInvariant()
+if ($ext -eq ".vbs") {
+    $shortcut.TargetPath = Join-Path $env:SystemRoot "System32\wscript.exe"
+    $shortcut.Arguments = "//nologo `"$Target`""
+}
+elseif ($ext -eq ".bat" -or $ext -eq ".cmd") {
+    $shortcut.TargetPath = Join-Path $env:SystemRoot "System32\cmd.exe"
+    $shortcut.Arguments = "/c `"$Target`""
+}
+else {
+    $shortcut.TargetPath = $Target
+}
 $shortcut.WorkingDirectory = $Root
 $shortcut.Description = "ALNUA Hub — demarrage silencieux (pas de fenetre CMD)"
 if (Test-Path $IconPath) {
