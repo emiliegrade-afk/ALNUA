@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from agents.base import log_agent_action
+from services.input_sanitizer import sanitize_user_input
 from skills.skill_agent_learning import record_task_learning
 from skills.skill_langfuse import trace_agent
 
@@ -14,8 +15,14 @@ class SecretaryInstructionMixin:
         """
         Point d'entrée langage naturel — Telegram, Hub, desktop.
         Intent LLM d'abord ; mots-clés seulement pour confirmations critiques.
+
+        Sanitize ici (pas seulement côté appelant) : ce point d'entrée est
+        partagé par Telegram, le Hub web et Nadia Desktop (Spark) — un nouveau
+        canal ne doit pas pouvoir oublier la sanitization (SEC-007).
         """
-        instruction = instruction.strip()
+        instruction = sanitize_user_input(
+            instruction.strip(), max_length=4000, redact_pii_enabled=False
+        )
         if not instruction:
             return (
                 "Je suis là — parle-moi normalement : mails, agenda, contrats, "
@@ -26,7 +33,7 @@ class SecretaryInstructionMixin:
             classify_secretary_intent,
             should_dispatch_tool,
         )
-        from services.secretary_intents import detect_send_confirm
+        from services.secretary_intents import detect_send_confirm, detect_weather_intent
 
         try:
             log_agent_action(
@@ -43,6 +50,10 @@ class SecretaryInstructionMixin:
         # Safety: explicit send confirm stays keyword-gated (évite envoi accidentel)
         if detect_send_confirm(instruction):
             return self._handle_send_confirm(session_id)
+
+        # Weather is a free HTTP tool — no OpenRouter needed
+        if detect_weather_intent(instruction):
+            return self._handle_weather(instruction)
 
         classified = classify_secretary_intent(instruction)
         intent = str(classified.get("intent") or "conversation")
@@ -80,6 +91,8 @@ class SecretaryInstructionMixin:
             return self._handle_wake_ops(instruction)
         if intent == "research":
             return self._handle_research(instruction, session_id=session_id)
+        if intent == "weather":
+            return self._handle_weather(instruction)
         if intent == "aria_delegation":
             return self._handle_aria_delegation(instruction)
         if intent == "academy":

@@ -54,18 +54,46 @@ describe("department primary routes are live (not MockupShell)", () => {
   });
 
   it("/ceo and /secretary use live panels", () => {
+    // Brief + SiegeLifeLinks live inside CeoCommandView / SecretaryCommandView
+    // since the siege redesign (2026-08) — checking the command view covers both.
     const ceo = readFileSync(join(process.cwd(), "src", "app", "ceo", "page.tsx"), "utf8");
     const sec = readFileSync(join(process.cwd(), "src", "app", "secretary", "page.tsx"), "utf8");
-    expect(ceo).toMatch(/CeoMorningBriefCard/);
-    expect(ceo).toMatch(/SiegeLifeLinks/);
+    expect(ceo).toMatch(/CeoCommandView/);
     expect(sec).toMatch(/NadiaDesktopPanel|NadiaToolsPanel/);
-    expect(sec).toMatch(/SiegeLifeLinks/);
+    expect(sec).toMatch(/SecretaryCommandView/);
+
+    const ceoCommandView = readFileSync(
+      join(process.cwd(), "src", "components", "siege", "ceo-command-view.tsx"),
+      "utf8",
+    );
+    const secretaryCommandView = readFileSync(
+      join(process.cwd(), "src", "components", "siege", "secretary-command-view.tsx"),
+      "utf8",
+    );
+    expect(ceoCommandView).toMatch(/SiegeLifeLinks/);
+    expect(secretaryCommandView).toMatch(/SiegeLifeLinks/);
   });
 
   it("/hub uses direction roster", () => {
     const hub = readFileSync(join(process.cwd(), "src", "app", "hub", "page.tsx"), "utf8");
     expect(hub).toMatch(/BureauRoster/);
     expect(hub).toMatch(/SiegeLifeLinks/);
+  });
+
+  it("/lounge is Agent Lounge shell (not OpenRoom repas)", () => {
+    const page = readFileSync(join(process.cwd(), "src", "app", "lounge", "page.tsx"), "utf8");
+    expect(page).toMatch(/LoungePageClient/);
+    const client = readFileSync(
+      join(process.cwd(), "src", "app", "lounge", "lounge-page-client.tsx"),
+      "utf8",
+    );
+    expect(client).toMatch(/Agent Lounge/);
+    expect(client).toMatch(/LoungeHero/);
+    const openroom = readFileSync(
+      join(process.cwd(), "src", "app", "openroom", "page.tsx"),
+      "utf8",
+    );
+    expect(openroom).toMatch(/redirect\(`\/lounge/);
   });
 
   it("/competition shows leaderboard page", () => {
