@@ -1,10 +1,18 @@
-"""OpenRouter chat completion client."""
+"""OpenRouter chat completion client with local-LLM failover on credit exhaustion."""
 
 from __future__ import annotations
 
+import logging
+
 from agents.base_llm_request import build_request, record_usage, store_cache
-from agents.base_llm_transport import send_with_retry, send_with_retry_async
+from agents.base_llm_transport import (
+    OpenRouterCreditExhausted,
+    send_with_retry,
+    send_with_retry_async,
+)
 from config.settings import get_settings
+
+logger = logging.getLogger(__name__)
 
 
 class LLMClient:
@@ -59,9 +67,15 @@ class LLMClient:
         if isinstance(payload_or_cache, str):
             return payload_or_cache
 
-        actual_model, data = send_with_retry(
-            self._settings, url, headers, payload_or_cache, resolved_model,
-        )
+        try:
+            actual_model, data = send_with_retry(
+                self._settings, url, headers, payload_or_cache, resolved_model,
+            )
+        except OpenRouterCreditExhausted as exc:
+            local = self._local_fallback(payload_or_cache, exc)
+            if local is not None:
+                return local
+            raise
         content = data["choices"][0]["message"]["content"]
         record_usage(
             data=data,
@@ -79,6 +93,35 @@ class LLMClient:
             use_cache=use_cache,
         )
         return content
+
+    def _local_fallback(self, payload: dict, exc: Exception) -> str | None:
+        """Bascule vers le modèle local si OpenRouter n'a plus de crédit (402)."""
+        from services import local_llm
+
+        if not local_llm.local_llm_available():
+            return None
+        if not local_llm.fallback_on_credit_enabled():
+            return None
+        logger.warning("OpenRouter à court de crédits — bascule locale (%s)", exc)
+        try:
+            return local_llm.complete_local_sync(payload)
+        except Exception as local_exc:
+            logger.error("Bascule locale échouée : %s", local_exc)
+            return None
+
+    async def _local_fallback_async(self, payload: dict, exc: Exception) -> str | None:
+        from services import local_llm
+
+        if not local_llm.local_llm_available():
+            return None
+        if not local_llm.fallback_on_credit_enabled():
+            return None
+        logger.warning("OpenRouter à court de crédits — bascule locale (%s)", exc)
+        try:
+            return await local_llm.complete_local_async(payload)
+        except Exception as local_exc:
+            logger.error("Bascule locale échouée : %s", local_exc)
+            return None
 
     async def complete_async(
         self,
@@ -131,9 +174,15 @@ class LLMClient:
         if isinstance(payload, str):
             return payload
 
-        actual_model, data = await send_with_retry_async(
-            self._settings, url, headers, payload, resolved_model,
-        )
+        try:
+            actual_model, data = await send_with_retry_async(
+                self._settings, url, headers, payload, resolved_model,
+            )
+        except OpenRouterCreditExhausted as exc:
+            local = await self._local_fallback_async(payload, exc)
+            if local is not None:
+                return local
+            raise
         content = data["choices"][0]["message"]["content"]
         record_usage(
             data=data,

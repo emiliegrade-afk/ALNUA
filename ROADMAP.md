@@ -65,7 +65,7 @@ Statut légende : ⏸️ Not started | 🔄 In progress | ✅ Complete | 🔴 Bl
 
 **Plan Hub 100 % logiciel (DEC-032) — Vague 0–5 done.**
 Phases **30 / 31 / 32 / 34 / 39 = ✅**. Audit 005 (7) fait le 2026-09-07 —
-voir `docs/classeur/doc-audit.md`. Reste : apps (6), committer/pousser le
+voir `docs/classeur/doc-audit.md`. Reste : apps (6), finaliser push du
 travail en cours (BUG-024).
 **Fin reportée :** Pi, UE5.8, Revolut, ads.
 

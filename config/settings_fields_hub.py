@@ -221,3 +221,29 @@ class SettingsHubMixin:
         le=20,
         description="Distinct agents in same room before promoting lesson to L2",
     )
+    # Local LLM failover — fallback quand OpenRouter n'a plus de crédit (HTTP 402).
+    local_llm_enabled: bool = Field(
+        default=False,
+        alias="LOCAL_LLM_ENABLED",
+        description="Activer le fallback LLM local (Ollama / LM Studio / vLLM OpenAI-compatible)",
+    )
+    local_llm_fallback_on_credit: bool = Field(
+        default=True,
+        alias="LOCAL_LLM_FALLBACK_ON_CREDIT",
+        description="Bascule automatique vers le LLM local si OpenRouter renvoie 402 (crédits épuisés)",
+    )
+    local_llm_base_url: str = Field(
+        default="http://localhost:11434/v1",
+        alias="LOCAL_LLM_BASE_URL",
+        description="Base URL OpenAI-compatible (Ollama : http://localhost:11434/v1)",
+    )
+    local_llm_model: str = Field(
+        default="qwen2.5:7b-instruct-q4_K_M",
+        alias="LOCAL_LLM_MODEL",
+        description="Nom du modèle local (tag Ollama, id LM Studio, etc.)",
+    )
+    local_llm_api_key: str = Field(
+        default="",
+        alias="LOCAL_LLM_API_KEY",
+        description="Bearer token optionnel (vide pour Ollama)",
+    )
