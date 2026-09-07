@@ -68,6 +68,11 @@ data/invoices.json
 data/budgets.json
 data/fiscal_obligations.json
 data/hub-app-profile/
+data/idle_deliverables/
+data/nadia_docs/
+data/nomenclature_counters.json
+data/security_auth_failures.json
+data/security_patrol_last.json
 brand_kits/
 logs/
 
