@@ -20,7 +20,7 @@ pour que la racine du repo reste lisible.
 | Dossier / fichier | Contenu |
 |-------------------|---------|
 | [`classeur/`](classeur/) | Architecture, testing, implementation status, audits, todos |
-| [`specs/`](specs/) | Contrats feature (`SPEC_*`) — Brand, R&D, UE5.8, workflows |
+| [`specs/`](specs/) | Contrats feature (`SPEC_*`) — Brand, R&D, UE5.8, workflows, overlay Jarvis |
 | [`guides/`](guides/) | **[Manuel utilisateur (noob)](guides/user-manual.md)**, MCP Cursor, [sécurité VPS](guides/SECURITY_HARDENING.md), autonomie, n8n |
 | [`getting-started/`](getting-started/) | [Install](getting-started/installation.md) · [15 min](getting-started/first-15-minutes.md) · [Concepts](getting-started/concepts.md) |
 | [`api/`](api/) | [Auth Hub-Key](api/authentication.md) |

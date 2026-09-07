@@ -31,7 +31,7 @@
 | 18 | Gaming — intégrations Steamworks (Wishlist) + Discord | ✅ Complete (réceptacle) |
 | 19 | Robotique — BOM étendu (PCB/firmware/tests) + bancs connectés (Laboratoire) | ✅ Complete (réceptacle) |
 | 20 | Robotique — télémétrie IoT (Analytics : conso/temp/batterie/cycles) | ✅ Complete (réceptacle) |
-| 21 | Outils réels (skills) pour les 15 agents spécialisés Gaming/Robotique (Phase 13) | 🔄 In progress (A/B + DEC-020) |
+| 21 | Outils réels (skills) pour les 15 agents spécialisés Gaming/Robotique (Phase 13) | ✅ Hub Complete (config UE/Pi externe pour live studio) |
 | 22 | Redesign R&D v2 — socle & coquille (`/rnd-v2`) | ✅ Complete |
 | 23 | Redesign R&D v2 — Innovation Pipeline (cartes) | ✅ Complete |
 | 24 | Redesign R&D v2 — Incubateur (Kanban) | ✅ Complete |
@@ -40,42 +40,43 @@
 | 27 | Redesign R&D v2 — Dossiers (vue table) | ✅ Complete |
 | 28 | Redesign R&D v2 — Explorer (veille externe autonome) | ✅ Complete (Vague E) |
 | 29 | Marketing/Finances — Command Center visuel (chrome immersif + cockpits) | ✅ Complete |
-| 30 | Workflow engine généralisé — recettes de validation configurables + niveaux d'autonomie | 🔄 MVP Complete |
-| 31 | Agent Trust System — indice de confiance par agent, distinct de la compétition | 🔄 MVP Complete |
-| 32 | Review Board générique + Quality Gates par département | 🔄 MVP Complete |
+| 30 | Workflow engine généralisé — recettes de validation configurables + niveaux d'autonomie | ✅ Complete (DEC-032 Vague 2) |
+| 31 | Agent Trust System — indice de confiance par agent, distinct de la compétition | ✅ Complete (DEC-032) |
+| 32 | Review Board générique + Quality Gates par département | ✅ Complete (DEC-032) |
 | 33 | Marketing Command Center — profondeur (campagnes, calendrier éditorial unifié) | ✅ Complete (Campagnes + Content Studio) |
-| 34 | Finance Cockpit — profondeur (budgets, factures, fiscalité) | 🔄 Depth+ (alerts/invoices/fiscal ; `budget_transfer` reporté) |
-| 35 | Brand Design — design system transversal + reviewer cross-département | 🔄 Depth+ (persona + Content Studio ; débat LLM / split brand-view reste) |
-| 36 | Orchestration inter-départements — event bus cross-département + briefing COO étendu | 🔄 MVP Complete |
+| 34 | Finance Cockpit — profondeur (budgets, factures, fiscalité) | ✅ Complete sans `budget_transfer` (DEC-032) |
+| 35 | Brand Design — design system transversal + reviewer cross-département | ✅ Depth+ Complete (débat Élise↔Anouk + split brand-view) |
+| 36 | Orchestration inter-départements — event bus cross-département + briefing COO étendu | ✅ Depth+ Complete |
 | 37 | Marketing Command Center : mesure de performance réelle (Reach/Engagement/ROI/Funnel) | ✅ Complete |
 | 38 | Harmonisation visuelle globale du Hub sur les maquettes ChatGPT (rendu visuel, branchement à reconnecter) | ✅ Complete |
-| 39 | Idle agent work — file hybride COO/CEO, ambition entreprise, trust + budget adaptatif | 🔄 MVP Complete (DEC-021) |
+| 39 | Idle agent work — file hybride COO/CEO, ambition entreprise, trust + budget adaptatif | ✅ Complete (DEC-032 Vague 3) |
 | 40 | Agent isolation (AAF Phase A) — locks + slots + merge integrator-only | ✅ Complete (DEC-022) |
 | 41 | Mission Graph (AAF Phase B) — DAG Mission/Tasks + API + OpenRoom | ✅ Complete (DEC-023) |
 | 42 | Loop Engine (AAF Phase C) — execute/evaluate/feedback/retry | ✅ Complete (DEC-024) |
 | 43 | Review Chain + Merge (AAF Phase D) — AUTO→BOARD→POLICY→INTEGRATE | ✅ Complete (DEC-025) |
 | 44 | Capabilities + PermissionGuard + Trust Graph (AAF Phase E) | ✅ Complete (DEC-026) |
 | 45 | Context Engine L1–L4 + Collective (AAF Phase F) | ✅ Complete (DEC-027) |
+| 46 | Agent Lounge — remplace OpenRoom ; gamification expérimentale isolée | ✅ Complete (DEC-031) |
+| 47 | Overlay Jarvis — Nadia/Aria faits texte + réplique voix (DEC-033) | 🔄 Lots 0–4 |
 
 Statut légende : ⏸️ Not started | 🔄 In progress | ✅ Complete | 🔴 Blocked
 
 ## Current phase
 
-Phases 29-36 définies le 2026-07-31 (brief Emilie). **Phase 29 + 33** complétées
-2026-07-31 ; **Phases 30/31/32/36 en MVP** le 2026-08-09 (Phase E remédiation
-Audit 002). Audits 002–004 + Sprint REM-002 + **Vague 0 code sain = 100 %** le
-même jour (checklist AGENTS, OVERVIEW, prune branches, BUG-019 fermé, arbre
-propre). Next **16.3.0**.
-**Vagues code sain 0–4 = 100 %** (2026-08-09) : garde-fous → Next 16/trust →
-MissionsTab+COO split → Finance/skills/MVP honesty → **durabilité** (purge vault
-dumps, orphan `coding_facade`, checklist `AGENTS.md`, tests HTTP budgets).
-**`budget_transfer` :** explicitement **reporté** (pas dans le moteur ; enveloppes
-budgets manuelles seulement — DEC-016 inchangé, pas de paiement/transfert auto).
-**Prochain audit santé :** ≤ **2026-08-30** (Audit 005). **P0 + Vagues A–F +
-debt paydown :** bible `docs/` ; **0 fichiers Python >1000 / >500 / >300**.
-**2026-08-11 H1–H5 :** sécurité / Sentinel / launch / manuel / Nadia complète
-(docs, desktop, housekeeper, Solène) + **HQ immersif** (carte `/hq`, portraits
-clés, repas/détente OpenRoom). Suite : VPS/UE/Pi (**H6**) ; Audit 005.
+**Plan Hub 100 % logiciel (DEC-032) — Vague 0–5 done.**
+Phases **30 / 31 / 32 / 34 / 39 = ✅**. Audit 005 (7) fait le 2026-09-07 —
+voir `docs/classeur/doc-audit.md`. Reste : apps (6), committer/pousser le
+travail en cours (BUG-024).
+**Fin reportée :** Pi, UE5.8, Revolut, ads.
+
+**En cours :** Phase **47** Overlay Jarvis — Lots 0–4 ✅. Suivant = Lot 5 (ElevenLabs optionnel).
+Sans crédits OpenRouter : `VOICE_OVERLAY_LLM=0` ; météo = tool HTTP (wttr.in).
+
+## Points tranchés le 2026-08-12 (DEC-032)
+
+- **31 / 32 / 34** — closes MVP / Depth+ sans rouvrir `budget_transfer`.
+- **30** — Complete seulement après UI workflows (Vague 2) ; pas de transfert auto.
+- **100 % Hub logiciel** ≠ Pi / UE5.8 / Revolut / réseaux sociaux (fin de plan).
 
 ## Points tranchés le 2026-07-25 (anciennement ouverts)
 
@@ -472,8 +473,9 @@ pont Nwiro **abandonné** (DEC-017) — ne plus étendre `skill_nwiro`.
 - environment_artist / narrative_designer / sound_designer / qa_gaming :
   `probe_ue58` + endpoints ; narrative `search_canon` ; qa `list_recent_builds` ;
   agency `run_studio_task` (env + sound) ; filtres `AGENT_CAP_FILTERS`
-**Statut :** 🔄 In progress (skills Gaming+Robo branchés ; UE_PROJECT_PATH + Pi
-à configurer ; serveur UE5.8 studio à brancher).
+**Statut :** ✅ Hub-side Complete (Vague D 2026-08-11) — UI 100 % honnête
+(builds/télémétrie/lab/community ou « — ») ; studio live dépend encore de
+`UE_PROJECT_PATH` + serveur UE5.8 + Pi optionnel (DEC-017/018/020).
 
 ### Phase 22 — Redesign R&D v2 : socle & coquille (`/rnd-v2`)
 **Objectif :** premier étage d'une refonte en 7 phases (22-28) du département
@@ -728,8 +730,9 @@ mirrorée dans `database/schema.sql`.
   `evaluate` lève une erreur claire (503) plutôt que de fabriquer un
   verdict. Le frontend respecte ce flag avant d'afficher la bannière.
 - Nouveau routeur `api/routers/rnd_council.py` (5 endpoints), enregistré
-  dans `api/routers/__init__.py::ALL_ROUTERS` (compte actuel **40** routers +
-  `gdd` conditionnel — Phase E `trust` ; historique Phase 25 = 38).
+  dans `api/routers/__init__.py::ALL_ROUTERS` (compte à l'origine **40** routers +
+  `gdd` conditionnel — Phase E `trust` ; historique Phase 25 = 38 ; resync
+  Audit 005 2026-09-07 : **86** routers réels, voir `BUGS.md` BUG-023).
 - `web/src/lib/rnd-council.ts` — client complet.
 - `web/src/app/rnd-v2/conseil-tab.tsx` — 3 colonnes (participants/
   conversation/jauges), toggle Discussion libre ↔ 💎 Conseil IA (formulaire
@@ -1244,13 +1247,9 @@ type de tâche/département déterminant combien d'étapes s'auto-valident.
 **Décision d'architecture :** un seul moteur générique — voir `DECISIONS.md`
 DEC-012 (pas de second moteur de workflow).
 **Dépendances :** aucune côté code existant ; conditionne les Phases 31-32.
-**Statut :** 🔄 MVP Complete (2026-08-09) — recettes `content_validation` /
-`campaign_validation` + autonomie 0–3 dans `services/workflow_validation_recipes.py`
-(enregistrées dans le catalogue existant, DEC-012) ; `workflow_step_completed`
-émis à chaque étape. `budget_transfer` encore absent (Phase 34).
-**Profondeur 2026-08-10 :** `services/autonomy_resolver.py` (trust→level) ;
-`PATCH /posts` → `content_validation` ; CEO `approve-step` + filtre
-`?waiting=a_verifier`. Reste : drain cross-dept exécutable, plan idle LLM.
+**Statut :** ✅ Complete (DEC-032 Vague 2, 2026-08-12) — recettes validation +
+autonomie ; CEO `/ceo` A_VERIFIER ; Direction `/hub` panneau Company OS (ops /
+ship / historique + lien file CEO). `budget_transfer` **hors scope**.
 
 ### Phase 31 — Agent Trust System
 **Objectif :** indice de confiance par agent, alimenté par l'historique réel
@@ -1263,8 +1262,9 @@ pondéré/décroissant, pas cumulatif. Nouveau service `services/agent_trust.py`
 **Dépendances :** Phase 30 (le trust score se calcule à partir de
 l'historique des workflows de validation — sans Phase 30, pas de données à
 mesurer).
-**Statut :** 🔄 MVP Complete (2026-08-09) — JSON `data/agent_trust.json` +
-`GET /agents/trust` / `GET /agents/trust/{id}` ; jauge frontend `/trust` (Vague 1).
+**Statut :** ✅ Complete (DEC-032, 2026-08-12) — MVP accepté : JSON
+`data/agent_trust.json` + `GET /agents/trust` + jauge `/trust` (Vague 1).
+Enrichissements historiques optionnels hors tampon 100 %.
 
 ### Phase 32 — Review Board générique + Quality Gates
 **Objectif :** généraliser `agents/rnd_council_agent.py` (aujourd'hui scopé
@@ -1276,10 +1276,9 @@ passage par le workflow engine (Phase 30).
 **Dépendances :** Phase 30 (les gates bloquent une transition d'étape du
 workflow engine) et Phase 31 (un score sous le seuil doit pouvoir peser sur
 le trust de l'agent producteur).
-**Statut :** 🔄 MVP Complete (2026-08-09) — `config/quality_gates.py` +
-`services/review_board.py` + `POST /review-board/evaluate`.
-**Vague 3 :** débat LLM optionnel via `REVIEW_BOARD_LLM=1`
-(`services/review_board_llm.py`) — défaut off = structural only.
+**Statut :** ✅ Complete (DEC-032, 2026-08-12) — `config/quality_gates.py` +
+`services/review_board.py` + `POST /review-board/evaluate` ; débat LLM optionnel
+(`REVIEW_BOARD_LLM`, défaut off). UI mini Review Board sur `/trust`.
 
 ### Phase 33 — Marketing Command Center — profondeur (Campagnes + Content Studio)
 **Objectif :** livrer deux fonctionnalités précises du brief Emilie —
@@ -1408,7 +1407,9 @@ Migration Supabase tables optionnelle plus tard — le JSON reste le chemin quot
 **Avancée profondeur 2026-08-10 :** `spent` overlay (computed + manual),
 `GET /finances/budget-alerts` (warning ≥80% / critical ≥100% + event_bus),
 factures due_date/filtres/overdue, fiscal auto-promote `upcoming→due`.
-**Statut :** 🔄 Depth+ (`budget_transfer` toujours hors scope).
+**Statut :** ✅ Complete sans `budget_transfer` (DEC-032, 2026-08-12) —
+alerts / invoices / fiscal / forecast / SaaS ledger. Transfert auto entre
+départements = hors scope définitif pour le tampon 100 % Hub (DEC-016).
 
 ### Phase 35 — Brand Design transversal
 **Objectif :** étendre `agents/brand_agent.py` (aujourd'hui pipeline
@@ -1426,11 +1427,11 @@ générique).
 - `GET /brand/design-system`, `POST /brand/review` (`brand_system` router)
 - Marketing Brand Center réel (plus ComingSoon)
 - Hors scope Vague D : persona multi-room Brand, débat LLM, split `brand-view`
-**Avancée profondeur 2026-08-10 :** persona `brand` (Élise Mercier) +
-`BrandAgent(AgentBase)` ; Content Studio Review Brand + gate statut ;
-guidelines kit + `layout_tokens`. Reste : débat LLM Brand↔Anouk, split
-`brand-view` (577 lignes).
-**Statut :** 🔄 Depth+ (Vague D + persona + workflow éditorial).
+**Avancée profondeur 2026-08-11 (Vague C) :** débat LLM Élise↔Anouk
+(`services/brand_voice_debate.py`, `POST /brand/debate`, Brand Center UI) ;
+Review Board LLM route brand seats vers ce débat ; split `brand-view`
+(`use-brand-kit-workflow` + `brand-kit-workspace`).
+**Statut :** ✅ Depth+ Complete (débat + split ; design system transversal live).
 
 ### Phase 36 — Orchestration inter-départements
 **Objectif :** le scénario "validation d'un projet APP → Marketing crée le
@@ -1441,11 +1442,12 @@ mécanisme exact (pub/sub, handlers déjà câblés pour d'autres événements) 
 `services/daily_briefing.py` pour une synthèse cross-département.
 **Dépendances :** Phases 33/34 (les départements doivent avoir une logique
 métier réelle à déclencher, pas juste un cockpit d'affichage).
-**Statut :** 🔄 MVP Complete (2026-08-09) — handlers `project_validated` /
-`content_validated` / `campaign_validated` → file `data/cross_dept_queue.json`
-(actions Marketing / Finance / Analytics en queue, sans LLM auto) ;
-`GET /cross-dept/queue`. **Vague 3 :** `daily_briefing._collect_cross_dept`
-injecte la file dans `raw_data` + prompt COO (`cross_dept_note`).
+**Statut :** ✅ Depth+ Complete (2026-08-12) — handlers `project_validated` /
+`content_validated` / `campaign_validated` → file `data/cross_dept_queue.json` ;
+`GET /cross-dept/queue` ; `POST /cross-dept/emit-project` + `POST /cross-dept/drain`
+(brouillons Camille/Rémi/Layla ou checklists honnêtes, artifacts JSON) ; UI
+`/trust` ; briefing COO (`queued` + `recent_done`). `CROSS_DEPT_DRAIN_LLM=0`
+pour squelettes sans LLM.
 
 ### Phase 37 — Marketing Command Center : mesure de performance réelle (Reach/Engagement/ROI/Funnel)
 **Contexte :** Phase 33/29 avaient explicitement exclu Performances par
@@ -1569,8 +1571,9 @@ budget critical.
   Phase 21 probes 4 gaming, `/analytics` → `AnalyticsAgentsPanel`
 **Suite livrée (même jour) :** UI `/ceo` file idle (valider L2 / drain) ;
   L1 company/product = vrais drafts ; dept-v2 + lobby = load réel uniquement.
-**Statut :** 🔄 MVP Complete — prochains enrichissements optionnels (preview
-  livrables dans l’UI, tickets idle-ok auto-créés après validation CEO).
+**Statut :** ✅ Complete (DEC-032 Vague 3, 2026-08-12) — preview livrables `/ceo`,
+promote manuel + **auto-tickets [idle-ok] à la 1ʳᵉ validation L2**. Enrichissements
+UI optionnels hors tampon 100 %.
 
 ### Phase 40 — Agent isolation (AAF Phase A)
 **Objectif :** agents parallèles sans overwrite ; concurrence bornée ; merge
@@ -1652,3 +1655,82 @@ promotion collective L3→L2 (≥3 agents / bureau).
 **Suite :** AAF plan A–F terminé — Neo4j hors scope volontaire ;
   MCP PermissionGuard progressif + call-sites catalog MVP câblés.
 **Statut :** ✅ Complete.
+
+### Phase 46 — Agent Lounge
+**Objectif :** remplacer OpenRoom / « repas & détente » par un **Agent Lounge**
+(expérimentation, challenges, collab, gamification) isolé de la compétition
+prod et du trust ; agents autonomes en idle filler ; boucle proposition →
+départements.
+**Référence :** `docs/specs/SPEC_AGENT_LOUNGE.md`, DEC-031.
+**Vagues :**
+| Vague | Contenu | Statut |
+|-------|---------|--------|
+| V0 | Spec + DEC-031 + `data/lounge_product.json` (gate Academy) | ✅ 2026-08-11 |
+| V1 | Shell `/lounge` + redirect OpenRoom + HQ / SiegeLifeLinks | ✅ 2026-08-11 |
+| V2 | `lounge_scores` (reset mensuel) + API + panneau classement | ✅ 2026-08-11 |
+| V3 | Activité Puzzle jouable + sessions | ✅ 2026-08-11 |
+| V4 | Idle `lounge_session` (L0 filler) + LLM Lounge CN | ✅ 2026-08-11 |
+| V5 | Propose → ticket / CEO (pas de write prod) | ✅ 2026-08-11 |
+| V6 | Autres espaces (arcade, code, creative…) + tournois | ✅ 2026-08-11 |
+**Livré V0 (2026-08-11) :**
+- `docs/specs/SPEC_AGENT_LOUNGE.md`
+- DEC-031 (deux rails scores, replace OpenRoom, autonomie, UI Hub)
+- `data/lounge_product.json` (`status: scaffold`, `mvp_features`)
+**Livré V1 (2026-08-11) :**
+- `/lounge` shell (hero, 7 activités stubs, présence agents, live, events)
+- `/openroom` → redirect `/lounge` (query `?agent=` conservée)
+- HQ hotspot + SiegeLifeLinks + nav outils « Agent Lounge »
+**Livré V2 (2026-08-11) :**
+- `services/lounge_scores.py` + `api/routers/lounge.py` + `web/src/lib/lounge-api.ts`
+- Classement Lounge dans le panneau droit (≠ `/competition`)
+- Tests `tests/test_lounge_scores.py`
+**Livré V3 (2026-08-11) :**
+- `services/lounge_activities/puzzle.py` + `lounge_runtime.py`
+- Sessions `/lounge/sessions` + panneau Puzzle UI
+- Tests `tests/test_lounge_runtime.py`
+**Livré V4 (2026-08-11) :**
+- Idle kind `lounge_session` (filler en fin de file) + gates budget
+- `services/lounge_llm.py` — modèle Lounge dédié
+- DEC-031 §7 ; tests `tests/test_lounge_idle.py`
+**Livré V5 (2026-08-11) :**
+- Défaut LLM = `deepseek/deepseek-chat-v3.2`
+- `services/lounge_propose.py` + `POST /lounge/propose` + UI propose
+- Ticket `source=lounge` (validation humaine) ; tests `tests/test_lounge_propose.py`
+**Livré V6 (2026-08-11) :**
+- 7 modules `lounge_activities/*` + catalog unifié ; runtime multi-activité
+- Tournois `lounge_tournaments` + `GET /lounge/tournaments` / activities / challenges
+- UI : tuiles live + panneau play générique + events API
+- Idle rotation activités ; tests `tests/test_lounge_v6.py`
+**Statut :** ✅ Complete.
+
+### Phase 47 — Overlay Jarvis (Nadia / Aria)
+**Objectif :** dicter à Nadia (quotidien) et Aria (ops) : faits en **texte**,
+réplique en **voix**, sans clone Marvel ni graphe n8n. Deux bots inchangés.
+**Référence :** `docs/specs/SPEC_JARVIS_OVERLAY.md`, DEC-033.
+**Lots :**
+| Lot | Contenu | Statut |
+|-----|---------|--------|
+| 0 | Contrat : split faits/voix, 5 exemples gold, Edge TTS v1, persona reporté | ✅ 2026-08-14 |
+| 1 | Telegram Nadia : Whisper STT + overlay LLM + Edge TTS + `filters.VOICE` | ✅ 2026-08-14 |
+| 2 | ALNUA Desk : même overlay (ne plus lire le pavé) ; repli sans LLM | ✅ 2026-08-14 |
+| 3 | Brief 8h vocal ; research/météo en tool | ✅ 2026-08-14 |
+| 4 | Aria : STT ; TTS seulement alerte / action / décision | ✅ 2026-08-14 |
+| 5 | ElevenLabs optionnel (voix originales, fallback Edge) | ⏸️ |
+| Persona | Recalage Nadia après observation live | ⏸️ volontaire |
+**Livré Lot 0 (2026-08-14) :** spec + DEC-033.
+**Livré Lot 1 (2026-08-14) :**
+- `services/voice_overlay.py` + `services/telegram_voice.py`
+- `bots/telegram_secretary_voice.py` + `filters.VOICE`
+- Flag `TELEGRAM_VOICE_REPLIES` (off par défaut)
+- Tests `test_voice_overlay.py` / `test_telegram_voice.py`
+**Livré Lot 2 (2026-08-14) :**
+- Desk `spark_shell` : overlay seulement ; stop TTS à chaque envoi
+- `spoken_overlay` + `fallback_overlay` ; flag `VOICE_OVERLAY_LLM`
+**Livré Lot 3 (2026-08-14) :**
+- Brief 8h : overlay vocal après le digest (bot + `run_secretary_morning_notify`)
+- Tool météo `services/secretary_weather.py` (wttr.in, sans LLM)
+- Overlay contextuel météo / brief / recherche ; keyword fallback si OpenRouter down
+**Livré Lot 4 (2026-08-14) :**
+- Aria Telegram : Whisper STT ; TTS overlay seulement alerte / action / décision
+- `bots/telegram_coo_voice.py` ; bots Nadia et Aria restent séparés
+**Statut :** 🔄 In progress (Lots 0–4 done).

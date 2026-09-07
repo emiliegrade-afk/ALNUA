@@ -9,13 +9,13 @@ solo d'Emilie, couvrant 3 branches :
 | Gaming | Wyrdheim Online | MMORPG fantasy nordique |
 | Robotique | Eve | Robot compagnon domestique |
 
-**50** personas LLM, frontend dans `web/` (lobby + bureaux `*-v2`).
+**53** personas LLM, frontend dans `web/` (lobby + bureaux `*-v2`).
 Détail code : `CLAUDE.md`. **Bible docs** : [`docs/README.md`](docs/README.md).
 
 ## Architecture
 
 ```
-agents/     → Agents IA (49 personas — COO, PM, QA, Content, R&D, Gaming, Robo…)
+agents/     → Agents IA (53 personas — COO, PM, QA, Content, R&D, Gaming, Robo…)
 bots/       → Bots automatisés (Discord, Telegram, Publisher, Reviews, Analytics, SAV, Watchdog)
 database/   → Client Supabase + schéma SQL
 api/        → API REST FastAPI (routers + gdd conditionnel)

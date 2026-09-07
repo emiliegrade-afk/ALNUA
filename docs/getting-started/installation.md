@@ -65,20 +65,33 @@ Options PowerShell avancées :
 .\scripts\install-hub.ps1 -Startup       # + démarrage à la connexion
 ```
 
+## Quels fichiers `.bat` à la racine ?
+
+Seulement **quatre** (voir aussi `LIRE-MOI.txt`) :
+
+| Fichier | Quand |
+|---------|--------|
+| `Installer ALNUA Hub.bat` | **Une fois** (après clone / grosse mise à jour) |
+| `ALNUA Hub.bat` | **Chaque jour** pour démarrer (ou le raccourci Bureau) |
+| `Arreter ALNUA Hub.bat` | Pour tout couper |
+| `ALNUA Desk.bat` | Chat PC Spark (persona Nadia) — optionnel |
+
+Le reste (réparer, relancer, ouvrir…) est dans `scripts/windows/` — pas pour le quotidien.
+
 ## Démarrer / arrêter au quotidien
 
 | Action | Comment |
 |--------|---------|
 | **Démarrer** | Double-clic **ALNUA Hub** (Bureau) |
 | **Interface** | http://localhost:3000 (s'ouvre automatiquement) |
-| **Arrêter** | Double-clic **`Arreter ALNUA Hub.bat`** |
+| **Arrêter** | Double-clic **Arreter ALNUA Hub** (Bureau ou `.bat` racine) |
 
 ### Expérience « produit » (comme une app installée)
 
-1. **Une fois** : `Installer ALNUA Hub.bat` → raccourci Bureau.
+1. **Une fois** : `Installer ALNUA Hub.bat` → raccourcis Bureau (démarrer / arrêter / Nadia).
 2. **Chaque jour** : double-clic l'icône → le Hub démarre **sans fenêtre CMD** (launcher VBS + supervisor caché).
 3. Le navigateur s'ouvre. Tu n'as **pas** de console noire qui reste ouverte.
-4. Pour couper : `Arreter ALNUA Hub.bat`.
+4. Pour couper : raccourci **Arreter ALNUA Hub**.
 
 Sous le capot : `scripts/launch-hub-silent.vbs` → `start-all.ps1` → `hub_supervisor.py` (API **:8003** + web **:3000**, processus enfants sans fenêtre).
 

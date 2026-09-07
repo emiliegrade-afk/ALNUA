@@ -4,6 +4,92 @@ Historique des audits de gouvernance effectués.
 
 ---
 
+## Audit 005 — Health check 10 dimensions (relecture complète)
+
+- **Date :** 2026-09-07
+- **Scope :** audit santé projet complet demandé explicitement ("relis le code
+  complet et fait un audit complet") — gouvernance, structure, dépendances,
+  types, tests, config/secrets, perf, drift doc, hygiène git, risques forward.
+  **Aucun changement de code produit dans cet audit** (hors gouvernance) —
+  tracker + docs uniquement, conformément à l'échéance ≤ 2026-08-30 déjà
+  dépassée notée dans le paydown du 2026-08-10 et rappelée dans `ROADMAP.md`
+  ("Current phase" listait "Audit 005 (7)" comme restant).
+- **Méthode :** relecture des 8 fichiers de gouvernance + `docs/classeur/*` ;
+  `git log -30` + `git status` + `git diff --stat` ; `ruff check agents/
+  services/ api/ config/ database/ bots/ skills/` ; `pytest tests/ -q` ;
+  `npx tsc --noEmit` (web) ; `npx vitest run` (web) ; `npm audit` (web) ;
+  comptage fichiers Python/TS >300/400 lignes ; comptage réel `ALL_ROUTERS`
+  et `AGENT_PERSONAS` via `python -c`; grep secrets (`sk-`, `AKIA`, clés
+  privées), `shell=True`, `: any`/`@ts-ignore`, `TODO`/`NotImplementedError` ;
+  sous-agent dédié pour lire en détail les ~60 fichiers non trackés (Agent
+  Lounge, Nadia Desktop "Spark", intégration vocale Telegram, patrouille
+  Security Sentinel) contre les règles `ai-agent-survival.mdc` (stubs,
+  sanitization, `shell=True`, secrets, taille fichier).
+- **Verdict :** 🟡 **Concerning** — le code lui-même est globalement sain
+  (ruff/tsc clean, 0 secret, 0 `shell=True` dangereux, 0 fichier Python
+  >300 lignes, conventions `AgentBase`/sanitization respectées sur la quasi
+  totalité du nouveau périmètre), mais la **gouvernance et l'hygiène git ont
+  décroché fortement** pendant ~1 mois sans audit — écho direct du pattern
+  déjà vu en Audit 002 ("le produit avance vite, la gouvernance décroche").
+- **Findings majeurs (voir `BUGS.md` pour le détail complet) :**
+  - 🔴 BUG-024 — **27 jours** non committés (dernier commit `ba841ad`
+    2026-08-11) : 182 fichiers trackés modifiés (`+5270/-21089`) + ~60
+    fichiers non trackés = features entières (Agent Lounge, Nadia Desktop
+    "Spark", vocal Telegram bout-en-bout, Security Sentinel, bureau Legal)
+    jamais poussées sur `origin/main` — risque de perte de travail
+  - 🔴 BUG-023 — drift doc jamais aussi large : `ALL_ROUTERS` réel **86**
+    vs **40** documenté (plus du double) ; personas 53 réel vs 50 documenté ;
+    `CHANGELOG.md` figé au 2026-08-14 (non committé) alors que des features
+    entières postérieures ne sont journalisées nulle part
+  - 🟠 SEC-007 — `nadia_desktop/core/hub_bridge.py::HubBridge.chat()` (nouveau
+    client desktop "Spark") envoie du texte libre à
+    `SecretaryAgent.handle_instruction()` sans passer par `sanitize_user_input`
+    — le point d'entrée partagé `secretary_instruction.py::handle_instruction`
+    ne sanitize pas non plus en interne ; seuls les bots Telegram sanitizent
+    côté appelant, donc ce nouveau canal desktop n'est pas protégé par défaut
+  - 🟡 BUG-020 — 1 test pytest en échec (`test_telegram_voice.py`) — bug de
+    mock de test (signature obsolète), pas de régression de prod, vérifié en
+    lisant le code réel
+  - 🟡 BUG-021 — 1 fichier vitest en échec (`department-routes-live.test.ts`)
+    — garde désynchronisée de la dernière refonte `/ceo`/`/secretary`
+  - 🟡 BUG-022 — `npm audit` régresse de 0 → 4 vulnérabilités (2 high,
+    1 moderate, 1 low), toutes avec correctif disponible (`npm audit fix`)
+  - ✅ Vérifié sans anomalie : `ruff` 0 erreur ; `tsc --noEmit` 0 erreur ;
+    0 fichier Python >300 lignes ; 0 secret en dur (`sk-`/`AKIA`/clé privée) ;
+    les 2 usages `shell=True` restants (`services/ide_workspace_shell.py`,
+    `services/hub_coding_agent.py`) conservent bien le pattern SEC-001
+    (rejet métacaractères + premier token exact contre allowlist) ; 0
+    `: any`/`@ts-ignore` en TypeScript ; `.env`/`.env.prod`/`tmp-*.png`
+    correctement gitignorés ; Agent Lounge, vocal Telegram, Security Sentinel
+    et la majorité du nouveau périmètre suivent les conventions
+    `sanitize_user_input`/`parse_json_response`/dégradation silencieuse
+- **Vs Audit 004 :** code plus sain qu'avant sur le fond (0 fichier Python
+  >300, sanitization quasi généralisée, aucun secret) mais gouvernance et
+  hygiène git **nettement pires** — écart de 27 jours sans commit ni sync
+  doc, jamais vu à ce point depuis le bootstrap.
+- **Next step ordonné suggéré :** (1) committer/pousser le travail en cours
+  par lots logiques (BUG-024) ; (2) resync routers/personas/CHANGELOG
+  (BUG-023) ; (3) `npm audit fix` (BUG-022) ; (4) corriger les 2 tests en
+  échec (BUG-020/021) ; (5) sanitizer `HubBridge.chat()` / `handle_instruction`
+  (SEC-007).
+- **Next audit planned :** après le commit/push du travail en cours et le
+  resync gouvernance — ne pas repasser un mois sans audit.
+
+### Audit 005 — addendum : correctifs appliqués le jour même (2026-09-07)
+
+- **Fait dans la foulée, même session :** SEC-007 (sanitize dans
+  `handle_instruction`), BUG-020 (mock test), BUG-021 (test de garde
+  `/ceo`/`/secretary` + suppression de `ceo-morning-brief-card.tsx` orphelin),
+  BUG-022 (`npm audit fix` → 0 vuln), BUG-023 (resync `README.md` / `ROADMAP.md`
+  / `docs/classeur/implementation-status.md` + rattrapage `CHANGELOG.md`).
+- **Vérifié après coup :** `ruff` 0 erreur ; `pytest` **638** passed / 6
+  skipped / 0 failed ; `npx tsc --noEmit` 0 erreur ; `vitest` **42/42** ;
+  `npm audit` **0** vuln.
+- **Restant :** BUG-024 (commit par lots + push) — voir `BUGS.md` pour le
+  détail des lots choisis et leur justification.
+
+---
+
 ## Audit 001 — Bootstrap gouvernance + audit sécurité/qualité
 
 - **Date :** 2026-07-25

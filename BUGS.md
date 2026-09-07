@@ -65,24 +65,43 @@ y compris `tests/test_devex_phase6.py` réécrit pour le nouveau comportement.
 |----|---------|-------------|-----------|
 | BUG-004 | Info | Fichiers Python >300 lignes (hotspots trackés) | Façades + modules par pôle : `agent_specs_registry` → `agent_specs_*.py` (~23 lignes façade, 45 specs) ; `agent_personas` → `personas_*.py` (~112 lignes façade, 49 personas) ; `rnd_center` → `rnd_center_{llm,store,observe,pipeline,library}.py` (~153 lignes façade). Modules split ≤300. Tests library patchés sur modules d’implémentation. `ruff` + `pytest` 401 passed / 6 skipped. **Dette résiduelle** : ~60 autres fichiers >300 (`api/schemas.py`, `api/routers/rnd.py`, etc.) — hors ticket ; ne pas grossir davantage. |
 
+## Corrigés (2026-09-07 — Audit 005)
+
+| ID | Gravité | Description | Correctif |
+|----|---------|-------------|-----------|
+| SEC-007 | Moyenne | `agents/secretary_instruction.py::handle_instruction` (point d'entrée partagé Telegram/Hub/desktop) route vers `agents/secretary_handlers_ops.py::_handle_conversation`, qui interpole `instruction` **brut** dans le prompt LLM sans passer par `sanitize_user_input`. Les bots Telegram sanitizaient côté handler avant l'appel, mais le nouveau client `nadia_desktop/core/hub_bridge.py::HubBridge.chat()` (feature "Spark") appelait `handle_instruction(message, ...)` directement, sans aucune sanitization amont | `handle_instruction` sanitize désormais lui-même en entrée (`sanitize_user_input(..., max_length=4000, redact_pii_enabled=False)` — PII désactivée comme les autres endpoints secretary, cf. DEC-007) : protège tous les appelants actuels et futurs au même point d'entrée, pas seulement Telegram. Vérifié : import sans cycle, suite complète verte |
+| BUG-020 | Faible | `tests/test_telegram_voice.py::test_build_voice_bytes_uses_tts` — mock `lambda text: b"ID3fake"` sans le kwarg `agent_id` réellement passé par `services/telegram_voice.py::build_voice_bytes`. Bug de test, pas de régression prod | Mock corrigé : `lambda text, agent_id="secretary": b"ID3fake"` |
+| BUG-021 | Moyenne | `department-routes-live.test.ts` attendait `CeoMorningBriefCard`/`SiegeLifeLinks` littéralement dans `/ceo/page.tsx` et `SiegeLifeLinks` dans `/secretary/page.tsx` — désynchronisé depuis que la refonte siège a déplacé ces éléments dans `CeoCommandView`/`SecretaryCommandView` | Test mis à jour pour vérifier `CeoCommandView`/`SecretaryCommandView` dans les pages + `SiegeLifeLinks` dans ces command views. `web/src/components/ceo/ceo-morning-brief-card.tsx` supprimé (orphelin confirmé — plus référencé nulle part, fonctionnalité équivalente déjà dans `CeoCommandView`) |
+| BUG-022 | Moyenne | `npm audit` (web) : 4 vulnérabilités (2 high, 1 moderate, 1 low) — régression vs 0 (Vague 1) | `npm audit fix` → **0** vulnérabilité. `tsc --noEmit` et vitest revérifiés verts après |
+| BUG-023 | **Haute** | Dérive de gouvernance : `ALL_ROUTERS` réel = **86** vs **40** documenté ; `AGENT_PERSONAS` 53 réel vs 50 documenté (`implementation-status.md`) ; `CHANGELOG.md` (non committé) arrêté au 2026-08-14 alors que des features entières postérieures n'étaient journalisées nulle part | `README.md` / `ROADMAP.md` / `docs/classeur/implementation-status.md` resync (86 routers, 53 personas) ; `CHANGELOG.md` rattrapé (entrée 2026-09-07 groupant Agent Lounge, Nadia Desktop/Spark, vocal Telegram, Security Sentinel patrol, services de fond, + ce lot de correctifs) |
+
+## Ouverts — trouvés lors de l'Audit 005 (2026-09-07)
+
+| ID | Gravité | Description | Constat |
+|----|---------|-------------|-----------|
+| BUG-024 | **Haute** | Hygiène git : dernier commit `ba841ad` le **2026-08-11** (27 jours avant cet audit) — ~240 fichiers trackés modifiés/supprimés + non trackés constituant des features entières (Agent Lounge, Nadia Desktop "Spark", vocal Telegram, Security Sentinel, schémas Studio) jamais poussées sur `origin/main` | En cours de traitement dans ce même lot : commit par lots logiques (fixes Audit 005 / gouvernance / features accumulées) puis push — à clore une fois `git push` confirmé |
+
 ## Ouverts — nécessitent une décision produit, non corrigés
 
 | ID | Gravité | Description | Constat |
 |----|---------|-------------|-----------|
 | — | — | Aucun bug ouvert tracké | Hygiène fichiers >300 fermée (paydown 2026-08-10) |
 
-## Statistiques (mises à jour profondeur 34/35/autonomie — 2026-08-10)
+## Statistiques (mises à jour Audit 005 — 2026-09-07)
 
 | Bucket | Count |
 |--------|------:|
-| Ouverts | **0** |
-| Fermés remédiation + Vague 0–4 + BUG-004 | 15 (+ `BUG-004`) |
-| Routers / tests / Next | voir `api/routers/__init__.py` / **524** passed / **16.3.0** |
-| npm audit (web) | **0** |
-| Python >300 lignes | **0** (packages agents/services/api/skills/bots/config/database) |
+| Ouverts | **1** (BUG-024 — en cours de clôture, commit/push ce lot) |
+| Fermés remédiation + Vague 0–4 + BUG-004 + Audit 005 | 20 (+ `BUG-004`) |
+| Routers / Personas (resync Audit 005) | **86** / **53** |
+| pytest | **638** passed / 6 skipped / **0 failed** |
+| Vitest (web) | **42** passed / **0 failed** |
+| ruff / tsc --noEmit | ✅ 0 erreur (les deux) |
+| npm audit (web) | **0** vuln (`npm audit fix` appliqué) |
+| Python >300 lignes | **0** (packages agents/services/api/skills/bots/config/database) — tenu depuis Vague 5 DEC-032 |
 | Residual mockup routes (working tree) | **0** |
-| Corrigés (SEC) | 6 (`SEC-001`–`006`) |
-| Corrigés (BUG) | 19 (`BUG-001`–`019`) |
+| Corrigés (SEC) | 7 (`SEC-001`–`007`) |
+| Corrigés (BUG) | 23 (`BUG-001`–`023`) |
 | Décision fermée | 1 (`DEC-009`) |
 
 ## Vérifié sans anomalie (audit sécurité, pour mémoire)

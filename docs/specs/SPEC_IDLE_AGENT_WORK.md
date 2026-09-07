@@ -8,6 +8,10 @@
 > (recettes `idle_plan_day` / `idle_drain` + scheduler + gates trust/budget +
 > OpenRoom runId — 2026-08-10).
 > **Décision :** DEC-021.
+> **Suite :** Agent Lounge (DEC-031 / Phase 46 V4) — famille idle
+> `lounge_session` L0 filler — voir `docs/specs/SPEC_AGENT_LOUNGE.md` §9.
+> Vocabulaire UI : OpenRoom → Lounge (présence agents conservée).
+> LLM Lounge = tier fast dédié (`LOUNGE_MODEL`), pas le modèle métier.
 
 ---
 
@@ -134,6 +138,18 @@ Tout ce qui n’est pas listé ici est **hors idle** (demande ou ticket explicit
 | — | — | trust &lt; 70 → **pas** de self-dev idle |
 
 Interdit idle : auto-upgrade de tier, modification persona / operating spec.
+
+### 4.11 Agent Lounge (DEC-031 / Phase 46 V4)
+
+| Autorisé idle | Max | Condition |
+|---------------|-----|-----------|
+| `lounge_session` (puzzle filler) | **L0** | Budget ≠ warning/critical ; **après** items prod dans la file |
+| — | — | LLM = **DeepSeek V3.2** (ou `LOUNGE_MODEL`), pas le modèle métier |
+
+Place dans la file : **en dernier** (filler). Family `lounge` reportée si budget
+`warning` (comme company / self_dev).
+
+Cross-ref : `docs/specs/SPEC_AGENT_LOUNGE.md` §9.
 
 ---
 
