@@ -116,13 +116,13 @@
 | 4 | Anti-mensonge résiduel | ✅ |
 | 5 | Dette fichiers >300 | ✅ |
 | 6 | Apps NAÏA/NUAWAY coding | ⏸️ |
-| 7 | Audit 005 | ⏸️ |
+| 7 | Audit 005 | ✅ (2026-09-07 — `docs/classeur/doc-audit.md`, `BUGS.md` 0 ouvert) |
 | 8 (fin) | Pi / UE5.8 / Revolut / ads OAuth | ⏸️ |
 
 ## Gap connu (pas un audit exhaustif)
 
-- **Plan 100 % (DEC-032) :** rester = Vagues 6–7 ; fin = Vague 8 (externe).
-- **Gouvernance :** Audit 005 dû ≤ 2026-08-30 ; Next 16.3.0.
+- **Plan 100 % (DEC-032) :** rester = Vague 6 ; fin = Vague 8 (externe).
+- **Gouvernance :** Audit 005 fait 2026-09-07 (0 finding ouvert) ; Next 16.3.0.
 - **Live studio Gaming/Robo :** Hub-side ✅ ; `UE_PROJECT_PATH` / `PI_HOST` = Vague 8.
 - **Academy :** pipeline OK ; risque OpenRouter 402 possible.
 - **Dette structurelle :** Python packages **0** fichier ≥300 (Vague 5) ; front TS encore gros (hors critère packages).

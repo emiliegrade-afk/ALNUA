@@ -63,10 +63,11 @@ Statut légende : ⏸️ Not started | 🔄 In progress | ✅ Complete | 🔴 Bl
 
 ## Current phase
 
-**Plan Hub 100 % logiciel (DEC-032) — Vague 0–5 done.**
-Phases **30 / 31 / 32 / 34 / 39 = ✅**. Audit 005 (7) fait le 2026-09-07 —
-voir `docs/classeur/doc-audit.md`. Reste : apps (6), finaliser push du
-travail en cours (BUG-024).
+**Plan Hub 100 % logiciel (DEC-032) — Vague 0–5 + Audit 005 (7) done.**
+Phases **30 / 31 / 32 / 34 / 39 = ✅**. Audit 005 fait le 2026-09-07 —
+voir `docs/classeur/doc-audit.md` (`BUGS.md` : 0 finding ouvert). Reste :
+Vague 6 « Apps NAÏA/NUAWAY coding » ; fin de plan = Vague 8 (Pi/UE5.8/
+Revolut/ads, hors scope Hub).
 **Fin reportée :** Pi, UE5.8, Revolut, ads.
 
 **En cours :** Phase **47** Overlay Jarvis — Lots 0–4 ✅. Suivant = Lot 5 (ElevenLabs optionnel).
