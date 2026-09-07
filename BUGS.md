@@ -75,11 +75,11 @@ y compris `tests/test_devex_phase6.py` réécrit pour le nouveau comportement.
 | BUG-022 | Moyenne | `npm audit` (web) : 4 vulnérabilités (2 high, 1 moderate, 1 low) — régression vs 0 (Vague 1) | `npm audit fix` → **0** vulnérabilité. `tsc --noEmit` et vitest revérifiés verts après |
 | BUG-023 | **Haute** | Dérive de gouvernance : `ALL_ROUTERS` réel = **86** vs **40** documenté ; `AGENT_PERSONAS` 53 réel vs 50 documenté (`implementation-status.md`) ; `CHANGELOG.md` (non committé) arrêté au 2026-08-14 alors que des features entières postérieures n'étaient journalisées nulle part | `README.md` / `ROADMAP.md` / `docs/classeur/implementation-status.md` resync (86 routers, 53 personas) ; `CHANGELOG.md` rattrapé (entrée 2026-09-07 groupant Agent Lounge, Nadia Desktop/Spark, vocal Telegram, Security Sentinel patrol, services de fond, + ce lot de correctifs) |
 
-## Ouverts — trouvés lors de l'Audit 005 (2026-09-07)
+## Corrigés (2026-09-07 — Audit 005, suite)
 
-| ID | Gravité | Description | Constat |
+| ID | Gravité | Description | Correctif |
 |----|---------|-------------|-----------|
-| BUG-024 | **Haute** | Hygiène git : dernier commit `ba841ad` le **2026-08-11** (27 jours avant cet audit) — ~240 fichiers trackés modifiés/supprimés + non trackés constituant des features entières (Agent Lounge, Nadia Desktop "Spark", vocal Telegram, Security Sentinel, schémas Studio) jamais poussées sur `origin/main` | En cours de traitement dans ce même lot : commit par lots logiques (fixes Audit 005 / gouvernance / features accumulées) puis push — à clore une fois `git push` confirmé |
+| BUG-024 | **Haute** | Hygiène git : dernier commit `ba841ad` le **2026-08-11** (27 jours avant cet audit) — ~240 fichiers trackés modifiés/supprimés + non trackés constituant des features entières (Agent Lounge, Nadia Desktop "Spark", vocal Telegram, Security Sentinel, schémas Studio) jamais poussées sur `origin/main` | Committé en 3 lots logiques (`95f065f` fixes Audit 005, `3c2fe59` gouvernance/docs, `782d227` features accumulées + `bb76af7` hygiène gitignore). **Pendant le travail, `origin/main` avait avancé de 15 commits en parallèle** (même corpus de features committé indépendamment ailleurs — Lounge, Spark, voice, brand kit, trust, + fallback LLM local inédit) : `git merge origin/main` avec 7 conflits résolus à la main (`.gitignore`, `BUGS.md`, `CHANGELOG.md`, `ROADMAP.md`, `bots/telegram_secretary_handlers.py`, `tests/test_telegram_voice.py`, `data/topic_catalog.json`). Suite complète revérifiée verte après merge (`ruff` 0, `pytest` **644** passed/6 skipped, `tsc` 0, `vitest` 42/42) puis `git push origin main` confirmé (`64f034e..c82fac7`) |
 
 ## Ouverts — nécessitent une décision produit, non corrigés
 
@@ -91,17 +91,18 @@ y compris `tests/test_devex_phase6.py` réécrit pour le nouveau comportement.
 
 | Bucket | Count |
 |--------|------:|
-| Ouverts | **1** (BUG-024 — en cours de clôture, commit/push ce lot) |
-| Fermés remédiation + Vague 0–4 + BUG-004 + Audit 005 | 20 (+ `BUG-004`) |
+| Ouverts | **0** |
+| Fermés remédiation + Vague 0–4 + BUG-004 + Audit 005 | 21 (+ `BUG-004`) |
 | Routers / Personas (resync Audit 005) | **86** / **53** |
-| pytest | **638** passed / 6 skipped / **0 failed** |
+| pytest | **644** passed / 6 skipped / **0 failed** (post-merge origin/main) |
 | Vitest (web) | **42** passed / **0 failed** |
 | ruff / tsc --noEmit | ✅ 0 erreur (les deux) |
 | npm audit (web) | **0** vuln (`npm audit fix` appliqué) |
 | Python >300 lignes | **0** (packages agents/services/api/skills/bots/config/database) — tenu depuis Vague 5 DEC-032 |
 | Residual mockup routes (working tree) | **0** |
+| Dernier commit poussé | `c82fac7` — `git status` propre vs `origin/main` |
 | Corrigés (SEC) | 7 (`SEC-001`–`007`) |
-| Corrigés (BUG) | 23 (`BUG-001`–`023`) |
+| Corrigés (BUG) | 24 (`BUG-001`–`024`) |
 | Décision fermée | 1 (`DEC-009`) |
 
 ## Vérifié sans anomalie (audit sécurité, pour mémoire)

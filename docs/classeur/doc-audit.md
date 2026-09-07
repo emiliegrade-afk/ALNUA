@@ -85,8 +85,17 @@ Historique des audits de gouvernance effectués.
 - **Vérifié après coup :** `ruff` 0 erreur ; `pytest` **638** passed / 6
   skipped / 0 failed ; `npx tsc --noEmit` 0 erreur ; `vitest` **42/42** ;
   `npm audit` **0** vuln.
-- **Restant :** BUG-024 (commit par lots + push) — voir `BUGS.md` pour le
-  détail des lots choisis et leur justification.
+- **BUG-024 clos :** commit en 3 lots logiques + push. **Découverte pendant
+  le push :** `origin/main` avait avancé de 15 commits en parallèle pendant
+  cette session (même corpus de features committé indépendamment ailleurs —
+  Lounge, Spark, voice, brand kit, trust — plus un fallback LLM local
+  inédit). `git merge origin/main` avec 7 conflits résolus à la main,
+  suite complète revérifiée verte (pytest 644/650, tsc/ruff 0, vitest
+  42/42), puis push confirmé (`64f034e..c82fac7`). **Leçon pour la suite :**
+  vérifier `git fetch && git status -sb` (ahead/behind) *avant* de démarrer
+  un lot de commits volumineux, pas seulement juste avant le push final —
+  un travail concurrent sur le même repo (autre session/agent) peut avancer
+  `origin/main` pendant qu'un audit est en cours.
 
 ---
 
