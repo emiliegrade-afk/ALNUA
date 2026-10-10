@@ -48,8 +48,13 @@ def test_l2_blocked_until_ceo_validation(idle_paths: Path) -> None:
 
     build_day_plan(autonomy_level=2)
     with patch("services.idle_work_queue.budget_severity", return_value={"severity": "ok"}):
-        with patch("services.idle_work_queue.agent_trust_score", return_value=0.9):
-            before = pick_next_item(max_items=10)
+        # 0.75 keeps self_dev eligible (>= 0.70) while staying under the L2
+        # trust override (0.80, DEC-043 suite) — L2 must wait for CEO validation.
+        with patch("services.idle_work_queue.agent_trust_score", return_value=0.75):
+            # Window wider than the L1 count (10+ since the 3 studio academies
+            # added 6 L1 items, DEC-034/036) — otherwise pending L1s crowd L2s
+            # out of the pick and the gating assertions below can't be observed.
+            before = pick_next_item(max_items=25)
             l2_pending = [
                 i
                 for i in (before["queue"].get("items") or [])
@@ -60,8 +65,39 @@ def test_l2_blocked_until_ceo_validation(idle_paths: Path) -> None:
             assert all(int(i.get("level") or 0) < 2 for i in before.get("items") or [])
 
             validate_day_queue(validated=True)
-            after = pick_next_item(max_items=10)
+            after = pick_next_item(max_items=25)
             assert any(int(i.get("level") or 0) >= 2 for i in after.get("items") or [])
+
+
+def test_l2_trust_override_unlocks_academy_wake(idle_paths: Path) -> None:
+    """DEC-043 suite: per-agent trust >= 0.80 unblocks L2 without day validation."""
+    from services.idle_work_queue import build_day_plan, pick_next_item
+
+    build_day_plan(autonomy_level=2)
+    with patch("services.idle_work_queue.budget_severity", return_value={"severity": "ok"}):
+        with patch("services.idle_work_queue.agent_trust_score", return_value=0.85):
+            picked = pick_next_item(max_items=25)
+            l2_picked = [i for i in picked.get("items") or [] if int(i.get("level") or 0) >= 2]
+            assert any(i.get("kind") == "academy_wake" for i in l2_picked)
+            override_ids = set(picked.get("l2_trust_override") or [])
+            assert override_ids
+            assert all(str(i.get("id") or "") in override_ids for i in l2_picked)
+
+
+def test_l2_trust_override_boundary(idle_paths: Path) -> None:
+    """0.79 stays gated — the skip reason names the current score."""
+    from services.idle_work_queue import build_day_plan, pick_next_item
+
+    build_day_plan(autonomy_level=2)
+    with patch("services.idle_work_queue.budget_severity", return_value={"severity": "ok"}):
+        with patch("services.idle_work_queue.agent_trust_score", return_value=0.79):
+            picked = pick_next_item(max_items=25)
+            assert all(int(i.get("level") or 0) < 2 for i in picked.get("items") or [])
+            assert not picked.get("l2_trust_override")
+            assert any(
+                "l2_needs_ceo_validation (trust 0.79)" in s.get("reason", "")
+                for s in picked.get("skips") or []
+            )
 
 
 def test_self_dev_requires_trust(idle_paths: Path) -> None:
@@ -169,3 +205,15 @@ def test_validate_auto_promotes_tickets_once(idle_paths: Path) -> None:
         second = validate_day_queue(validated=True, promote_tickets=True)
     assert "promote" not in second or second.get("promote") is None
     assert second.get("tickets_promoted_at")
+
+
+def test_unknown_idle_kind_is_error(idle_paths: Path) -> None:
+    from services.idle_work_queue import load_queue, save_queue
+    from services.idle_work_recipes import _execute_one
+
+    save_queue({"items": [{"id": "x", "kind": "not_a_kind", "agent_id": "coo", "status": "queued"}]})
+    result = _execute_one({"id": "x", "kind": "not_a_kind", "agent_id": "coo"}, None)
+    assert result["ok"] is False
+    assert "not implemented" in result["detail"]
+    assert load_queue()["items"][0]["status"] == "error"
+    assert not (idle_paths.parent / "idle_deliverables" / "x.json").exists()

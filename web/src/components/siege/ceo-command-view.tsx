@@ -19,16 +19,53 @@ import {
 } from "@/components/siege/siege-ui";
 import { SiegeLifeLinks } from "@/components/shared/siege-life-links";
 import { fetchTodayBriefing, type DailyBriefing } from "@/lib/briefing-api";
+import {
+  fetchAgentTrustList,
+  trustBand,
+  trustPercent,
+  type AgentTrustRow,
+  type TrustBand,
+} from "@/lib/trust-api";
 import { ROUTES } from "@/lib/routes";
+import { cn } from "@/lib/utils";
+
+const BAND_TONE: Record<TrustBand, "danger" | "copper" | "ok"> = {
+  low: "danger",
+  review: "copper",
+  autonomous: "ok",
+};
+
+const BAND_SHORT: Record<TrustBand, string> = {
+  low: "Manager",
+  review: "Review",
+  autonomous: "Autonome",
+};
+
+const BAND_BAR: Record<TrustBand, string> = {
+  low: "bg-danger/70",
+  review: "bg-copper/70",
+  autonomous: "bg-teal",
+};
 
 /** Bureau CEO — données live only (plus d’objectifs / réunions / % inventés). */
 export function CeoCommandView() {
   const [briefing, setBriefing] = useState<DailyBriefing | null>(null);
+  // undefined = chargement, null = erreur API, tableau = données (vide ou non).
+  const [trustRows, setTrustRows] = useState<AgentTrustRow[] | null | undefined>(undefined);
+  const [trustError, setTrustError] = useState<string | null>(null);
 
   useEffect(() => {
     void fetchTodayBriefing({ ensure: false, timeoutMs: 8_000 })
       .then(setBriefing)
       .catch(() => setBriefing(null));
+    void fetchAgentTrustList(12)
+      .then((rows) =>
+        setTrustRows([...rows].sort((a, b) => b.score - a.score).slice(0, 8)),
+      )
+      .catch((err) => {
+        setTrustRows(null);
+        setTrustError(err instanceof Error ? err.message : String(err));
+      });
   }, []);
 
   const pending = briefing?.pending_count ?? 0;
@@ -166,6 +203,61 @@ export function CeoCommandView() {
           )}
         </SiegePanel>
       </div>
+
+      <SiegePanel
+        title="Confiance agents"
+        action={
+          <Link href={ROUTES.trust} className="text-[10px] text-copper hover:underline">
+            Trust & Review Board →
+          </Link>
+        }
+      >
+        {trustRows === undefined ? (
+          <p className="text-[12px] text-titanium/55">Chargement…</p>
+        ) : trustRows === null ? (
+          <p className="text-[12px] text-titanium/55">
+            Trust indisponible{trustError ? ` : ${trustError}` : " (API)."}
+          </p>
+        ) : trustRows.length === 0 ? (
+          <p className="text-[12px] text-titanium/55">
+            Aucune validation enregistrée — la confiance se construit via académies et
+            production (DEC-043).
+          </p>
+        ) : (
+          <>
+            <ul className="space-y-2">
+              {trustRows.map((r) => {
+                const band = trustBand(r.score);
+                const pct = trustPercent(r.score);
+                return (
+                  <li key={r.agent_id} className="flex items-center gap-2 text-[12px]">
+                    <span className="w-40 truncate font-mono text-[11px] text-titanium/80">
+                      {r.agent_id}
+                    </span>
+                    <div className="h-1 flex-1 rounded bg-titanium/10">
+                      <div
+                        className={cn("h-1 rounded", BAND_BAR[band])}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                    <span className="w-9 text-right tabular-nums text-titanium/70">
+                      {pct}%
+                    </span>
+                    <span className="w-12 text-right text-[10px] text-titanium/45">
+                      {r.samples ?? 0} val.
+                    </span>
+                    <SiegeBadge tone={BAND_TONE[band]}>{BAND_SHORT[band]}</SiegeBadge>
+                  </li>
+                );
+              })}
+            </ul>
+            <p className="mt-3 text-[10px] text-titanium/45">
+              Seuils DEC-011 : &lt;70% manager · 70–90% Review Board · &gt;90% autonome —
+              les académies plafonnent à 85% (DEC-043).
+            </p>
+          </>
+        )}
+      </SiegePanel>
 
       <div className="flex flex-wrap gap-2">
         <SiegeQuickLink

@@ -29,6 +29,24 @@ export interface CeoQueueItem {
   can_decide?: boolean;
 }
 
+export interface TrustAgent {
+  agent_id: string;
+  score: number;
+  autonomy_level: number;
+  samples: number;
+  successes: number;
+  failures: number;
+  next_threshold: number | null;
+  last_note: string;
+}
+
+export interface TrustSection {
+  agents: TrustAgent[];
+  count: number;
+  academy_cap?: number;
+  error?: string;
+}
+
 export interface CeoCockpit {
   headline: string;
   academy_gate: AcademyGate;
@@ -39,6 +57,7 @@ export interface CeoCockpit {
     to_prepare: CeoQueueItem[];
     error?: string;
   };
+  trust: TrustSection;
   pipeline: {
     agent_ready_count: number;
     github_configured: boolean;

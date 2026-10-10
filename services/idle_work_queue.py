@@ -1,7 +1,8 @@
 """Idle work day queue — DEC-021 / SPEC_IDLE_AGENT_WORK.
 
 Persists the CEO day file (L0–L2 items). L0–L1 runnable without validation;
-L2 requires ceo_validated. Self-dev requires trust >= 0.70.
+L2 requires ceo_validated — or a per-agent trust >= 0.80 override (autonomy
+band 2, DEC-043 suite). Self-dev requires trust >= 0.70.
 Plan builder lives in ``idle_work_plan`` (Vague 5 split).
 """
 
@@ -19,6 +20,9 @@ logger = logging.getLogger(__name__)
 
 _QUEUE_PATH = get_hub_repo_path() / "data" / "idle_queue.json"
 _TRUST_SELF_DEV_MIN = 0.70
+# DEC-043 suite: trust >= 0.80 (autonomy band 2) lets an agent's L2 items run
+# without the global CEO day validation — measured, per-agent override.
+_TRUST_L2_MIN = 0.80
 
 # Map Phase 30 autonomy_level (0–3) → max idle level allowed to auto-run.
 _AUTONOMY_MAX_IDLE_LEVEL = {0: 0, 1: 1, 2: 2, 3: 2}
@@ -147,10 +151,14 @@ def _item_eligible(item: dict[str, Any], queue: dict[str, Any], severity: str) -
     if level >= 3:
         return "l3_forbidden"
     if level >= 2 and not queue.get("ceo_validated"):
-        return "l2_needs_ceo_validation"
+        score = agent_trust_score(str(item.get("agent_id") or ""))
+        if score < _TRUST_L2_MIN:
+            return f"l2_needs_ceo_validation (trust {score:.2f})"
     if severity == "critical":
         return "budget_critical"
-    if severity == "warning" and item.get("family") in {"company", "self_dev", "lounge"}:
+    if severity == "warning" and item.get("family") in {
+        "company", "self_dev", "lounge", "gaming", "robo", "comms", "analytics", "finance", "rnd",
+    }:
         return "budget_warning_deferred"
     if item.get("kind") == "self_dev":
         score = agent_trust_score(str(item.get("agent_id") or ""))
@@ -178,12 +186,21 @@ def pick_next_item(*, max_items: int = 1) -> dict[str, Any]:
             continue
         picked.append(item)
 
+    # Observability: L2 items picked via the per-agent trust override (day not
+    # CEO-validated) are listed explicitly so drains/logs can surface them.
+    l2_trust_override = [
+        str(i.get("id") or "")
+        for i in picked
+        if int(i.get("level") or 0) >= 2 and not queue.get("ceo_validated")
+    ]
+
     return {
         "ok": bool(picked),
         "reason": "picked" if picked else "nothing_eligible",
         "items": picked,
         "skips": skips[:20],
         "budget": alert,
+        "l2_trust_override": l2_trust_override,
         "queue": queue,
     }
 

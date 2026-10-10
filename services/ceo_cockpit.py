@@ -54,6 +54,8 @@ def get_ceo_cockpit() -> dict[str, Any]:
     except Exception:
         pipeline_issues = 0
 
+    trust = _trust_section()
+
     headline = _build_headline(gate, ceo_queue, pipeline_issues)
 
     return {
@@ -62,11 +64,48 @@ def get_ceo_cockpit() -> dict[str, Any]:
         "academy": academy,
         "production_ops": production,
         "ceo_queue": ceo_queue,
+        "trust": trust,
         "pipeline": {
             "agent_ready_count": pipeline_issues,
             "github_configured": bool(os.getenv("GITHUB_TOKEN", "").strip()),
         },
     }
+
+
+def _next_threshold(score: float) -> float | None:
+    for band in (0.70, 0.80, 0.90):
+        if score < band:
+            return band
+    return None
+
+
+def _trust_section() -> dict[str, Any]:
+    """Trust → autonomy visibility (DEC-043): per-agent score, level, distance
+    to the next autonomy band. Academy-sourced scores are capped at 0.85."""
+    try:
+        from services.agent_trust import ACADEMY_TRUST_CAP, list_trust
+        from services.autonomy_resolver import trust_score_to_autonomy
+
+        agents = []
+        for row in list_trust(limit=12):
+            score = float(row.get("score") or 0.0)
+            history = row.get("history") or []
+            agents.append(
+                {
+                    "agent_id": row.get("agent_id"),
+                    "score": score,
+                    "autonomy_level": trust_score_to_autonomy(score),
+                    "samples": int(row.get("samples") or 0),
+                    "successes": int(row.get("successes") or 0),
+                    "failures": int(row.get("failures") or 0),
+                    "next_threshold": _next_threshold(score),
+                    "last_note": (history[-1].get("note", "") if history else ""),
+                }
+            )
+        return {"agents": agents, "count": len(agents), "academy_cap": ACADEMY_TRUST_CAP}
+    except Exception as exc:
+        logger.warning("trust section failed: %s", exc)
+        return {"agents": [], "count": 0, "error": str(exc)[:200]}
 
 
 def _build_headline(

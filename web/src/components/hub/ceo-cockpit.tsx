@@ -11,9 +11,80 @@ import {
   fetchCeoCockpit,
   type CeoCockpit,
   type GateCriterion,
+  type TrustAgent,
+  type TrustSection,
 } from "@/lib/autonomy-api";
 import { ceoDossierHref } from "@/lib/rnd-dossier";
 import { cn } from "@/lib/utils";
+
+function levelBadgeClass(level: number): string {
+  if (level >= 2) return "border-emerald-500/40 text-emerald-400";
+  if (level === 1) return "border-copper/40 text-copper";
+  return "border-titanium/20 text-titanium/45";
+}
+
+function TrustRow({ a }: { a: TrustAgent }) {
+  const pct = Math.round(a.score * 100);
+  // Emerald bar when the agent is within 5 pts of the next autonomy band.
+  const approaching =
+    a.next_threshold !== null && a.next_threshold - a.score <= 0.05;
+  return (
+    <li className="flex items-center gap-2 text-xs">
+      <span className="w-36 truncate font-mono text-[11px] text-titanium/70">
+        {a.agent_id}
+      </span>
+      <span
+        className={cn(
+          "w-6 rounded border px-0.5 text-center text-[9px]",
+          levelBadgeClass(a.autonomy_level)
+        )}
+      >
+        N{a.autonomy_level}
+      </span>
+      <div className="h-1 flex-1 rounded bg-titanium/10">
+        <div
+          className={cn("h-1 rounded", approaching ? "bg-emerald-400" : "bg-copper/70")}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <span className="w-8 text-right text-[11px] text-titanium/60">{pct}%</span>
+      <span className="w-10 text-right text-[10px] text-titanium/40">
+        {a.samples} val.
+      </span>
+    </li>
+  );
+}
+
+function TrustBlock({ trust }: { trust: TrustSection }) {
+  const agents = trust.agents ?? [];
+  return (
+    <div className="rounded-lg border border-copper/15 p-3">
+      <p className="mb-2 text-xs font-medium text-titanium/50">
+        Confiance agents → autonomie
+      </p>
+      {trust.error ? (
+        <p className="text-xs text-titanium/45">Indisponible : {trust.error}</p>
+      ) : agents.length === 0 ? (
+        <p className="text-xs text-titanium/45">
+          Aucune validation enregistrée — la confiance se construit via académies et
+          production.
+        </p>
+      ) : (
+        <>
+          <ul className="space-y-1.5">
+            {agents.slice(0, 8).map((a) => (
+              <TrustRow key={a.agent_id} a={a} />
+            ))}
+          </ul>
+          <p className="mt-2 text-[10px] text-titanium/40">
+            Cap académie {Math.round((trust.academy_cap ?? 0.85) * 100)}% — le niveau 3
+            exige des validations production.
+          </p>
+        </>
+      )}
+    </div>
+  );
+}
 
 function CriterionRow({ c }: { c: GateCriterion }) {
   return (
@@ -173,6 +244,7 @@ export function CeoCockpitPanel() {
             </div>
           </>
         ) : null}
+        {data?.trust ? <TrustBlock trust={data.trust} /> : null}
       </CardContent>
     </Card>
   );

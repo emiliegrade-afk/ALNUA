@@ -22,6 +22,19 @@ _STORE = get_hub_repo_path() / "data" / "agent_trust.json"
 _DEFAULT = 0.7
 _HISTORY_CAP = 40
 
+# Source-based score caps (DEC-043): paper training must not unlock full
+# autonomy on its own. An academy success may lift the score up to this cap;
+# going beyond requires production validations (workflow / review board).
+ACADEMY_TRUST_CAP = 0.85
+_SOURCE_CAPS: tuple[tuple[str, float], ...] = (("academy", ACADEMY_TRUST_CAP),)
+
+
+def _cap_for(source: str) -> float | None:
+    for prefix, cap in _SOURCE_CAPS:
+        if source.startswith(prefix):
+            return cap
+    return None
+
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -56,6 +69,7 @@ def record_validation(
     sample = 1.0 if success else 0.0
     # Heavier weight → pull harder toward sample (cap 0.45)
     alpha = min(0.45, 0.15 * w)
+    cap = _cap_for(source) if success else None
 
     with _LOCK:
         data = _load()
@@ -70,6 +84,10 @@ def record_validation(
         }
         prev = float(row.get("score", _DEFAULT))
         new_score = round(prev * (1 - alpha) + sample * alpha, 4)
+        if cap is not None:
+            # A capped source lifts at most to its cap — and never pulls an
+            # already-higher score (earned in production) back down.
+            new_score = min(new_score, max(prev, cap))
         row["score"] = new_score
         row["samples"] = int(row.get("samples") or 0) + 1
         if success:
