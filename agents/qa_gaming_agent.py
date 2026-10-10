@@ -46,6 +46,50 @@ Réponds en JSON :
         )
 
     @trace_agent("qa_gaming")
+    def review_deliverable(
+        self,
+        title: str,
+        content: str,
+        dod: list[str],
+    ) -> dict[str, Any]:
+        """Gaming Academy (DEC-034) — review one exercise deliverable against its DoD."""
+        checklist = "\n".join(f"- {c}" for c in dod) or "- (qualité générale)"
+        prompt = f"""Relis ce livrable de la Gaming Academy (Wyrdheim Paper Slice) contre sa Definition of Done.
+
+Livrable : {title}
+
+Definition of Done :
+{checklist}
+
+Contenu du livrable :
+---
+{content[:6000]}
+---
+
+Pour chaque point du DoD, décide pass/fail avec une justification courte.
+Le DoD est le contrat : verdict "validated" si et seulement si tous les points du DoD
+passent ET qu'il n'y a pas de contradiction canon avec Wyrdheim. Ne rejette jamais
+pour un critère absent du DoD (formatage, niveau de détail, conventions internes) :
+mets ces remarques dans "feedback" comme suggestions non bloquantes.
+
+Réponds en JSON :
+{{
+  "verdict": "validated|rejected",
+  "dod_checks": [{{ "check": "string", "passed": true, "note": "string" }}],
+  "canon_conflict": false,
+  "feedback": "Feedback actionnable pour l'agent (vide si validated)"
+}}"""
+        return self.run_json_task(
+            action="review_deliverable",
+            prompt=prompt,
+            learning_key=title,
+            input_summary=f"review | {title}",
+            output_summary=lambda r: f"{r.get('verdict')} ({len(r.get('dod_checks', []))} checks)",
+            temperature=0.3,
+            max_tokens=2048,
+        )
+
+    @trace_agent("qa_gaming")
     def probe_ue58(self) -> dict[str, Any]:
         """Phase 21 — probe UE5.8 / PIE tools for gameplay QA."""
         from skills.skill_ue58 import probe_for_agent

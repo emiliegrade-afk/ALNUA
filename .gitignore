@@ -121,3 +121,12 @@ web/tmp-patch-*.mjs
 bin/
 tools/webview2/
 
+data/live_tasks.json
+data/live_tasks.corrupt.json
+data/hub_files.json
+data/hub_uploads/
+data/live_voice_usage.json
+data/live_voice_usage.tmp
+data/live_media/
+data/live_html/
+data/*_academy_progress.json

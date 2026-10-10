@@ -208,13 +208,14 @@ class COOInstructionResponse(BaseModel):
 
 
 class AssistantChatRequest(BaseModel):
-    message: str = Field(min_length=1)
+    message: str = Field(default="", max_length=4000)
     agent: Literal["auto", "coo", "secretary"] = "auto"
     project: str | None = None
     session_id: str | None = Field(
         default=None,
         description="Isolates pending email drafts (hub default, or tg:<chat_id>)",
     )
+    file_ids: list[str] = Field(default_factory=list, max_length=5)
 
 
 class AssistantChatResponse(BaseModel):

@@ -10,6 +10,7 @@ from typing import Any
 from services.rnd_repository import get_rnd_repository
 from services.rnd_schemas import RndDossierAssetOut, RndDossierOut
 from services.rnd_visual_generator import ASSET_SPECS, generate_dossier_assets
+from skills.skill_langfuse import trace_agent
 
 logger = logging.getLogger(__name__)
 
@@ -80,3 +81,58 @@ class RndVisualAgent:
         if not dossier:
             raise ValueError("Dossier introuvable")
         return dossier
+
+    @trace_agent("rnd_visual")
+    def design_visual_concept(
+        self,
+        concept_name: str,
+        context: str = "",
+        constraints: str = "",
+    ) -> dict[str, Any]:
+        """Direction visuelle sur papier — le persona moodboard de Max, sans
+        génération d'assets ni dossier R&D requis (Comms Academy, DEC-036).
+
+        RndVisualAgent n'hérite pas d'AgentBase (orchestrateur pur) : appel LLM
+        direct via LLMClient, system prompt inline (rnd_visual absent du
+        specs registry — le fallback 5-sections est le pattern prévu).
+        """
+        from agents.base_json import parse_json_response
+        from agents.base_llm import LLMClient
+        from agents.base_logging import log_agent_action
+        from database.supabase_client import supabase
+
+        system = (
+            "Tu es Max Delacroix, directeur visuel ALNUA (moodboards, direction de "
+            "campagne). Tu produis des directions visuelles textuelles précises et "
+            "actionnables : territoires, palettes, compositions, specs de production. "
+            "Tu réponds uniquement en JSON valide."
+        )
+        prompt = f"""Définis la direction visuelle suivante.
+
+Concept : {concept_name}
+Contexte : {context or '—'}
+Contraintes : {constraints or '—'}
+
+Réponds en JSON :
+{{
+  "concept": "nom du concept",
+  "territoires": [{{ "nom": "string", "description": "string", "palette": ["#hex"], "usage": "string" }}],
+  "assets_cles": [{{ "nom": "string", "format": "string", "notes_prod": "string" }}],
+  "coherence_notes": "string"
+}}"""
+        raw = LLMClient().complete(
+            system=system,
+            user=prompt,
+            agent_id="rnd_visual",
+            method_name="design_visual_concept",
+            temperature=0.5,
+        )
+        result = parse_json_response(raw)
+        log_agent_action(
+            supabase,
+            self.AGENT_NAME,
+            "design_visual_concept",
+            input_summary=concept_name[:100],
+            output_summary=str(result)[:100],
+        )
+        return result
