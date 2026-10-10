@@ -21,7 +21,11 @@ async def list_composio_apps(user_id: str | None = None):
 @router.post("/composio/connect/{app_name}")
 async def connect_composio_app(app_name: str, user_id: str | None = None):
     """Génère un lien OAuth pour connecter une app. Renvoie le lien à ouvrir."""
-    from services.secretary_composio import composio_user_id, get_oauth_link_for_ceo
+    from services.secretary_composio import (
+        composio_user_id,
+        get_oauth_link_for_ceo,
+        split_oauth_reply,
+    )
     from skills.skill_composio import get_oauth_link
 
     uid = user_id or composio_user_id()
@@ -29,6 +33,7 @@ async def connect_composio_app(app_name: str, user_id: str | None = None):
         link = get_oauth_link_for_ceo(app_name)
     else:
         link = get_oauth_link(app=app_name.upper(), user_id=uid)
-    return {"app": app_name, "oauth_url": link}
+    url, hint = split_oauth_reply(link)
+    return {"app": app_name, "oauth_url": url or link, "hint": hint}
 
 

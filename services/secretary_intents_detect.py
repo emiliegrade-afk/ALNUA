@@ -81,10 +81,30 @@ def detect_weather_intent(text: str) -> bool:
     return any(m in _norm(text) for m in WEATHER_MARKERS)
 
 
+def detect_find_pc(text: str) -> bool:
+    from services.live_pc_find import wants_find
+
+    return wants_find(text)
+
+
+def detect_open_pc(text: str) -> bool:
+    if detect_connect_intent(text) or detect_find_pc(text):
+        return False
+    from services.live_pc_actions import wants_open
+
+    return wants_open(text)
+
+
 def keyword_fallback_intent(text: str) -> str | None:
     """Route tools without LLM when OpenRouter is dry. None → conversation."""
     if detect_weather_intent(text):
         return "weather"
+    if detect_find_pc(text):
+        return "find_pc"
+    if detect_open_pc(text):
+        return "open_pc"
+    if detect_connect_intent(text):
+        return "connect"
     if detect_night_report(text):
         return "night_report"
     if detect_briefing(text):
@@ -95,8 +115,6 @@ def keyword_fallback_intent(text: str) -> str | None:
         return "wake_ops"
     if detect_aria_delegation(text):
         return "aria_delegation"
-    if detect_connect_intent(text):
-        return "connect"
     if detect_inbox_intent(text):
         return "inbox"
     if detect_calendar_intent(text):

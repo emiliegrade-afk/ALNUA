@@ -21,12 +21,10 @@ class SecretaryHandlersOpsMixin:
             return None
 
     def _handle_research(self, instruction: str, *, session_id: str = "hub") -> str:
-        from agents.coo_agent import _detect_research_intent, _extract_research_topic
-        from services.bureau_library import generate_ceo_report, run_bureau_research
+        from services.bureau_library import generate_ceo_report
         from services.secretary_intents import extract_research_query
 
         chat_id = self._telegram_chat_id(session_id)
-        is_telegram = chat_id is not None
 
         query = extract_research_query(instruction)
         if query == "__report__":
@@ -35,60 +33,68 @@ class SecretaryHandlersOpsMixin:
             self._finish_instruction(instruction, out[:200])
             return out
 
-        is_research, research_agent = _detect_research_intent(instruction)
-        if is_research and research_agent == "rnd_agent":
-            topic = _extract_research_topic(instruction, research_agent) or query
-            if topic and len(topic) >= 4:
-                from services.coo_telegram_intents import launch_rnd_investigation
+        live = session_id.startswith("live")
+        if not live:
+            from agents.coo_agent import _detect_research_intent, _extract_research_topic
 
-                out = launch_rnd_investigation(topic, chat_id=chat_id)
-                self._finish_instruction(instruction, out[:200])
-                return out
+            is_research, research_agent = _detect_research_intent(instruction)
+            if is_research and research_agent == "rnd_agent":
+                topic = _extract_research_topic(instruction, research_agent) or query
+                if topic and len(topic) >= 4:
+                    from services.coo_telegram_intents import launch_rnd_investigation
 
-        lower = instruction.lower()
-        if any(k in lower for k in ("deep research", "recherche profonde", "approfond")):
+                    out = launch_rnd_investigation(topic, chat_id=chat_id)
+                    self._finish_instruction(instruction, out[:200])
+                    return out
+            lower = instruction.lower()
+            if any(k in lower for k in ("deep research", "recherche profonde", "approfond")):
+                try:
+                    from services.deep_research import quick_research
+
+                    report = quick_research(query, agent_id="secretary")
+                    if isinstance(report, dict):
+                        summary = (
+                            report.get("executive_summary")
+                            or report.get("summary")
+                            or str(report)[:2000]
+                        )
+                    else:
+                        summary = str(report)[:2000]
+                    out = f"🔬 **Recherche approfondie** — « {query} »\n\n{summary}"
+                    self._finish_instruction(instruction, out[:200])
+                    return out
+                except Exception as exc:
+                    logger.warning("deep research fallback: %s", exc)
+
+        from services.live_web_brief import web_brief
+
+        out = web_brief(query)
+        if not live:
             try:
-                from services.deep_research import quick_research
+                from services.bureau_library import run_bureau_research
 
-                report = quick_research(query, agent_id="secretary")
-                if isinstance(report, dict):
-                    summary = (
-                        report.get("executive_summary")
-                        or report.get("summary")
-                        or str(report)[:2000]
-                    )
-                else:
-                    summary = str(report)[:2000]
-                out = f"🔬 **Recherche approfondie** — « {query} »\n\n{summary}"
-                self._finish_instruction(instruction, out[:200])
-                return out
-            except Exception as exc:
-                logger.warning("deep research fallback: %s", exc)
-
-        result = run_bureau_research(
-            query,
-            requested_by="nadia",
-            blocking=not is_telegram,
-            notify_chat_id=chat_id,
-        )
-        if not is_telegram and result.get("entries_saved") is not None:
-            n = result.get("entries_saved", 0)
-            out = (
-                f"📚 **Recherche terminée** — « {query} »\n\n"
-                f"**{n}** fiche(s) archivée(s) dans la bibliothèque.\n"
-                "Rien n'a été supprimé — consulte **Bibliothèque** dans le Hub."
-            )
-        else:
-            out = (
-                f"📚 **Recherche lancée** — « {query} »\n\n"
-                f"{result.get('message', '')}\n\n"
-                + (
-                    "Je t'enverrai le bilan ici dès que c'est prêt (~1-3 min)."
-                    if is_telegram
-                    else "Tout est archivé dans la bibliothèque. "
-                    "Demande « rapport bibliothèque » pour un résumé CEO."
+                run_bureau_research(
+                    query,
+                    requested_by="nadia",
+                    blocking=False,
+                    notify_chat_id=chat_id,
                 )
-            )
+            except Exception as exc:
+                logger.warning("bureau archive skipped: %s", exc)
+        self._finish_instruction(instruction, out[:200])
+        return out
+
+    def _handle_find_nl(self, instruction: str) -> str:
+        from services.live_pc_find import run_find
+
+        out = run_find(instruction)
+        self._finish_instruction(instruction, out[:200])
+        return out
+
+    def _handle_open_nl(self, instruction: str) -> str:
+        from services.live_pc_actions import run_open
+
+        out = run_open(instruction)
         self._finish_instruction(instruction, out[:200])
         return out
 

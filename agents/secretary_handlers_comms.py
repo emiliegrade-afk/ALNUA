@@ -4,6 +4,21 @@ from __future__ import annotations
 from agents.base import parse_json_response
 from skills.skill_agent_learning import inject_learning_context
 
+_CONNECT_ALIASES: tuple[tuple[tuple[str, ...], str, str], ...] = (
+    (("linkedin",), "linkedin", "LinkedIn"),
+    (("instagram", "insta"), "instagram", "Instagram"),
+    (("discord",), "discord", "Discord"),
+    (("calendrier", "calendar", "agenda"), "googlecalendar", "Google Calendar"),
+    (("gmail", "boite", "boîte", "mailbox"), "gmail", "Gmail"),
+)
+
+
+def _connect_target(lower: str) -> tuple[str, str] | None:
+    for keys, slug, label in _CONNECT_ALIASES:
+        if any(key in lower for key in keys):
+            return slug, label
+    return None
+
 
 class SecretaryHandlersCommsMixin:
     """Requires ``SecretaryDocumentsMixin`` methods and ``AgentBase``."""
@@ -36,10 +51,18 @@ Réponds en JSON :
             subject=draft.get("subject", ""),
             body=draft.get("body", ""),
         )
+        from services.live_cards_format import draft_card
+
         out = format_json_reply(draft, kind="email")
         out += (
             "\n\n📌 **Brouillon enregistré** — dis « envoie le mail » pour valider l'envoi Gmail, "
-            "ou modifie ta demande."
+            "ou clique Valider à l'écran."
+        )
+        out += "\n\n" + draft_card(
+            kind="email",
+            title=draft.get("subject") or "Brouillon mail",
+            body=draft.get("body") or "",
+            draft_id=session_id,
         )
         self._finish_instruction(instruction, out)
         return out
@@ -59,20 +82,30 @@ Réponds en JSON :
             is_connected,
         )
 
-        lower = instruction.lower()
-        if "calendrier" in lower or "calendar" in lower or "agenda" in lower:
-            if is_connected("googlecalendar"):
-                return "✅ Google Calendar est déjà connecté.\n\n" + connection_status_text()
-            link = get_oauth_link_for_ceo("GOOGLECALENDAR")
-            return f"📅 Connecte ton agenda :\n{link}\n\nOuvre le lien, autorise l'accès, puis réessaie."
+        wanted = _connect_target(instruction.lower())
+        if wanted:
+            slug, label = wanted
+            if is_connected(slug):
+                return f"✅ {label} est déjà connecté.\n\n" + connection_status_text()
+            link = get_oauth_link_for_ceo(slug)
+            return (
+                f"🔗 Connecte {label} :\n{link}\n\n"
+                "Ouvre le lien, autorise l'accès, puis réessaie."
+            )
 
-        if is_connected("gmail"):
-            gmail_line = "✅ Gmail déjà connecté."
-        else:
-            link = get_oauth_link_for_ceo("GMAIL")
-            gmail_line = f"📧 Connecte Gmail :\n{link}"
-
-        return f"{gmail_line}\n\n{connection_status_text()}"
+        lines = ["Voici les accès à ouvrir (un lien par app) :"]
+        for slug, label in (
+            ("gmail", "Gmail"),
+            ("googlecalendar", "Google Calendar"),
+            ("discord", "Discord"),
+            ("instagram", "Instagram"),
+            ("linkedin", "LinkedIn"),
+        ):
+            if is_connected(slug):
+                lines.append(f"• {label} — déjà connecté")
+            else:
+                lines.append(f"• {label} — {get_oauth_link_for_ceo(slug)}")
+        return "\n".join(lines) + "\n\n" + connection_status_text()
 
     def _handle_inbox_nl(self, instruction: str) -> str:
         from services.secretary_composio import fetch_inbox_emails, is_connected
@@ -103,7 +136,14 @@ Réponds en JSON :
         low = triage.get("low") or []
         if low:
             lines.append(f"\n_{len(low)} mail(s) priorité basse._")
+        from services.live_cards_format import list_card
+
+        items: list[str] = []
+        for item in (urgent + normal)[:10]:
+            items.append(str(item.get("summary", item))[:220])
         out = "\n".join(lines)
+        if items:
+            out += "\n\n" + list_card("Boîte mail", items, lead="")
         self._finish_instruction(instruction, out[:200])
         return out
 
@@ -127,11 +167,18 @@ Réponds en JSON :
         if not events:
             return "Aucun événement trouvé sur les 3 prochains jours (ou lecture API en cours)."
 
+        from services.live_cards_format import list_card
+
         lines = ["📅 **Agenda (3 jours)**", ""]
+        items: list[str] = []
         for ev in events[:10]:
             loc = f" — {ev['location']}" if ev.get("location") else ""
-            lines.append(f"• {ev.get('when', '?')} — {ev.get('title', '?')}{loc}")
+            row = f"{ev.get('when', '?')} — {ev.get('title', '?')}{loc}"
+            lines.append(f"• {row}")
+            items.append(row[:220])
         out = "\n".join(lines)
+        if items:
+            out += "\n\n" + list_card("Programme", items, lead="")
         self._finish_instruction(instruction, out[:200])
         return out
 

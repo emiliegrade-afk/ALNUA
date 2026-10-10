@@ -71,6 +71,29 @@ CONNECT_MARKERS = (
     "oauth gmail",
     "lier gmail",
     "lier mon agenda",
+    "connecte instagram",
+    "connecter instagram",
+    "lier instagram",
+    "connecte discord",
+    "connecter discord",
+    "connecte linkedin",
+    "connecter linkedin",
+    "lier linkedin",
+)
+
+OPEN_PC_MARKERS = (
+    "ouvre ",
+    "ouvre-moi",
+    "ouvre moi",
+    "ouvrir ",
+    "open https",
+    "open http",
+    "va sur instagram",
+    "va sur gmail",
+    "va sur youtube",
+    "lance gmail",
+    "lance instagram",
+    "lance youtube",
 )
 
 INBOX_MARKERS = (
@@ -179,7 +202,10 @@ WEATHER_MARKERS = (
 RESEARCH_MARKERS = (
     "recherche ",
     "rechercher ",
+    "recherche internet",
+    "recherche web",
     "cherche sur ",
+    "cherche sur internet",
     "trouve des infos",
     "dernières sorties",
     "dernieres sorties",
@@ -188,6 +214,8 @@ RESEARCH_MARKERS = (
     "tendances ",
     "investigue ",
     "investiguer ",
+    "sur internet",
+    "sur le web",
     "bibliothèque",
     "bibliotheque",
     "rapport bibliothèque",

@@ -36,6 +36,8 @@ def test_classify_paraphrase_wake_ops():
             out = classify_secretary_intent("remets Théo au boulot sur les exercices")
     assert out["intent"] == "wake_ops"
     assert out["intent"] in INTENT_VALUES
+    assert "open_pc" in INTENT_VALUES
+    assert "find_pc" in INTENT_VALUES
     assert "weather" in INTENT_VALUES
 
 

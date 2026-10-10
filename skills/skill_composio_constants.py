@@ -29,7 +29,7 @@ AGENT_APP_MAP: dict[str, list[str]] = {
         "DISCORD", "NOTION",
     ],
     "secretary_agent": [
-        "GMAIL", "GOOGLECALENDAR", "NOTION",
+        "GMAIL", "GOOGLECALENDAR", "NOTION", "DISCORD", "INSTAGRAM", "LINKEDIN",
     ],
     "spec_agent": [
         "NOTION", "GOOGLEDOCS", "GITHUB",

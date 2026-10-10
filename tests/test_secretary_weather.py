@@ -60,6 +60,8 @@ def test_keyword_fallback_weather_and_research() -> None:
     assert keyword_fallback_intent("recherche sur les agents IA") == "research"
     assert keyword_fallback_intent("briefing du jour") == "briefing"
     assert keyword_fallback_intent("bonjour ça va") is None
+    assert keyword_fallback_intent("ouvre Instagram") == "open_pc"
+    assert keyword_fallback_intent("connecte instagram") == "connect"
 
 
 def test_handle_instruction_weather_skips_llm() -> None:
@@ -79,3 +81,22 @@ def test_handle_instruction_weather_skips_llm() -> None:
     ):
         out = agent.handle_instruction("quel temps à San Francisco")
     assert "18 °C" in out
+
+
+def test_handle_instruction_open_skips_llm() -> None:
+    from agents.secretary_instruction import SecretaryInstructionMixin
+
+    class _Agent(SecretaryInstructionMixin):
+        AGENT_NAME = "secretary"
+        db = MagicMock()
+
+        def _handle_open_nl(self, instruction: str) -> str:
+            return "Page ouverte : https://www.instagram.com/"
+
+    agent = _Agent()
+    with patch(
+        "services.secretary_intent_llm.classify_secretary_intent",
+        side_effect=RuntimeError("no credits"),
+    ):
+        out = agent.handle_instruction("ouvre Instagram")
+    assert "instagram.com" in out

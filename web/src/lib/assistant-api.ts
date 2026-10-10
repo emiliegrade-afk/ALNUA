@@ -17,11 +17,17 @@ export interface AssistantChatResult {
 export async function sendAssistantMessage(
   message: string,
   agent: AssistantAgentMode = "auto",
-  project?: string
+  project?: string,
+  fileIds?: string[],
 ): Promise<AssistantChatResult> {
   return hubFetch<AssistantChatResult>("/assistant/chat", {
     method: "POST",
-    body: JSON.stringify({ message, agent, project: project ?? null }),
+    body: JSON.stringify({
+      message,
+      agent,
+      project: project ?? null,
+      file_ids: fileIds?.length ? fileIds : [],
+    }),
     timeoutMs: 120_000,
   });
 }

@@ -7,6 +7,15 @@ from api.route_common import *  # noqa: F403
 router = APIRouter()
 
 
+def _prompt_from_chat_body(body: AssistantChatRequest) -> str:
+    from services.hub_user_files import prepare_user_prompt_with_files
+
+    try:
+        return prepare_user_prompt_with_files(body.message, body.file_ids)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
 @router.get("/assistant/connections")
 def assistant_connections() -> dict[str, Any]:
     """Composio OAuth status for CEO mailbox + calendar."""
@@ -46,13 +55,10 @@ def assistant_connect_app(app_name: str) -> dict[str, str]:
 async def assistant_chat_endpoint(body: AssistantChatRequest) -> AssistantChatResponse:
     """Natural-language chat with Aria or Nadia (auto-routing by default)."""
     from services.assistant_router import assistant_chat_async
-    from services.input_sanitizer import sanitize_user_input
     from services.rate_limiter import ASSISTANT_LIMIT, assistant_limiter
     from services.telemetry import RequestTimer, metrics
 
-    safe_message = sanitize_user_input(body.message, max_length=4000)
-    if not safe_message:
-        raise HTTPException(status_code=400, detail="Message vide après sanitization")
+    prompt = _prompt_from_chat_body(body)
 
     session_key = body.session_id or "hub"
     if not assistant_limiter.is_allowed(f"session:{session_key}", ASSISTANT_LIMIT):
@@ -61,7 +67,7 @@ async def assistant_chat_endpoint(body: AssistantChatRequest) -> AssistantChatRe
     try:
         with RequestTimer("assistant_chat_ms", {"agent": body.agent}):
             result = await assistant_chat_async(
-                safe_message,
+                prompt,
                 agent=body.agent,
                 project=body.project,
                 session_id=body.session_id,
@@ -88,9 +94,11 @@ def secretary_instruction(body: AssistantChatRequest) -> AssistantChatResponse:
     """Direct NL entry for Nadia (same shape as assistant chat)."""
     from agents.secretary_agent import SecretaryAgent
 
+    prompt = _prompt_from_chat_body(body)
+
     try:
         sid = body.session_id or "hub"
-        response = SecretaryAgent().handle_instruction(body.message, session_id=sid)
+        response = SecretaryAgent().handle_instruction(prompt, session_id=sid)
         return AssistantChatResponse(
             agent_id="secretary",
             agent_name="Nadia Faure",

@@ -13,6 +13,11 @@ import {
   type ChatMessage,
 } from "@/lib/assistant-api";
 import { useCooStore } from "@/store/coo-store";
+import { HubFilePicker } from "@/components/hub/hub-file-picker";
+import {
+  shouldConvertPasteToFile,
+  uploadHubFile,
+} from "@/lib/hub-files-api";
 import { cn } from "@/lib/utils";
 
 const AGENT_META: Record<
@@ -79,7 +84,10 @@ export function AssistantChat({
     },
   ]);
   const [input, setInput] = useState("");
+  const [fileIds, setFileIds] = useState<string[]>([]);
+  const [attachError, setAttachError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const fileSource = variant === "secretary" ? "secretary" : "upload";
   const [feedbackPending, setFeedbackPending] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const consumePrefillMessage = useCooStore((s) => s.consumePrefillMessage);
@@ -106,20 +114,32 @@ export function AssistantChat({
 
   async function handleSend(text?: string) {
     const content = (text ?? input).trim();
-    if (!content || loading) return;
+    if ((!content && fileIds.length === 0) || loading) return;
+
+    const display =
+      fileIds.length > 0
+        ? `${content || "Pièces jointes"} [${fileIds.length} fichier(s)]`
+        : content;
 
     const userMsg: ChatMessage = {
       id: crypto.randomUUID(),
       role: "user",
-      content,
+      content: display,
       timestamp: new Date(),
     };
     setMessages((prev) => [...prev, userMsg]);
+    const sentFiles = fileIds;
     setInput("");
+    setFileIds([]);
     setLoading(true);
 
     try {
-      const result = await sendAssistantMessage(content, agentMode);
+      const result = await sendAssistantMessage(
+        content || "Voir les pièces jointes.",
+        agentMode,
+        undefined,
+        sentFiles,
+      );
       const header =
         agentMode === "auto"
           ? `**${result.agent_name}**\n\n`
@@ -341,6 +361,14 @@ export function AssistantChat({
               </button>
             ))}
           </div>
+          <HubFilePicker
+            source={fileSource}
+            selectedIds={fileIds}
+            onChange={setFileIds}
+          />
+          {attachError && (
+            <p role="alert" className="text-xs text-red-400">{attachError}</p>
+          )}
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -351,13 +379,33 @@ export function AssistantChat({
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              onPaste={async (e) => {
+                const pasted = e.clipboardData.getData("text/plain");
+                if (!shouldConvertPasteToFile(pasted.length)) return;
+                e.preventDefault();
+                setAttachError(null);
+                try {
+                  const blob = new File([pasted], `paste-${Date.now()}.txt`, {
+                    type: "text/plain",
+                  });
+                  const meta = await uploadHubFile(blob, fileSource);
+                  setFileIds((prev) =>
+                    prev.includes(meta.id) ? prev : [...prev, meta.id].slice(0, 5),
+                  );
+                  setInput((prev) => prev.trim() || "Voir le document collé.");
+                } catch (err) {
+                  setAttachError(
+                    err instanceof Error ? err.message : "Collage — upload échoué.",
+                  );
+                }
+              }}
               placeholder="Ex : Rapport de la nuit, ou rédige un mail à…"
               disabled={loading}
               className="border-copper/15 bg-obsidian-deep/50 text-ivory placeholder:text-titanium/60 focus-visible:ring-copper/40"
             />
             <Button
               type="submit"
-              disabled={loading || !input.trim()}
+              disabled={loading || (!input.trim() && fileIds.length === 0)}
               aria-label="Envoyer"
               className="shrink-0 bg-copper hover:bg-copper"
             >

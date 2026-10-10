@@ -70,6 +70,10 @@ from api.routers.orchestration import router as orchestration_router
 from api.routers.admin import router as admin_router
 from api.routers.gdd import router as gdd_router
 from api.routers.academy import router as academy_router
+from api.routers.gaming_academy import router as gaming_academy_router
+from api.routers.robo_academy import router as robo_academy_router
+from api.routers.comms_academy import router as comms_academy_router
+from api.routers.academies import router as academies_router
 from api.routers.ops import router as ops_router
 from api.routers.autonomy import router as autonomy_router
 from api.routers.assistant import router as assistant_router
@@ -91,6 +95,9 @@ from api.routers.review_chain import router as review_chain_router
 from api.routers.context_memory import router as context_memory_router
 from api.routers.ue58_bridge import router as ue58_bridge_router
 from api.routers.robo_phase21 import router as robo_phase21_router
+from api.routers.live_session import router as live_session_router
+from api.routers.live_tasks import router as live_tasks_router
+from api.routers.hub_files import router as hub_files_router
 
 
 ALL_ROUTERS = [
@@ -159,6 +166,10 @@ ALL_ROUTERS = [
     orchestration_router,
     admin_router,
     academy_router,
+    gaming_academy_router,
+    robo_academy_router,
+    comms_academy_router,
+    academies_router,
     ops_router,
     autonomy_router,
     assistant_router,
@@ -180,6 +191,9 @@ ALL_ROUTERS = [
     context_memory_router,
     ue58_bridge_router,
     robo_phase21_router,
+    live_tasks_router,
+    live_session_router,
+    hub_files_router,
 ]
 
 

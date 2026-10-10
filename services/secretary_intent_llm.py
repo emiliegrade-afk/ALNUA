@@ -30,6 +30,8 @@ INTENT_VALUES = frozenset(
         "write_doc",
         "housekeep",
         "weather",
+        "open_pc",
+        "find_pc",
     }
 )
 
@@ -59,10 +61,12 @@ Choisis UNE intention parmi :
 - write_doc — créer / éditer un document texte (note, contrat brouillon, compte-rendu)
 - housekeep — ranger le PC, trier le bureau, quarantaine, bordel fichiers
 - weather — météo d'une ville (temps, pluie, parapluie)
+- open_pc — ouvrir une page / app de la liste blanche (« ouvre Instagram », « ouvre Gmail »)
+- find_pc — chercher un dossier ou un fichier sur le PC (« cherche le dossier factures »)
 
 Paraphrases OK (ex. « remets Théo au boulot » → wake_ops ; « c'est quoi le plan aujourd'hui ? » → briefing ;
 « range mon bureau » → housekeep ; « ouvre un doc pour le NDA » → write_doc ;
-« quel temps à Paris » → weather).
+« quel temps à Paris » → weather ; « ouvre Instagram » → open_pc).
 Si doute → conversation.
 
 JSON uniquement :

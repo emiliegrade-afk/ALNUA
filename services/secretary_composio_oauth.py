@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 from typing import Any
 
 from config.settings import get_settings
@@ -17,6 +18,27 @@ def composio_user_id() -> str:
         or os.getenv("COMPOSIO_CEO_USER_ID", "").strip()
         or "alnua_coo"
     )
+
+
+_OAUTH_HTTP = re.compile(r"https?://[^\s)\]>'\"<>]+")
+
+
+def extract_oauth_url(text: str) -> str | None:
+    """Pull the first http(s) URL out of a Telegram-style OAuth reply."""
+    match = _OAUTH_HTTP.search(text or "")
+    if not match:
+        return None
+    return match.group(0).rstrip(".,;\"'")
+
+
+def split_oauth_reply(raw: str) -> tuple[str, str]:
+    """Return (url, hint). JSON endpoints need a pure URL; Telegram keeps the prose."""
+    text = (raw or "").strip()
+    url = extract_oauth_url(text)
+    if not url:
+        return "", text
+    hint = text.replace(url, " ").replace("🔗", "").strip()
+    return url, hint
 
 
 def expected_ceo_gmail() -> str:
@@ -46,11 +68,21 @@ def _gmail_connect_instructions() -> str:
     return "Ouvre le lien et autorise l'accès Google."
 
 
+_INSTAGRAM_TOOLKITS = ("instagram", "instagram_business")
+_INSTAGRAM_HINT = (
+    "Compte Instagram Professionnel lié à une Page Facebook "
+    "(Meta refuse un compte perso via cette API)."
+)
+
+
 def get_oauth_link_for_ceo(app: str, *, force_reconnect: bool = False) -> str:
     from skills.skill_composio import disconnect_toolkit, get_oauth_link
 
     toolkit = app.upper()
     uid = composio_user_id()
+
+    if toolkit in {"INSTAGRAM", "INSTAGRAM_BUSINESS"}:
+        return _instagram_oauth(uid)
 
     if toolkit == "GMAIL" and force_reconnect:
         disconnect_toolkit(uid, "gmail")
@@ -78,6 +110,21 @@ def get_oauth_link_for_ceo(app: str, *, force_reconnect: bool = False) -> str:
     return link
 
 
+def _instagram_oauth(uid: str) -> str:
+    from skills.skill_composio import get_oauth_link
+
+    last = ""
+    for slug in _INSTAGRAM_TOOLKITS:
+        link = get_oauth_link(app=slug, user_id=uid)
+        last = link
+        lower = link.lower()
+        if link.startswith("http"):
+            return f"🔗 {_INSTAGRAM_HINT}\n{link}"
+        if "déjà connecté" in lower or "deja connecte" in lower:
+            return link
+    return last or f"Erreur: {_INSTAGRAM_HINT}"
+
+
 def list_ceo_connections() -> list[dict[str, Any]]:
     from skills.skill_composio import list_connected_apps
 
@@ -87,7 +134,11 @@ def list_ceo_connections() -> list[dict[str, Any]]:
 def is_connected(toolkit: str) -> bool:
     from skills.skill_composio import has_active_connection
 
-    return has_active_connection(composio_user_id(), toolkit.lower())
+    slug = toolkit.lower()
+    uid = composio_user_id()
+    if slug in _INSTAGRAM_TOOLKITS:
+        return any(has_active_connection(uid, name) for name in _INSTAGRAM_TOOLKITS)
+    return has_active_connection(uid, slug)
 
 
 def connection_status_text() -> str:
@@ -117,4 +168,8 @@ def connection_status_text() -> str:
         lines.append(f"\n⚠️ Attendu : {expected} — envoie `/connect gmail` pour changer.")
     if not is_connected("googlecalendar"):
         lines.append("⚠️ Calendar non connecté — `/connect calendar`")
+    if not is_connected("discord"):
+        lines.append("⚠️ Discord non connecté — `/connect discord`")
+    if not is_connected("instagram"):
+        lines.append("⚠️ Instagram non connecté — `/connect instagram`")
     return "\n".join(lines)

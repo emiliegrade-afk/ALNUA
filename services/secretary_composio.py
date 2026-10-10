@@ -16,6 +16,7 @@ from services.secretary_composio_oauth import (  # noqa: F401 — re-export
     expected_ceo_gmail,
     get_oauth_link_for_ceo,
     gmail_account_ok,
+    split_oauth_reply,
     is_connected,
     list_ceo_connections,
 )
