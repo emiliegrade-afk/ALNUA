@@ -7,7 +7,7 @@ from pydantic import Field
 
 class SettingsHubMixin:
     openrouter_base_url: str = "https://openrouter.ai/api/v1"
-    default_llm_model: str = "anthropic/claude-sonnet-4"
+    default_llm_model: str = "anthropic/claude-sonnet-5"
     api_host: str = "0.0.0.0"
     api_port: int = 8003
     beta_portal_base_url: str = Field(
