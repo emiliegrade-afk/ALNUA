@@ -4,6 +4,65 @@ Historique des audits de gouvernance effectués.
 
 ---
 
+## Audit 006 — Health check 10 dimensions
+
+- **Date :** 2026-10-11
+- **Scope :** audit santé projet complet (échéance 3 semaines dépassée — Audit 005
+  le 2026-09-07, dû ≤ ~2026-09-28) — gouvernance, structure, dépendances, types,
+  tests, config/secrets, perf, drift doc, hygiène git, risques forward. Correctifs
+  appliqués dans la foulée (deps npm + micro-drift doc), pas de code produit.
+- **Méthode :** `git fetch` + `git status -sb` **en premier** (leçon Audit 005 :
+  `origin/main` avait avancé pendant la session) ; relecture gouvernance ;
+  `ruff check agents/ services/ api/ config/ database/ bots/ skills/` ;
+  `pytest tests/ -q` ; `npx tsc --noEmit` ; `npx vitest run` ; `npm audit` ;
+  comptage fichiers Python >300 / TS >400 ; comptage réel `ALL_ROUTERS` (93) et
+  `AGENT_PERSONAS` (53) via `python -c` ; grep secrets (`sk-`/`AKIA`/clés privées,
+  avec prune `.git`/`node_modules`/`data`/`library` — le scan naïf par `rglob`
+  accrochait >3 min), `shell=True`, `: any`/`@ts-ignore`, stubs/TODO.
+- **Verdict :** 🟢 **Sain** — inversion complète du constat Audit 005 (🟡) :
+  gouvernance et hygiène git désormais excellentes (0 ahead/behind, CHANGELOG du
+  jour, comptes doc exacts à deux exceptions près), suites toutes vertes ; le
+  finding principal est externe au code écrit ici : **vulnérabilités npm**, dont
+  une RCE critique Next.js sur serveurs Windows — corrigée dans la foulée.
+- **Findings majeurs (détail dans `BUGS.md`) :**
+  - 🔴→✅ BUG-026 — `npm audit` : **22 vulnérabilités** (2 critical, 13 high,
+    5 moderate, 2 low). Critique : `next@16.3.0` — RCE non authentifié sur
+    serveurs **hébergés Windows** (GHSA-p293-qw3h-jr36) + RCE Image Optimization
+    AVIF, directement applicable au hub (Next self-hosted sur Windows). Corrigé :
+    `next` 16.3.0→**16.4.0**, `vitest` 4.1.10→**4.1.11**, `dompurify`
+    3.4.13→**3.4.16**, `npm audit fix` non-breaking → **11 restantes** (2 low,
+    9 high), toutes dev-only (`braces`/`micromatch`/`fast-glob` dans
+    `eslint-plugin-next` + CLI `shadcn` — fixes breaking/bogus) ou sans fix
+    propre (`dompurify` niché sous `monaco-editor`, override refusé 3× par npm
+    — règle des 3 essais appliquée)
+  - 🟡 BUG-027 (ouvert) — 2 fichiers Python >300 lignes introduits par les
+    Phases 49–50 : `services/studio_academy_engine.py` (370),
+    `services/idle_work_recipes.py` (319) — régression de l'invariant tenu
+    depuis Vague 5 ; paydown candidat, pas de split dans cet audit
+  - 🟡 BUG-028 — micro-drift `AGENTS.md` : 52 personas documentés vs 53 réels ;
+    date « prochain audit » dépassée. Corrigé directement
+  - ✅ Vérifié sans anomalie : hygiène git (propre, 0 ahead/behind — leçon 005
+    appliquée) ; `ruff` 0 ; `tsc` 0 ; pytest **852** passed / 6 skipped ;
+    vitest **93/93** ; **0 secret réel** (55 hits grep = artifacts de build
+    `web/.next-build/*` + 1 fixture de test `sk-test-secret-do-not-leak`
+    volontairement fake) ; 2 usages `shell=True` connus conformes SEC-001 ;
+    0 stub/`TODO`/`NotImplementedError` ; 0 `: any`/`@ts-ignore` ; compte
+    `ALL_ROUTERS` = **93** non hardcodé dans CLAUDE.md (renvoi vers
+    `__init__.py` — pas de drift possible) ; CHANGELOG frais (entrées du jour)
+- **Vs Audit 005 :** gouvernance 🔴→🟢 (27 jours non committés → arbre propre
+  poussé le jour même) ; drift doc 🔴→🟢 (86 vs 40 routers → comptes exacts,
+  un seul « 52/53 ») ; npm audit 🟢→🔴 (0 → 22 vulns, dette externe accumulée
+  en 5 semaines — les upgrades Next réguliers sont le correctif structurel) ;
+  fichiers >300 🟢→🟡 (0 → 2, nouveaux fichiers Phase 49-50).
+- **Next step ordonné suggéré :** (1) BUG-027 — split des 2 fichiers la
+  prochaine fois qu'on y touche ; (2) upgrades `next`/`vitest` réguliers
+  (mensuels) pour ne pas ré-accumuler la dette advisory ; (3) `monaco-editor`
+  bump quand un release pinne `dompurify` ≥3.4.16 ; (4) décision stratégique
+  Vague 6 (NAÏA/NUAWAY) vs attente gate académie.
+- **Next audit planned :** ≤ **2026-11-01** (3 semaines, règle `AGENTS.md`).
+
+---
+
 ## Audit 005 — Health check 10 dimensions (relecture complète)
 
 - **Date :** 2026-09-07

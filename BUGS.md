@@ -85,7 +85,7 @@ y compris `tests/test_devex_phase6.py` réécrit pour le nouveau comportement.
 
 | ID | Gravité | Description | Constat |
 |----|---------|-------------|-----------|
-| — | — | Aucun bug ouvert tracké | Hygiène fichiers >300 fermée (paydown 2026-08-10) |
+| BUG-027 | Faible | 2 fichiers Python >300 lignes (régression de l'invariant, tenu depuis Vague 5 DEC-032) introduits par les Phases 49–50 : `services/studio_academy_engine.py` (**370** lignes) et `services/idle_work_recipes.py` (**319** lignes) | Paydown candidat — split en modules par responsabilité la prochaine fois qu'on y touche (précédent BUG-004 : façades + modules). Pas de split dans l'Audit 006 lui-même (lot séparé, logique académie cœur) ; ne pas grossir davantage |
 
 ## Corrigés (2026-09-08 — Phase 48.2 Gaming Academy)
 
@@ -93,22 +93,29 @@ y compris `tests/test_devex_phase6.py` réécrit pour le nouveau comportement.
 |----|---------|-------------|-----------|
 | BUG-025 | **Haute** | `services/openrouter_prompt_cache.py::crewai_additional_params` retournait `session_id`/`cache_control` en params top-level, que CrewAI forwarde comme **kwargs** à `chat.completions.create()` → `TypeError: Completions.create() got an unexpected keyword argument 'session_id'` à **chaque appel LLM de tout agent CrewAI** (`game_director`, `dev_gaming`, et tous les agents non-`AgentBase` sur ce chemin). Cassure silencieuse — aucune trace côté Hub tant que personne n'invoquait ces agents — et cause racine majeure de « les agents gaming ne travaillent jamais ». Trouvé en lançant l'exercice Gaming Academy GN1.1 (Mira) via la file idle : l'exercice échouait en 10s avec cette exception | Wrapping des deux champs dans `extra_body` (chemin sanctionné litellm/openai-client → fusionné dans le body JSON OpenRouter, comme le fait déjà le chemin REST via headers/payload). Probe live avant (TypeError reproduit) / après (`pong`) sur le vrai modèle `game_director`. GN1.1 ensuite exécuté bout-en-bout via le hub : livrable `direction/vision-zone-tutoriel.md` validé par QA Tomás au premier passage. Test de régression `test_crewai_additional_params_wrapped_in_extra_body` ajouté |
 
-## Statistiques (mises à jour Audit 005 — 2026-09-07)
+## Corrigés (2026-10-11 — Audit 006)
+
+| ID | Gravité | Description | Correctif |
+|----|---------|-------------|-----------|
+| BUG-026 | **Haute** | `npm audit` (web) : **22 vulnérabilités** (2 low, 5 moderate, 13 high, **2 critical**) — régression vs 0 (Audit 005). Critique principal : `next@16.3.0` — **RCE non authentifié sur serveurs hébergés Windows** (GHSA-p293-qw3h-jr36) + RCE Image Optimization AVIF (GHSA-2xp9-vwfh-vxw4) + 7 autres advisories Next 16.0.0–16.3.7 — directement pertinent, le hub **est** un serveur Next hébergé Windows. Fix bloqué par le pin exact `16.3.0`, pas par un vrai breaking | Bump `next` **16.3.0 → 16.4.0** + `eslint-config-next` aligné (0 critical restant) ; `npm audit fix` non-breaking ; `vitest` **4.1.10 → 4.1.11** (path traversal `@vitest/mocker` — patch, pas un major contrairement à la suggestion npm) ; `dompurify` direct **3.4.13 → 3.4.16** (2 XSS). **Reste 11 (2 low, 9 high), toutes dev-only ou sans fix propre** : chaîne `braces`/`micromatch`/`fast-glob` (DoS stack-exhaustion, 9 high) confinée aux outils dev (`eslint-plugin-next`, CLI `shadcn`) — fixes proposés = breaking ou downgrade absurde (`eslint-config-next@14`) ; `dompurify` niché sous `monaco-editor@0.57` (2 low) — override npm tenté 3×, refusé contre le pin exact de monaco (règle des 3 essais : documenté, pas insisté). `tsc` 0 erreur + vitest **93/93** revérifiés après bumps |
+| BUG-028 | Faible | Micro-drift doc : `AGENTS.md` disait **52** agents personas (réel **53**) et planifiait le prochain audit « ≤ ~2026-09-28 » (dépassé) | Resync `AGENTS.md` : **53** personas + « Audit 006 fait 2026-10-11 ; prochain ≤ ~2026-11-01 » |
+
+## Statistiques (mises à jour Audit 006 — 2026-10-11)
 
 | Bucket | Count |
 |--------|------:|
-| Ouverts | **0** |
+| Ouverts | **1** (`BUG-027` — 2 fichiers >300, paydown candidat) |
 | Fermés remédiation + Vague 0–4 + BUG-004 + Audit 005 | 21 (+ `BUG-004`) |
-| Routers / Personas (resync Audit 005) | **86** / **53** |
-| pytest | **644** passed / 6 skipped / **0 failed** (post-merge origin/main) |
-| Vitest (web) | **42** passed / **0 failed** |
+| Routers / Personas (Audit 006) | **93** / **53** |
+| pytest | **852** passed / 6 skipped / **0 failed** |
+| Vitest (web) | **93** passed / **0 failed** |
 | ruff / tsc --noEmit | ✅ 0 erreur (les deux) |
-| npm audit (web) | **0** vuln (`npm audit fix` appliqué) |
-| Python >300 lignes | **0** (packages agents/services/api/skills/bots/config/database) — tenu depuis Vague 5 DEC-032 |
+| npm audit (web) | **11** vuln (2 low, 9 high — 0 critical/moderate ; résidu dev-only documenté BUG-026) |
+| Python >300 lignes | **2** (`studio_academy_engine.py` 370, `idle_work_recipes.py` 319 — BUG-027 ouvert) |
 | Residual mockup routes (working tree) | **0** |
-| Dernier commit poussé | `c82fac7` — `git status` propre vs `origin/main` |
+| Dernier commit poussé | voir `git log -1 origin/main` — hygiène git ✅ (fetch-first, 0 ahead/behind à l'audit) |
 | Corrigés (SEC) | 7 (`SEC-001`–`007`) |
-| Corrigés (BUG) | 25 (`BUG-001`–`025`) |
+| Corrigés (BUG) | 27 (`BUG-001`–`026`, `028` — `027` ouvert) |
 | Décision fermée | 1 (`DEC-009`) |
 
 ## Vérifié sans anomalie (audit sécurité, pour mémoire)

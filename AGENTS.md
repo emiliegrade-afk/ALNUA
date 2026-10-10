@@ -5,7 +5,7 @@ ce repo. Il n'y a rien à "faire" ici — juste l'ordre de lecture pour le reste
 
 ## Ordre de lecture
 
-1. **`CLAUDE.md`** — architecture, patterns, **52** agents personas, règles invariantes.
+1. **`CLAUDE.md`** — architecture, patterns, **53** agents personas, règles invariantes.
    Le plus souvent suffisant à lui seul pour une tâche courante.
 2. **`ALNUA_OVERVIEW.md`** — vue produit / organisation (quoi / pourquoi), si le contexte
    métier manque ; pas un substitut à `CLAUDE.md` pour coder.
@@ -57,7 +57,7 @@ Avant de déclarer une tâche **terminée** (et avant tout commit demandé) :
 
 | Habitude | Fréquence | Comment |
 |----------|-----------|---------|
-| Audit santé 10 dimensions | ≤ toutes les **3 semaines** | Canvas + entrée `docs/classeur/doc-audit.md` (Audit 005 fait 2026-09-07 ; prochain ≤ ~2026-09-28) |
+| Audit santé 10 dimensions | ≤ toutes les **3 semaines** | Canvas + entrée `docs/classeur/doc-audit.md` (Audit 006 fait 2026-10-11 ; prochain ≤ ~2026-11-01) |
 | Purge orphans / docs | Chaque fin de vague | Specs → `docs/specs/` ; plans terminés → `docs/archive/` |
 | Ratio tests ↔ surface | Obligatoire Finance / trust / workflows | Nouveau endpoint → pytest le même lot |
 | Vault library | Continu | Corps des notes **jamais** re-commités — seul `_index/` tracké |

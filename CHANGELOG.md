@@ -1,3 +1,23 @@
+## 2026-10-11 — Audit 006 : RCE Next.js critique corrigée, deps durcies
+
+- **fix(deps)** : `next` **16.3.0 → 16.4.0** — ferme 9 advisories dont la
+  critique GHSA-p293-qw3h-jr36 (RCE non authentifié sur serveurs hébergés
+  **Windows** — cas du hub) et le RCE Image Optimization AVIF. Le pin exact
+  `16.3.0` masquait le fix à `npm audit fix` (« outside stated range »).
+  `eslint-config-next` aligné. `BUG-026`.
+- **fix(deps)** : `vitest` 4.1.10 → 4.1.11 (path traversal `@vitest/mocker` —
+  simple patch malgré la suggestion npm de forcer un major) ; `dompurify`
+  direct 3.4.13 → 3.4.16 (2 XSS) ; `npm audit fix` non-breaking.
+  **22 → 11 vulnérabilités (0 critical, 0 moderate)** ; résidu dev-only
+  (`braces`/`fast-glob` dans outils lint/CLI) et `dompurify` niché sous
+  `monaco-editor` (override refusé 3× — règle des 3 essais) documentés.
+- **docs(audit)** : Audit 006 10 dimensions dans `docs/classeur/doc-audit.md`
+  — verdict 🟢 (gouvernance/hygiène git 🔴→🟢 vs Audit 005) ; `BUG-026`/`028`
+  corrigés, `BUG-027` ouvert (2 fichiers Phase 49-50 >300 lignes, paydown
+  candidat) ; micro-drift `AGENTS.md` resync (53 personas) ; stats `BUGS.md`.
+- Vérifs : `tsc --noEmit` 0 erreur, vitest **93/93**, pytest **852** passed /
+  6 skipped, `ruff` 0 erreur.
+
 ## 2026-10-11 — Items idle L2 débloqués par la confiance (suite Phase 50)
 
 - **feat(idle)** : un item L2 peut tourner sans validation CEO du jour si
