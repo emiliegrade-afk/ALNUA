@@ -120,7 +120,7 @@ rester « pro / chaleureux » : l’overlay est un **second passage**.
 | **2** | ALNUA Desk : même overlay (ne plus lire le pavé) ; repli sans LLM | Lot 1 |
 | **3** | Brief 8h + overlay ; research/météo comme tool | Lot 1 |
 | **4** | Aria : STT oui ; TTS seulement alerte / action / décision | Lot 1 |
-| **5** | ElevenLabs optionnel (2 voice_id originaux, fallback Edge) | si Edge ne suffit pas |
+| **5** | ElevenLabs optionnel (2 voice_id originaux, fallback Edge) | ✅ code, `ELEVENLABS_TTS=0`, repli Edge |
 | **Persona** | Recalage Nadia « copine / secrétaire » | **après** avoir vu Lots 1+ |
 
 Fichiers Lot 1 : `services/voice_overlay.py`, `services/telegram_voice.py`,

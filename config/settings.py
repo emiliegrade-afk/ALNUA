@@ -9,6 +9,7 @@ from config.settings_fields_coding import SettingsCodingMixin
 from config.settings_fields_comms import SettingsCommsMixin
 from config.settings_fields_data import SettingsDataMixin
 from config.settings_fields_hub import SettingsHubMixin
+from config.settings_fields_live import SettingsLiveMixin
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +21,7 @@ class Settings(
     SettingsDataMixin,
     SettingsCommsMixin,
     SettingsHubMixin,
+    SettingsLiveMixin,
     SettingsCodingMixin,
     BaseSettings,
 ):

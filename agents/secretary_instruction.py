@@ -33,7 +33,22 @@ class SecretaryInstructionMixin:
             classify_secretary_intent,
             should_dispatch_tool,
         )
-        from services.secretary_intents import detect_send_confirm, detect_weather_intent
+        from agents.secretary_handlers_live import (
+            wants_free_slots,
+            wants_linkedin_draft,
+            wants_publish_confirm,
+        )
+        from services.live_pc_input import wants_pc_confirm, wants_pc_input
+        from services.live_html_app import wants_html_app
+        from services.live_media import wants_generated_image, wants_stock_image
+        from services.secretary_intents import (
+            detect_connect_intent,
+            detect_find_pc,
+            detect_open_pc,
+            detect_research_intent,
+            detect_send_confirm,
+            detect_weather_intent,
+        )
 
         try:
             log_agent_action(
@@ -50,10 +65,30 @@ class SecretaryInstructionMixin:
         # Safety: explicit send confirm stays keyword-gated (évite envoi accidentel)
         if detect_send_confirm(instruction):
             return self._handle_send_confirm(session_id)
+        if wants_publish_confirm(instruction):
+            return self._handle_publish_confirm(instruction)
+        if wants_pc_confirm(instruction) or wants_pc_input(instruction):
+            return self._handle_pc_input_nl(instruction)
 
         # Weather is a free HTTP tool — no OpenRouter needed
         if detect_weather_intent(instruction):
             return self._handle_weather(instruction)
+        if detect_find_pc(instruction):
+            return self._handle_find_nl(instruction)
+        if detect_open_pc(instruction):
+            return self._handle_open_nl(instruction)
+        if detect_connect_intent(instruction):
+            return self._handle_connect_nl(instruction)
+        if wants_generated_image(instruction) or wants_stock_image(instruction):
+            return self._handle_image_nl(instruction)
+        if wants_html_app(instruction):
+            return self._handle_html_nl(instruction)
+        if wants_linkedin_draft(instruction):
+            return self._handle_linkedin_nl(instruction)
+        if wants_free_slots(instruction):
+            return self._handle_slots_nl(instruction)
+        if detect_research_intent(instruction):
+            return self._handle_research(instruction, session_id=session_id)
 
         classified = classify_secretary_intent(instruction)
         intent = str(classified.get("intent") or "conversation")
@@ -73,11 +108,19 @@ class SecretaryInstructionMixin:
 
         tg_chat = session_id.removeprefix("tg:") if session_id.startswith("tg:") else None
 
+        if intent == "find_pc":
+            return self._handle_find_nl(instruction)
+        if intent == "open_pc":
+            return self._handle_open_nl(instruction)
         if intent == "connect":
             return self._handle_connect_nl(instruction)
         if intent == "inbox":
             return self._handle_inbox_nl(instruction)
         if intent == "calendar":
+            from agents.secretary_handlers_live import wants_free_slots
+
+            if wants_free_slots(instruction):
+                return self._handle_slots_nl(instruction)
             return self._handle_calendar_nl(instruction)
         if intent == "night_report":
             report = build_night_report()
@@ -113,6 +156,13 @@ class SecretaryInstructionMixin:
             return self._handle_housekeep(instruction, session_id=session_id)
         if intent == "send_confirm":
             return self._handle_send_confirm(session_id)
+
+        from agents.secretary_handlers_brief import wants_chart, wants_summary
+
+        if wants_chart(instruction):
+            return self._handle_chart(instruction)
+        if wants_summary(instruction) and intent not in {"inbox", "email", "calendar"}:
+            return self._handle_summary(instruction)
 
         return self._handle_conversation(instruction, chat_id=tg_chat)
 
