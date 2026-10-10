@@ -61,7 +61,7 @@ api/
 | Agent ID | Fichier | Persona | Tier |
 |----------|---------|---------|------|
 | `coo` | `agents/coo_agent.py` | Aria Voss — COO | premium |
-| `spec` | `agents/spec_agent.py` | Léon Marchand — Spec | fast |
+| `spec` | `agents/spec_agent.py` | Léon Marchand — Spec | premium |
 | `qa` | `agents/qa_agent.py` | Alex Okafor — QA | standard |
 | `pm` | `agents/pm_agent.py` | Sam Rivera — PM | standard |
 | `security_sentinel` | `agents/security_sentinel_agent.py` | Hugo Brandt — Security Sentinel | fast |
@@ -69,7 +69,7 @@ api/
 ### Secrétariat (`secretary_office`)
 | Agent ID | Fichier | Persona | Tier |
 |----------|---------|---------|------|
-| `secretary` | `agents/secretary_agent.py` | Nadia Faure — Secrétaire | standard |
+| `secretary` | `agents/secretary_agent.py` | Nadia Faure — Secrétaire | fast |
 | `housekeeper` | `agents/housekeeper_agent.py` | Clara Nest — Intendante PC | fast |
 
 ### Conseil juridique (`legal_office`)
@@ -130,20 +130,20 @@ api/
 | Agent ID | Fichier | Persona | Tier |
 |----------|---------|---------|------|
 | `accounting` | `agents/accountant_agent.py` | Jules Bernard | fast |
-| `controller` | `agents/controller_agent.py` | Rémi Chassagne | fast |
+| `controller` | `agents/controller_agent.py` | Rémi Chassagne | standard |
 
 ### Hardware Workshop (`hardware_workshop`) — Équipe `robo`
 | Agent ID | Fichier | Persona | Tier |
 |----------|---------|---------|------|
-| `hardware` | `agents/hardware_agent.py` | Yuki Tanaka | fast |
-| `embedded_dev` | `agents/embedded_dev_agent.py` | Zara Singh | fast |
+| `hardware` | `agents/hardware_agent.py` | Yuki Tanaka | standard |
+| `embedded_dev` | `agents/embedded_dev_agent.py` | Zara Singh | standard |
 | `vision_ai` | `agents/vision_ai_agent.py` | Sana Okoye — perception embarquée | standard |
 | `electronics` | `agents/electronics_agent.py` | Marco Ferreira | standard |
 | `firmware` | `agents/firmware_agent.py` | Petra Vogel | standard |
 | `mechanical` | `agents/mechanical_agent.py` | Ravi Chandrasekaran | standard |
 | `industrial_design` | `agents/industrial_design_agent.py` | Elin Bergström | standard |
 | `qa_robot` | `agents/qa_robot_agent.py` | Bilal Nasser | standard |
-| `safety` | `agents/safety_agent.py` | Clara Dubois | standard |
+| `safety` | `agents/safety_agent.py` | Clara Dubois | premium |
 | `simulation` | `agents/simulation_agent.py` | Haruto Ishikawa | standard |
 
 ### Analytics Room (`analytics_room`) — Équipe `analytics`

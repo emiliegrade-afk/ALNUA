@@ -42,6 +42,15 @@
 | DEC-031 | Agent Lounge remplace OpenRoom ; scores séparés | 2026-08-11 | Active |
 | DEC-032 | Critères « Hub 100 % logiciel » + phases 31/32/34 closes | 2026-08-12 | Active |
 | DEC-033 | Overlay Jarvis — faits texte / réplique voix ; Edge TTS v1 | 2026-08-14 | Active |
+| DEC-034 | Gaming Academy paper slice | 2026-09-08 | Active |
+| DEC-035 | Génération 3D Meshy Phase 48.4 | 2026-09-08 | Active |
+| DEC-036 | Studio Academies par département | 2026-09-08 | Active |
+| DEC-037 | Modèles LLM selon l'utilité métier | 2026-09-09 | Active |
+| DEC-038 | Jarvis Live — voix temps réel + tâches asynchrones | 2026-10-04 | Active |
+| DEC-039 | Nadia Live — actions PC en liste blanche | 2026-10-04 | Active (Lot 5 implémenté 2026-10-06) |
+| DEC-040 | Bibliothèque fichiers utilisateur Hub (`/hub/files`) | 2026-10-10 | Active |
+| DEC-041 | Spark / Desk figé ; Hub s'ouvre sur Command Center | 2026-10-10 | Active |
+| DEC-044 | Nadia Live — écran + clic/frappe confirmés | 2026-10-10 | Active |
 
 ---
 
@@ -577,5 +586,248 @@ le comportement réel (Lots 1+).
 5. Spec : `docs/specs/SPEC_JARVIS_OVERLAY.md` ; Phase 47 ROADMAP ; 5 exemples
    gold (agenda, mail, contact, météo, relance Théo).
 **Alternatives rejetées :** graphe n8n type vidéo Zubair ; fusion Nadia+Aria ;
-réécrire le persona avant d’avoir un overlay live ; ElevenLabs dès le Lot 1.
+   réécrire le persona avant d’avoir un overlay live ; ElevenLabs dès le Lot 1.
 **Pourquoi :** livrer le feeling Jarvis sans dettes de persona ni de stack.
+
+### DEC-034 — Gaming Academy : curriculum autonome du studio (paper slice)
+**Contexte :** l’Academy app n’entraîne que `dev_app` ; les 10 agents Gaming
+n’ont aucun travail autonome de fond, et le repo gaming
+(`GITHUB_REPO_GAMING` / `UE_PROJECT_PATH`) n’est pas configuré. Constat du
+2026-09-08 : seuls les items idle génériques tournaient (quand le hub tournait).
+**Décision (2026-09-08) :**
+1. **Projet éducatif = « Wyrdheim Paper Slice »** : vertical slice de la zone
+   tutoriel entièrement conçue sur papier (documents + JSON/MD), réutilisable
+   comme canon de pré-production — pas un projet jetable.
+2. **Deux volets :** V1 créative sans UE (livrables fichiers via les méthodes
+   agents existantes, déclenchée par la file idle en L1) ; V2 code C++ Nova
+   via coding pipeline, seulement après configuration du repo gaming.
+3. **Stockage write-only** dans `ALNUA_WORKSPACE/gaming-academy/` (pattern
+   `rnd_workspace` Phase 9) + progression/gate miroirs de l’Academy app.
+4. **QA systématique** par Tomás (`qa_gaming`) contre un DoD par exercice ;
+   compétition inchangée (points existants).
+5. Spec : `docs/specs/SPEC_GAMING_ACADEMY.md` ; Phase 48 ROADMAP.
+**Alternatives rejetées :** étendre le curriculum app (React Native) aux agents
+gaming — hors rôle ; attendre le repo UE pour démarrer (9 agents sur 10
+peuvent produire sans moteur) ; issues GitHub en V1 — aucun repo gaming
+configuré, la file idle suffit.
+
+### DEC-035 — Génération 3D : Meshy, et seulement en Phase 48.4 (V2)
+**Contexte :** question Emilie du 2026-09-08 — brancher Tripo 3D ou équivalent
+pour que les agents gaming produisent items/meshes. En V1 (paper slice), un
+mesh n'a aucune destination : `UE_PROJECT_PATH` non configuré, pipeline
+d'import UE seulement sur papier (GN4.1).
+**Décision (2026-09-08) :**
+1. **Outil retenu : Meshy** (pas Tripo) — billing API unifié avec le plan
+   Studio (~20 $/mo) vs API Tripo facturée séparément ; mode Low Poly
+   game-ready direct moteur ; pipeline complet (PBR 4K, auto-rig, 500+ anims,
+   FBX/GLB) qui couvre aussi les futurs personnages.
+2. **Séquence : intégration en Phase 48.4 uniquement** — déclencheur =
+   `UE_PROJECT_PATH` + `GITHUB_REPO_GAMING` configurés. Aucune dépense ni code
+   d'ici là ; les specs produites par l'académie (biome, props, conventions
+   Otto GN1.5/GN4.1) deviendront les briefs de génération.
+3. **Forme future :** `skills/skill_meshy.py` (REST, `meshy_is_configured()`,
+   dégradation gracieuse pattern `skill_discord_wyrdheim`), coûts dans
+   `cost_monitor`, livrables dans le workspace, QA Tomás sur budgets perf,
+   workflow concept image → image-to-3D.
+**Alternatives rejetées :** Tripo (billing API séparé, low-poly en surcoût) ;
+intégrer dès la V1 (stock dormant sans projet UE, dilue l'entraînement) ;
+pilote manuel immédiat (Emilie a tranché : attendre).
+**Pourquoi :** faire travailler le studio tous les jours sur son rôle réel,
+   sans nouvelle infrastructure ni dépendance UE.
+
+
+---
+
+### DEC-036 — Studio Academies : un programme d'entraînement par département
+**Contexte :** demande Emilie du 2026-09-08 — « un projet d'entraînement pour
+chaque département qui fait travailler l'équipe au complet ». La Gaming Academy
+(Phase 48) a prouvé le pattern (2 exercices validés, autonomie idle, BUG-025
+corrigé). Restent sans entraînement : Robo (10 agents), Comms (10), Analytics (2),
+Finance (2), R&D (5).
+**Décision (2026-09-08) :**
+1. **Moteur générique** studio_academy_* paramétré par AcademyProgram —
+   gaming_academy_* migré en wrappers compat (API inchangée, 23 tests verts,
+   la file idle tourne pendant la migration). Pas de 3e copie du runner/progress/gate.
+2. **Robo Academy = « Eve Paper Build »** (choix Emilie : robot compagnon de
+   bureau) — 30 exercices N1-N4, livrables = specs de pré-production du vrai
+   robot Eve (les agents robo sont déjà thémés Eve), QA Bilal via
+   
+un_json_task (AgentBase) avec le même template DoD que Tomás.
+3. **Comms Academy = campagne de lancement NAÏA** (choix Emilie) — Phase 49.3,
+   session suivante, seulement si Robo prouvée.
+4. **Phasé** (choix Emilie) : 49.1 moteur → 49.2 Robo → 49.3 Comms → 49.4 drills
+   analytics/finance/R&D. Direction et Secrétariat déjà actifs au quotidien
+   (travail réel) : pas de programme.
+5. **Cadence :** 2 exercices/jour/programme en L1 ; familles gaming/
+obo
+   différées si budget warning. ~0,20–0,40 USD/jour ajoutés.
+**Alternatives rejetées :** cloner gaming_academy_* par département (duplication
+~500 lignes × N — dette) ; router générique /academies/{program} (incohérent
+avec /academy + /gaming-academy existants) ; entraîner Direction/Légal
+(déjà du travail réel quotidien — Nadia Telegram, ops snapshot, QA réel).
+**Pourquoi :** chaque équipe s'entraîne sur son vrai prochain produit, donc les
+livrables d'entraînement deviennent le canon de pré-production (Eve, NAÏA,
+Wyrdheim) au lieu d'exercices jetables.
+
+### DEC-037 — Modèles LLM selon l'utilité métier
+**Contexte :** le mode AUTO ne résolvait qu'un modèle par tier (`TIER_DEFAULTS`).
+Les overrides Paramètres (`data/agent_models.json`) mélangeaient les familles
+(ex. COO sur un modèle code, Nadia sur du reasoning premium).
+**Décision (2026-09-09) :**
+1. `AGENT_ROLE_MODELS` (`config/agent_models_roles.py`) est le défaut AUTO —
+   un modèle par agent selon le métier : code, raisonnement, rédaction, ops.
+2. Priorité inchangée au-dessus : env `AGENT_MODEL_*` puis Paramètres.
+3. `TIER_DEFAULTS` = floor du routeur dynamique + fallback agents inconnus
+   (premium Sonnet 4.6 / standard DeepSeek V3.2 / fast GLM 4.5 Air).
+4. Tiers : PM et Contrôleur → standard ; Safety → premium (enjeu physique).
+**Alternatives rejetées :** un seul modèle par tier ; laisser les overrides
+locaux hétérogènes comme source de vérité.
+**Pourquoi :** le modèle doit coller à ce que l'agent fabrique, pas à un
+étiquette de coût générique.
+
+### DEC-038 — Jarvis Live : voix temps réel + tâches asynchrones
+**Contexte :** la Phase 47 (DEC-033) livre un overlay vocal au tour par tour
+(Whisper, LLM, Edge TTS) : une demande, une réponse, on attend. Une vidéo
+d'inspiration (Thomas Berton, « Jarvis avec Claude Code ») montre autre chose :
+voix temps réel, tâches lancées en fond et cumulables, panneau d'écran, résumé
+parlé à la fin. Il manque à ALNUA le registre de tâches asynchrones, le flux
+d'événements vers l'écran et une session vocale temps réel.
+**Décision (2026-10-04) :**
+1. **Complète DEC-033, ne la remplace pas :** faits à l'écran, réplique en voix.
+   Nadia et Aria restent deux personas, choisis au démarrage de la session.
+2. **Voix = API Realtime d'OpenAI en WebRTC**, jeton éphémère minté par le Hub ;
+   la clé ne quitte jamais le serveur. Flag `LIVE_VOICE_ENABLED=0` par défaut.
+3. **Surface = page du Hub web**, pas ALNUA Desk.
+4. **Le modèle vocal délègue, il n'exécute pas.** Exécutants = agents du Hub
+   (allowlist `LIVE_TASK_AGENTS`), via `plan_executor` / méthodes d'agent existantes.
+   Pas de troisième exécuteur.
+5. **Pas de Claude Code lancé par la voix**, et jamais en
+   `--dangerously-skip-permissions` sur la machine principale (`ai-agent-survival.mdc`).
+6. **Actions externes (email, publication, paiement) = brouillon + validation
+   humaine à l'écran.** Aucune action irréversible sur le seul ordre vocal.
+7. **Actions sur le PC (ouvrir une appli) : hors scope de cette DEC.** Cadré par
+   DEC-039 (invariant « pas de computer-use GUI Windows total »).
+8. **Ordre des lots :** registre de tâches sans voix d'abord (Lot 1), panneau
+   (Lot 2), session temps réel (Lot 3), réplique et plafonds de coût (Lot 4).
+   Les tâches doivent fonctionner sans la voix.
+9. Spec : `docs/specs/SPEC_JARVIS_LIVE.md` ; Phase 50 ROADMAP.
+**Alternatives rejetées :** garder Whisper + Edge TTS seuls (latence, pas
+d'interruption fluide) ; Claude Code comme exécutant vocal (permissions trop
+larges) ; page dans ALNUA Desk d'abord ; un bot unique Jarvis (déjà rejeté
+par DEC-033).
+**Pourquoi :** obtenir le comportement « je parle, ça travaille en fond, on me
+rend compte » en réutilisant les agents, le plan executor et l'event bus déjà
+présents, sans élargir les permissions du PC.
+
+### DEC-039 — Nadia Live : actions PC en liste blanche
+**Contexte :** la démo d'inspiration ouvre des applications et des pages sur un écran
+choisi. L'invariant du Hub interdit le computer-use GUI Windows total sans nouvelle DEC.
+**Décision (2026-10-04) :** autorisé uniquement via des actions nommées et fermées,
+jamais de commande libre :
+1. `open_url` : schéma `https` seulement, domaines de `LIVE_PC_ALLOWED_DOMAINS`.
+2. `open_app` : clés d'une liste blanche `LIVE_PC_ALLOWED_APPS` (nom -> exécutable fixe).
+3. `open_file` : chemin résolu à l'intérieur d'un dossier autorisé `LIVE_PC_ALLOWED_DIR`
+   (contrôle après résolution, pas de `..`, pas de lien symbolique qui sort).
+4. **Aucun clic, aucune frappe simulée, aucune capture d'écran**, pas de `shell=True`.
+5. Désactivé par défaut (`LIVE_PC_ACTIONS_ENABLED=0`), journalisé via `log_agent_action`,
+   chaque action visible dans le panneau de tâches.
+6. Le texte venant de la voix ou d'un agent n'est jamais interprété comme une commande :
+   il ne peut que choisir une clé de la liste blanche ou une URL `https` dont l'hôte
+   est dans `LIVE_PC_ALLOWED_DOMAINS`.
+**Statut :** Lot 5 implémenté (2026-10-06) — `services/live_pc_actions.py`, flag
+`LIVE_PC_ACTIONS_ENABLED` (défaut 0). Pas de clic, pas de frappe, pas de `shell=True`.
+**Alternatives rejetées :** contrôle d'écran complet (surface d'attaque trop large) ;
+Claude Code sur le PC par la voix (DEC-038 §5).
+**Pourquoi :** reproduire le geste « ouvre-moi X » sans donner à un modèle vocal la
+main sur la machine.
+
+### DEC-040 — Bibliothèque fichiers utilisateur Hub
+**Contexte :** besoin UX type ChatGPT Library (réutiliser specs / collages longs) dans
+Nadia Live, sans dépendre du stockage OpenAI.
+**Décision (2026-10-10) :** fichiers personnels en local (`data/hub_uploads/` + index
+`data/hub_files.json`), API `GET/POST/DELETE /hub/files`, séparé de `/library` (archives
+bureau). Les tâches Live portent `file_ids` ; le texte est injecté à l'exécution via
+`sanitize_user_input`. Lot 1 = fichiers texte uniquement.
+**Alternatives rejetées :** sync cloud OpenAI ; fusion avec `bureau_library.json`.
+
+### DEC-041 — Spark / Nadia Desktop figé ; Hub ouvre le Command Center
+**Contexte :** Nadia Live (`/live`) a repris voix temps réel, tâches, recherche web,
+ouverture de pages et recherche de dossiers. Spark / ALNUA Desk / Nadia Desktop
+(`nadia_desktop/`) est l'ancien chat Windows (Whisper + Edge TTS). Emilie confirme
+qu'on le laisse tel quel, sans y investir.
+**Décision (2026-10-10) :**
+1. **Pas de nouvelles features** dans `nadia_desktop/` / Spark. Ne pas supprimer :
+   Telegram réutilise encore `nadia_desktop/core/tts_text.py` (DEC-033).
+2. **Cockpit voix = `/live`** uniquement (DEC-038). Raccourci dédié `Nadia Live.bat`.
+3. **Démarrer le Hub** (`ALNUA Hub`, `start-all.ps1 -OpenBrowser`) ouvre le
+   **Command Center** (`/`), pas `/live`.
+**Alternatives rejetées :** fusionner Desk dans Live ; supprimer Spark maintenant
+(casse l'overlay Telegram) ; garder `/live` comme page d'accueil du Hub.\n
+
+### DEC-042 — Drills 49.4 : analytics / finance / R&D sur le moteur académie
+**Contexte :** Phase 49.4 du programme d'entraînement par département (DEC-036) —
+les 3 départements restants sans académie complète (analytics 2 agents, finance
+2 agents, R&D 5 agents). Plan initial : R&D via le pipeline de production
+(1 dossier/semaine). Diagnostic du mois écoulé : académies gaming 4/30, robo et
+comms 1/30 — machinerie saine, mais Hub éteint la plupart du temps ET
+`IDLE_MAX_ITEMS_PER_DRAIN=1` (1 item/drain × 3 h = ~8 items/j max pour ~15 à 21
+items/j, les L0 et gaming passant en premier).
+**Décision (2026-10-10) :**
+1. **Les 3 drills utilisent le moteur académie générique** (10 exercices chacun,
+   pas 30) — pas de machinerie « drill » séparée.
+2. **R&D devient un programme académie papier** (« NUAWAY Next ») au lieu du
+   pipeline de production : le pipeline réel (`run_rnd_cycle`) n'exerce pas les
+   5 personas (appels LLM bruts) et écrit en base ; le drill entraîne les 5
+   agents via `run_json_task`, cadence hebdomadaire (items idle le lundi).
+3. **QA des drills** : Alex (`qa`, standard) pour analytics/finance — QA transverse
+   sous-utilisé ; Cléo (`rnd_committee`) pour R&D — rôle de facilitatrice du comité.
+4. **Discipline effets de bord** (comme comms) : finance = méthodes read-only
+   uniquement (`financial_advice`, `analyze_costs`, `build_forecast`,
+   `monthly_report`, `list_open_invoices`) ; analytics = méthodes à kwargs str
+   interpolées (exclusion de `funnel_analysis`/`dashboard_spec` qui join() des
+   listes — l'engine ne passe que des str) ; R&D = `run_json_task` partout.
+5. **Débit idle** : `IDLE_MAX_ITEMS_PER_DRAIN=3` (cap du setting). La cause
+   racine n°1 reste l'uptime du Hub (superviseur à lancer au démarrage) — hors
+   scope code.
+6. **Un router générique** `GET/POST /academies/{program}/*` sert les 6
+   programmes ; les routers par département existants restent (pas de ripple).
+**Alternatives rejetées :** drills comme simples items récurrents sans DoD/QA
+(perd la calibration prouvée sur 3 académies) ; R&D hebdo via `run_rnd_cycle`
+(n'entraîne pas les personas) ; monter le débit via intervalle < 60 min
+(bruit scheduler, le cap items suffit).
+
+### DEC-043 — Calibration de la boucle confiance académies
+**Contexte :** le système d'autonomie (DEC-011) n'était alimenté que par les
+workflows de validation et la review board — `data/agent_trust.json` n'existait
+même pas, tous les agents à 0,70 provisoire (niveau 1). Les académies
+(DEC-036/042), soit toute la machine d'entraînement, n'y contribuaient pas.
+**Décision (2026-10-10) :**
+1. **L'engine académie enregistre la confiance** à chaque exercice : succès
+   poids **0,5** (papier, pas production), rejet QA poids 1,0, échec définitif
+   poids 2,0. Source taguée `academy:<program>`.
+2. **Plafond 0,85 pour la source academy** (`ACADEMY_TRUST_CAP`) : le papier
+   peut débloquer le niveau 2 (items idle L2 sans validation CEO), jamais le
+   niveau 3 (full-auto) — celui-ci exige des validations production. Un succès
+   academy ne diminue jamais un score plus élevé gagné en production.
+3. **QA indisponible = zéro pénalité** de confiance (pas la faute du stagiaire).
+**Alternatives rejetées :** poids plein pour les académies (~7 exercices
+d'affilée → 0,90 → full-auto sur papier seul) ; confiance par département
+(sur-ingénierie à ce stade) ; plafond par agent plutôt que par source (la source
+est le signal le plus propre).
+
+### DEC-044 — Nadia Live : choix d'écran + clic / frappe confirmés
+**Contexte :** Emilie veut le geste de la vidéo (ouvrir sur un écran, cliquer, taper).
+DEC-039 interdisait clic/frappe/capture. Computer-use libre sur la machine principale
+reste interdit (`ai-agent-survival.mdc`).
+**Décision (2026-10-10) :**
+1. **Choix d'écran** autorisé sur un `open` déjà whitelisté : « sur l'écran 2 »,
+   « à gauche », « à droite ». La fenêtre allowlist est déplacée (Win32 MoveWindow).
+2. **Clic et frappe** seulement après **Valider** (carte brouillon `pc_input` /
+   `POST /live/confirm`). Fenêtre dont le titre matche une clé `LIVE_PC_ALLOWED_APPS`.
+3. Clic = **centre de cette fenêtre** seulement. Pas de coordonnées dictées par le
+   modèle. Frappe = texte sanitisé, 200 caractères max, `WM_CHAR` sur cette fenêtre.
+4. **Aucune capture d'écran** envoyée à un LLM. Pas de `shell=True`. Même flag
+   `LIVE_PC_ACTIONS_ENABLED`.
+**Alternatives rejetées :** computer-use vision (Claude/OpenAI) sur le bureau ;
+pyautogui libre ; clic aux coordonnées vocales.
+**Pourquoi :** le geste « écran 2 / tape dans Discord » sans donner la souris au modèle.

@@ -87,6 +87,12 @@ y compris `tests/test_devex_phase6.py` réécrit pour le nouveau comportement.
 |----|---------|-------------|-----------|
 | — | — | Aucun bug ouvert tracké | Hygiène fichiers >300 fermée (paydown 2026-08-10) |
 
+## Corrigés (2026-09-08 — Phase 48.2 Gaming Academy)
+
+| ID | Gravité | Description | Correctif |
+|----|---------|-------------|-----------|
+| BUG-025 | **Haute** | `services/openrouter_prompt_cache.py::crewai_additional_params` retournait `session_id`/`cache_control` en params top-level, que CrewAI forwarde comme **kwargs** à `chat.completions.create()` → `TypeError: Completions.create() got an unexpected keyword argument 'session_id'` à **chaque appel LLM de tout agent CrewAI** (`game_director`, `dev_gaming`, et tous les agents non-`AgentBase` sur ce chemin). Cassure silencieuse — aucune trace côté Hub tant que personne n'invoquait ces agents — et cause racine majeure de « les agents gaming ne travaillent jamais ». Trouvé en lançant l'exercice Gaming Academy GN1.1 (Mira) via la file idle : l'exercice échouait en 10s avec cette exception | Wrapping des deux champs dans `extra_body` (chemin sanctionné litellm/openai-client → fusionné dans le body JSON OpenRouter, comme le fait déjà le chemin REST via headers/payload). Probe live avant (TypeError reproduit) / après (`pong`) sur le vrai modèle `game_director`. GN1.1 ensuite exécuté bout-en-bout via le hub : livrable `direction/vision-zone-tutoriel.md` validé par QA Tomás au premier passage. Test de régression `test_crewai_additional_params_wrapped_in_extra_body` ajouté |
+
 ## Statistiques (mises à jour Audit 005 — 2026-09-07)
 
 | Bucket | Count |
@@ -102,7 +108,7 @@ y compris `tests/test_devex_phase6.py` réécrit pour le nouveau comportement.
 | Residual mockup routes (working tree) | **0** |
 | Dernier commit poussé | `c82fac7` — `git status` propre vs `origin/main` |
 | Corrigés (SEC) | 7 (`SEC-001`–`007`) |
-| Corrigés (BUG) | 24 (`BUG-001`–`024`) |
+| Corrigés (BUG) | 25 (`BUG-001`–`025`) |
 | Décision fermée | 1 (`DEC-009`) |
 
 ## Vérifié sans anomalie (audit sécurité, pour mémoire)

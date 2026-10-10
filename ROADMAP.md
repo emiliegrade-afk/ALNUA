@@ -57,7 +57,9 @@
 | 44 | Capabilities + PermissionGuard + Trust Graph (AAF Phase E) | ✅ Complete (DEC-026) |
 | 45 | Context Engine L1–L4 + Collective (AAF Phase F) | ✅ Complete (DEC-027) |
 | 46 | Agent Lounge — remplace OpenRoom ; gamification expérimentale isolée | ✅ Complete (DEC-031) |
-| 47 | Overlay Jarvis — Nadia/Aria faits texte + réplique voix (DEC-033) | 🔄 Lots 0–4 |
+| 47 | Overlay Jarvis — Nadia/Aria faits texte + réplique voix (DEC-033) | ✅ Lots 0–5 (ElevenLabs flag off) |
+| 48 | Gaming Academy — curriculum autonome studio, paper slice Wyrdheim (DEC-034) | ⏸️ Spec |
+| 50 | Jarvis Live — voix temps réel + tâches asynchrones (DEC-038/039) | 🔄 Lots 1–6 ✅ (OAuth Meta/LinkedIn à valider dans le navigateur) |
 
 Statut légende : ⏸️ Not started | 🔄 In progress | ✅ Complete | 🔴 Blocked
 
@@ -70,7 +72,7 @@ Vague 6 « Apps NAÏA/NUAWAY coding » ; fin de plan = Vague 8 (Pi/UE5.8/
 Revolut/ads, hors scope Hub).
 **Fin reportée :** Pi, UE5.8, Revolut, ads.
 
-**En cours :** Phase **47** Overlay Jarvis — Lots 0–4 ✅. Suivant = Lot 5 (ElevenLabs optionnel).
+**Phase 47 :** Lots 0–5 codés. ElevenLabs (`services/overlay_tts.py`) reste derrière `ELEVENLABS_TTS=0` (repli Edge).
 Sans crédits OpenRouter : `VOICE_OVERLAY_LLM=0` ; météo = tool HTTP (wttr.in).
 
 ## Points tranchés le 2026-08-12 (DEC-032)
@@ -1716,8 +1718,48 @@ réplique en **voix**, sans clone Marvel ni graphe n8n. Deux bots inchangés.
 | 2 | ALNUA Desk : même overlay (ne plus lire le pavé) ; repli sans LLM | ✅ 2026-08-14 |
 | 3 | Brief 8h vocal ; research/météo en tool | ✅ 2026-08-14 |
 | 4 | Aria : STT ; TTS seulement alerte / action / décision | ✅ 2026-08-14 |
-| 5 | ElevenLabs optionnel (voix originales, fallback Edge) | ⏸️ |
+| 5 | ElevenLabs optionnel (voix originales, fallback Edge) | ✅ code, `ELEVENLABS_TTS=0` |
+
+### Phase 48 — Gaming Academy (studio autonome)
+**Objectif :** faire travailler les 10 agents Gaming tous les jours sur un
+projet éducatif commun — « Wyrdheim Paper Slice » (vertical slice papier de la
+zone tutoriel) — miroir de l'Academy app pour `dev_app`.
+**Référence :** `docs/specs/SPEC_GAMING_ACADEMY.md`, DEC-034.
+**Phases :**
+| Sous-phase | Contenu | Statut |
+|------------|---------|--------|
+| 48.0 | Spec + DEC-034 | ✅ 2026-09-08 |
+| 48.1 | Curriculum N1–N4 + progress + runner + QA Tomás | ✅ 2026-09-08 |
+| 48.2 | Intégration file idle (kind `gaming_academy_exercise`) + endpoints status | ✅ 2026-09-08 |
+| 48.3 | Gate « Academy → production Wyrdheim » + carte cockpit | ⏸️ |
+| 48.4 (V2) | Repo gaming configuré → exercices C++ Nova via coding pipeline | ⏸️ |
+
+### Phase 49 — Studio Academies (entraînement tous départements)
+**Objectif :** un programme d'entraînement par département, équipe complète,
+aligné sur le vrai produit à venir — moteur `studio_academy` générique issu du
+pattern Gaming Academy.
+**Référence :** `docs/specs/SPEC_STUDIO_ACADEMIES.md`, DEC-036.
+**Phases :**
+| Sous-phase | Contenu | Statut |
+|------------|---------|--------|
+| 49.0 | Spec + DEC-036 | ✅ 2026-09-08 |
+| 49.1 | Moteur générique + migration gaming (compat, tests verts) | ✅ 2026-09-08 |
+| 49.2 | Robo Academy « Eve Paper Build » (30 exercices, idle, endpoints) | ✅ 2026-09-08 |
+| 49.3 | Comms Academy « Lancement NAÏA » | ✅ 2026-09-08 |
+| 49.4 | Drills analytics / finance / R&D | ✅ 2026-10-10 |
 | Persona | Recalage Nadia après observation live | ⏸️ volontaire |
+**Livré 49.4 (2026-10-10) :**
+- 3 drills sur le moteur générique : Analytics « Hub Autopsy » (Layla+Axel, 10 ex.),
+  Finance « Budgets Projets Papier » (Jules+Rémi, 10 ex.), R&D « NUAWAY Next »
+  (5 agents, 10 ex., dossier papier hebdo le lundi)
+- QA drills : Alex (qa) pour analytics/finance, Cléo (rnd_committee) pour R&D
+- Router générique `GET/POST /academies/{program}/*` (6 programmes, plus de
+  router par département pour les nouveaux drills)
+- Fix débit idle : `IDLE_MAX_ITEMS_PER_DRAIN=3` (était 1 — goulot prouvé :
+  comms/robo affamés à 1 item/drain × 3 h)
+- Diagnostic uptime : académies au ralenti sept.→oct. parce que le Hub ne
+  tournait presque pas (machinerie saine). Port actif désormais 8003 (superviseur)
+- `tests/test_drill_academies.py` (18 tests) ; suite complète 819 verts. DEC-042.
 **Livré Lot 0 (2026-08-14) :** spec + DEC-033.
 **Livré Lot 1 (2026-08-14) :**
 - `services/voice_overlay.py` + `services/telegram_voice.py`
@@ -1734,4 +1776,23 @@ réplique en **voix**, sans clone Marvel ni graphe n8n. Deux bots inchangés.
 **Livré Lot 4 (2026-08-14) :**
 - Aria Telegram : Whisper STT ; TTS overlay seulement alerte / action / décision
 - `bots/telegram_coo_voice.py` ; bots Nadia et Aria restent séparés
-**Statut :** 🔄 In progress (Lots 0–4 done).
+**Statut :** ✅ Lots 0–5 codés. ElevenLabs off par défaut (`ELEVENLABS_TTS`).
+
+### Phase 50 — Boucle confiance académies → autonomie
+**Objectif :** alimenter le système d'autonomie (DEC-011, Phase 30) par les
+résultats QA des académies — avant, `agent_trust.json` n'existait pas et tout
+agent restait au niveau 1 par défaut (0,70).
+**Référence :** DEC-043.
+**Livré (2026-10-10) :**
+- `studio_academy_engine` enregistre la confiance à chaque verdict QA :
+  validé → succès poids 0,5 ; rejeté → échec poids 1,0 ; échoué → poids 2,0 ;
+  QA indisponible → aucune pénalité (pas la faute du stagiaire)
+- Plafond par source dans `agent_trust` : la source `academy:*` ne peut porter
+  au-delà de 0,85 (niveau 2) — le niveau 3 (workflows full-auto) exige des
+  validations production ; jamais de baisse d'un score gagné en production
+- `trust_score` exposé dans le résultat de chaque exercice (API/drains)
+- `tests/test_academy_trust.py` (10 tests) ; suite 834 verts. ruff clean.
+**Suite naturelle :** visibilité confiance dans le cockpit CEO ✅ (2026-10-11 —
+section `trust` dans `/autonomy/ceo-cockpit` + panneau « Confiance agents »
+sur `/ceo` via `trust-api` existant, 3 tests, suite 850 verts) ; déblocage mesuré des items idle L2 ✅ (2026-10-11 — override
+trust ≥ 0,80 dans `_item_eligible`, `l2_trust_override` observable, 2 tests).

@@ -1,3 +1,316 @@
+## 2026-10-11 — Items idle L2 débloqués par la confiance (suite Phase 50)
+
+- **feat(idle)** : un item L2 peut tourner sans validation CEO du jour si
+  l'agent porteur est à trust ≥ 0,80 (bande autonomie 2, DEC-011) — override
+  mesuré par agent dans `_item_eligible`, à côté du garde-fou self-dev ≥ 0,70.
+  La validation CEO reste le déblocage maître ; un score en lecture échouée
+  (0,0) laisse tout gâté.
+- **observabilité** : `pick_next_item` expose `l2_trust_override` (ids des L2
+  pris via la confiance) et la raison de skip nomme le score courant
+  (`l2_needs_ceo_validation (trust 0.79)`).
+- **tests** : `test_l2_trust_override_unlocks_academy_wake` + borne 0,79 ;
+  `test_l2_blocked_until_ceo_validation` ajusté (0,9 → 0,75 : la politique
+  change, L2 reste gâté sous 0,80). Suite 852 verts, ruff clean.
+- Live : `dev_app` à 0,70 provisionnel → `academy_wake` reste gâté tant que la
+  confiance n'est pas gagnée (6 validations académie/production environ).
+
+## 2026-10-11 — Confiance agents visible dans le cockpit CEO
+
+- **feat(autonomy)** : section `trust` dans `GET /autonomy/ceo-cockpit` —
+  par agent : score, niveau d'autonomie (N0-N3), nombre de validations,
+  seuil du palier suivant, dernière note ; plafond académie rappelé (0,85).
+  Dégradé silencieux comme les autres sections du cockpit.
+- **feat(web)** : panneau « Confiance agents » sur `/ceo` (`CeoCommandView`) —
+  top 8 agents par score, barre colorée par bande DEC-011 (manager / Review
+  Board / autonome), badge, nombre de validations, lien vers `/trust` ; état
+  de chargement distinct et message d'erreur réel affiché. Le composant
+  `CeoCockpitPanel` (non monté à ce jour) reçoit aussi un bloc `TrustBlock`
+  branché sur la nouvelle section cockpit.
+- `tests/test_ceo_cockpit_trust.py` (3 tests) ; suite 850 verts, ruff clean,
+  `tsc --noEmit` clean. Suite naturelle de Phase 50 (DEC-043) réalisée.
+
+## 2026-10-10 — Phase 50 : les académies alimentent la confiance (DEC-043)
+
+- **feat(autonomy)** : chaque verdict QA d'académie met à jour la confiance
+  agent (`record_validation`, source `academy:<program>`) — succès poids 0,5,
+  rejet 1,0, échec 2,0. Avant, `agent_trust.json` n'existait pas : tout le
+  monde au niveau 1 par défaut.
+- **feat(autonomy)** : plafond par source `ACADEMY_TRUST_CAP=0,85` — le papier
+  débloque le niveau 2 max ; le niveau 3 exige des validations production.
+- `trust_score` dans le résultat de chaque exercice. QA indisponible = aucune
+  pénalité. 10 tests (`test_academy_trust.py`), suite 834 verts. Relancer le Hub.
+- **fix(tests)** : isolation hermétique du trust store — `HUB_REPO_PATH` redirigé
+  vers un tmp de session dans `conftest.py` (le monkeypatch par test était
+  contournable : la suite avait pollué le vrai `data/agent_trust.json` — store
+  supprimé, il se reconstruit sur l'activité réelle). Suite 847 verts + CLEAN.
+
+## 2026-10-10 — Mesures contenu et pubs : plus de zéros inventés
+
+- **fix(skills)** : activité GitHub, builds Gaming et essais Robo sont lus
+  pour de vrai. Sans token, sans dépôt ou si la base est illisible, la
+  réponse est `available: false` — une semaine vide n'est plus le même
+  signal qu'une source absente.
+- **fix(ads)** : le rapport campagne prend la dépense des transactions
+  liées. Impressions, clics et CTR de régie ne sont plus renvoyés à 0.
+  Les analytics de post non branchées omettent les compteurs.
+- **fix(idle)** : un kind inconnu passe en erreur au lieu d'être marqué
+  terminé.
+- **docs** : Phase 47 lot 5 ElevenLabs est codé, flag `ELEVENLABS_TTS` off.
+
+## 2026-10-10 — Drills académie 49.4 : analytics, finance, R&D (DEC-042)
+
+- **feat(academies)** : 3 drills sur le moteur générique (SPEC_STUDIO_ACADEMIES) —
+  Analytics « Hub Autopsy » (analyst_business/analyst_data, 10 ex.), Finance
+  « Budgets Projets Papier » (accounting/controller, 10 ex., read-only), R&D
+  « NUAWAY Next » (brainstorm/rnd_agent/rnd_dossier/rnd_ceo/rnd_committee,
+  10 ex. via `run_json_task`, items idle le lundi).
+- **feat(api)** : router générique `GET/POST /academies/{program}/*` (6 programmes).
+- **fix(idle)** : `IDLE_MAX_ITEMS_PER_DRAIN=3` — le débit 1 item/drain affamait
+  les académies (comms/robo bloquées à 1/30 en septembre). Familles budget :
+  +analytics/finance/rnd différées sur warning.
+- **test** : `tests/test_drill_academies.py` (18) ; suite 819 verts ; ruff clean.
+  Fix bonus : import inutilisé dans `tests/test_hub_user_files.py`.
+- **Diagnostic** : académies en pause sept.→oct. = Hub éteint (uptime), pas un
+  bug. Superviseur à lancer au démarrage du PC. Relancer le Hub.
+- **ops** : raccourci « ALNUA Hub » dans le dossier Démarrage Windows —
+  `start-all.ps1` (superviseur :8003 + web :3000 + bots) se lance à l'ouverture
+  de session, fenêtre minimisée (schtasks refusé par la politique machine).
+
+## 2026-10-10 — Nadia Live : écran + clic/frappe confirmés (DEC-044)
+
+- **feat(live)** : « ouvre Instagram sur l'écran 2 » (ou à gauche / à droite)
+  déplace la fenêtre allowlist.
+- **feat(live)** : « tape bonjour dans Discord » / « clique au centre sur Gmail »
+  → brouillon + Valider. Centre de fenêtre seulement, pas de coordonnées libres,
+  pas de capture d'écran envoyée à un modèle.
+- Relancer le Hub (`LIVE_PC_ACTIONS_ENABLED=1` déjà requis).
+
+## 2026-10-10 — Nadia Live : trous vidéo (effacer, HTML, Sofia, contexte)
+
+- **feat(live)** : « tout effacer » à la voix et au clavier (écrans seulement).
+- **feat(live)** : mini-appli HTML (chrono / compteur / notes / checklist) dans
+  `data/live_html/`, ouverte dans le navigateur.
+- **feat(live)** : brouillon LinkedIn rédigé par Sofia + voix marque ALNUA.
+- **feat(live)** : les tâches reçoivent les derniers résultats d'écran (sources).
+- Relancer le Hub.
+
+## 2026-10-10 — Hub s'ouvre sur Command Center ; Spark figé (DEC-041)
+
+- **ops** : `ALNUA Hub` / `start-all -OpenBrowser` ouvre `/` (Command Center),
+  plus `/live`. Le raccourci Nadia Live reste l'entrée voix.
+- **docs** : Spark / Nadia Desktop gelé — pas de nouvelles features (`DEC-041`).
+
+## 2026-10-10 — Hub Files : secrétaire, voix, navigation Nadia
+
+- **feat(assistant)** : chat CEO / secrétaire — bibliothèque + `file_ids` sur `/assistant/chat`.
+- **feat(live)** : pièces jointes composer partagées avec `start_task` vocal ; barre Live / Bureau / Connexions.
+- Relancer le Hub.
+
+## 2026-10-10 — Bibliothèque fichiers Hub + pièces jointes Live (DEC-040)
+
+- **feat(hub-files)** : API `/hub/files` (upload texte local, liste, suppression).
+  Tâches Live acceptent `file_ids` ; contenu injecté à l'exécution (sanitisé).
+- **feat(live)** : composer — bouton Bibliothèque, collage &gt; 5000 caractères → fichier auto.
+- Relancer le Hub.
+
+## 2026-10-10 — Nadia Live : chercher un dossier sur le PC
+
+- **feat(live)** : « cherche / ouvre le dossier factures » parcourt Bureau,
+  Documents, Téléchargements (pas tout le disque). Carte liste + ouverture
+  Explorateur si un seul match. Pas d'exécutables, pas de `..`, pas de clic.
+- Relancer le Hub.
+
+## 2026-10-10 — Nadia Live : recherche internet en secondes, pas en minutes
+
+- **fix(live)** : la recherche Live ne lance plus le pipeline R&D / DuckDuckGo bloquant.
+  Timeout dur 10 s, sources réelles (Google News RSS, Wikipedia, DuckDuckGo Instant,
+  Tavily si `TAVILY_API_KEY`). Pas d'invention si le web ne répond pas.
+- **fix(live)** : « va sur / lance Instagram » ouvre le navigateur (liste blanche DEC-039).
+  « lance une recherche… » n'est plus pris pour une action PC. Toujours pas de clic ni
+  de frappe. Relancer le Hub.
+
+## 2026-10-10 — Nadia Live Lot 6 : cartes, images, LinkedIn, créneaux
+
+- **feat(live)** : cartes résultat liste / image / brouillon (bouton Valider).
+  Agenda et mails s'affichent en liste. « Tout effacer » existait déjà.
+- **feat(live)** : génération d'image via OpenRouter (`LIVE_IMAGE_MODEL`) et photos
+  Wikimedia avec crédit. Fichiers dans `data/live_media/` (git-ignoré).
+- **feat(live)** : brouillon LinkedIn puis publication seulement sur Valider /
+  « publie le post ». Créneaux libres 9h–18h (rien n'est réservé tout seul).
+- Relancer le Hub pour charger les routes `/live/confirm` et `/live/media`.
+
+## 2026-10-06 — Nadia Live Lot 5 : Instagram, recherche, ouvrir une page
+
+- **fix(live)** : la recherche internet affiche un brief avec sources au lieu de
+  « N fiches archivées ». L'archive bibliothèque part en fond, elle ne bloque plus la tâche.
+- **feat(live)** : Lot 5 DEC-039 — « ouvre Instagram / Gmail / YouTube » ouvre le navigateur
+  sur une liste blanche HTTPS (`LIVE_PC_ACTIONS_ENABLED`). Pas de clic, pas de frappe.
+- **fix(instagram)** : OAuth essaie `instagram` puis `instagram_business` ; Meta exige un
+  compte Professionnel lié à une Page Facebook (un compte perso est refusé).
+- Reste : valider OAuth dans le navigateur ; génération d'image OpenRouter ; relancer le Hub.
+
+## 2026-10-06 — Secrétariat SAV, Direction dédoublée, Nadia Live hors Direction
+
+- **fix(web)** : le SAV en bas du secrétariat était hors scroll (flex sans `min-h-0`).
+- **fix(web)** : Direction (`/hub`) affichait deux fois les liens siège.
+- **fix(web)** : l'appel Nadia (`/live`) passait dans le chrome Command Center (Direction).
+  Il a son propre shell, rattaché au secrétariat.
+
+## 2026-10-05 — Nadia Live : Gmail Connecter (lien OAuth)
+
+- **fix(live)** : « Connecter Gmail » n'ouvrait rien — le lien Composio était noyé dans le texte
+  d'instruction, et `window.open` après l'attente était bloqué. Le Hub renvoie une URL pure ;
+  la fenêtre s'ouvre au clic ; un lien de secours reste affiché.
+- Instagram : Nadia ne crée pas le compte (Meta). Compte professionnel dans l'app, puis OAuth.
+
+## 2026-10-05 — Nadia Live : accès web/mail/socials + cartes résumé/graphique
+
+- **feat(live)** : `GET /live/access` sonde internet + Gmail/Agenda/Discord/Instagram
+  (sans secrets). `POST /live/connect/{app}` ouvre l'OAuth Composio (allowlist).
+- **feat(web)** : bandeau Accès sur `/live` (Connecter Gmail, Agenda, Discord, Instagram).
+  Cartes résultat `summary` et `chart` (recharts). Page Connexions propose aussi Calendar + Instagram.
+- **feat(secretary)** : « connecte discord / instagram » + livrables résumé/graphique structurés.
+- Reste : l'OAuth doit être validé dans le navigateur ; Lot 5 PC (DEC-039).
+
+## 2026-10-05 — Nadia Live Lot 4 : réplique de fin + plafond quotidien (Phase 50)
+
+- **feat(api)** : plafond `LIVE_VOICE_MAX_MINUTES_PER_DAY` (429 + mode texte), `POST /live/session/end`
+  et `GET /live/usage`. Durée bornée par l'horloge du Hub ; session oubliée = 5 min au prochain mint.
+- **feat(web)** : Nadia annonce une tâche terminée ou un échec (sans relire le détail). Minutes
+  restantes affichées. Session coupée quand le quota est épuisé.
+- **chore** : `cost_monitor` journalise la durée (`seconds=N`) sans inventer un tarif audio.
+- **test** : 6 tests Python + 4 tests web. Suite 750 Python, 76 web, ruff 0, tsc 0.
+- Reste : Lot 5 (actions PC, DEC-039). Conversation réelle avec OpenAI toujours non testée.
+
+## 2026-10-05 — Nadia Live : voix mains libres (Phase 50)
+
+- **feat(voice)** : fini « Maintenir pour parler ». Le micro reste ouvert pendant la session,
+  OpenAI détecte les tours de parole (`server_vad`) et on peut couper la parole à Nadia.
+- **feat(web)** : bouton « Couper le micro », fermeture automatique après 90 s sans échange
+  (une session ouverte consomme de l'audio même quand personne ne parle), annulation d'écho/bruit. Casque conseillé.
+- **test** : 14 tests web (état piloté par le serveur, inactivité, mute), 8 tests Python.
+
+## 2026-10-04 — Nadia Live Lot 3 : session vocale temps réel (Phase 50, DEC-038)
+
+- **feat(api)** : `POST /live/session` crée un jeton éphémère OpenAI Realtime. Désactivé par
+  défaut (`LIVE_VOICE_ENABLED=0`), la clé `OPENAI_API_KEY` reste sur le Hub. Instructions
+  et outils fixés côté serveur (`services/live_session.py`).
+- **feat(web)** : bouton « Démarrer la voix » (Nadia ou Aria), WebRTC en push-to-talk
+  (micro coupé sauf bouton maintenu), interruption, transcription, orbe qui suit l'état.
+  **Révisé le 2026-10-05** : mains libres à la demande d'Emilie (voir ci-dessous).
+  Outils `start_task`, `list_tasks`, `get_task_status`, `cancel_task` branchés sur `/live/tasks`.
+- **test** : 8 tests Python + 13 tests web (connexion simulée, push-to-talk, refus d'une
+  adresse non OpenAI, outils). Suite 744 Python, 71 web, ruff 0, tsc 0.
+- Non vérifié : conversation réelle avec OpenAI (aucune clé utilisée). Noms d'événements
+  serveur à confirmer au premier essai (spec §11).
+- Reste : Lot 4 (réplique vocale à la fin d'une tâche, plafonds de coût), Lot 5 (actions PC, DEC-039).
+
+## 2026-10-04 — Nadia Live Lot 2 : cockpit web (Phase 50, DEC-038/039)
+
+- **feat(web)** : page `/live` (lien depuis `/secretary`) — panneau de tâches avec durée
+  en direct et annulation, cartes de résultat (texte, étapes d'un plan, erreur) rendues
+  en texte React, « Tout effacer » sans toucher aux tâches, repli clavier
+  (Nadia / Aria / Équipe). Flux SSE reconnecté automatiquement. Persona affichée : Nadia.
+- **fix(api)** : `GET /live/tasks/stream` répond `Cache-Control: no-cache, no-transform` ;
+  sans cela le proxy Next.js compressait le flux et les mises à jour arrivaient en retard.
+- **docs** : DEC-039 (actions PC en liste blanche, non implémentée, Lot 5) ; spec :
+  fournisseur d'image = OpenRouter, Done Lot 2, correction de la note sur `EventSource`.
+- **test** : tests Python scindés (`test_live_tasks.py`, `test_live_tasks_api.py`,
+  `live_tasks_fixtures.py`), 23 tests ; 16 tests web. Suite 736 passés, ruff 0, tsc 0.
+- Reste : Lot 3 (session WebRTC), Lot 4 (réplique vocale, plafonds), Lot 5 (actions PC).
+
+## 2026-10-04 — Jarvis Live Lot 1 : tâches asynchrones (Phase 50, DEC-038)
+
+- **docs** : `SPEC_JARVIS_LIVE.md` + DEC-038 — voix temps réel (OpenAI Realtime) +
+  tâches en fond, inspirées d'une vidéo « Jarvis avec Claude Code ». Complète
+  DEC-033, ne la remplace pas. Pas de Claude Code lancé par la voix.
+- **feat(api)** : `/live/tasks` (création, liste, lecture, annulation), `/live/agents`,
+  flux SSE `/live/tasks/stream`. Exécutants = `coo`, `secretary`, `plan`
+  (`run_coo_plan`), allowlist `LIVE_TASK_AGENTS`, concurrence `LIVE_TASK_MAX_CONCURRENT`.
+- **feat(services)** : `live_tasks*.py` — état persisté (`data/live_tasks.json`,
+  git-ignoré), tâches actives marquées `failed: interrupted_by_restart` au redémarrage,
+  `done` seulement si le résultat existe vraiment, résultat tardif écarté après annulation.
+- **test** : `tests/test_live_tasks.py` (22). Suite complète 735 passés, ruff 0.
+- Lots 2–4 (panneau web, session WebRTC, réplique vocale) : pas commencés.
+
+## 2026-09-09 — AUTO = pins Paramètres CEO (par agent)
+
+- **fix(config)** : `AGENT_ROLE_MODELS` reprend les choix Paramètres
+  (Gemma 31B Aria/Léon, GLM 5.2 Nadia/Hao, MiniMax M3 Théo/Idris/Camille,
+  Qwen Coder Nova/Zara, R1 Sam/Finn/Layla, Haiku Jules/Rémi, Gemini 2.5 Mira/Iris).
+  Les agents non pinés suivent les mêmes familles. `data/agent_models.json` restauré.
+
+## 2026-09-09 — Catalogue OpenRouter à jour (Claude 5 / GPT-5.6 / GLM 5.3)
+
+- **feat(config)** : Paramètres expose les slugs live OpenRouter — Claude Sonnet 5,
+  Opus 5, Fable 5.1 ; GPT-5.6 Sol / Terra / Luna (+ Pro) ; GLM 5.3 / 5.3 Flash ;
+  Kimi K3 (pas de K4 chez OpenRouter) ; MiniMax M3 déjà présent ; Gemini 3.1 Pro,
+  DeepSeek V4, Grok 4.5–4.20.
+- **feat(auto)** : `TIER_DEFAULTS` → Sonnet 5 / GPT-5.6 Terra / GLM 5.3 Flash.
+  AUTO métier : Aria = Opus 5, specs/brand/legal = Sonnet 5, Nadia = GLM 5.3 Flash.
+
+## 2026-09-09 — Modèles agents selon l'utilité (DEC-037)
+
+- **feat(config)** : `AGENT_ROLE_MODELS` — AUTO n'est plus un modèle unique
+  par tier. Code (Codex / Kimi K2.7 / Qwen Coder / Gemma 31B / Devstral) pour
+  les builders ; raisonnement (Gemini 2.5 Pro, GLM 5.2, R1, MiniMax M3) pour
+  direction/R&D ; rédaction (Gemma 26B, Sonnet 4.6) pour Comms ; ops cheap
+  (GLM 4.5 Air) pour Nadia/Clara.
+- **fix(tiers)** : PM et Contrôleur passent en standard ; Safety en premium.
+  `TIER_DEFAULTS` : Sonnet 4.6 / DeepSeek V3.2 / GLM 4.5 Air.
+- **ops** : `data/agent_models.json` remis à `{}` pour que AUTO applique
+  les modèles métier (Paramètres peut toujours pinner).
+- **test** : `tests/test_agent_models.py`.
+
+## 2026-09-09 (nuit) — Comms Academy « Lancement NAÏA » (Phase 49.3)
+
+- **feat(comms)** : 3e programme du moteur `studio_academy` — 30 exercices N1-N4
+  pour les 10 agents Comms Hub : campagne complète de lancement NAÏA sur papier
+  (stratégie, éditorial, teasers, brand kit, ads, presse) dans
+  `comms/naia-launch/`. QA Élise (brand) via le chemin générique du moteur.
+- **sécurité/dicipline** : les méthodes à effets de bord production
+  (`create_campaign` → table `campaigns` + capability `ads:spend`,
+  `generate_posts`/`draft_*` → files de posts) ne sont JAMAIS appelées par
+  l'académie — entraînement via `handle_instruction`, `run_json_task`
+  (AgentBase) ou méthode papier dédiée. Test-garde
+  `test_curriculum_never_touches_production_side_effects`.
+- **feat(rnd_visual)** : `design_visual_concept` — Max (orchestrateur pur sans
+  méthode LLM propre) gagne une vraie capacité de direction visuelle sur papier
+  (LLMClient direct, system prompt inline — absent du specs registry).
+- **feat(engine)** : `_build_kwargs` gère `run_json_task` (action/prompt/
+  learning_key) — chemin d'entraînement générique sans effets de bord.
+- **feat(api)** : router `/comms-academy` ; +2 items idle `comms_academy_exercise`/jour
+  (L1, famille `comms` différée si budget warning).
+- **fix(tests)** : `test_l2_blocked_until_ceo_validation` — fenêtre de pick élargie
+  (10 → 25) : les 6 items L1 des 3 académies saturaient la fenêtre de 10 et
+  masquaient le déblocage L2 après validation CEO.
+- **test** : `tests/test_comms_academy.py` (17 tests, dont vérification AST des
+  signatures avec résolution `run_json_task` sur AgentBase) ; suite 705 passed ;
+  ruff propre.
+- **Preuve live** : CN1.1 (Camille, stratégie lancement NAÏA — CrewAI, 2e agent
+  non-AgentBase prouvé depuis BUG-025) validé par Élise au premier passage.
+
+## 2026-09-08 (soir) — Studio Academies : moteur générique + Robo Academy (Phase 49.1/49.2)
+
+- **feat(services)** : moteur `studio_academy` générique (`studio_academy_program`
+  registry + `studio_academy_state` progression + `studio_academy_engine` runner +
+  `studio_academy_gate` gate), paramétré par `AcademyProgram` — DEC-036.
+  `gaming_academy_*` migré en wrappers compat : API publique inchangée, 23 tests
+  gaming verts sans modification, file idle gaming non interrompue.
+- **feat(robo)** : Robo Academy « Eve Paper Build » — 30 exercices N1-N4 pour les
+  10 agents Hardware Workshop, livrables = specs de pré-production du vrai robot
+  compagnon Eve (`hardware/eve-paper-build/`). QA Bilal via le chemin QA générique
+  du moteur (`run_json_task` + contrat DoD, même template que Tomás).
+- **feat(api)** : router `/robo-academy` (status, curriculum, gate, run-next,
+  run/{id}) ; dispatch idle générique `*_academy_exercise` → `program.runner_module`.
+- **feat(idle)** : +2 items `robo_academy_exercise`/jour en L1 ; famille `robo`
+  différée si budget warning.
+- **test** : `tests/test_robo_academy.py` (20 tests — dont vérification AST des
+  kwargs du curriculum contre les vraies signatures des 10 agents, sans import LLM) ;
+  suite complète 688 passed ; ruff propre.
+- **Preuve live** : RN1.1 (Elin, identité produit Eve) validé par Bilal au premier
+  passage ; endpoint `/robo-academy/status` opérationnel sur le hub redémarré.
+
 # Changelog — ALNUA Hub
 
 > Reconstitué rétroactivement le 2026-07-25 depuis `git log` (68 commits, historique
@@ -6,6 +319,83 @@
 > maintenant, ajouter une entrée par sprint/lot de changement au fur et à mesure,
 > pas en dump différé. **Règle (Audit 002 / Phase A) :** tout merge ou commit
 > >500 lignes de diff doit avoir au minimum une bullet dans ce fichier le jour même.
+
+## 2026-09-08 — Phase 48.2 Gaming Academy : autonomie idle + fix CrewAI (feat/fix)
+
+- **Type :** feat/fix
+- **File idle (DEC-021) :** 2 items `gaming_academy_exercise` L1 par jour dans
+  `idle_work_plan.py` ; dispatch dans `idle_work_recipes.py::_execute_one` →
+  `run_next_exercise()` ; famille `gaming` différée si budget warning
+  (`idle_work_queue.py`). Vérifié en direct : file 2026-09-08 = 11 items, drains
+  réels exécutés (ops, budget, drafts, gaming routé vers le runner).
+- **API :** nouveau router `api/routers/gaming_academy.py` (prefix `/gaming-academy`)
+  — `GET /status` `/curriculum` `/gate`, `POST /run-next` `/run/{id}`. Enregistré
+  dans `ALL_ROUTERS` (87 routers).
+- **BUG-025 (haute) — cause racine « les agents gaming ne travaillent jamais » :**
+  `crewai_additional_params` passait `session_id`/`cache_control` en kwargs au
+  client OpenAI via CrewAI → `TypeError` à chaque appel de tout agent CrewAI
+  (Mira, Nova…). Fix `extra_body` + test de régression. Prouvé en prod : GN1.1
+  (Mira, vision zone tutoriel) exécuté via le hub → livrable validé par Tomás.
+- **Tests :** +6 (plan, éligibilité budget, dispatch recipe, endpoints) + 1
+  régression prompt-cache. Suite complète : **668 passed**, ruff propre.
+- **État academy gaming :** 2/30 exercices validés (GN1.1 Mira, GN1.3 Finn),
+  prochain = GN1.2 (Sable, dialogues PNJ mentor). Cadence autonome : 2/jour via
+  les drains idle (toutes les 180 min).
+
+## 2026-09-08 — Phase 48.1 Gaming Academy : moteur + preuve bout-en-bout (feat)
+
+- **Type :** feat/test
+- **Contexte :** suite spec 48.0 (DEC-034) — rendre le studio gaming autonome sur
+  un projet éducatif « Wyrdheim Paper Slice », miroir de l'Academy app.
+- **Nouveaux services :**
+  - `services/gaming_academy_curriculum.py` — 30 exercices N1→N4 couvrant les
+    10 rôles gaming, DoD par exercice, refs croisées N2+, `exercise_sort_key`
+    numérique (le tri lexicographique plaçait GN1.10 avant GN1.2).
+  - `services/gaming_academy_progress.py` — état `data/gaming_academy_progress.json`,
+    miroir `academy_progress.py` ; statuts in_progress/rejected/validated/failed,
+    cap 3 tentatives, tracking `canon_conflict`.
+  - `services/gaming_academy_runner.py` — dispatch local 10 agents gaming
+    (hors `agent_pipeline_registry`, isolation ripple), exécution méthodes réelles,
+    rendu markdown, versioning write-only `-vN`, boucle QA avec injection du
+    feedback, points compétition (`task_completed` + `task_validated`).
+  - `services/gaming_academy_gate.py` — 5 checks (succès ≥65 %, N3 complet,
+    couverture 10/10 rôles, canon clean, prérequis V2 env) + readiness %.
+- **Agent :** `agents/qa_gaming_agent.py::review_deliverable` — revue DoD par
+  Tomás (run_json_task). Calibrée après 3 rejets en boucle : le juge notait sur
+  des critères hors DoD et changeait de barre à chaque itération ; le verdict
+  est désormais strictement lié au DoD + canon, le reste devient suggestion.
+- **Fix harness révélé par la preuve :** le renderer markdown dupliquait le
+  premier champ string des dicts en liste (head + ligne détail) — artifact que
+  Tomás relisait et sanctionnait. Corrigé + nested lists sur lignes dédiées.
+- **Preuve bout-en-bout :** GN1.3 (Finn, quête « Premiers Pas ») exécuté en
+  vrai : LLM Finn → livrable workspace → QA Tomás → `validated` → progression
+  1/30, success 100 %, manifest workspace à jour, 6 versions préservées.
+- **Tests :** `tests/test_gaming_academy.py` — 17 tests (intégrité curriculum,
+  cycle progress, runner mocké, versioning write-only, gate). Suite complète :
+  661 passed, ruff propre.
+
+## 2026-09-08 — Rétablissement autonomie Hub + spec Gaming Academy (fix/docs)
+
+- **Type :** fix/docs
+- **Diagnostic autonomie (pourquoi un seul agent travaillait) :**
+  - Hub lancé manuellement (hors superviseur) depuis ~04:18, scheduler muet —
+    le superviseur officiel était arrêté depuis le 2026-08-20 ; file idle figée
+    au 16 août (`data/idle_queue.json`).
+  - `.env` : `REPO_PATH_ACADEMY` pointait `C:\Dev\alnua-academy` (inexistant) →
+    5 issues academy bloquées en silence ; corrigé vers `D:\Dev\alnua-academy`.
+    `REPO_PATH_NOMAD` corrigé vers `D:\Dev\NUAWAY` (même cause).
+- **Actions :** redémarrage via `scripts/restart-all.ps1` (chemin supervisé,
+  auto-recycle) ; pipeline academy débloqué (5 issues en codage) ; file du
+  jour validée CEO (4 tickets `[idle-ok]` promus, dont Wyrdheim GDD check et
+  Eve BOM drift) ; drain idle vérifié de bout en bout ; scheduler confirmé
+  autonome (tick academy_poll 09:27).
+- **Docs :** `docs/specs/SPEC_GAMING_ACADEMY.md` + DEC-034 + ROADMAP Phase 48 —
+  curriculum autonome du Gaming Studio (Wyrdheim Paper Slice), V1 créative
+  sans UE, V2 C++ Nova après config `GITHUB_REPO_GAMING`/`UE_PROJECT_PATH`.
+- **Fragilité connue constatée (non corrigée ici) :** flapping health API sous
+  tempête de polling UI + `--limit-concurrency 40` (recycle superviseur =
+  codages tués mid-run si 5/5) ; `UnicodeDecodeError` cp1252 dans le pipeline
+  de codage ; escalade possible après 40 turns. À traiter dans un lot dédié.
 
 ## 2026-09-07 — Audit 005 + rattrapage post Phase 47 (feat/fix/docs)
 
