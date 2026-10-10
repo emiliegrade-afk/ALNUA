@@ -26,17 +26,10 @@ CHARACTER_LIMITS: dict[str, int] = {
 
 
 def fetch_dev_activity(repo: str = "ALNUA", days: int = 7) -> dict[str, Any]:
-    """
-    Scan recent commits/PRs/releases for the App pole.
-    Stub — live GitHub integration via skill_gh_issues in v2.
-    """
-    return {
-        "commits": [],
-        "prs": [],
-        "releases": [],
-        "scanned_at": datetime.now(timezone.utc).isoformat(),
-        "note": "live GitHub scan via skill_gh_issues pending",
-    }
+    """Commits, pull requests, and releases. Unavailable when GitHub is not configured."""
+    from skills.skill_github_activity import fetch_repo_activity
+
+    return fetch_repo_activity(repo, days=days)
 
 
 def gen_content_from_dev_log(

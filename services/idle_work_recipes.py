@@ -187,6 +187,24 @@ def _execute_one(item: dict[str, Any], run_id: str | None) -> dict[str, Any]:
             mark_item(item["id"], status="error", run_id=run_id, detail=str(exc)[:300])
             return {"ok": False, "detail": str(exc)[:300]}
 
+    elif kind.endswith("_academy_exercise"):
+        # Generic studio-academy dispatch (DEC-036): gaming, robo, comms…
+        # The program registry maps the kind prefix to its runner module.
+        program_id = kind[: -len("_academy_exercise")]
+        try:
+            import importlib
+
+            from services.studio_academy_program import get_program
+
+            runner = importlib.import_module(get_program(program_id).runner_module)
+            result = runner.run_next_exercise()
+            path = _write_deliverable(item, result)
+            ref = result.get("exercise_id") or result.get("reason") or "?"
+            detail = f"{program_id} academy {ref} → {result.get('status', 'done')} → {path}"
+        except Exception as exc:
+            mark_item(item["id"], status="error", run_id=run_id, detail=str(exc)[:300])
+            return {"ok": False, "detail": str(exc)[:300]}
+
     elif kind == "self_dev":
         try:
             from skills.skill_agent_learning import auto_compress_if_needed
@@ -244,8 +262,14 @@ def _execute_one(item: dict[str, Any], run_id: str | None) -> dict[str, Any]:
             detail = f"lounge soft-fail {agent_id}"
 
     else:
-        path = _write_deliverable(item, {"note": f"kind {kind} not implemented — logged"})
-        detail = f"noop {kind}"
+        detail = f"kind {kind} not implemented"
+        mark_item(item["id"], status="error", run_id=run_id, detail=detail)
+        return {
+            "ok": False,
+            "detail": detail,
+            "agent_id": agent_id,
+            "item_id": item.get("id"),
+        }
 
     mark_item(item["id"], status="done", run_id=run_id, detail=detail)
     return {"ok": True, "detail": detail, "path": path, "agent_id": agent_id, "item_id": item.get("id")}

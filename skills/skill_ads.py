@@ -51,9 +51,11 @@ def amplify_organic_post(
     budget_usd: float = 10.0,
     audience: str = "lookalike",
 ) -> dict[str, Any]:
-    """Boost an existing organic post with paid budget."""
+    """Draft a paid boost. Does not call Meta, Google, or TikTok."""
     return {
         "ok": True,
+        "status": "draft",
+        "platform_live": False,
         "action": "amplify",
         "post_id": post_id,
         "platform": platform,
@@ -61,20 +63,75 @@ def amplify_organic_post(
         "audience": audience,
         "daily_cap": budget_usd,
         "duration_days": 5,
+        "note": "Brouillon seulement — aucune campagne n'est lancée sur la régie.",
     }
 
 
 def campaign_roi_report(campaign_id: str) -> dict[str, Any]:
-    """Stub — live ROI report from ad platforms."""
+    """Spend from linked expense transactions, plus stats typed on the campaign.
+
+    Reach, engagements, conversions, and revenue stay null until someone
+    entered them. Ad-platform impressions, clicks, and CTR are omitted:
+    those APIs are not connected, and a zero would look like a measurement.
+    """
+    cid = (campaign_id or "").strip()
+    if not cid:
+        return {"ok": False, "available": False, "platform_live": False, "error": "campaign_id manquant"}
+    try:
+        from database.supabase_client import get_supabase
+
+        db = get_supabase()
+        rows = db.select("campaigns", filters={"id": cid}) or []
+        expenses = db.select("transactions", filters={"type": "expense"}) or []
+    except Exception as exc:
+        logger.warning("campaign ledger unread: %s", exc)
+        return {
+            "ok": False,
+            "available": False,
+            "campaign_id": cid,
+            "source": "ledger",
+            "platform_live": False,
+            "error": "Campagne illisible",
+        }
+    if not rows or not isinstance(rows[0], dict):
+        return {
+            "ok": False,
+            "available": False,
+            "campaign_id": cid,
+            "platform_live": False,
+            "error": "Campagne introuvable",
+        }
+
+    row = rows[0]
+    spent = round(
+        sum(
+            float(tx.get("amount") or 0)
+            for tx in expenses
+            if isinstance(tx, dict) and tx.get("campaign_id") == cid
+        ),
+        2,
+    )
+    revenue = row.get("revenue_generated_usd")
+    roi_pct = None
+    if revenue is not None and spent > 0:
+        roi_pct = round((float(revenue) - spent) / spent * 100, 1)
     return {
-        "campaign_id": campaign_id,
-        "spend": 0,
-        "impressions": 0,
-        "clicks": 0,
-        "ctr": 0,
-        "conversions": 0,
-        "roas": 0,
-        "note": "live Meta/Google/TikTok API integration pending",
+        "ok": True,
+        "available": True,
+        "campaign_id": cid,
+        "source": "ledger",
+        "platform_live": False,
+        "spent_usd": spent,
+        "budget_allocated_usd": row.get("budget_allocated_usd"),
+        "reach": row.get("reach"),
+        "engagements": row.get("engagements"),
+        "conversions": row.get("conversions"),
+        "revenue_generated_usd": revenue,
+        "roi_pct": roi_pct,
+        "note": (
+            "Dépense = transactions liées. Reach et ROI seulement s'ils ont été saisis. "
+            "API Meta/Google/TikTok non branchée."
+        ),
     }
 
 

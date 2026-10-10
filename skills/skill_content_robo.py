@@ -17,13 +17,65 @@ PLATFORMS = frozenset({"linkedin", "x", "youtube", "instagram", "blog"})
 
 
 def fetch_robo_milestones(project: str = "eve") -> dict[str, Any]:
-    """Stub — live milestone scan from hardware tracker."""
+    """Lab tests and robotics builds already stored by the Hub.
+
+    ``last_prototype_image`` stays null: those tables have no image column.
+    ``project`` labels the brief; rows are not filtered by slug.
+    """
+    from datetime import datetime, timezone
+
+    from skills.skill_robo_lab import get_builds_context, get_lab_context
+
+    scanned_at = datetime.now(timezone.utc).isoformat()
+    lab = get_lab_context(limit=10)
+    builds = get_builds_context(limit=5)
+    if not lab.get("ok") and not builds.get("ok"):
+        return {
+            "ok": False,
+            "available": False,
+            "project": project,
+            "source": "robo_lab",
+            "milestones": [],
+            "last_prototype_image": None,
+            "scanned_at": scanned_at,
+            "note": "Bancs et builds robotique illisibles.",
+        }
+
+    milestones: list[dict[str, Any]] = []
+    for item in lab.get("items") or []:
+        milestones.append(
+            {
+                "kind": "lab",
+                "name": item.get("name"),
+                "status": item.get("status"),
+                "measured_value": item.get("measured_value"),
+                "created_at": item.get("created_at"),
+            }
+        )
+    for item in builds.get("items") or []:
+        milestones.append(
+            {
+                "kind": "build",
+                "version": item.get("version"),
+                "stage": item.get("stage"),
+                "firmware_version": item.get("firmware_version"),
+                "tests_passed_pct": item.get("tests_passed_pct"),
+            }
+        )
     return {
+        "ok": True,
+        "available": True,
+        "empty": not milestones,
         "project": project,
-        "milestones": [],
+        "source": "robo_lab",
+        "milestones": milestones,
         "last_prototype_image": None,
-        "scanned_at": "",
-        "note": "live hardware tracker integration pending",
+        "scanned_at": scanned_at,
+        "note": (
+            "Aucun essai ni build enregistré. Pas de photo prototype dans ces tables."
+            if not milestones
+            else "Essais et builds lus. Pas de photo prototype dans ces tables."
+        ),
     }
 
 

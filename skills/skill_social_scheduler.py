@@ -153,18 +153,13 @@ def reject_post(post_id: str, reason: str = "", reviewer: str = "ceo", db: Any |
 
 
 def track_post_analytics(post_id: str, platform: str) -> dict[str, Any]:
-    """Stub assumé : aucune clé API d'analytics plateforme configurée à ce jour (Meta/X/TikTok...).
-
-    Intentionnellement non branché — à câbler quand une clé API sera fournie.
-    """
+    """Platform analytics are not connected. Counts are omitted, not zeroed."""
     return {
+        "ok": False,
+        "available": False,
         "post_id": post_id,
         "platform": platform,
-        "impressions": None,
-        "likes": None,
-        "comments": None,
-        "shares": None,
-        "clicks": None,
+        "source": "unconfigured",
         "fetched_at": _utc_now(),
-        "note": "analytics plateforme non configurées — aucune clé API disponible",
+        "note": "Aucune clé d'analytics Meta/X/TikTok — chiffres non lus.",
     }

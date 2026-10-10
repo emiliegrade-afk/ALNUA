@@ -98,7 +98,7 @@ class AdsAgent(AgentBase):
         return result
 
     def get_campaign_report(self, campaign_id: str) -> dict[str, Any]:
-        """ROI d'une campagne — stub tant qu'aucune clé API Meta/Google/TikTok n'est configurée."""
+        """Dépense réelle (transactions) et stats saisies. Pas de chiffres de régie."""
         return campaign_roi_report(campaign_id)
 
     def check_budget(self, monthly_budget: float, spent: float) -> dict[str, Any]:
