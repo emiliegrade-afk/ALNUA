@@ -77,7 +77,19 @@ describe("department primary routes are live (not MockupShell)", () => {
   it("/hub uses direction roster", () => {
     const hub = readFileSync(join(process.cwd(), "src", "app", "hub", "page.tsx"), "utf8");
     expect(hub).toMatch(/BureauRoster/);
-    expect(hub).toMatch(/SiegeLifeLinks/);
+    expect(hub).toMatch(/DirectionCommandView/);
+    expect(hub).not.toMatch(/LiveCockpit/);
+  });
+
+  it("/live is Nadia's call page, not Direction chrome", () => {
+    const shell = readFileSync(
+      join(process.cwd(), "src", "components", "layout", "hub-shell.tsx"),
+      "utf8",
+    );
+    expect(shell).toMatch(/"\/live"/);
+    const live = readFileSync(join(process.cwd(), "src", "app", "live", "page.tsx"), "utf8");
+    expect(live).toMatch(/activeDeptId="secretary"/);
+    expect(live).not.toMatch(/activeDeptId="hub"/);
   });
 
   it("/lounge is Agent Lounge shell (not OpenRoom repas)", () => {

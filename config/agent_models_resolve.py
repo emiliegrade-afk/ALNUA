@@ -14,6 +14,7 @@ from config.agent_models_registry import (
     agent_display,
     normalize_agent_id,
 )
+from config.agent_models_roles import AGENT_ROLE_MODELS
 from config.paths import get_hub_repo_path
 
 logger = logging.getLogger(__name__)
@@ -43,7 +44,8 @@ def get_model_for_agent(agent_id: str) -> str:
     Priorité :
       1. Var d'env AGENT_MODEL_{AGENT_ID_UPPER}
       2. Fichier data/agent_models.json (choix dans Paramètres)
-      3. Tier auto selon AGENT_TIERS
+      3. AGENT_ROLE_MODELS — modèle selon l'utilité métier (DEC-037)
+      4. Tier auto selon AGENT_TIERS / TIER_DEFAULTS
     """
     agent_id = normalize_agent_id(agent_id)
 
@@ -55,6 +57,9 @@ def get_model_for_agent(agent_id: str) -> str:
     file_config = _load_config()
     if agent_id in file_config and file_config[agent_id] != "auto":
         return file_config[agent_id]
+
+    if agent_id in AGENT_ROLE_MODELS:
+        return AGENT_ROLE_MODELS[agent_id]
 
     tier = AGENT_TIERS.get(agent_id, "standard")
     return TIER_DEFAULTS.get(tier, TIER_DEFAULTS["standard"])

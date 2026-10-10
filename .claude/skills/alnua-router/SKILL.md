@@ -112,6 +112,8 @@ bom_lookup, hardware_spec, firmware_task
 
 | Tier | Modèle OpenRouter | Usage |
 |------|-----------------|-------|
-| fast | google/gemini-flash-1.5 | Tâches structurées simples |
-| standard | anthropic/claude-3.5-haiku | La majorité des agents |
-| premium | google/gemini-2.5-pro | COO, R&D, analyses complexes |
+| fast | z-ai/glm-5.3-flash | Tâches structurées simples / volume |
+| standard | openai/gpt-5.6-terra | Fallback si pas de modèle métier |
+| premium | anthropic/claude-sonnet-5 | COO, R&D, analyses complexes (floor routeur) |
+
+AUTO métier : `config/agent_models_roles.py::AGENT_ROLE_MODELS` (code / raisonnement / rédaction / ops), pas un seul modèle par tier.

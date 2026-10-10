@@ -10,11 +10,13 @@ Priorité de résolution (du plus spécifique au plus général) :
 
   2. Fichier de config  data/agent_models.json  (choix dans Paramètres /settings)
 
-  3. Tier automatique basé sur le rôle de l'agent (premium / standard / fast)
+  3. AGENT_ROLE_MODELS — modèle selon l'utilité métier (code / raisonnement / rédaction / ops)
+
+  4. Tier automatique (premium / standard / fast) si l'agent n'a pas de modèle métier
 
 
 
-Mode AUTO : modèle selon le tier de l'agent. Les choix dans Paramètres priment sur tout.
+Mode AUTO : modèle selon l'utilité de l'agent (DEC-037). Les choix dans Paramètres priment.
 
 
 
@@ -58,6 +60,14 @@ from config.agent_models_registry import (  # noqa: F401 — re-export
 
 )
 
+from config.agent_models_roles import (  # noqa: F401 — re-export
+
+    AGENT_ROLE_MODELS,
+
+    CODE_UTILITY_AGENT_IDS,
+
+)
+
 from config.agent_models_resolve import (  # noqa: F401 — re-export
 
     _CONFIG_FILE,
@@ -82,7 +92,11 @@ __all__ = [
 
     "AGENT_ID_ALIASES",
 
+    "AGENT_ROLE_MODELS",
+
     "AGENT_TIERS",
+
+    "CODE_UTILITY_AGENT_IDS",
 
     "AVAILABLE_MODELS",
 

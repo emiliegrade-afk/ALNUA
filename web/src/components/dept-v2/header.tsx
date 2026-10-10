@@ -256,20 +256,22 @@ export function DeptV2PageShell({
   return (
     <div
       className={cn(
-        "dept-void-shell alnua-scroll flex h-full w-full flex-col overflow-x-auto overflow-y-auto",
+        "dept-void-shell flex h-full min-h-0 w-full flex-col overflow-hidden",
         className,
       )}
       style={{ background: C.void, color: C.ivory }}
     >
       <DeptV2Header deptHref={deptHref} />
-      <div className="flex min-h-[600px] flex-1">
+      <div className="flex min-h-0 flex-1 overflow-hidden">
         <DeptV2Sidebar
           activeDeptId={activeDeptId}
           coreSubtitle={coreSubtitle}
           collapsed={collapsed}
           onCollapsedChange={handleCollapsedChange}
         />
-        {children}
+        <div className="alnua-scroll min-h-0 min-w-0 flex-1 overflow-x-auto overflow-y-auto">
+          {children}
+        </div>
       </div>
     </div>
   );

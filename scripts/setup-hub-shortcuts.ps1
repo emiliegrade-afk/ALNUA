@@ -34,6 +34,11 @@ $launchers = @(
             } else { Join-Path $Root "Spark.bat" }
         )
         Description = "Spark - assistante desktop ALNUA (Nadia)"
+    },
+    @{
+        Name = "Nadia Live"
+        Target = Join-Path $Root "Nadia Live.bat"
+        Description = "Nadia Live - voix temps reel + taches (/live)"
     }
 )
 
@@ -124,7 +129,7 @@ if (-not $DesktopOnly) {
 }
 
 Write-Host ""
-Write-Host "Raccourcis ALNUA (3 max) :" -ForegroundColor Green
+Write-Host "Raccourcis ALNUA :" -ForegroundColor Green
 foreach ($path in $created) {
     Write-Host "  $path" -ForegroundColor Cyan
 }

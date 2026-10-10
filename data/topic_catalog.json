@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-09-07T14:23:07.206092+00:00",
+  "updated_at": "2026-10-10T22:55:44.782266+00:00",
   "topics": {
     "agent-skills": {
       "slug": "agent-skills",
@@ -55,7 +55,39 @@
         "99a9cc51-26f2-49ab-8d36-e26053b2ff54",
         "e6ec3dbf-a81a-4046-81b4-aa359861af66",
         "f74269ba-07e3-4834-9b0a-4369bf6a0ce6",
-        "39cda3bc-1f2f-459c-a203-573cc6f21f73"
+        "39cda3bc-1f2f-459c-a203-573cc6f21f73",
+        "49fc3a15-30cc-4a74-a8f8-41f7697c014c",
+        "dd0395fa-552b-461d-ab79-f5f73a4f237b",
+        "ad4771ec-a683-4439-b363-58678df55559",
+        "5ab44576-9c66-480f-9c35-0556438e5231",
+        "eb811ced-db07-4d63-adca-4e9d730c04e0",
+        "c9108664-06fe-4bc1-b16e-2aa29acee343",
+        "eeb4f08a-497b-483a-8e65-0f6782413536",
+        "7cbad180-a5df-4acb-9ed3-e9846a00289c",
+        "2e5985ad-9391-4083-ac63-b30c1dc0dee0",
+        "ff1a752d-ac48-4201-a8dc-480a3f4b3dd8",
+        "4b78e86a-956a-4393-96db-e58cb8e452a7",
+        "2e1be726-1fd2-4eed-a4c3-dbb088ec4e99",
+        "b0a3da07-c149-40e1-812f-0c3183e99d2d",
+        "3277ba58-1259-461b-b56e-d40f857d6a16",
+        "9cce3d9b-0972-4cde-9973-40e12ee1b2ca",
+        "28646685-521b-4d73-81ef-267f26cf3687",
+        "83d199af-991c-48e4-80e2-047a7d0b9a88",
+        "3fffee76-6965-46e5-ab65-a187e126af8e",
+        "5b8914e8-4870-4600-94f6-ab5fcf54383e",
+        "7d1d9f63-84fd-45b6-a862-7ed2fbe29c53",
+        "7c520eb1-1306-4a90-bd0f-465a5fecde4d",
+        "7e77e290-98da-4e43-8341-7183e31d7635",
+        "c83ffb34-7a36-483e-a8a4-09801d9ab50f",
+        "d92fbe97-4753-494a-ac95-d4ea566c03a0",
+        "cfdff3a5-5b4a-426e-8f79-095c09188be9",
+        "ea93e754-ec4d-4770-a5f4-940be9920318",
+        "1a7a8234-34db-4f31-9132-3792946dabf8",
+        "91148ce6-2188-48e9-bd6e-5775cd7513f7",
+        "e351f3b2-c475-4d7e-978c-7c94be1b9100",
+        "335be0fc-b5b4-465a-a3ba-a04d65b6c850",
+        "aec4666d-7d3c-42a7-8b59-04e27dea370d",
+        "f9abcacc-74df-4024-9c18-7bc93e0e8ca4"
       ],
       "paths": [
         "library/app/Expo-SDK-52-7ab93825.md",
@@ -85,7 +117,39 @@
         "library/app/Expo-SDK-52-99a9cc51.md",
         "library/app/Expo-SDK-52-e6ec3dbf.md",
         "library/app/Expo-SDK-52-f74269ba.md",
-        "library/app/Expo-SDK-52-39cda3bc.md"
+        "library/app/Expo-SDK-52-39cda3bc.md",
+        "library/app/Expo-SDK-52-49fc3a15.md",
+        "library/app/Expo-SDK-52-dd0395fa.md",
+        "library/app/Expo-SDK-52-ad4771ec.md",
+        "library/app/Expo-SDK-52-5ab44576.md",
+        "library/app/Expo-SDK-52-eb811ced.md",
+        "library/app/Expo-SDK-52-c9108664.md",
+        "library/app/Expo-SDK-52-eeb4f08a.md",
+        "library/app/Expo-SDK-52-7cbad180.md",
+        "library/app/Expo-SDK-52-2e5985ad.md",
+        "library/app/Expo-SDK-52-ff1a752d.md",
+        "library/app/Expo-SDK-52-4b78e86a.md",
+        "library/app/Expo-SDK-52-2e1be726.md",
+        "library/app/Expo-SDK-52-b0a3da07.md",
+        "library/app/Expo-SDK-52-3277ba58.md",
+        "library/app/Expo-SDK-52-9cce3d9b.md",
+        "library/app/Expo-SDK-52-28646685.md",
+        "library/app/Expo-SDK-52-83d199af.md",
+        "library/app/Expo-SDK-52-3fffee76.md",
+        "library/app/Expo-SDK-52-5b8914e8.md",
+        "library/app/Expo-SDK-52-7d1d9f63.md",
+        "library/app/Expo-SDK-52-7c520eb1.md",
+        "library/app/Expo-SDK-52-7e77e290.md",
+        "library/app/Expo-SDK-52-c83ffb34.md",
+        "library/app/Expo-SDK-52-d92fbe97.md",
+        "library/app/Expo-SDK-52-cfdff3a5.md",
+        "library/app/Expo-SDK-52-ea93e754.md",
+        "library/app/Expo-SDK-52-1a7a8234.md",
+        "library/app/Expo-SDK-52-91148ce6.md",
+        "library/app/Expo-SDK-52-e351f3b2.md",
+        "library/app/Expo-SDK-52-335be0fc.md",
+        "library/app/Expo-SDK-52-aec4666d.md",
+        "library/app/Expo-SDK-52-f9abcacc.md"
       ],
       "bureaus": [
         "app"
@@ -131,7 +195,39 @@
         "035e4244-24ae-4f9c-b99e-2e39eddb8d1b",
         "34f99097-3510-41fd-b86f-0b297150a624",
         "5898493a-91a0-45df-b69b-8cfe5fdcacdf",
-        "32064c64-bca4-4758-b2b2-e54340fb7a5e"
+        "32064c64-bca4-4758-b2b2-e54340fb7a5e",
+        "fae217b9-af3a-4790-9a3d-ed1eac662a80",
+        "88dee1a1-7df4-4239-9e0d-70e096280100",
+        "25ec0686-5aeb-4186-8c2c-a9dd4444be33",
+        "a1e96ca1-2d5a-4e3d-8547-8d72b404fd6c",
+        "1f1ea127-1706-444a-94fe-0474e0f6c2d1",
+        "b19c38ef-77cc-41f5-b752-5cff4eafae6c",
+        "8e26cac6-f4ed-489e-bc59-2378340e0055",
+        "1da99b32-3fcf-49e7-a5d7-8f67ab4c0fd6",
+        "6a65582a-87c5-46e6-94c8-f5aacbe21e38",
+        "d558d995-6739-4a88-b21f-4adb4ea0107c",
+        "032ca94c-389c-45c8-af58-3bf009684d32",
+        "77a65eeb-db85-4a51-b8c2-8a753c177de5",
+        "34b98095-5b80-432a-b686-0e76eebb151d",
+        "1f752823-4d47-4318-ad8a-11301138000c",
+        "449a20cf-6b91-48ff-8734-45764fa51bd4",
+        "cb192c6d-e1a1-4433-aab8-0891c2def571",
+        "c1057a39-8921-4d40-9b11-985ecaa49261",
+        "ad16c63b-a2fa-48c7-89f1-ba67b9f287dd",
+        "9c4d444b-6597-4918-bb18-eaf13c0f34fd",
+        "bcadc930-727c-4611-8ad5-875d9481d632",
+        "32e41731-0e42-48f3-a5c0-c21fe16fd896",
+        "cd9b7bc2-206b-443d-a85f-c6cff3185a06",
+        "a93377b7-c6dd-4898-8cac-ab942901349e",
+        "acc521d4-440c-41ff-96dc-67d40b568762",
+        "0e70bf12-0660-4d12-af13-8b31455ae86a",
+        "10a0be38-fe04-4014-808f-73031552c36b",
+        "c1bfe4c7-c222-4ba4-a941-5b0229e20afc",
+        "9a7c1f25-c198-4521-84f4-718dff36a24d",
+        "31fb211d-f383-49f5-9f44-84a0398a0195",
+        "992be81c-f02b-439d-b618-1bc44b50fa7d",
+        "415a7a00-5ed6-4e2f-82e8-e2354bfd72a9",
+        "2440853a-5462-4400-91a5-07f0906ef0d2"
       ],
       "paths": [
         "library/rd/Agents-multi-LLM-a4cc3e57.md",
@@ -161,7 +257,39 @@
         "library/rd/Agents-multi-LLM-035e4244.md",
         "library/rd/Agents-multi-LLM-34f99097.md",
         "library/rd/Agents-multi-LLM-5898493a.md",
-        "library/rd/Agents-multi-LLM-32064c64.md"
+        "library/rd/Agents-multi-LLM-32064c64.md",
+        "library/rd/Agents-multi-LLM-fae217b9.md",
+        "library/rd/Agents-multi-LLM-88dee1a1.md",
+        "library/rd/Agents-multi-LLM-25ec0686.md",
+        "library/rd/Agents-multi-LLM-a1e96ca1.md",
+        "library/rd/Agents-multi-LLM-1f1ea127.md",
+        "library/rd/Agents-multi-LLM-b19c38ef.md",
+        "library/rd/Agents-multi-LLM-8e26cac6.md",
+        "library/rd/Agents-multi-LLM-1da99b32.md",
+        "library/rd/Agents-multi-LLM-6a65582a.md",
+        "library/rd/Agents-multi-LLM-d558d995.md",
+        "library/rd/Agents-multi-LLM-032ca94c.md",
+        "library/rd/Agents-multi-LLM-77a65eeb.md",
+        "library/rd/Agents-multi-LLM-34b98095.md",
+        "library/rd/Agents-multi-LLM-1f752823.md",
+        "library/rd/Agents-multi-LLM-449a20cf.md",
+        "library/rd/Agents-multi-LLM-cb192c6d.md",
+        "library/rd/Agents-multi-LLM-c1057a39.md",
+        "library/rd/Agents-multi-LLM-ad16c63b.md",
+        "library/rd/Agents-multi-LLM-9c4d444b.md",
+        "library/rd/Agents-multi-LLM-bcadc930.md",
+        "library/rd/Agents-multi-LLM-32e41731.md",
+        "library/rd/Agents-multi-LLM-cd9b7bc2.md",
+        "library/rd/Agents-multi-LLM-a93377b7.md",
+        "library/rd/Agents-multi-LLM-acc521d4.md",
+        "library/rd/Agents-multi-LLM-0e70bf12.md",
+        "library/rd/Agents-multi-LLM-10a0be38.md",
+        "library/rd/Agents-multi-LLM-c1bfe4c7.md",
+        "library/rd/Agents-multi-LLM-9a7c1f25.md",
+        "library/rd/Agents-multi-LLM-31fb211d.md",
+        "library/rd/Agents-multi-LLM-992be81c.md",
+        "library/rd/Agents-multi-LLM-415a7a00.md",
+        "library/rd/Agents-multi-LLM-2440853a.md"
       ],
       "bureaus": [
         "rd"
@@ -190,7 +318,26 @@
         "d8cb6ae5-7593-4ded-a2f5-4b70f8fac5f9",
         "b38745e7-9286-4054-9fe5-58a4514a201b",
         "fa1e1d83-618d-481d-baf2-1c6908df4647",
-        "a28a732b-3c6d-4901-ac89-073430bbf8fe"
+        "a28a732b-3c6d-4901-ac89-073430bbf8fe",
+        "6340a470-e264-4e68-b45f-2ac12309ff30",
+        "ab30fd69-6470-49ae-a382-2a3848265458",
+        "2f04b351-4c53-4fbf-bd57-28dd7f6368af",
+        "1422f0e8-ce03-4b6b-b191-0b2f99025afc",
+        "b1731b59-d30b-4180-b067-1ee21431aae9",
+        "3cd0f557-35b5-4b87-bf56-883c9306c6a5",
+        "d67ae8f0-74b9-48bd-8587-e4b73963c9a1",
+        "58f5f6a1-03e6-4c20-b1d6-44f004a6fb59",
+        "de3f74d8-5045-4041-a6aa-6c7f47ae8d92",
+        "309b1a4e-899e-4ece-acf0-f345d254cdee",
+        "9083356d-504b-4bd6-8901-f6ed911d79c2",
+        "1123d358-b36b-4264-b1a7-bd2b1bd20ad1",
+        "99c7ff75-befd-41b1-ad5d-46bdf844c0de",
+        "bbcb0cab-bc36-4dec-a45c-198a0e4c9a95",
+        "50d539a9-2736-41b0-a4f8-888eb36a60db",
+        "57d2e8eb-63cd-4401-8556-df7129279706",
+        "743bbba8-4fc8-4e30-8635-6dbdbaae1135",
+        "5c02bb05-3056-4774-b3ed-c0af33dfa6ce",
+        "1eef97e4-ec92-4efa-81b5-3e84c2142391"
       ],
       "paths": [
         "library/app/FastAPI-latest-features-2026-7cee1703.md",
@@ -203,7 +350,26 @@
         "library/app/FastAPI-latest-features-2026-d8cb6ae5.md",
         "library/app/FastAPI-latest-features-2026-b38745e7.md",
         "library/app/FastAPI-latest-features-2026-fa1e1d83.md",
-        "library/app/FastAPI-latest-features-2026-a28a732b.md"
+        "library/app/FastAPI-latest-features-2026-a28a732b.md",
+        "library/app/FastAPI-latest-features-2026-6340a470.md",
+        "library/app/FastAPI-latest-features-2026-ab30fd69.md",
+        "library/app/FastAPI-latest-features-2026-2f04b351.md",
+        "library/app/FastAPI-latest-features-2026-1422f0e8.md",
+        "library/app/FastAPI-latest-features-2026-b1731b59.md",
+        "library/app/FastAPI-latest-features-2026-3cd0f557.md",
+        "library/app/FastAPI-latest-features-2026-d67ae8f0.md",
+        "library/app/FastAPI-latest-features-2026-58f5f6a1.md",
+        "library/app/FastAPI-latest-features-2026-de3f74d8.md",
+        "library/app/FastAPI-latest-features-2026-309b1a4e.md",
+        "library/app/FastAPI-latest-features-2026-9083356d.md",
+        "library/app/FastAPI-latest-features-2026-1123d358.md",
+        "library/app/FastAPI-latest-features-2026-99c7ff75.md",
+        "library/app/FastAPI-latest-features-2026-bbcb0cab.md",
+        "library/app/FastAPI-latest-features-2026-50d539a9.md",
+        "library/app/FastAPI-latest-features-2026-57d2e8eb.md",
+        "library/app/FastAPI-latest-features-2026-743bbba8.md",
+        "library/app/FastAPI-latest-features-2026-5c02bb05.md",
+        "library/app/FastAPI-latest-features-2026-1eef97e4.md"
       ],
       "bureaus": [
         "app"
@@ -232,7 +398,26 @@
         "79773666-88f7-434f-98ee-59e33055df0d",
         "7fc4ddbc-c3d9-4e9e-be27-35860a2c1dce",
         "b03f1754-4b82-4190-a67f-61dd2ecf6d07",
-        "d00100d9-4cd0-4a73-8a1d-263619efdfcd"
+        "d00100d9-4cd0-4a73-8a1d-263619efdfcd",
+        "0309f28f-eda3-4ac1-913f-c63e8bc88f27",
+        "e3cd9fcf-abab-45c4-a59a-e2e41b5b9690",
+        "c6291f70-9d20-47f8-a372-7137032c23f0",
+        "dfad352b-40f8-4eb2-9b8b-4d930ec820d9",
+        "87064bab-534d-421d-a955-cd2ebd0dd730",
+        "d035cf8e-3f28-4c52-bad3-b48d72700b5c",
+        "6953aa74-873d-41d9-bda3-0a8615a4c3a4",
+        "1d6723ab-9f95-43de-a79f-b9ad6ec47cb5",
+        "78e0de7f-a58a-4b6a-82fc-30c7cca24f3e",
+        "b8965d33-73b9-445a-bb9e-62801270a6cb",
+        "fb1b7252-98fa-4929-8551-c2a415136240",
+        "09fd623f-70af-4eb1-aa1d-0ab6ba8fb482",
+        "c2d9f6ed-a0e0-405a-917d-a1be111a07bd",
+        "decb0dfd-5a21-41ae-a758-3326314619ec",
+        "2cf27f2e-de93-4a32-b2f7-8ad76ebded5d",
+        "b04f36b3-e409-40d7-aa7e-3366e5ead279",
+        "326605e9-9614-496a-bc58-b4c227a32074",
+        "c85111fc-2c26-4901-aa99-11da91a18d9d",
+        "e6168a63-7775-4f3e-abcf-09388a8f87fc"
       ],
       "paths": [
         "library/app/Python-security-vulnerabilities-patch-b7230391.md",
@@ -245,7 +430,26 @@
         "library/app/Python-security-vulnerabilities-patch-79773666.md",
         "library/app/Python-security-vulnerabilities-patch-7fc4ddbc.md",
         "library/app/Python-security-vulnerabilities-patch-b03f1754.md",
-        "library/app/Python-security-vulnerabilities-patch-d00100d9.md"
+        "library/app/Python-security-vulnerabilities-patch-d00100d9.md",
+        "library/app/Python-security-vulnerabilities-patch-0309f28f.md",
+        "library/app/Python-security-vulnerabilities-patch-e3cd9fcf.md",
+        "library/app/Python-security-vulnerabilities-patch-c6291f70.md",
+        "library/app/Python-security-vulnerabilities-patch-dfad352b.md",
+        "library/app/Python-security-vulnerabilities-patch-87064bab.md",
+        "library/app/Python-security-vulnerabilities-patch-d035cf8e.md",
+        "library/app/Python-security-vulnerabilities-patch-6953aa74.md",
+        "library/app/Python-security-vulnerabilities-patch-1d6723ab.md",
+        "library/app/Python-security-vulnerabilities-patch-78e0de7f.md",
+        "library/app/Python-security-vulnerabilities-patch-b8965d33.md",
+        "library/app/Python-security-vulnerabilities-patch-fb1b7252.md",
+        "library/app/Python-security-vulnerabilities-patch-09fd623f.md",
+        "library/app/Python-security-vulnerabilities-patch-c2d9f6ed.md",
+        "library/app/Python-security-vulnerabilities-patch-decb0dfd.md",
+        "library/app/Python-security-vulnerabilities-patch-2cf27f2e.md",
+        "library/app/Python-security-vulnerabilities-patch-b04f36b3.md",
+        "library/app/Python-security-vulnerabilities-patch-326605e9.md",
+        "library/app/Python-security-vulnerabilities-patch-c85111fc.md",
+        "library/app/Python-security-vulnerabilities-patch-e6168a63.md"
       ],
       "bureaus": [
         "app"
@@ -274,7 +478,26 @@
         "bc685606-a882-4a78-b33a-160f0ea541c2",
         "0772e785-f800-4c3a-81d4-65493818027e",
         "1b89274d-37e1-4e31-b01c-03675f1111f6",
-        "2e9ea24a-f57f-42f7-a557-3f9e18b18cc5"
+        "2e9ea24a-f57f-42f7-a557-3f9e18b18cc5",
+        "9a17e359-1d3d-455d-a9b7-ad33d94c9c31",
+        "94159c2f-0c7d-40bd-b9a4-66f7dfd7b32d",
+        "2f3f22e3-4d8f-41c0-ac2b-ad656bbc6a99",
+        "0fb7f306-2171-4410-8ab5-fd0a6450c8d6",
+        "69f1814b-27ed-48e6-b5c0-a4fce055b85a",
+        "152fc0ae-3ada-4056-a99b-67ceebd54299",
+        "34a920b0-00a2-49d1-8456-67947100725a",
+        "a965691a-39d0-4800-b5cb-e5ef055b9190",
+        "94c814e0-14a9-4132-b4ca-b5ef113ff14b",
+        "983b74bd-3e25-4036-8791-170872cf307f",
+        "bf45e53b-1d7f-4620-907f-3e2aa4e33d34",
+        "eee1900e-c023-4469-914a-57bab94c8669",
+        "999ac482-81df-4684-ad50-12a8f2d93331",
+        "c2123d1a-0f87-421d-ae0c-9c0f22ca8429",
+        "87a4f4e1-53cc-4b5d-a0c0-d749d0546da4",
+        "b6e3f99e-870d-42fc-8449-2e83aff3ba0c",
+        "baddf876-d030-4da3-9a39-e88cd7cd7ae2",
+        "44287976-7e24-445e-a688-95faec6e2428",
+        "04b9c593-7956-4b44-9dd5-0f3f0557d0bd"
       ],
       "paths": [
         "library/app/Supabase-new-features-changelog-423cbb61.md",
@@ -287,7 +510,26 @@
         "library/app/Supabase-new-features-changelog-bc685606.md",
         "library/app/Supabase-new-features-changelog-0772e785.md",
         "library/app/Supabase-new-features-changelog-1b89274d.md",
-        "library/app/Supabase-new-features-changelog-2e9ea24a.md"
+        "library/app/Supabase-new-features-changelog-2e9ea24a.md",
+        "library/app/Supabase-new-features-changelog-9a17e359.md",
+        "library/app/Supabase-new-features-changelog-94159c2f.md",
+        "library/app/Supabase-new-features-changelog-2f3f22e3.md",
+        "library/app/Supabase-new-features-changelog-0fb7f306.md",
+        "library/app/Supabase-new-features-changelog-69f1814b.md",
+        "library/app/Supabase-new-features-changelog-152fc0ae.md",
+        "library/app/Supabase-new-features-changelog-34a920b0.md",
+        "library/app/Supabase-new-features-changelog-a965691a.md",
+        "library/app/Supabase-new-features-changelog-94c814e0.md",
+        "library/app/Supabase-new-features-changelog-983b74bd.md",
+        "library/app/Supabase-new-features-changelog-bf45e53b.md",
+        "library/app/Supabase-new-features-changelog-eee1900e.md",
+        "library/app/Supabase-new-features-changelog-999ac482.md",
+        "library/app/Supabase-new-features-changelog-c2123d1a.md",
+        "library/app/Supabase-new-features-changelog-87a4f4e1.md",
+        "library/app/Supabase-new-features-changelog-b6e3f99e.md",
+        "library/app/Supabase-new-features-changelog-baddf876.md",
+        "library/app/Supabase-new-features-changelog-44287976.md",
+        "library/app/Supabase-new-features-changelog-04b9c593.md"
       ],
       "bureaus": [
         "app"
@@ -316,7 +558,26 @@
         "68b897c9-67c9-4bfc-b81a-f7a2a0eacbcd",
         "9dcd604e-6e4a-4ab2-80c4-ae9b791f6073",
         "8532d313-a5ee-4011-80e3-6527da6f7f9c",
-        "ca665eca-face-4a94-b893-4660612485a7"
+        "ca665eca-face-4a94-b893-4660612485a7",
+        "23aac6c5-7b24-43a3-9114-f84fbc82aa30",
+        "7f10ac31-aac7-4526-aefe-886f2457b1d1",
+        "ca76f811-74cc-430b-8e58-1688b8e20fc4",
+        "e580fe34-73a5-4cb8-a3cc-d47851eb2a89",
+        "ba5a84ff-9a59-4f9a-a903-baed3bff02dd",
+        "f436e976-fa6e-4937-873e-17ba8e86d614",
+        "e01a597f-ef75-44d8-bacd-d0369376c562",
+        "5c282f26-b056-4715-bb6a-0c07379e5dc3",
+        "ab3e34db-ed04-4474-8525-c213030638ca",
+        "6649476b-9bb1-42b6-83ab-c865aa1a5064",
+        "c22c6d21-ba26-4d9e-be04-f6d1dffcdaff",
+        "dbbef168-a791-48c8-abbf-9c57bee031ae",
+        "bfc5831e-2f19-4ddf-be11-5456fed0b987",
+        "fc6a90f0-9c07-4fb8-aa78-27b85bece4b5",
+        "7ae8011f-ab8b-46a7-b927-596478606fce",
+        "32300abb-26d1-4454-ac5b-03dfe959f229",
+        "37d1a1f4-c60a-40fb-a935-2174db5cbe9b",
+        "eefef5bc-bc0e-47dc-a6a0-42447643b5c7",
+        "ad147557-cb99-4b25-920f-c414c892540d"
       ],
       "paths": [
         "library/app/CrewAI-agent-framework-updates-e559adfa.md",
@@ -329,7 +590,26 @@
         "library/app/CrewAI-agent-framework-updates-68b897c9.md",
         "library/app/CrewAI-agent-framework-updates-9dcd604e.md",
         "library/app/CrewAI-agent-framework-updates-8532d313.md",
-        "library/app/CrewAI-agent-framework-updates-ca665eca.md"
+        "library/app/CrewAI-agent-framework-updates-ca665eca.md",
+        "library/app/CrewAI-agent-framework-updates-23aac6c5.md",
+        "library/app/CrewAI-agent-framework-updates-7f10ac31.md",
+        "library/app/CrewAI-agent-framework-updates-ca76f811.md",
+        "library/app/CrewAI-agent-framework-updates-e580fe34.md",
+        "library/app/CrewAI-agent-framework-updates-ba5a84ff.md",
+        "library/app/CrewAI-agent-framework-updates-f436e976.md",
+        "library/app/CrewAI-agent-framework-updates-e01a597f.md",
+        "library/app/CrewAI-agent-framework-updates-5c282f26.md",
+        "library/app/CrewAI-agent-framework-updates-ab3e34db.md",
+        "library/app/CrewAI-agent-framework-updates-6649476b.md",
+        "library/app/CrewAI-agent-framework-updates-c22c6d21.md",
+        "library/app/CrewAI-agent-framework-updates-dbbef168.md",
+        "library/app/CrewAI-agent-framework-updates-bfc5831e.md",
+        "library/app/CrewAI-agent-framework-updates-fc6a90f0.md",
+        "library/app/CrewAI-agent-framework-updates-7ae8011f.md",
+        "library/app/CrewAI-agent-framework-updates-32300abb.md",
+        "library/app/CrewAI-agent-framework-updates-37d1a1f4.md",
+        "library/app/CrewAI-agent-framework-updates-eefef5bc.md",
+        "library/app/CrewAI-agent-framework-updates-ad147557.md"
       ],
       "bureaus": [
         "app"
@@ -358,7 +638,26 @@
         "97ee8f85-4216-40a7-829c-6dfa7a24e615",
         "43e241c8-2da1-4993-a88f-c5eb3305ab12",
         "e259db39-6841-4313-aa07-4f73d289800a",
-        "7f7acb3d-918c-4c98-b44c-9222679ee122"
+        "7f7acb3d-918c-4c98-b44c-9222679ee122",
+        "ec110256-911f-4908-8f0a-b52aa836e003",
+        "80f479b6-887e-425b-b9e9-c2404935765f",
+        "cf9b3fd3-a197-4efe-919c-d46c5b7d938a",
+        "d89aa8e7-7cac-4497-af72-e3190f22965b",
+        "8a0bb6cb-a465-41eb-b20b-2f09959b99ca",
+        "ce37bfe4-f983-40c0-810a-d60ceb2076e8",
+        "9f2a6bb3-9900-44ba-af7d-bad28d013354",
+        "4ed8ef28-dafd-4908-92e8-01b49c14fd00",
+        "9011d478-ddf5-495e-9d42-bb2ea947ef21",
+        "5f6d3d00-7969-42f2-8578-701908fb3d2d",
+        "581c0360-39fa-4b0b-8259-ad9e1f2e7aaa",
+        "5552920b-2253-4d2f-9930-3f47c055a119",
+        "90391c65-430d-44df-b221-cc27e8739a8f",
+        "3bafbfc2-797b-4b51-9fc8-7ff09947f294",
+        "61f9eab7-81d2-468c-a782-9bf0c5c9375c",
+        "6ca3ef4d-3eec-4137-9a2d-12de63e9d68c",
+        "13377565-eb11-4455-b925-d2b8d5bcc677",
+        "d35358bd-5843-4f54-b40f-7292d7e7949b",
+        "4694e27e-bb32-4112-bfb3-8bfe42ac49ba"
       ],
       "paths": [
         "library/gaming/Unreal-Engine-5-update-2026-636a7aaf.md",
@@ -371,7 +670,26 @@
         "library/gaming/Unreal-Engine-5-update-2026-97ee8f85.md",
         "library/gaming/Unreal-Engine-5-update-2026-43e241c8.md",
         "library/gaming/Unreal-Engine-5-update-2026-e259db39.md",
-        "library/gaming/Unreal-Engine-5-update-2026-7f7acb3d.md"
+        "library/gaming/Unreal-Engine-5-update-2026-7f7acb3d.md",
+        "library/gaming/Unreal-Engine-5-update-2026-ec110256.md",
+        "library/gaming/Unreal-Engine-5-update-2026-80f479b6.md",
+        "library/gaming/Unreal-Engine-5-update-2026-cf9b3fd3.md",
+        "library/gaming/Unreal-Engine-5-update-2026-d89aa8e7.md",
+        "library/gaming/Unreal-Engine-5-update-2026-8a0bb6cb.md",
+        "library/gaming/Unreal-Engine-5-update-2026-ce37bfe4.md",
+        "library/gaming/Unreal-Engine-5-update-2026-9f2a6bb3.md",
+        "library/gaming/Unreal-Engine-5-update-2026-4ed8ef28.md",
+        "library/gaming/Unreal-Engine-5-update-2026-9011d478.md",
+        "library/gaming/Unreal-Engine-5-update-2026-5f6d3d00.md",
+        "library/gaming/Unreal-Engine-5-update-2026-581c0360.md",
+        "library/gaming/Unreal-Engine-5-update-2026-5552920b.md",
+        "library/gaming/Unreal-Engine-5-update-2026-90391c65.md",
+        "library/gaming/Unreal-Engine-5-update-2026-3bafbfc2.md",
+        "library/gaming/Unreal-Engine-5-update-2026-61f9eab7.md",
+        "library/gaming/Unreal-Engine-5-update-2026-6ca3ef4d.md",
+        "library/gaming/Unreal-Engine-5-update-2026-13377565.md",
+        "library/gaming/Unreal-Engine-5-update-2026-d35358bd.md",
+        "library/gaming/Unreal-Engine-5-update-2026-4694e27e.md"
       ],
       "bureaus": [
         "gaming"
@@ -400,7 +718,26 @@
         "f4710027-9cb7-4fa3-876b-33695c1f41f5",
         "d683f320-d736-4e07-9d0e-a04eb630771c",
         "5d708cc0-0579-4082-beb4-3767ed1ee4aa",
-        "2a481ffd-2cbb-4e50-a952-fefb79451575"
+        "2a481ffd-2cbb-4e50-a952-fefb79451575",
+        "b6aaf003-eda0-46e2-8fea-00d7d9e788e8",
+        "68d0a36e-e5c3-431b-aaec-bf0b326ef052",
+        "22335131-ecba-4df4-8dc7-82c7a76222e0",
+        "848fbbae-4a94-48dc-ba53-cf9389b5a382",
+        "2edad05d-46c0-4600-b86a-3e0af6a833c6",
+        "bc5d9c9e-7020-4e13-9fca-f255ef201894",
+        "46e341b4-125e-410d-beb2-b571e54a5f3c",
+        "9bce4fcd-2b7e-4660-aeac-64212a93787b",
+        "60bfbcfd-a0bf-4978-b8eb-9b7728c9800d",
+        "930f11b4-bf20-4c87-b984-14ee8d683d39",
+        "134e6f98-3e24-4a5e-8787-b16f4244f22c",
+        "eb2a9af5-2503-4c69-8a93-88cc635bcb0f",
+        "3e36ce65-95b7-48a4-a0b9-ecf7edab1fca",
+        "678042e7-b39a-4682-8b0c-2a55782b1c43",
+        "b1d8cbae-663b-44b4-96c6-8e5956db5543",
+        "90bd24ce-4460-40db-8c2e-df6639aeff54",
+        "881ae9f1-3ec8-46ef-abbe-38c64f70b04b",
+        "6ed998cb-f970-4ede-a449-711911fc008a",
+        "00442702-833a-4622-ba2e-13bdd6fdc57e"
       ],
       "paths": [
         "library/gaming/game-development-best-practices-2026-b2f5b1c2.md",
@@ -413,7 +750,26 @@
         "library/gaming/game-development-best-practices-2026-f4710027.md",
         "library/gaming/game-development-best-practices-2026-d683f320.md",
         "library/gaming/game-development-best-practices-2026-5d708cc0.md",
-        "library/gaming/game-development-best-practices-2026-2a481ffd.md"
+        "library/gaming/game-development-best-practices-2026-2a481ffd.md",
+        "library/gaming/game-development-best-practices-2026-b6aaf003.md",
+        "library/gaming/game-development-best-practices-2026-68d0a36e.md",
+        "library/gaming/game-development-best-practices-2026-22335131.md",
+        "library/gaming/game-development-best-practices-2026-848fbbae.md",
+        "library/gaming/game-development-best-practices-2026-2edad05d.md",
+        "library/gaming/game-development-best-practices-2026-bc5d9c9e.md",
+        "library/gaming/game-development-best-practices-2026-46e341b4.md",
+        "library/gaming/game-development-best-practices-2026-9bce4fcd.md",
+        "library/gaming/game-development-best-practices-2026-60bfbcfd.md",
+        "library/gaming/game-development-best-practices-2026-930f11b4.md",
+        "library/gaming/game-development-best-practices-2026-134e6f98.md",
+        "library/gaming/game-development-best-practices-2026-eb2a9af5.md",
+        "library/gaming/game-development-best-practices-2026-3e36ce65.md",
+        "library/gaming/game-development-best-practices-2026-678042e7.md",
+        "library/gaming/game-development-best-practices-2026-b1d8cbae.md",
+        "library/gaming/game-development-best-practices-2026-90bd24ce.md",
+        "library/gaming/game-development-best-practices-2026-881ae9f1.md",
+        "library/gaming/game-development-best-practices-2026-6ed998cb.md",
+        "library/gaming/game-development-best-practices-2026-00442702.md"
       ],
       "bureaus": [
         "gaming"
@@ -442,7 +798,26 @@
         "745c6b10-9520-4324-a651-ad934f48e179",
         "5cd6eed2-65eb-487e-a28a-6054bff78de3",
         "fe1184e8-5612-49df-b703-4bd0be21a44d",
-        "7214594e-246a-49d6-beb8-2021e0dd3428"
+        "7214594e-246a-49d6-beb8-2021e0dd3428",
+        "76397bd3-8401-4877-aa77-3ec943c8d464",
+        "28fa44e1-89ef-4708-ae49-01a0dc76bbf8",
+        "5d997d97-44a7-4317-a0a4-443d79bc90fa",
+        "ae6482fc-1250-471d-8731-c58bbdcbd71e",
+        "fba97ade-5c94-4f78-98a6-827b302aadc2",
+        "a64a1baf-bb28-4dfd-901b-6effc104049a",
+        "b922479e-079e-4f83-ad9e-5a7ae4058894",
+        "d9eb46b1-d99a-4b18-8c90-c210c4fdd0de",
+        "be335474-4789-48da-b6e3-c230e5535696",
+        "5a36dd7e-7d93-43c8-aa1f-d065597c4d58",
+        "4aff992b-31cb-4f68-9c95-5a289ef2aaee",
+        "b1a0d7c2-3819-4f6a-a3c0-92dfb3f577ff",
+        "03bfeb1a-22c0-470f-9a3d-3c7a3ab1df0b",
+        "0b54e7cc-6f78-4294-b472-a3d8304d78f6",
+        "e69ed141-fcea-4ee6-84bf-2c444025cc07",
+        "432e0929-ee88-4258-9530-79295493e650",
+        "997df4ee-9ac9-4ed9-8f50-1d8032fda8e8",
+        "52964547-0d00-4ba9-806a-cd74b9cac8f1",
+        "dc1a9386-1656-4ead-a196-70d66a1bebfe"
       ],
       "paths": [
         "library/gaming/indie-game-engine-comparison-2026-acb7a9f1.md",
@@ -455,7 +830,26 @@
         "library/gaming/indie-game-engine-comparison-2026-745c6b10.md",
         "library/gaming/indie-game-engine-comparison-2026-5cd6eed2.md",
         "library/gaming/indie-game-engine-comparison-2026-fe1184e8.md",
-        "library/gaming/indie-game-engine-comparison-2026-7214594e.md"
+        "library/gaming/indie-game-engine-comparison-2026-7214594e.md",
+        "library/gaming/indie-game-engine-comparison-2026-76397bd3.md",
+        "library/gaming/indie-game-engine-comparison-2026-28fa44e1.md",
+        "library/gaming/indie-game-engine-comparison-2026-5d997d97.md",
+        "library/gaming/indie-game-engine-comparison-2026-ae6482fc.md",
+        "library/gaming/indie-game-engine-comparison-2026-fba97ade.md",
+        "library/gaming/indie-game-engine-comparison-2026-a64a1baf.md",
+        "library/gaming/indie-game-engine-comparison-2026-b922479e.md",
+        "library/gaming/indie-game-engine-comparison-2026-d9eb46b1.md",
+        "library/gaming/indie-game-engine-comparison-2026-be335474.md",
+        "library/gaming/indie-game-engine-comparison-2026-5a36dd7e.md",
+        "library/gaming/indie-game-engine-comparison-2026-4aff992b.md",
+        "library/gaming/indie-game-engine-comparison-2026-b1a0d7c2.md",
+        "library/gaming/indie-game-engine-comparison-2026-03bfeb1a.md",
+        "library/gaming/indie-game-engine-comparison-2026-0b54e7cc.md",
+        "library/gaming/indie-game-engine-comparison-2026-e69ed141.md",
+        "library/gaming/indie-game-engine-comparison-2026-432e0929.md",
+        "library/gaming/indie-game-engine-comparison-2026-997df4ee.md",
+        "library/gaming/indie-game-engine-comparison-2026-52964547.md",
+        "library/gaming/indie-game-engine-comparison-2026-dc1a9386.md"
       ],
       "bureaus": [
         "gaming"
@@ -484,7 +878,25 @@
         "1fdfaed4-5ecd-469f-a4f8-aff535cb547e",
         "537ed8f3-24ab-42a0-bf70-c0d54f39efeb",
         "c5609f22-519d-466d-8bd8-64611bc3b088",
-        "a33f2b53-10b2-444a-9069-0f45a0b8a1f4"
+        "a33f2b53-10b2-444a-9069-0f45a0b8a1f4",
+        "d9816c00-ae00-4bbd-8c60-216413106db5",
+        "72d2c170-f0d7-4ae8-aa79-236adfd465de",
+        "398e693c-3ec1-4e42-aa95-0ad26d7ae3d1",
+        "3326e042-d56e-4962-b205-daaa0efefdc0",
+        "a209c2fb-1ca1-44de-9188-37ab944ccba9",
+        "994c93d6-7037-4249-b83d-2c09d71b7151",
+        "64122fab-b5d3-463d-92f8-685b673b92e2",
+        "a6fb9965-0f79-4033-a106-349857ab1595",
+        "5c570ffa-cfba-4045-ab82-48a411fc7cf9",
+        "25c50658-f110-4d79-9ba9-c37a04f1d9cf",
+        "b5a3fc48-db58-48b1-a7bf-04bf39d70a98",
+        "f479d2d4-a351-41b9-8f23-f36cc5f06d71",
+        "fa62db30-569f-4c9f-a0a4-b7f5a16e7729",
+        "296f88f3-e3d3-4a95-9151-1a258318935a",
+        "c2f98c9c-d178-4a31-b525-cd8caf863da2",
+        "91f24635-ce21-4f0e-a5e6-063e74ea44ae",
+        "4cecc66b-4ff1-4f19-a079-b36cbaa61eb1",
+        "18f83f9d-7833-45d2-be4c-a1c6f86a1f99"
       ],
       "paths": [
         "library/gaming/procedural-generation-techniques-75f2823b.md",
@@ -497,7 +909,25 @@
         "library/gaming/procedural-generation-techniques-1fdfaed4.md",
         "library/gaming/procedural-generation-techniques-537ed8f3.md",
         "library/gaming/procedural-generation-techniques-c5609f22.md",
-        "library/gaming/procedural-generation-techniques-a33f2b53.md"
+        "library/gaming/procedural-generation-techniques-a33f2b53.md",
+        "library/gaming/procedural-generation-techniques-d9816c00.md",
+        "library/gaming/procedural-generation-techniques-72d2c170.md",
+        "library/gaming/procedural-generation-techniques-398e693c.md",
+        "library/gaming/procedural-generation-techniques-3326e042.md",
+        "library/gaming/procedural-generation-techniques-a209c2fb.md",
+        "library/gaming/procedural-generation-techniques-994c93d6.md",
+        "library/gaming/procedural-generation-techniques-64122fab.md",
+        "library/gaming/procedural-generation-techniques-a6fb9965.md",
+        "library/gaming/procedural-generation-techniques-5c570ffa.md",
+        "library/gaming/procedural-generation-techniques-25c50658.md",
+        "library/gaming/procedural-generation-techniques-b5a3fc48.md",
+        "library/gaming/procedural-generation-techniques-f479d2d4.md",
+        "library/gaming/procedural-generation-techniques-fa62db30.md",
+        "library/gaming/procedural-generation-techniques-296f88f3.md",
+        "library/gaming/procedural-generation-techniques-c2f98c9c.md",
+        "library/gaming/procedural-generation-techniques-91f24635.md",
+        "library/gaming/procedural-generation-techniques-4cecc66b.md",
+        "library/gaming/procedural-generation-techniques-18f83f9d.md"
       ],
       "bureaus": [
         "gaming"
@@ -526,7 +956,25 @@
         "160c7367-3474-46df-843a-45684cc38b4a",
         "e00a7901-9288-43e2-ae78-c56b7b958ff6",
         "46f7948d-c615-443d-8c15-7c4d044dd9d2",
-        "439c342e-709b-400a-91e5-cbd4061eb2a6"
+        "439c342e-709b-400a-91e5-cbd4061eb2a6",
+        "b889a2b7-ea90-4999-a8eb-e686df75c40a",
+        "41a9dc1d-d1e4-4e9c-a884-1f153bcf8dce",
+        "a17a3b0d-0191-4321-8a82-3e55e6ade1eb",
+        "2510ed48-d667-4bb8-a89c-167e47c44bcc",
+        "f514ee38-cf49-4bc8-900e-1e040c887cb0",
+        "66687efe-06f3-4c66-8049-889dec0ce338",
+        "e72f25e1-6600-4d14-9e4e-eaae81ac99b9",
+        "1a1924f3-f5f4-4a9f-8096-a41d006407d5",
+        "b01a543f-8b33-42f7-ad8c-2194c1974362",
+        "4c1999be-7d4a-4d8b-95da-07b15a88a0a4",
+        "a001a582-400d-4c0a-8b37-548bca3a834b",
+        "def484d5-309f-430e-ab79-0397696878fb",
+        "d81b3a7f-a2d2-44e6-8aaf-7b37f1ae5b25",
+        "cb89d34f-de9d-43c5-b39c-c4dc2baf3c25",
+        "1deecbc2-4c60-4255-a397-34668c064145",
+        "22fed1fd-9342-44b9-afd5-2bad8cff1a81",
+        "cf8557b6-96e7-4802-94ee-582192638347",
+        "0f0a6bdb-ebe6-4a79-960d-0f9b4488dd13"
       ],
       "paths": [
         "library/robo/ESP32-new-firmware-2026-586c91c4.md",
@@ -539,7 +987,25 @@
         "library/robo/ESP32-new-firmware-2026-160c7367.md",
         "library/robo/ESP32-new-firmware-2026-e00a7901.md",
         "library/robo/ESP32-new-firmware-2026-46f7948d.md",
-        "library/robo/ESP32-new-firmware-2026-439c342e.md"
+        "library/robo/ESP32-new-firmware-2026-439c342e.md",
+        "library/robo/ESP32-new-firmware-2026-b889a2b7.md",
+        "library/robo/ESP32-new-firmware-2026-41a9dc1d.md",
+        "library/robo/ESP32-new-firmware-2026-a17a3b0d.md",
+        "library/robo/ESP32-new-firmware-2026-2510ed48.md",
+        "library/robo/ESP32-new-firmware-2026-f514ee38.md",
+        "library/robo/ESP32-new-firmware-2026-66687efe.md",
+        "library/robo/ESP32-new-firmware-2026-e72f25e1.md",
+        "library/robo/ESP32-new-firmware-2026-1a1924f3.md",
+        "library/robo/ESP32-new-firmware-2026-b01a543f.md",
+        "library/robo/ESP32-new-firmware-2026-4c1999be.md",
+        "library/robo/ESP32-new-firmware-2026-a001a582.md",
+        "library/robo/ESP32-new-firmware-2026-def484d5.md",
+        "library/robo/ESP32-new-firmware-2026-d81b3a7f.md",
+        "library/robo/ESP32-new-firmware-2026-cb89d34f.md",
+        "library/robo/ESP32-new-firmware-2026-1deecbc2.md",
+        "library/robo/ESP32-new-firmware-2026-22fed1fd.md",
+        "library/robo/ESP32-new-firmware-2026-cf8557b6.md",
+        "library/robo/ESP32-new-firmware-2026-0f0a6bdb.md"
       ],
       "bureaus": [
         "robo"
@@ -568,7 +1034,25 @@
         "92d04afc-79ec-4227-84c4-7a830f7cbc67",
         "0192a9c9-39f6-47b5-a4cc-75b9ccba0689",
         "ead05864-bd47-4bbb-960b-7ec3721f8198",
-        "815e5459-54aa-48ef-8473-e79493694c0a"
+        "815e5459-54aa-48ef-8473-e79493694c0a",
+        "8dcd09c4-8341-4ad3-9aa1-69ff75aae8d0",
+        "ccda59f8-7913-4b8c-80cf-fe1a5279dcb0",
+        "05851753-4f82-457d-a252-862c9f9c3320",
+        "53a427be-d46c-4856-9845-95ec5d5b92cd",
+        "ebb3e03f-f375-4963-aeaf-e1b2881339eb",
+        "36a99bc3-9713-4bb4-b362-8f5d7994efa8",
+        "c198abff-4c1a-42ee-baf3-12df8bed84db",
+        "9ac43409-c5ab-4a82-9c9e-4d4daf81e4e9",
+        "2cc175f9-8052-4148-8b7e-87dec1b1e4f5",
+        "9a502037-c247-4278-8db6-b0d82886595b",
+        "f12e5b63-08e4-4758-a8cb-1c010656b6ed",
+        "d240ad56-f8f1-434b-98fb-9d12963e24b6",
+        "3111fb4b-8957-49b0-a1c7-cbe8619a8919",
+        "bd22dccb-2f2b-4bb5-b681-10abee2840e4",
+        "faadc87b-f67d-4560-870e-2e288b6a24eb",
+        "ff11ffc6-c306-47f9-8828-a5ecb184d17c",
+        "5205f546-fbed-418e-89dc-cac4124c88f9",
+        "7f733590-4d1a-497f-9e70-8e46988a58aa"
       ],
       "paths": [
         "library/robo/RISC-V-microcontroller-2026-bdc8445b.md",
@@ -581,7 +1065,25 @@
         "library/robo/RISC-V-microcontroller-2026-92d04afc.md",
         "library/robo/RISC-V-microcontroller-2026-0192a9c9.md",
         "library/robo/RISC-V-microcontroller-2026-ead05864.md",
-        "library/robo/RISC-V-microcontroller-2026-815e5459.md"
+        "library/robo/RISC-V-microcontroller-2026-815e5459.md",
+        "library/robo/RISC-V-microcontroller-2026-8dcd09c4.md",
+        "library/robo/RISC-V-microcontroller-2026-ccda59f8.md",
+        "library/robo/RISC-V-microcontroller-2026-05851753.md",
+        "library/robo/RISC-V-microcontroller-2026-53a427be.md",
+        "library/robo/RISC-V-microcontroller-2026-ebb3e03f.md",
+        "library/robo/RISC-V-microcontroller-2026-36a99bc3.md",
+        "library/robo/RISC-V-microcontroller-2026-c198abff.md",
+        "library/robo/RISC-V-microcontroller-2026-9ac43409.md",
+        "library/robo/RISC-V-microcontroller-2026-2cc175f9.md",
+        "library/robo/RISC-V-microcontroller-2026-9a502037.md",
+        "library/robo/RISC-V-microcontroller-2026-f12e5b63.md",
+        "library/robo/RISC-V-microcontroller-2026-d240ad56.md",
+        "library/robo/RISC-V-microcontroller-2026-3111fb4b.md",
+        "library/robo/RISC-V-microcontroller-2026-bd22dccb.md",
+        "library/robo/RISC-V-microcontroller-2026-faadc87b.md",
+        "library/robo/RISC-V-microcontroller-2026-ff11ffc6.md",
+        "library/robo/RISC-V-microcontroller-2026-5205f546.md",
+        "library/robo/RISC-V-microcontroller-2026-7f733590.md"
       ],
       "bureaus": [
         "robo"
@@ -610,7 +1112,25 @@
         "eb3101cb-dc33-4d0f-acda-5882e2ca655e",
         "38ff16b1-8efb-485e-a323-f66f51a2ce1a",
         "4002d30b-79e8-4502-a492-d89d2994640f",
-        "16b113d6-e7ae-42a0-9a3b-4e0fda3e95dd"
+        "16b113d6-e7ae-42a0-9a3b-4e0fda3e95dd",
+        "65107166-7274-4c96-b24a-d95259af6c59",
+        "6fdc5d52-188d-40dd-b457-9e0adf8662da",
+        "e4969395-6c4d-434d-89d0-18458a8c5cfe",
+        "27bd4261-190a-4a4c-989c-fd847d2a8d66",
+        "ae5923cc-6727-4d52-b891-7be89b50b900",
+        "f634f1fe-98ae-4b91-b971-a0733052f686",
+        "775222aa-4a8d-4c78-b848-462e2927a0e9",
+        "12660ce3-089c-4f9d-8a33-6a5ba7755612",
+        "4c9f0a81-83c9-4288-829d-55c377070dba",
+        "8fd584b3-800c-4034-babe-9bafce4f0b28",
+        "3c59e3ee-6047-4566-857c-2fd3d687ab8f",
+        "b4b1bdfa-fbcb-4616-8923-44fd17802094",
+        "f581d88f-fb54-4409-8891-eb9f8759c34c",
+        "4bfd1347-9bfd-4043-8be5-5e173a07e1fb",
+        "70b8079a-6897-4a16-ab24-b206c81795ad",
+        "6dde7c9d-6af4-422a-94b6-262c9768224c",
+        "cedacee7-1479-45d0-8fb5-c274caa49564",
+        "28e2d407-ed8f-4f83-9814-4fc63522e9b7"
       ],
       "paths": [
         "library/robo/embedded-Linux-best-practices-de6254a4.md",
@@ -623,7 +1143,25 @@
         "library/robo/embedded-Linux-best-practices-eb3101cb.md",
         "library/robo/embedded-Linux-best-practices-38ff16b1.md",
         "library/robo/embedded-Linux-best-practices-4002d30b.md",
-        "library/robo/embedded-Linux-best-practices-16b113d6.md"
+        "library/robo/embedded-Linux-best-practices-16b113d6.md",
+        "library/robo/embedded-Linux-best-practices-65107166.md",
+        "library/robo/embedded-Linux-best-practices-6fdc5d52.md",
+        "library/robo/embedded-Linux-best-practices-e4969395.md",
+        "library/robo/embedded-Linux-best-practices-27bd4261.md",
+        "library/robo/embedded-Linux-best-practices-ae5923cc.md",
+        "library/robo/embedded-Linux-best-practices-f634f1fe.md",
+        "library/robo/embedded-Linux-best-practices-775222aa.md",
+        "library/robo/embedded-Linux-best-practices-12660ce3.md",
+        "library/robo/embedded-Linux-best-practices-4c9f0a81.md",
+        "library/robo/embedded-Linux-best-practices-8fd584b3.md",
+        "library/robo/embedded-Linux-best-practices-3c59e3ee.md",
+        "library/robo/embedded-Linux-best-practices-b4b1bdfa.md",
+        "library/robo/embedded-Linux-best-practices-f581d88f.md",
+        "library/robo/embedded-Linux-best-practices-4bfd1347.md",
+        "library/robo/embedded-Linux-best-practices-70b8079a.md",
+        "library/robo/embedded-Linux-best-practices-6dde7c9d.md",
+        "library/robo/embedded-Linux-best-practices-cedacee7.md",
+        "library/robo/embedded-Linux-best-practices-28e2d407.md"
       ],
       "bureaus": [
         "robo"
@@ -652,7 +1190,25 @@
         "cb54e937-77a3-4ab1-8cc5-0964c14f2b0d",
         "5a5cee2b-0ef6-4e29-b0ca-281165ccc0ca",
         "8c1c38ec-f6ca-406b-8696-ee86a4ef3593",
-        "16de7228-f3ae-4538-8641-f6dc953fb740"
+        "16de7228-f3ae-4538-8641-f6dc953fb740",
+        "5577070d-e5f5-4596-afec-e57964fd0b77",
+        "1e027f29-d2d8-46fb-bb74-be062092c9cc",
+        "98591af6-7350-46de-9308-fd0c2ff89d09",
+        "5c7ed366-19e2-4bde-82a8-c473d4e86bf5",
+        "1cb76245-3bb4-4809-93f9-fc88eb388751",
+        "d8fe71ce-72b4-4934-ab66-a2255975c191",
+        "136b0e49-c958-45ff-aad6-35d02932c003",
+        "7dd543d6-aed2-4561-bc2e-a3a24f1cc9a6",
+        "b5d2d740-68c5-4dd9-b986-d923b826fb25",
+        "24b3f359-364a-43f6-8462-aa7e6c213c92",
+        "02f438f0-9af2-4ed2-bdb2-c85bad1bf5a2",
+        "2b0032ef-07b6-4add-8493-c570d94a7f50",
+        "1d9a355d-4655-406b-a8f9-325355ff05da",
+        "01aad79a-9c1b-47fd-a559-abd375bd694a",
+        "e11820eb-ac47-4768-a1d4-250da58e1617",
+        "1c51c11c-aacf-454b-9186-8c3bbc22bbf9",
+        "646a6d22-6041-4935-a5ef-2f5ef7d5c7c4",
+        "fdc9a4f0-207a-42c7-8b1e-d284e25d6d4e"
       ],
       "paths": [
         "library/robo/IoT-security-2026-309d3dc3.md",
@@ -665,7 +1221,25 @@
         "library/robo/IoT-security-2026-cb54e937.md",
         "library/robo/IoT-security-2026-5a5cee2b.md",
         "library/robo/IoT-security-2026-8c1c38ec.md",
-        "library/robo/IoT-security-2026-16de7228.md"
+        "library/robo/IoT-security-2026-16de7228.md",
+        "library/robo/IoT-security-2026-5577070d.md",
+        "library/robo/IoT-security-2026-1e027f29.md",
+        "library/robo/IoT-security-2026-98591af6.md",
+        "library/robo/IoT-security-2026-5c7ed366.md",
+        "library/robo/IoT-security-2026-1cb76245.md",
+        "library/robo/IoT-security-2026-d8fe71ce.md",
+        "library/robo/IoT-security-2026-136b0e49.md",
+        "library/robo/IoT-security-2026-7dd543d6.md",
+        "library/robo/IoT-security-2026-b5d2d740.md",
+        "library/robo/IoT-security-2026-24b3f359.md",
+        "library/robo/IoT-security-2026-02f438f0.md",
+        "library/robo/IoT-security-2026-2b0032ef.md",
+        "library/robo/IoT-security-2026-1d9a355d.md",
+        "library/robo/IoT-security-2026-01aad79a.md",
+        "library/robo/IoT-security-2026-e11820eb.md",
+        "library/robo/IoT-security-2026-1c51c11c.md",
+        "library/robo/IoT-security-2026-646a6d22.md",
+        "library/robo/IoT-security-2026-fdc9a4f0.md"
       ],
       "bureaus": [
         "robo"
@@ -694,7 +1268,25 @@
         "ed6e9ebf-e339-4fa2-9bdf-4223e64b1757",
         "6b7854d7-d952-4732-8ffb-6201869065f3",
         "54ae8b3e-60bc-4c69-9f90-d936c8e6c96d",
-        "be0ee118-6257-4af8-a82e-eb092a768781"
+        "be0ee118-6257-4af8-a82e-eb092a768781",
+        "db8cb449-b0ab-48a8-8fc5-8189cd1bb859",
+        "ab194ca0-7304-475c-9394-73025b48ba48",
+        "737c942b-f7eb-41ef-9c8b-0b81832152d3",
+        "a3c8d72b-94d1-4cb3-93bd-338be6e37183",
+        "03e351c1-d505-42e6-b37b-f43812204a41",
+        "dc4ac62f-6a3c-4a71-b019-745edca76354",
+        "ac14937b-f2de-4a0e-86b8-71efc3c38f35",
+        "dfca8fdd-bd9b-4281-a475-04fb6d899d1e",
+        "488f44a5-f087-4876-9a94-066edefca79d",
+        "9c4d3d94-50ad-4a2e-b679-9cf5d2a7f85f",
+        "ad8ed9f7-fac7-43f9-8938-324b65cf6b68",
+        "09f5181c-2fdf-41fc-819d-b1ca1e249442",
+        "34383516-ac71-45f6-b0fa-30e6e2e651d9",
+        "0b317404-f818-4e63-921c-f68533ee7221",
+        "66dd3d50-9d32-440b-8613-7fc1cdbd5538",
+        "9fa01437-5d9f-4a8c-9724-49c2ccc2b9a5",
+        "9474bf01-8d45-458a-99bd-9baa3416630d",
+        "e979a667-7a69-4165-8dcf-21510b714f9e"
       ],
       "paths": [
         "library/robo/GPU-benchmark-comparison-2026-9a9b216b.md",
@@ -707,7 +1299,25 @@
         "library/robo/GPU-benchmark-comparison-2026-ed6e9ebf.md",
         "library/robo/GPU-benchmark-comparison-2026-6b7854d7.md",
         "library/robo/GPU-benchmark-comparison-2026-54ae8b3e.md",
-        "library/robo/GPU-benchmark-comparison-2026-be0ee118.md"
+        "library/robo/GPU-benchmark-comparison-2026-be0ee118.md",
+        "library/robo/GPU-benchmark-comparison-2026-db8cb449.md",
+        "library/robo/GPU-benchmark-comparison-2026-ab194ca0.md",
+        "library/robo/GPU-benchmark-comparison-2026-737c942b.md",
+        "library/robo/GPU-benchmark-comparison-2026-a3c8d72b.md",
+        "library/robo/GPU-benchmark-comparison-2026-03e351c1.md",
+        "library/robo/GPU-benchmark-comparison-2026-dc4ac62f.md",
+        "library/robo/GPU-benchmark-comparison-2026-ac14937b.md",
+        "library/robo/GPU-benchmark-comparison-2026-dfca8fdd.md",
+        "library/robo/GPU-benchmark-comparison-2026-488f44a5.md",
+        "library/robo/GPU-benchmark-comparison-2026-9c4d3d94.md",
+        "library/robo/GPU-benchmark-comparison-2026-ad8ed9f7.md",
+        "library/robo/GPU-benchmark-comparison-2026-09f5181c.md",
+        "library/robo/GPU-benchmark-comparison-2026-34383516.md",
+        "library/robo/GPU-benchmark-comparison-2026-0b317404.md",
+        "library/robo/GPU-benchmark-comparison-2026-66dd3d50.md",
+        "library/robo/GPU-benchmark-comparison-2026-9fa01437.md",
+        "library/robo/GPU-benchmark-comparison-2026-9474bf01.md",
+        "library/robo/GPU-benchmark-comparison-2026-e979a667.md"
       ],
       "bureaus": [
         "robo"
@@ -736,7 +1346,25 @@
         "2e6f8a7e-6f43-47a2-8907-8b3d57f73596",
         "9397b24f-c6f6-460f-a57a-020457755c2d",
         "b191967d-ec31-477a-9563-649312763510",
-        "acb59699-bda9-4ea0-afbb-ee003231bfd4"
+        "acb59699-bda9-4ea0-afbb-ee003231bfd4",
+        "8638600b-633a-49cd-87d2-d6a5fab3f1ef",
+        "d23d46a6-5b39-4264-a1f6-59195b26dfaf",
+        "9638789d-ae62-432f-b1ad-48ab564754d4",
+        "85c53bad-53e6-4802-8f7c-bdf6e2019127",
+        "cee1464a-523c-4bc0-bcd3-ed53fe726812",
+        "f8f603f9-c4a3-4361-8dc6-40968d65a66b",
+        "99ab9779-2f97-4768-b23f-2bf60dfda6a0",
+        "a97448e7-eeec-46ec-b4bc-92fe80213c69",
+        "28cf9511-1324-4ccb-a073-369facd8f6fe",
+        "fc949988-9624-4ca1-8b14-e73127c31070",
+        "3334cfb6-6989-4b66-9187-b3fe4dc2b169",
+        "1ebaaf1d-095b-4558-9614-b437b2f65314",
+        "6abdfb7a-04b0-4445-99c3-bdb11961c628",
+        "a908ff23-72ed-469e-9a83-246965176054",
+        "fd4011e2-48da-4c10-b47a-1656cc068c7c",
+        "558269f4-d501-4310-a85c-abf33ab30766",
+        "28ab8e74-7e6a-4d11-8dc4-7abfe7ecb33b",
+        "05ca3cef-4214-4a8e-9e6c-a6d68f724a5d"
       ],
       "paths": [
         "library/robo/new-CPU-architecture-2026-83a479c7.md",
@@ -749,7 +1377,25 @@
         "library/robo/new-CPU-architecture-2026-2e6f8a7e.md",
         "library/robo/new-CPU-architecture-2026-9397b24f.md",
         "library/robo/new-CPU-architecture-2026-b191967d.md",
-        "library/robo/new-CPU-architecture-2026-acb59699.md"
+        "library/robo/new-CPU-architecture-2026-acb59699.md",
+        "library/robo/new-CPU-architecture-2026-8638600b.md",
+        "library/robo/new-CPU-architecture-2026-d23d46a6.md",
+        "library/robo/new-CPU-architecture-2026-9638789d.md",
+        "library/robo/new-CPU-architecture-2026-85c53bad.md",
+        "library/robo/new-CPU-architecture-2026-cee1464a.md",
+        "library/robo/new-CPU-architecture-2026-f8f603f9.md",
+        "library/robo/new-CPU-architecture-2026-99ab9779.md",
+        "library/robo/new-CPU-architecture-2026-a97448e7.md",
+        "library/robo/new-CPU-architecture-2026-28cf9511.md",
+        "library/robo/new-CPU-architecture-2026-fc949988.md",
+        "library/robo/new-CPU-architecture-2026-3334cfb6.md",
+        "library/robo/new-CPU-architecture-2026-1ebaaf1d.md",
+        "library/robo/new-CPU-architecture-2026-6abdfb7a.md",
+        "library/robo/new-CPU-architecture-2026-a908ff23.md",
+        "library/robo/new-CPU-architecture-2026-fd4011e2.md",
+        "library/robo/new-CPU-architecture-2026-558269f4.md",
+        "library/robo/new-CPU-architecture-2026-28ab8e74.md",
+        "library/robo/new-CPU-architecture-2026-05ca3cef.md"
       ],
       "bureaus": [
         "robo"
@@ -778,7 +1424,25 @@
         "ad7a44fa-d146-4db2-8fbc-0cb7df9b0a95",
         "045ce84d-d95d-491e-ad8f-af6f42dae684",
         "c4448c41-1357-4f53-aa00-b617974b4414",
-        "ad005df4-31d3-451a-b4b2-424d51646079"
+        "ad005df4-31d3-451a-b4b2-424d51646079",
+        "4c027739-758d-48de-a4bd-08c8e8905177",
+        "d48fa4bc-ded9-4fdc-bedb-b38c185737ed",
+        "22502b62-195b-4261-bc8e-2e1b015dccc8",
+        "4af6afe6-5b06-4df7-91fa-a9f9640b8592",
+        "dce472fd-0129-49d0-a213-b4757f2396f5",
+        "383c7587-b6df-40f6-be0b-362fc91c8a5a",
+        "f06075ad-8ea4-4e08-ae44-8884356ffdf4",
+        "ae529fa9-4931-4767-b339-53a9a2c6843b",
+        "00808320-6094-4d31-a0d5-b6cbb0bdb456",
+        "0c6f392c-67de-4eb0-9f32-ac875625ed61",
+        "55956d90-a2e4-4db9-b2ab-098104a656aa",
+        "01779614-2db8-480e-a5e2-e360e7839d32",
+        "af21a040-0bfd-4862-8c79-b356a89cd493",
+        "4deb5111-b6b0-49dc-91a1-137b71585888",
+        "033a9493-fc33-4720-b677-bc1af42cb173",
+        "1dcd83d5-e782-495d-812f-862d6fd56529",
+        "1e235a8b-f4f1-401b-940e-456cec8c2262",
+        "b6bdc30c-d8a4-4d12-9908-53e2040d17f6"
       ],
       "paths": [
         "library/robo/AI-hardware-accelerator-2026-f4b0dc02.md",
@@ -791,7 +1455,25 @@
         "library/robo/AI-hardware-accelerator-2026-ad7a44fa.md",
         "library/robo/AI-hardware-accelerator-2026-045ce84d.md",
         "library/robo/AI-hardware-accelerator-2026-c4448c41.md",
-        "library/robo/AI-hardware-accelerator-2026-ad005df4.md"
+        "library/robo/AI-hardware-accelerator-2026-ad005df4.md",
+        "library/robo/AI-hardware-accelerator-2026-4c027739.md",
+        "library/robo/AI-hardware-accelerator-2026-d48fa4bc.md",
+        "library/robo/AI-hardware-accelerator-2026-22502b62.md",
+        "library/robo/AI-hardware-accelerator-2026-4af6afe6.md",
+        "library/robo/AI-hardware-accelerator-2026-dce472fd.md",
+        "library/robo/AI-hardware-accelerator-2026-383c7587.md",
+        "library/robo/AI-hardware-accelerator-2026-f06075ad.md",
+        "library/robo/AI-hardware-accelerator-2026-ae529fa9.md",
+        "library/robo/AI-hardware-accelerator-2026-00808320.md",
+        "library/robo/AI-hardware-accelerator-2026-0c6f392c.md",
+        "library/robo/AI-hardware-accelerator-2026-55956d90.md",
+        "library/robo/AI-hardware-accelerator-2026-01779614.md",
+        "library/robo/AI-hardware-accelerator-2026-af21a040.md",
+        "library/robo/AI-hardware-accelerator-2026-4deb5111.md",
+        "library/robo/AI-hardware-accelerator-2026-033a9493.md",
+        "library/robo/AI-hardware-accelerator-2026-1dcd83d5.md",
+        "library/robo/AI-hardware-accelerator-2026-1e235a8b.md",
+        "library/robo/AI-hardware-accelerator-2026-b6bdc30c.md"
       ],
       "bureaus": [
         "robo"
@@ -820,7 +1502,25 @@
         "cadbced7-af4a-4c5f-9fc7-86ae4b3fe03b",
         "41052ecd-cf72-4946-ac45-2c426d3a7140",
         "b46d8ad0-8ceb-41f0-83f0-92fff0f0eb84",
-        "1f180d9f-14a2-4f93-97b8-375e40cf61c1"
+        "1f180d9f-14a2-4f93-97b8-375e40cf61c1",
+        "232d9534-0467-4f89-817a-ea62902bbbe0",
+        "5110217e-186e-49a1-939b-77809d1ead81",
+        "191bcdcb-75b3-44f1-a8f9-57af59064d98",
+        "3b63a628-81bf-4b39-a706-807f2ca4168d",
+        "6f6a7244-7933-452e-b1eb-73d89e03262f",
+        "3f6eefa3-df86-475d-b083-cb0c5650ace8",
+        "2749684a-870f-45e1-aad0-1f8a29141bc1",
+        "cb3f7e80-e79c-4c28-b345-3f1fdc66110a",
+        "9d67d067-1684-4b59-a149-23eca2720905",
+        "8191d043-b073-4d94-9e81-ab0fe1ae6191",
+        "cc9eabb1-5eb6-4a74-a459-29f3aa37983a",
+        "973c2ae2-87db-4815-8511-56ad432f87d4",
+        "7ea1510c-9113-4d8f-bf58-10a57f992743",
+        "b275ccd6-69cf-4ef2-8a9b-74928a0ba067",
+        "aeb86fb1-05da-4a34-b9f6-57d3e9014e22",
+        "d760c67b-a4f3-4335-89b9-d6b12e433d29",
+        "f4e3ed95-6d4d-4a90-ba1b-c5c36f1fc13b",
+        "7dc0ae1a-4daf-4a27-b60e-a2df5236c22a"
       ],
       "paths": [
         "library/robo/PCB-design-tools-update-8770f58a.md",
@@ -833,7 +1533,25 @@
         "library/robo/PCB-design-tools-update-cadbced7.md",
         "library/robo/PCB-design-tools-update-41052ecd.md",
         "library/robo/PCB-design-tools-update-b46d8ad0.md",
-        "library/robo/PCB-design-tools-update-1f180d9f.md"
+        "library/robo/PCB-design-tools-update-1f180d9f.md",
+        "library/robo/PCB-design-tools-update-232d9534.md",
+        "library/robo/PCB-design-tools-update-5110217e.md",
+        "library/robo/PCB-design-tools-update-191bcdcb.md",
+        "library/robo/PCB-design-tools-update-3b63a628.md",
+        "library/robo/PCB-design-tools-update-6f6a7244.md",
+        "library/robo/PCB-design-tools-update-3f6eefa3.md",
+        "library/robo/PCB-design-tools-update-2749684a.md",
+        "library/robo/PCB-design-tools-update-cb3f7e80.md",
+        "library/robo/PCB-design-tools-update-9d67d067.md",
+        "library/robo/PCB-design-tools-update-8191d043.md",
+        "library/robo/PCB-design-tools-update-cc9eabb1.md",
+        "library/robo/PCB-design-tools-update-973c2ae2.md",
+        "library/robo/PCB-design-tools-update-7ea1510c.md",
+        "library/robo/PCB-design-tools-update-b275ccd6.md",
+        "library/robo/PCB-design-tools-update-aeb86fb1.md",
+        "library/robo/PCB-design-tools-update-d760c67b.md",
+        "library/robo/PCB-design-tools-update-f4e3ed95.md",
+        "library/robo/PCB-design-tools-update-7dc0ae1a.md"
       ],
       "bureaus": [
         "robo"
@@ -862,7 +1580,25 @@
         "53a7c2a6-b186-4eac-9d66-1fafbcd5275b",
         "29407889-cc3e-4915-a61b-a2a119d5f0cb",
         "3e67143d-b5a8-4c9f-8582-3e387f0ff63b",
-        "67619ad7-470c-40f9-a9f0-7c53ac2d0de9"
+        "67619ad7-470c-40f9-a9f0-7c53ac2d0de9",
+        "5f78bc53-071b-4639-b885-e9bf45e0b0d7",
+        "e67555ba-51d3-4d45-b9fd-dc8e5ea47b45",
+        "93d00a35-db0d-41cb-a2fd-834ba4e23178",
+        "d29c1f79-0c05-4c89-9b0a-b406c46a0bc1",
+        "a7af51d8-7aa7-4167-8c8b-cf7a64540ff4",
+        "00d62b9d-379a-4911-9c6e-37542363a318",
+        "78b901fc-e7c5-4858-bd74-7e8b0dc8c8dd",
+        "a0515807-cd64-477a-aa8a-1bd910df0243",
+        "b70e4563-9f5a-46db-9ea6-8a3768ba727c",
+        "52ca0eee-85d0-4510-be8b-fd802047cec0",
+        "980a41ae-3cc1-4ae9-86a4-718bd7da4f7a",
+        "77b94deb-4ed5-4140-8218-a34a33644142",
+        "57ff2dea-a78e-4c21-a3aa-f5ad8b20837f",
+        "6f8dc0fe-bb5d-42c2-a50a-28a5a1294799",
+        "52566882-f306-4d02-ba10-c82df341b2e0",
+        "bd2af04e-e1c6-45b0-826e-83a0397af2d6",
+        "02b3c6a2-d0de-4e00-8a07-1ef932443cec",
+        "97c43933-b2bf-4377-b4ba-977946f6c2e6"
       ],
       "paths": [
         "library/marketing/TikTok-algorithm-update-2026-6ac869c3.md",
@@ -875,7 +1611,25 @@
         "library/marketing/TikTok-algorithm-update-2026-53a7c2a6.md",
         "library/marketing/TikTok-algorithm-update-2026-29407889.md",
         "library/marketing/TikTok-algorithm-update-2026-3e67143d.md",
-        "library/marketing/TikTok-algorithm-update-2026-67619ad7.md"
+        "library/marketing/TikTok-algorithm-update-2026-67619ad7.md",
+        "library/marketing/TikTok-algorithm-update-2026-5f78bc53.md",
+        "library/marketing/TikTok-algorithm-update-2026-e67555ba.md",
+        "library/marketing/TikTok-algorithm-update-2026-93d00a35.md",
+        "library/marketing/TikTok-algorithm-update-2026-d29c1f79.md",
+        "library/marketing/TikTok-algorithm-update-2026-a7af51d8.md",
+        "library/marketing/TikTok-algorithm-update-2026-00d62b9d.md",
+        "library/marketing/TikTok-algorithm-update-2026-78b901fc.md",
+        "library/marketing/TikTok-algorithm-update-2026-a0515807.md",
+        "library/marketing/TikTok-algorithm-update-2026-b70e4563.md",
+        "library/marketing/TikTok-algorithm-update-2026-52ca0eee.md",
+        "library/marketing/TikTok-algorithm-update-2026-980a41ae.md",
+        "library/marketing/TikTok-algorithm-update-2026-77b94deb.md",
+        "library/marketing/TikTok-algorithm-update-2026-57ff2dea.md",
+        "library/marketing/TikTok-algorithm-update-2026-6f8dc0fe.md",
+        "library/marketing/TikTok-algorithm-update-2026-52566882.md",
+        "library/marketing/TikTok-algorithm-update-2026-bd2af04e.md",
+        "library/marketing/TikTok-algorithm-update-2026-02b3c6a2.md",
+        "library/marketing/TikTok-algorithm-update-2026-97c43933.md"
       ],
       "bureaus": [
         "marketing"
@@ -904,7 +1658,25 @@
         "d61dd487-6529-4557-a469-64cdbef49bf2",
         "1af6c9c3-364b-40a4-8cb8-ba0f586ff03a",
         "0ee82e9f-4710-4c15-8af6-cd7ad390a584",
-        "39d211b8-8f36-44c3-8f71-b854356459dc"
+        "39d211b8-8f36-44c3-8f71-b854356459dc",
+        "0c62bc0f-b7dc-464f-b933-587d9da6d5b1",
+        "98ceb90d-347f-491c-8c20-39771ff7c03e",
+        "8286e035-da93-4ba8-a255-d026629700b3",
+        "681ea7ef-b973-40a5-bbcc-14ed1925cc94",
+        "c94cdd95-5e8c-499e-aaf7-f6f2f013e530",
+        "b4c6f982-04d7-4f50-9d30-30f623d96ebf",
+        "82a1e0d9-b395-46ce-82b4-73e18d797845",
+        "ea316a74-895b-443e-8712-04c13fc67d05",
+        "d62a8bb9-0e59-4f66-8876-56abda3ef861",
+        "7a4d0a52-2115-46a5-ae18-89f731548846",
+        "9457d82f-78a2-4a46-8c0c-163f2f099d6e",
+        "e49f24f7-2d46-488e-9c3d-41895a1d4500",
+        "0880f304-38a2-4cbe-a8cd-b0ae55dea5f6",
+        "f16b7b02-7380-4ef4-94b7-5873d928e09d",
+        "13575c3d-8bb9-44af-abdb-1c1261a15859",
+        "bc26a7b3-bdf6-4261-ad14-88fb97a2e0dc",
+        "20eaf9c7-1d22-4cfc-abc9-8ab83fb81621",
+        "6a76eccf-9dd3-49b0-8b40-7b3dde38cb58"
       ],
       "paths": [
         "library/marketing/Instagram-Reels-growth-strategy-2026-66f7f67e.md",
@@ -917,7 +1689,25 @@
         "library/marketing/Instagram-Reels-growth-strategy-2026-d61dd487.md",
         "library/marketing/Instagram-Reels-growth-strategy-2026-1af6c9c3.md",
         "library/marketing/Instagram-Reels-growth-strategy-2026-0ee82e9f.md",
-        "library/marketing/Instagram-Reels-growth-strategy-2026-39d211b8.md"
+        "library/marketing/Instagram-Reels-growth-strategy-2026-39d211b8.md",
+        "library/marketing/Instagram-Reels-growth-strategy-2026-0c62bc0f.md",
+        "library/marketing/Instagram-Reels-growth-strategy-2026-98ceb90d.md",
+        "library/marketing/Instagram-Reels-growth-strategy-2026-8286e035.md",
+        "library/marketing/Instagram-Reels-growth-strategy-2026-681ea7ef.md",
+        "library/marketing/Instagram-Reels-growth-strategy-2026-c94cdd95.md",
+        "library/marketing/Instagram-Reels-growth-strategy-2026-b4c6f982.md",
+        "library/marketing/Instagram-Reels-growth-strategy-2026-82a1e0d9.md",
+        "library/marketing/Instagram-Reels-growth-strategy-2026-ea316a74.md",
+        "library/marketing/Instagram-Reels-growth-strategy-2026-d62a8bb9.md",
+        "library/marketing/Instagram-Reels-growth-strategy-2026-7a4d0a52.md",
+        "library/marketing/Instagram-Reels-growth-strategy-2026-9457d82f.md",
+        "library/marketing/Instagram-Reels-growth-strategy-2026-e49f24f7.md",
+        "library/marketing/Instagram-Reels-growth-strategy-2026-0880f304.md",
+        "library/marketing/Instagram-Reels-growth-strategy-2026-f16b7b02.md",
+        "library/marketing/Instagram-Reels-growth-strategy-2026-13575c3d.md",
+        "library/marketing/Instagram-Reels-growth-strategy-2026-bc26a7b3.md",
+        "library/marketing/Instagram-Reels-growth-strategy-2026-20eaf9c7.md",
+        "library/marketing/Instagram-Reels-growth-strategy-2026-6a76eccf.md"
       ],
       "bureaus": [
         "marketing"
@@ -946,7 +1736,25 @@
         "af183ed4-1760-4b3f-a158-2406d0787c52",
         "2fe1fb35-e96c-46b1-966f-751db254c2bb",
         "dcb2b232-f56e-4b27-bbad-e876b13ab214",
-        "e11231b1-f711-4ab0-b1e2-b8317ebcf63e"
+        "e11231b1-f711-4ab0-b1e2-b8317ebcf63e",
+        "c668580d-09e1-4977-b16e-7d3099be1cd0",
+        "36c2e347-7c7c-41fd-b33a-c54e3ae35bd8",
+        "ea47c101-fbff-4756-8a85-106d30cae400",
+        "cf901dd7-38d0-46c6-967d-a871de38c09e",
+        "ac2b86a2-6ac0-4c20-b16c-9a5ebfbe2d33",
+        "b8e87ef3-7d8e-4cf3-b8aa-cbd024c5d49b",
+        "bc22af54-d2e0-4705-a5ff-d70981494215",
+        "3c880e0f-4f80-4635-8fda-115e05c0c13a",
+        "0398d829-f8ad-4571-80b8-0d1fa4c8f615",
+        "185e9efc-26c2-49f3-8eeb-07d51cc0b7ee",
+        "fe3161be-9364-4acd-b5ad-6d31046bacb2",
+        "712c0789-2f4e-446d-8c1b-228b3c035105",
+        "b89e025c-7c30-4cda-9cb1-da79c1d2b733",
+        "45f13bde-b53b-4115-b100-ad53a6e7d5d0",
+        "eea31900-b861-48a7-a5b5-731585e6988e",
+        "4010f0f9-6766-444e-b8c2-467c78735464",
+        "3b6d2b23-f9e8-48f7-9556-a49df8bcedaf",
+        "236b318f-f4e2-4456-a8a1-7963f3e6fdf7"
       ],
       "paths": [
         "library/marketing/LinkedIn-B2B-marketing-tactics-2026-a33a9fa0.md",
@@ -959,7 +1767,25 @@
         "library/marketing/LinkedIn-B2B-marketing-tactics-2026-af183ed4.md",
         "library/marketing/LinkedIn-B2B-marketing-tactics-2026-2fe1fb35.md",
         "library/marketing/LinkedIn-B2B-marketing-tactics-2026-dcb2b232.md",
-        "library/marketing/LinkedIn-B2B-marketing-tactics-2026-e11231b1.md"
+        "library/marketing/LinkedIn-B2B-marketing-tactics-2026-e11231b1.md",
+        "library/marketing/LinkedIn-B2B-marketing-tactics-2026-c668580d.md",
+        "library/marketing/LinkedIn-B2B-marketing-tactics-2026-36c2e347.md",
+        "library/marketing/LinkedIn-B2B-marketing-tactics-2026-ea47c101.md",
+        "library/marketing/LinkedIn-B2B-marketing-tactics-2026-cf901dd7.md",
+        "library/marketing/LinkedIn-B2B-marketing-tactics-2026-ac2b86a2.md",
+        "library/marketing/LinkedIn-B2B-marketing-tactics-2026-b8e87ef3.md",
+        "library/marketing/LinkedIn-B2B-marketing-tactics-2026-bc22af54.md",
+        "library/marketing/LinkedIn-B2B-marketing-tactics-2026-3c880e0f.md",
+        "library/marketing/LinkedIn-B2B-marketing-tactics-2026-0398d829.md",
+        "library/marketing/LinkedIn-B2B-marketing-tactics-2026-185e9efc.md",
+        "library/marketing/LinkedIn-B2B-marketing-tactics-2026-fe3161be.md",
+        "library/marketing/LinkedIn-B2B-marketing-tactics-2026-712c0789.md",
+        "library/marketing/LinkedIn-B2B-marketing-tactics-2026-b89e025c.md",
+        "library/marketing/LinkedIn-B2B-marketing-tactics-2026-45f13bde.md",
+        "library/marketing/LinkedIn-B2B-marketing-tactics-2026-eea31900.md",
+        "library/marketing/LinkedIn-B2B-marketing-tactics-2026-4010f0f9.md",
+        "library/marketing/LinkedIn-B2B-marketing-tactics-2026-3b6d2b23.md",
+        "library/marketing/LinkedIn-B2B-marketing-tactics-2026-236b318f.md"
       ],
       "bureaus": [
         "marketing"
@@ -988,7 +1814,25 @@
         "fbf6ea4c-ac46-4f23-bdfd-ef8d67081ed6",
         "3b190835-85f1-485e-804f-2b219e11343b",
         "13daa4db-c76c-414d-80b4-c7da60e0d8a0",
-        "aa73d377-8e02-4b7f-9c3f-adfb55b461ba"
+        "aa73d377-8e02-4b7f-9c3f-adfb55b461ba",
+        "ab5c8f59-d009-4937-b646-0f3fd4eb1116",
+        "d4cfbd87-2ef8-4e64-83c4-e79be9df1252",
+        "324d20cc-3ad7-433b-adb8-c34681bc9e85",
+        "cd68ec38-faef-4a1b-9b5c-f66420b91567",
+        "987ca21f-4ab1-44cd-86b0-80cd045ea5a3",
+        "29552c9d-3f12-46cc-aeb8-d2f81c94134f",
+        "bbef0221-f702-45c8-9ad1-538fa9e7010e",
+        "0bc7672c-9887-4adf-97bf-545ce935d5d9",
+        "3cfff3b3-d0bb-478f-a2fd-90680bc655b4",
+        "b26d98c4-a634-4de5-a52d-28e0954e954b",
+        "42cd534d-bb17-4262-8eec-6ab931c4f225",
+        "1c0596f5-dac6-4ba9-a57a-a70d4ec4651e",
+        "e42b7ad9-1829-4257-8b3d-923da2532e23",
+        "a807ef91-264c-4374-b70b-e6f28374cdd5",
+        "f276681d-d5d3-49b7-8912-91d962620146",
+        "289cb3b0-3b40-4a7f-86ce-82c6f7dd2e6c",
+        "ea863f8b-b7aa-4d0c-944e-a11a250da1c2",
+        "41e538bb-a554-4546-ae60-4ce2c9cc3a2a"
       ],
       "paths": [
         "library/marketing/growth-hacking-indie-app-2026-a3ec54c3.md",
@@ -1001,7 +1845,25 @@
         "library/marketing/growth-hacking-indie-app-2026-fbf6ea4c.md",
         "library/marketing/growth-hacking-indie-app-2026-3b190835.md",
         "library/marketing/growth-hacking-indie-app-2026-13daa4db.md",
-        "library/marketing/growth-hacking-indie-app-2026-aa73d377.md"
+        "library/marketing/growth-hacking-indie-app-2026-aa73d377.md",
+        "library/marketing/growth-hacking-indie-app-2026-ab5c8f59.md",
+        "library/marketing/growth-hacking-indie-app-2026-d4cfbd87.md",
+        "library/marketing/growth-hacking-indie-app-2026-324d20cc.md",
+        "library/marketing/growth-hacking-indie-app-2026-cd68ec38.md",
+        "library/marketing/growth-hacking-indie-app-2026-987ca21f.md",
+        "library/marketing/growth-hacking-indie-app-2026-29552c9d.md",
+        "library/marketing/growth-hacking-indie-app-2026-bbef0221.md",
+        "library/marketing/growth-hacking-indie-app-2026-0bc7672c.md",
+        "library/marketing/growth-hacking-indie-app-2026-3cfff3b3.md",
+        "library/marketing/growth-hacking-indie-app-2026-b26d98c4.md",
+        "library/marketing/growth-hacking-indie-app-2026-42cd534d.md",
+        "library/marketing/growth-hacking-indie-app-2026-1c0596f5.md",
+        "library/marketing/growth-hacking-indie-app-2026-e42b7ad9.md",
+        "library/marketing/growth-hacking-indie-app-2026-a807ef91.md",
+        "library/marketing/growth-hacking-indie-app-2026-f276681d.md",
+        "library/marketing/growth-hacking-indie-app-2026-289cb3b0.md",
+        "library/marketing/growth-hacking-indie-app-2026-ea863f8b.md",
+        "library/marketing/growth-hacking-indie-app-2026-41e538bb.md"
       ],
       "bureaus": [
         "marketing"
@@ -1030,7 +1892,24 @@
         "b88f55cf-02d6-4fa3-add1-6bf29879dc1e",
         "0dd696f7-25bf-4d65-be14-4b4bea03edad",
         "e086a613-e495-4efe-92c4-577447549205",
-        "210483dd-d7a7-4d83-8282-d17d667eb21f"
+        "210483dd-d7a7-4d83-8282-d17d667eb21f",
+        "df9d33c2-1d99-45b9-90c4-b7e7c805c617",
+        "ed90a702-a087-45e9-a9b4-82bace73a02e",
+        "4a29e7ef-d508-4c50-ba75-471addda65b2",
+        "5c4367a4-cb05-4195-9a35-77d6493b769d",
+        "ff685efd-ffff-4d92-9538-f4de94c96eb4",
+        "f715296c-7f4e-4394-8e42-90ddeecb4fee",
+        "64534c4c-7f70-4ed7-aef0-8ea69384da62",
+        "1455cf6f-62d5-4574-9aeb-c8cf0f68dcbc",
+        "a9c9ecef-cb51-499b-a528-d8bda0691556",
+        "fb3d57ae-1491-452a-8d74-0d039edb523b",
+        "a2dfdb68-46f8-49fc-9c04-9c66c79313a6",
+        "1d2f3514-cc9d-46c8-ac01-71d01e2c3143",
+        "824ce479-1361-4670-93c6-65859ce524e9",
+        "dfdb28e0-0b68-4aa6-925e-b49d952f6429",
+        "b8633f8b-2221-4435-81f1-fe196e83282f",
+        "67d20346-5a3f-4e45-aecf-5da0f4059101",
+        "1cecb0f2-35b9-456f-842a-094988923d16"
       ],
       "paths": [
         "library/marketing/content-marketing-trends-2026-53f044f5.md",
@@ -1043,7 +1922,24 @@
         "library/marketing/content-marketing-trends-2026-b88f55cf.md",
         "library/marketing/content-marketing-trends-2026-0dd696f7.md",
         "library/marketing/content-marketing-trends-2026-e086a613.md",
-        "library/marketing/content-marketing-trends-2026-210483dd.md"
+        "library/marketing/content-marketing-trends-2026-210483dd.md",
+        "library/marketing/content-marketing-trends-2026-df9d33c2.md",
+        "library/marketing/content-marketing-trends-2026-ed90a702.md",
+        "library/marketing/content-marketing-trends-2026-4a29e7ef.md",
+        "library/marketing/content-marketing-trends-2026-5c4367a4.md",
+        "library/marketing/content-marketing-trends-2026-ff685efd.md",
+        "library/marketing/content-marketing-trends-2026-f715296c.md",
+        "library/marketing/content-marketing-trends-2026-64534c4c.md",
+        "library/marketing/content-marketing-trends-2026-1455cf6f.md",
+        "library/marketing/content-marketing-trends-2026-a9c9ecef.md",
+        "library/marketing/content-marketing-trends-2026-fb3d57ae.md",
+        "library/marketing/content-marketing-trends-2026-a2dfdb68.md",
+        "library/marketing/content-marketing-trends-2026-1d2f3514.md",
+        "library/marketing/content-marketing-trends-2026-824ce479.md",
+        "library/marketing/content-marketing-trends-2026-dfdb28e0.md",
+        "library/marketing/content-marketing-trends-2026-b8633f8b.md",
+        "library/marketing/content-marketing-trends-2026-67d20346.md",
+        "library/marketing/content-marketing-trends-2026-1cecb0f2.md"
       ],
       "bureaus": [
         "marketing"
@@ -1072,7 +1968,24 @@
         "6b80d530-078c-40f6-9bb4-35858d46992b",
         "7141cf5c-d981-457a-9a23-2ee0a8394c70",
         "0c438161-6b62-4bf5-bd83-d05435789016",
-        "898d9a36-3458-4b0a-912c-5683cd03c1c6"
+        "898d9a36-3458-4b0a-912c-5683cd03c1c6",
+        "ed81c8f8-0f69-4655-b9e9-99b9bc1d4a8d",
+        "f4d3e6c4-3a38-4f9c-a2aa-3ce5993a4319",
+        "ced85996-9070-4545-92e6-f0cbe73c4d80",
+        "657ced55-608e-44bc-9e43-e9aa032c051d",
+        "6d1e985c-d5e7-425d-a484-faa9120be144",
+        "efa3f952-55a8-4083-8f50-10fd9eea8140",
+        "0a6e22a1-d479-4122-ab1f-a1935a9db702",
+        "f4b4e0c8-74ef-46f8-95ba-34acf3e442f1",
+        "5da12e1b-694a-4568-9e5b-71906cf3ec9e",
+        "813d8559-ac54-46da-aca9-6d05daa0c4eb",
+        "e4578e1b-4c00-4a32-891f-105720e2e701",
+        "53cab585-31d8-47d4-b45d-09d9297bcd49",
+        "9ed1494e-4993-4230-8f3e-9e5806abcca5",
+        "bd4fd574-53ff-4462-9386-77da9a46f4a5",
+        "9a5b9985-73c7-4534-9470-7765742f1ab7",
+        "64bf68bf-a2a5-4016-bd10-cf39ebb71690",
+        "46403ec8-bf78-4cd5-ae22-ea51413c94be"
       ],
       "paths": [
         "library/marketing/SEO-strategy-update-2026-fdad9df2.md",
@@ -1085,7 +1998,24 @@
         "library/marketing/SEO-strategy-update-2026-6b80d530.md",
         "library/marketing/SEO-strategy-update-2026-7141cf5c.md",
         "library/marketing/SEO-strategy-update-2026-0c438161.md",
-        "library/marketing/SEO-strategy-update-2026-898d9a36.md"
+        "library/marketing/SEO-strategy-update-2026-898d9a36.md",
+        "library/marketing/SEO-strategy-update-2026-ed81c8f8.md",
+        "library/marketing/SEO-strategy-update-2026-f4d3e6c4.md",
+        "library/marketing/SEO-strategy-update-2026-ced85996.md",
+        "library/marketing/SEO-strategy-update-2026-657ced55.md",
+        "library/marketing/SEO-strategy-update-2026-6d1e985c.md",
+        "library/marketing/SEO-strategy-update-2026-efa3f952.md",
+        "library/marketing/SEO-strategy-update-2026-0a6e22a1.md",
+        "library/marketing/SEO-strategy-update-2026-f4b4e0c8.md",
+        "library/marketing/SEO-strategy-update-2026-5da12e1b.md",
+        "library/marketing/SEO-strategy-update-2026-813d8559.md",
+        "library/marketing/SEO-strategy-update-2026-e4578e1b.md",
+        "library/marketing/SEO-strategy-update-2026-53cab585.md",
+        "library/marketing/SEO-strategy-update-2026-9ed1494e.md",
+        "library/marketing/SEO-strategy-update-2026-bd4fd574.md",
+        "library/marketing/SEO-strategy-update-2026-9a5b9985.md",
+        "library/marketing/SEO-strategy-update-2026-64bf68bf.md",
+        "library/marketing/SEO-strategy-update-2026-46403ec8.md"
       ],
       "bureaus": [
         "marketing"
@@ -1114,7 +2044,24 @@
         "73135be9-1d31-40bc-baeb-020d202dfb0b",
         "82e69360-f9a0-44ab-bb0c-d05d959a8aa5",
         "151445ea-84a2-40fd-a1fd-92176b8284a8",
-        "30fbefef-ec8f-4db6-8c9f-c91f27a3780a"
+        "30fbefef-ec8f-4db6-8c9f-c91f27a3780a",
+        "3ff5a1a1-9c0c-4778-9115-363472782756",
+        "df09c0d4-7ac5-42b0-b486-89083a66945e",
+        "cbb2db09-974f-4c86-ad96-3b1b4b76f5da",
+        "356ca70e-a8a4-43c1-9604-44bbad8505a1",
+        "e804330b-4783-4c1c-83d1-70b7af6bea79",
+        "5a8c4ecc-198b-4c17-85bc-0777f0021773",
+        "f08066ed-ab43-4a93-a637-2b3f2825648b",
+        "70922e04-636e-4742-8c92-b76d8b869f70",
+        "43859dca-b17a-4ea4-9d00-247dd86eae5a",
+        "500ca820-814c-445e-9786-046b612d9279",
+        "d6a08b81-de01-4dd0-9655-a8ffae9531ff",
+        "dc719923-f3e8-4ddb-8f3b-ee29242be326",
+        "9584f4bd-746a-4187-936a-f8b58ad6ef47",
+        "f4ff2b0c-a24a-4e36-b045-d32e7305e1d6",
+        "29772538-e4a7-4895-815d-3d0a90d67b49",
+        "364a9a9c-a88c-4344-afc8-bfee0baf0827",
+        "1904470a-433a-43f6-8394-a416df01ebd5"
       ],
       "paths": [
         "library/marketing/viral-content-formats-2026-736adb26.md",
@@ -1127,7 +2074,24 @@
         "library/marketing/viral-content-formats-2026-73135be9.md",
         "library/marketing/viral-content-formats-2026-82e69360.md",
         "library/marketing/viral-content-formats-2026-151445ea.md",
-        "library/marketing/viral-content-formats-2026-30fbefef.md"
+        "library/marketing/viral-content-formats-2026-30fbefef.md",
+        "library/marketing/viral-content-formats-2026-3ff5a1a1.md",
+        "library/marketing/viral-content-formats-2026-df09c0d4.md",
+        "library/marketing/viral-content-formats-2026-cbb2db09.md",
+        "library/marketing/viral-content-formats-2026-356ca70e.md",
+        "library/marketing/viral-content-formats-2026-e804330b.md",
+        "library/marketing/viral-content-formats-2026-5a8c4ecc.md",
+        "library/marketing/viral-content-formats-2026-f08066ed.md",
+        "library/marketing/viral-content-formats-2026-70922e04.md",
+        "library/marketing/viral-content-formats-2026-43859dca.md",
+        "library/marketing/viral-content-formats-2026-500ca820.md",
+        "library/marketing/viral-content-formats-2026-d6a08b81.md",
+        "library/marketing/viral-content-formats-2026-dc719923.md",
+        "library/marketing/viral-content-formats-2026-9584f4bd.md",
+        "library/marketing/viral-content-formats-2026-f4ff2b0c.md",
+        "library/marketing/viral-content-formats-2026-29772538.md",
+        "library/marketing/viral-content-formats-2026-364a9a9c.md",
+        "library/marketing/viral-content-formats-2026-1904470a.md"
       ],
       "bureaus": [
         "marketing"
@@ -1156,7 +2120,24 @@
         "8911ff43-52fc-4352-8eb0-ff2e2cd2a75e",
         "06bcfb7e-9970-4d55-8a72-65e86c23f164",
         "20e4f709-96b8-441a-a466-91f98e26fa4b",
-        "ea41d156-294f-40b2-8523-14e130b29610"
+        "ea41d156-294f-40b2-8523-14e130b29610",
+        "40150288-6717-4112-aa07-ca52b0bf9df5",
+        "01855cb3-1c83-48b5-b49c-9e3b6bc62c69",
+        "df9c3af0-1cdd-4f59-9447-811a66b02b63",
+        "a684cd8d-b701-40db-a1ff-def9cc3e52db",
+        "bf423012-a569-4af7-8704-7d446783711b",
+        "94b06052-10a0-41b1-b0f4-1d4f446195a8",
+        "7ed6c252-6565-4544-93f5-809065903fa2",
+        "bbcd3c83-610c-43f6-817e-699c4c17495f",
+        "dec4067f-9ab5-4169-968a-11515d1e7edd",
+        "f7c8e4e5-4182-4987-865f-7daa952a2977",
+        "55ad4669-7163-4194-88c6-f88a52eeac09",
+        "8fa16ba6-2114-449d-a884-6ab5dfb97012",
+        "4ba9a5fb-04c0-41fa-b513-c894c83837f8",
+        "155fb55d-6e84-462c-9bc7-1c08967ef727",
+        "fd9f9d0a-dbad-4591-b9e3-1892425196ac",
+        "b7721a28-eca0-459b-93a2-db070ed36262",
+        "0dca8d6a-b6ea-497e-a717-e655a1b090bc"
       ],
       "paths": [
         "library/marketing/storytelling-technique-brand-2026-9474ac52.md",
@@ -1169,7 +2150,24 @@
         "library/marketing/storytelling-technique-brand-2026-8911ff43.md",
         "library/marketing/storytelling-technique-brand-2026-06bcfb7e.md",
         "library/marketing/storytelling-technique-brand-2026-20e4f709.md",
-        "library/marketing/storytelling-technique-brand-2026-ea41d156.md"
+        "library/marketing/storytelling-technique-brand-2026-ea41d156.md",
+        "library/marketing/storytelling-technique-brand-2026-40150288.md",
+        "library/marketing/storytelling-technique-brand-2026-01855cb3.md",
+        "library/marketing/storytelling-technique-brand-2026-df9c3af0.md",
+        "library/marketing/storytelling-technique-brand-2026-a684cd8d.md",
+        "library/marketing/storytelling-technique-brand-2026-bf423012.md",
+        "library/marketing/storytelling-technique-brand-2026-94b06052.md",
+        "library/marketing/storytelling-technique-brand-2026-7ed6c252.md",
+        "library/marketing/storytelling-technique-brand-2026-bbcd3c83.md",
+        "library/marketing/storytelling-technique-brand-2026-dec4067f.md",
+        "library/marketing/storytelling-technique-brand-2026-f7c8e4e5.md",
+        "library/marketing/storytelling-technique-brand-2026-55ad4669.md",
+        "library/marketing/storytelling-technique-brand-2026-8fa16ba6.md",
+        "library/marketing/storytelling-technique-brand-2026-4ba9a5fb.md",
+        "library/marketing/storytelling-technique-brand-2026-155fb55d.md",
+        "library/marketing/storytelling-technique-brand-2026-fd9f9d0a.md",
+        "library/marketing/storytelling-technique-brand-2026-b7721a28.md",
+        "library/marketing/storytelling-technique-brand-2026-0dca8d6a.md"
       ],
       "bureaus": [
         "marketing"
@@ -1198,7 +2196,24 @@
         "6e6f17bd-fba7-4937-8a4a-ea2772103f00",
         "8ffc593e-1bdd-48f4-9b38-fe1929e9ed1a",
         "f17126ff-b04f-427f-a4e2-4ee01baba903",
-        "d35fff3c-4e89-42c5-9d52-90f0a3b4f1ec"
+        "d35fff3c-4e89-42c5-9d52-90f0a3b4f1ec",
+        "1d698d84-0626-4caf-803d-fa6dfb9bf1be",
+        "040094cd-1920-40a7-a2c7-fa444f0afeed",
+        "1863a5d9-f3fa-480e-a4a4-f1f826009f4a",
+        "2490bb8e-3318-4328-a300-cbf28a605fd7",
+        "29f5ec12-f755-4415-ad73-71a2cd3272f7",
+        "d5457973-2135-42c9-a57e-fd18c6ad2cf4",
+        "3b63d389-0d68-4d97-ab6c-4a19ba8b1959",
+        "a7310285-d1eb-4d64-9080-851a20b7d41b",
+        "287d1f16-b5f0-4f37-8475-c9cba6ba360b",
+        "75bd9a7f-657e-4488-80b2-4a0be3afa4e0",
+        "d9489ba2-e796-467a-92a4-0361da9d562d",
+        "d7c51b7e-d686-4a48-8d0a-07a2a318db96",
+        "89ee9ec1-26ad-4418-ba76-cb8a68d61ed4",
+        "33c8029f-4538-4429-bc1b-4916f0c46f65",
+        "f769ca9a-7a29-4933-bff8-60fdad08881b",
+        "56176ed3-2919-42e8-b902-a5718e6f20db",
+        "6d653dff-fdcd-4938-8979-c380ce6b2f8b"
       ],
       "paths": [
         "library/finances/French-accounting-regulations-2026-7d78b01e.md",
@@ -1211,7 +2226,24 @@
         "library/finances/French-accounting-regulations-2026-6e6f17bd.md",
         "library/finances/French-accounting-regulations-2026-8ffc593e.md",
         "library/finances/French-accounting-regulations-2026-f17126ff.md",
-        "library/finances/French-accounting-regulations-2026-d35fff3c.md"
+        "library/finances/French-accounting-regulations-2026-d35fff3c.md",
+        "library/finances/French-accounting-regulations-2026-1d698d84.md",
+        "library/finances/French-accounting-regulations-2026-040094cd.md",
+        "library/finances/French-accounting-regulations-2026-1863a5d9.md",
+        "library/finances/French-accounting-regulations-2026-2490bb8e.md",
+        "library/finances/French-accounting-regulations-2026-29f5ec12.md",
+        "library/finances/French-accounting-regulations-2026-d5457973.md",
+        "library/finances/French-accounting-regulations-2026-3b63d389.md",
+        "library/finances/French-accounting-regulations-2026-a7310285.md",
+        "library/finances/French-accounting-regulations-2026-287d1f16.md",
+        "library/finances/French-accounting-regulations-2026-75bd9a7f.md",
+        "library/finances/French-accounting-regulations-2026-d9489ba2.md",
+        "library/finances/French-accounting-regulations-2026-d7c51b7e.md",
+        "library/finances/French-accounting-regulations-2026-89ee9ec1.md",
+        "library/finances/French-accounting-regulations-2026-33c8029f.md",
+        "library/finances/French-accounting-regulations-2026-f769ca9a.md",
+        "library/finances/French-accounting-regulations-2026-56176ed3.md",
+        "library/finances/French-accounting-regulations-2026-6d653dff.md"
       ],
       "bureaus": [
         "finances"
@@ -1240,7 +2272,24 @@
         "97bcc0db-80b9-4b22-a994-90433748618f",
         "577510ad-a954-4f41-8349-6f93ed726f25",
         "410ff824-be25-4ea9-9b93-9debb916e27d",
-        "56c24e04-1fcd-4959-917b-8cd92342e949"
+        "56c24e04-1fcd-4959-917b-8cd92342e949",
+        "e24a0c80-e8c9-44af-acb0-89530fe4386f",
+        "0a6f45f4-600c-4016-a90a-c1b51ed1e62d",
+        "6d1971c8-6dd4-4ad9-b8f8-b851ba2fc2c1",
+        "ae142141-d14c-43c5-b62b-f08b829b6812",
+        "233d4c16-6bff-43cc-a870-35ebabbe921b",
+        "53e69acc-7edf-41ed-b185-a7e55e0d48b2",
+        "ac2efe78-02aa-4130-87bd-97d5e2f8b641",
+        "b52263ed-7d7b-4340-a42e-25253054d7a6",
+        "82b560d4-fc5a-4692-af92-05d2a8f75d3a",
+        "c589a908-3496-488e-ad9b-f50609ec7a52",
+        "32420eed-e7df-4b71-9faf-44e57985ed1c",
+        "13438467-d309-4171-b6c0-73370e3bc15e",
+        "b9230f71-c235-43f8-8558-bd7c8aa47714",
+        "ab2d2934-fb5f-4496-8b73-54654331beaa",
+        "baaa434b-7a2b-42bb-a6b6-1ee640e4ae7c",
+        "75482b3d-7a56-4199-8aab-14f37e8ae724",
+        "f312c164-84b9-44f7-9885-bb3830f89512"
       ],
       "paths": [
         "library/finances/startup-tax-optimization-France-e95dc84d.md",
@@ -1253,7 +2302,24 @@
         "library/finances/startup-tax-optimization-France-97bcc0db.md",
         "library/finances/startup-tax-optimization-France-577510ad.md",
         "library/finances/startup-tax-optimization-France-410ff824.md",
-        "library/finances/startup-tax-optimization-France-56c24e04.md"
+        "library/finances/startup-tax-optimization-France-56c24e04.md",
+        "library/finances/startup-tax-optimization-France-e24a0c80.md",
+        "library/finances/startup-tax-optimization-France-0a6f45f4.md",
+        "library/finances/startup-tax-optimization-France-6d1971c8.md",
+        "library/finances/startup-tax-optimization-France-ae142141.md",
+        "library/finances/startup-tax-optimization-France-233d4c16.md",
+        "library/finances/startup-tax-optimization-France-53e69acc.md",
+        "library/finances/startup-tax-optimization-France-ac2efe78.md",
+        "library/finances/startup-tax-optimization-France-b52263ed.md",
+        "library/finances/startup-tax-optimization-France-82b560d4.md",
+        "library/finances/startup-tax-optimization-France-c589a908.md",
+        "library/finances/startup-tax-optimization-France-32420eed.md",
+        "library/finances/startup-tax-optimization-France-13438467.md",
+        "library/finances/startup-tax-optimization-France-b9230f71.md",
+        "library/finances/startup-tax-optimization-France-ab2d2934.md",
+        "library/finances/startup-tax-optimization-France-baaa434b.md",
+        "library/finances/startup-tax-optimization-France-75482b3d.md",
+        "library/finances/startup-tax-optimization-France-f312c164.md"
       ],
       "bureaus": [
         "finances"
@@ -1282,7 +2348,23 @@
         "8c871f93-6540-4d97-b6b8-d4cbba003700",
         "7827aced-5ff5-4a61-9c3e-8b8dbc26b070",
         "034c8f86-304d-41fe-811d-1b09eb54894a",
-        "deb69420-0af4-41d9-85e3-f71d5a97e497"
+        "deb69420-0af4-41d9-85e3-f71d5a97e497",
+        "0c170705-5079-4198-8eb8-48607821b665",
+        "d3860b09-a549-423d-a616-0c219d61c9dc",
+        "4af0adc0-2582-4590-bff6-0e8d82f2ddc1",
+        "ed3baa71-31db-4504-8e0b-04cf56759c05",
+        "0a0976fd-4839-4f44-ba89-b7ed19465d05",
+        "748c9501-80b7-48a5-b3fb-8d3c25ac2d0e",
+        "8ceee07b-0071-4bb9-8b17-cb090b0201aa",
+        "67f063f5-a7a1-4965-b1e4-6c41fb3f7619",
+        "55748c3e-bcd4-4460-9232-1615d1bf1818",
+        "05a2408a-f7af-468c-9fa6-8f62f01744ce",
+        "754a6fab-ae1e-4bd1-ae50-3ead781f307f",
+        "378b8448-fb4d-4005-953e-012aeaef4031",
+        "8087f131-d4b5-4391-829b-65d5d4a102f9",
+        "1bfeffff-f091-47ee-8200-2af1b078925f",
+        "3d9cb59c-555f-45da-bf77-79600b23e6ee",
+        "77118b93-2a06-46a0-a68f-ab090f3b93a1"
       ],
       "paths": [
         "library/finances/SaaS-revenue-recognition-rules-f201e3db.md",
@@ -1295,7 +2377,23 @@
         "library/finances/SaaS-revenue-recognition-rules-8c871f93.md",
         "library/finances/SaaS-revenue-recognition-rules-7827aced.md",
         "library/finances/SaaS-revenue-recognition-rules-034c8f86.md",
-        "library/finances/SaaS-revenue-recognition-rules-deb69420.md"
+        "library/finances/SaaS-revenue-recognition-rules-deb69420.md",
+        "library/finances/SaaS-revenue-recognition-rules-0c170705.md",
+        "library/finances/SaaS-revenue-recognition-rules-d3860b09.md",
+        "library/finances/SaaS-revenue-recognition-rules-4af0adc0.md",
+        "library/finances/SaaS-revenue-recognition-rules-ed3baa71.md",
+        "library/finances/SaaS-revenue-recognition-rules-0a0976fd.md",
+        "library/finances/SaaS-revenue-recognition-rules-748c9501.md",
+        "library/finances/SaaS-revenue-recognition-rules-8ceee07b.md",
+        "library/finances/SaaS-revenue-recognition-rules-67f063f5.md",
+        "library/finances/SaaS-revenue-recognition-rules-55748c3e.md",
+        "library/finances/SaaS-revenue-recognition-rules-05a2408a.md",
+        "library/finances/SaaS-revenue-recognition-rules-754a6fab.md",
+        "library/finances/SaaS-revenue-recognition-rules-378b8448.md",
+        "library/finances/SaaS-revenue-recognition-rules-8087f131.md",
+        "library/finances/SaaS-revenue-recognition-rules-1bfeffff.md",
+        "library/finances/SaaS-revenue-recognition-rules-3d9cb59c.md",
+        "library/finances/SaaS-revenue-recognition-rules-77118b93.md"
       ],
       "bureaus": [
         "finances"
@@ -1324,7 +2422,24 @@
         "0a92954b-bcb7-4bac-9900-6895c499f7f1",
         "5b0a921a-7e31-43de-9498-8ced62fa0cad",
         "dc19637d-80b3-4b21-8291-3aec4876d1e8",
-        "194229c8-a1c6-40ca-9bdb-3965dd5f2c01"
+        "194229c8-a1c6-40ca-9bdb-3965dd5f2c01",
+        "9e1dc920-b3e4-40a3-b415-6bc160076ec7",
+        "c5fd14e8-1348-4f65-9ab8-f60ee753ecec",
+        "ccee7cda-d162-4f66-b77c-a451fa5279f9",
+        "dc3ec3d3-5d30-4701-9ea9-df0ccc4b6801",
+        "8495f1e9-5bdb-4a23-918c-f44d24b07a20",
+        "ea327be9-7004-4190-a4b5-60a116c87650",
+        "ef427d47-60c1-4f0f-9985-e34c74625e82",
+        "265f65a0-da8e-4a2a-a2ae-bdbc67c5ef23",
+        "dff9c972-cde5-4176-bace-dc952888dea9",
+        "df4cfd6b-2c39-44e2-bd64-e8a50d26b02e",
+        "98b716cc-8fff-44db-b86b-802a2850c13d",
+        "8b39819e-8c0f-4c59-8279-2d391bade004",
+        "a5140ebc-6657-4176-9a40-a2a493c73998",
+        "39e168d0-b6e0-4d87-b0b8-2960862daede",
+        "7a72bb03-0c7c-44de-8de1-8fac07dcb8b6",
+        "e8c8e61e-fe64-4d64-a508-dd379d1f27c6",
+        "8b47c9c3-9c78-4c30-9f44-4b0353e398e1"
       ],
       "paths": [
         "library/finances/freelance-micro-entrepreneur-TVA-2026-328ab1b7.md",
@@ -1337,7 +2452,24 @@
         "library/finances/freelance-micro-entrepreneur-TVA-2026-0a92954b.md",
         "library/finances/freelance-micro-entrepreneur-TVA-2026-5b0a921a.md",
         "library/finances/freelance-micro-entrepreneur-TVA-2026-dc19637d.md",
-        "library/finances/freelance-micro-entrepreneur-TVA-2026-194229c8.md"
+        "library/finances/freelance-micro-entrepreneur-TVA-2026-194229c8.md",
+        "library/finances/freelance-micro-entrepreneur-TVA-2026-9e1dc920.md",
+        "library/finances/freelance-micro-entrepreneur-TVA-2026-c5fd14e8.md",
+        "library/finances/freelance-micro-entrepreneur-TVA-2026-ccee7cda.md",
+        "library/finances/freelance-micro-entrepreneur-TVA-2026-dc3ec3d3.md",
+        "library/finances/freelance-micro-entrepreneur-TVA-2026-8495f1e9.md",
+        "library/finances/freelance-micro-entrepreneur-TVA-2026-ea327be9.md",
+        "library/finances/freelance-micro-entrepreneur-TVA-2026-ef427d47.md",
+        "library/finances/freelance-micro-entrepreneur-TVA-2026-265f65a0.md",
+        "library/finances/freelance-micro-entrepreneur-TVA-2026-dff9c972.md",
+        "library/finances/freelance-micro-entrepreneur-TVA-2026-df4cfd6b.md",
+        "library/finances/freelance-micro-entrepreneur-TVA-2026-98b716cc.md",
+        "library/finances/freelance-micro-entrepreneur-TVA-2026-8b39819e.md",
+        "library/finances/freelance-micro-entrepreneur-TVA-2026-a5140ebc.md",
+        "library/finances/freelance-micro-entrepreneur-TVA-2026-39e168d0.md",
+        "library/finances/freelance-micro-entrepreneur-TVA-2026-7a72bb03.md",
+        "library/finances/freelance-micro-entrepreneur-TVA-2026-e8c8e61e.md",
+        "library/finances/freelance-micro-entrepreneur-TVA-2026-8b47c9c3.md"
       ],
       "bureaus": [
         "finances"
@@ -1366,7 +2498,23 @@
         "8d55958e-2b6a-403a-93d7-cab42a774a84",
         "f32825da-859d-45d4-8dd3-996c2ccf066b",
         "53a37cd6-6bb6-4c6c-ae4d-ec49be8463c3",
-        "4ceefcb2-f060-43c4-9c19-15b9e1f64d15"
+        "4ceefcb2-f060-43c4-9c19-15b9e1f64d15",
+        "49c86734-2a35-4bbb-af98-14abf2b8953a",
+        "fd0aff62-51c9-44fb-a045-102439ab3f22",
+        "d905f70c-cdf9-41fe-89e9-941fd05e18e7",
+        "25618d51-757c-4710-8574-dbffe53d210b",
+        "266097a7-c226-4fb0-b840-e96ba1528f91",
+        "91e8c51a-8f9f-4464-8799-169d8b452537",
+        "a39f564a-a1cf-449d-8157-906d581959b7",
+        "1327d66d-382c-4cf1-8656-ece22182baff",
+        "52a477b9-e08b-4a67-af43-b054a9bf912a",
+        "14647c7e-1f08-4830-b7fa-590241a3d5fa",
+        "274bdb14-2a0e-4213-8cd7-dbcebd12681d",
+        "1d0e64f2-2d87-4610-8d78-74070b832a00",
+        "b4e5da89-fc9b-4f16-8310-ba837e894953",
+        "0e169faf-8f76-4185-8a62-ef094d72ae2c",
+        "2bccd5f4-54b3-423e-9e64-e702d9f11ed6",
+        "321502e8-b5c1-4ff9-a437-b0079f88eee8"
       ],
       "paths": [
         "library/gaming/game-design-trends-2026-b482f7b6.md",
@@ -1379,7 +2527,23 @@
         "library/gaming/game-design-trends-2026-8d55958e.md",
         "library/gaming/game-design-trends-2026-f32825da.md",
         "library/gaming/game-design-trends-2026-53a37cd6.md",
-        "library/gaming/game-design-trends-2026-4ceefcb2.md"
+        "library/gaming/game-design-trends-2026-4ceefcb2.md",
+        "library/gaming/game-design-trends-2026-49c86734.md",
+        "library/gaming/game-design-trends-2026-fd0aff62.md",
+        "library/gaming/game-design-trends-2026-d905f70c.md",
+        "library/gaming/game-design-trends-2026-25618d51.md",
+        "library/gaming/game-design-trends-2026-266097a7.md",
+        "library/gaming/game-design-trends-2026-91e8c51a.md",
+        "library/gaming/game-design-trends-2026-a39f564a.md",
+        "library/gaming/game-design-trends-2026-1327d66d.md",
+        "library/gaming/game-design-trends-2026-52a477b9.md",
+        "library/gaming/game-design-trends-2026-14647c7e.md",
+        "library/gaming/game-design-trends-2026-274bdb14.md",
+        "library/gaming/game-design-trends-2026-1d0e64f2.md",
+        "library/gaming/game-design-trends-2026-b4e5da89.md",
+        "library/gaming/game-design-trends-2026-0e169faf.md",
+        "library/gaming/game-design-trends-2026-2bccd5f4.md",
+        "library/gaming/game-design-trends-2026-321502e8.md"
       ],
       "bureaus": [
         "gaming"
@@ -1408,7 +2572,24 @@
         "bcb8027f-89e6-4b28-b2c2-f2082bef7700",
         "48889c67-4dec-405a-bab0-3113cd38d816",
         "f9790f38-8b35-4a3a-9410-6e4de883fbcc",
-        "223c918a-5592-456e-a26c-b1e402be81ef"
+        "223c918a-5592-456e-a26c-b1e402be81ef",
+        "80f4e010-de04-45a3-8b2d-cd287a06bd69",
+        "c470a8fd-e93f-44b9-9d87-09c03eb917e4",
+        "97a2ca57-7d9a-47bb-85e0-0e26d581bdb4",
+        "82c3f618-46fd-4192-81a1-846f8b475525",
+        "20195c6d-8c95-4662-ba72-755c2cb54437",
+        "4cf2684d-e68c-4c12-951d-15dcaf609a94",
+        "fb2e9d7e-ced2-4879-b5a7-5df7bfca8d3c",
+        "6a08e00a-cb5f-461f-8f71-1d4d8c186200",
+        "5e141164-dafa-4746-9335-ff3552dc0f97",
+        "bb5e6bd7-6448-4620-93e2-c234d9e70c2b",
+        "6ae0c2ac-b6ce-4f24-90eb-74e610d676eb",
+        "e93eacc6-0b76-47bf-b0a8-3927f298605e",
+        "e8ad48a1-8a55-4408-8574-ddc663eead5b",
+        "da45210c-e808-4d00-97e7-ddca3f82f1ad",
+        "5dacc41a-5da0-47a4-81f6-1f2e8893d3b7",
+        "792ac6fd-4338-477d-b885-39770ecac808",
+        "0efbc2df-9eca-476e-87f8-748453b497fe"
       ],
       "paths": [
         "library/gaming/player-engagement-mechanics-2026-bf4f4adc.md",
@@ -1421,7 +2602,24 @@
         "library/gaming/player-engagement-mechanics-2026-bcb8027f.md",
         "library/gaming/player-engagement-mechanics-2026-48889c67.md",
         "library/gaming/player-engagement-mechanics-2026-f9790f38.md",
-        "library/gaming/player-engagement-mechanics-2026-223c918a.md"
+        "library/gaming/player-engagement-mechanics-2026-223c918a.md",
+        "library/gaming/player-engagement-mechanics-2026-80f4e010.md",
+        "library/gaming/player-engagement-mechanics-2026-c470a8fd.md",
+        "library/gaming/player-engagement-mechanics-2026-97a2ca57.md",
+        "library/gaming/player-engagement-mechanics-2026-82c3f618.md",
+        "library/gaming/player-engagement-mechanics-2026-20195c6d.md",
+        "library/gaming/player-engagement-mechanics-2026-4cf2684d.md",
+        "library/gaming/player-engagement-mechanics-2026-fb2e9d7e.md",
+        "library/gaming/player-engagement-mechanics-2026-6a08e00a.md",
+        "library/gaming/player-engagement-mechanics-2026-5e141164.md",
+        "library/gaming/player-engagement-mechanics-2026-bb5e6bd7.md",
+        "library/gaming/player-engagement-mechanics-2026-6ae0c2ac.md",
+        "library/gaming/player-engagement-mechanics-2026-e93eacc6.md",
+        "library/gaming/player-engagement-mechanics-2026-e8ad48a1.md",
+        "library/gaming/player-engagement-mechanics-2026-da45210c.md",
+        "library/gaming/player-engagement-mechanics-2026-5dacc41a.md",
+        "library/gaming/player-engagement-mechanics-2026-792ac6fd.md",
+        "library/gaming/player-engagement-mechanics-2026-0efbc2df.md"
       ],
       "bureaus": [
         "gaming"
@@ -1450,7 +2648,24 @@
         "a520fa9a-f066-41c2-98ed-084aba1b2b4c",
         "f47f19d9-4fa5-49fe-b7a3-45d0af389560",
         "a523bb10-b40d-42b6-a3fe-73fbfaab89ed",
-        "cf8618e9-95fa-4cbc-b370-8c6191106bbc"
+        "cf8618e9-95fa-4cbc-b370-8c6191106bbc",
+        "ac77b738-09e5-4930-a6cc-72583c4beaba",
+        "8112ff6e-3e45-4021-b58b-3a2ac525e06e",
+        "777b788e-0d45-4a7d-8858-8fdedaee3e62",
+        "85869fb7-57be-4cf7-a219-20239e7c0ec5",
+        "ce20cd07-c6e1-4743-b0a7-6de2cce39a21",
+        "09a6a585-8b3a-40ac-b3c1-7269fae5bf93",
+        "c7440af8-380b-43b4-8888-2e38b7b2f143",
+        "b451544c-6723-43da-a9bd-f399c3e5b2b7",
+        "6be822b1-ac86-4c71-9626-2272d16661e4",
+        "56cd16a7-c2d3-4b73-8f27-b2264d8df7f6",
+        "5425bb6c-7d6e-47d0-b2ef-6149848e0856",
+        "2cfa5f12-668c-4436-9dab-6d33d11c7cda",
+        "374c0509-a31d-454f-a058-e64346565587",
+        "7976d5b9-ac5a-4ec8-bd12-f5f9b2bc1471",
+        "7fedd26a-3dca-45b8-ac5b-e15707cf86c6",
+        "8468cb43-604e-490e-b702-8c05654aa649",
+        "327905bb-f64a-4670-a97c-cf4c3f5ac959"
       ],
       "paths": [
         "library/gaming/narrative-game-design-techniques-168156f3.md",
@@ -1463,7 +2678,24 @@
         "library/gaming/narrative-game-design-techniques-a520fa9a.md",
         "library/gaming/narrative-game-design-techniques-f47f19d9.md",
         "library/gaming/narrative-game-design-techniques-a523bb10.md",
-        "library/gaming/narrative-game-design-techniques-cf8618e9.md"
+        "library/gaming/narrative-game-design-techniques-cf8618e9.md",
+        "library/gaming/narrative-game-design-techniques-ac77b738.md",
+        "library/gaming/narrative-game-design-techniques-8112ff6e.md",
+        "library/gaming/narrative-game-design-techniques-777b788e.md",
+        "library/gaming/narrative-game-design-techniques-85869fb7.md",
+        "library/gaming/narrative-game-design-techniques-ce20cd07.md",
+        "library/gaming/narrative-game-design-techniques-09a6a585.md",
+        "library/gaming/narrative-game-design-techniques-c7440af8.md",
+        "library/gaming/narrative-game-design-techniques-b451544c.md",
+        "library/gaming/narrative-game-design-techniques-6be822b1.md",
+        "library/gaming/narrative-game-design-techniques-56cd16a7.md",
+        "library/gaming/narrative-game-design-techniques-5425bb6c.md",
+        "library/gaming/narrative-game-design-techniques-2cfa5f12.md",
+        "library/gaming/narrative-game-design-techniques-374c0509.md",
+        "library/gaming/narrative-game-design-techniques-7976d5b9.md",
+        "library/gaming/narrative-game-design-techniques-7fedd26a.md",
+        "library/gaming/narrative-game-design-techniques-8468cb43.md",
+        "library/gaming/narrative-game-design-techniques-327905bb.md"
       ],
       "bureaus": [
         "gaming"
@@ -1492,7 +2724,23 @@
         "ffd0ce70-f650-4863-aaa5-69794d6230cf",
         "2272b371-64ff-4483-8f15-6c3fd9fa1939",
         "1f3d555e-0853-4faa-a7ba-f9f2673c995f",
-        "f7ee63cb-e911-41de-abc6-f1fc14039771"
+        "f7ee63cb-e911-41de-abc6-f1fc14039771",
+        "48f23702-a635-4175-9601-34c886473407",
+        "854c08cc-e1c7-47d1-9456-69d9d795014f",
+        "c16cdb65-f9a9-4433-ac0c-6a2ca2ae89b8",
+        "4b9ea587-7d16-4e14-bec5-42652dc2a826",
+        "ff15caba-952b-4b76-afda-225e2ca62ca5",
+        "092e48da-d10f-4225-9926-7ca11d537c94",
+        "2c4e632f-cf8c-40e7-89ae-48f4165eddc3",
+        "2eaeefa6-de47-46f0-817d-adfa3d1449bf",
+        "089be0c8-8ce8-4073-854e-ef78ff0ed59c",
+        "429dfc7b-697f-4e5e-8538-720869b6cfc2",
+        "9f24951e-b80b-4ceb-a889-20751649b8d0",
+        "27259a01-b760-4343-8dc2-2f461c69386b",
+        "30428c3c-0f08-4320-ad79-5385613ce753",
+        "bb65424c-c57a-4ccf-af29-3379ba040c34",
+        "435c3fd5-08f4-48fa-beec-3ee0957748bb",
+        "6d5e0dc1-9bef-45ce-8d91-4eda8c4b0350"
       ],
       "paths": [
         "library/gaming/indie-game-monetization-strategy-59179b89.md",
@@ -1505,7 +2753,23 @@
         "library/gaming/indie-game-monetization-strategy-ffd0ce70.md",
         "library/gaming/indie-game-monetization-strategy-2272b371.md",
         "library/gaming/indie-game-monetization-strategy-1f3d555e.md",
-        "library/gaming/indie-game-monetization-strategy-f7ee63cb.md"
+        "library/gaming/indie-game-monetization-strategy-f7ee63cb.md",
+        "library/gaming/indie-game-monetization-strategy-48f23702.md",
+        "library/gaming/indie-game-monetization-strategy-854c08cc.md",
+        "library/gaming/indie-game-monetization-strategy-c16cdb65.md",
+        "library/gaming/indie-game-monetization-strategy-4b9ea587.md",
+        "library/gaming/indie-game-monetization-strategy-ff15caba.md",
+        "library/gaming/indie-game-monetization-strategy-092e48da.md",
+        "library/gaming/indie-game-monetization-strategy-2c4e632f.md",
+        "library/gaming/indie-game-monetization-strategy-2eaeefa6.md",
+        "library/gaming/indie-game-monetization-strategy-089be0c8.md",
+        "library/gaming/indie-game-monetization-strategy-429dfc7b.md",
+        "library/gaming/indie-game-monetization-strategy-9f24951e.md",
+        "library/gaming/indie-game-monetization-strategy-27259a01.md",
+        "library/gaming/indie-game-monetization-strategy-30428c3c.md",
+        "library/gaming/indie-game-monetization-strategy-bb65424c.md",
+        "library/gaming/indie-game-monetization-strategy-435c3fd5.md",
+        "library/gaming/indie-game-monetization-strategy-6d5e0dc1.md"
       ],
       "bureaus": [
         "gaming"
@@ -1534,7 +2798,24 @@
         "47dd1dc2-bcd2-46d9-b456-e0b47942e2ed",
         "c4df6e41-5eee-478b-86bb-bd979afe95b8",
         "57c1d203-e93f-468d-b6e2-f48b37aefe9d",
-        "676840e3-7c23-4b5b-b177-b1ff8c3a7782"
+        "676840e3-7c23-4b5b-b177-b1ff8c3a7782",
+        "593845c2-6f6c-40ae-bf1e-5c661fc8a051",
+        "12ef215d-e2fd-4e0a-8e36-a5f2b0673050",
+        "fe08a7c8-bae2-4f4f-b322-22defbb24049",
+        "fb345882-bb34-40ad-b6a2-1f68c11f4315",
+        "96daddf0-10a8-497f-a66f-050c628ddee8",
+        "8b1d9ab7-69f5-407d-a9e1-c352f16a3259",
+        "6300c0d6-65f7-45af-93a5-92f601636b26",
+        "d5883d24-23a2-4302-acc3-71eade011adc",
+        "79d2e99e-0b75-429f-abe3-c9411ace7808",
+        "dafb80c1-6759-4cd6-b985-e1bfe2db4fda",
+        "490ed976-a634-4321-817a-bb6b2f88f169",
+        "ec2b4c8e-a28c-4d92-bbac-4957dcb066d8",
+        "aa317844-fff8-4cdb-9136-cb191b53d41b",
+        "f67297fc-67eb-4f5a-b767-d6f885fee965",
+        "d8f16d72-306d-48f9-8e05-63658257eddd",
+        "a41b9223-cac2-4dd0-8605-314fa32f154c",
+        "0a7861e3-0543-4762-a258-209568d21dc9"
       ],
       "paths": [
         "library/rd/AI-agent-self-improvement-research-2026-07a5ad9b.md",
@@ -1547,7 +2828,24 @@
         "library/rd/AI-agent-self-improvement-research-2026-47dd1dc2.md",
         "library/rd/AI-agent-self-improvement-research-2026-c4df6e41.md",
         "library/rd/AI-agent-self-improvement-research-2026-57c1d203.md",
-        "library/rd/AI-agent-self-improvement-research-2026-676840e3.md"
+        "library/rd/AI-agent-self-improvement-research-2026-676840e3.md",
+        "library/rd/AI-agent-self-improvement-research-2026-593845c2.md",
+        "library/rd/AI-agent-self-improvement-research-2026-12ef215d.md",
+        "library/rd/AI-agent-self-improvement-research-2026-fe08a7c8.md",
+        "library/rd/AI-agent-self-improvement-research-2026-fb345882.md",
+        "library/rd/AI-agent-self-improvement-research-2026-96daddf0.md",
+        "library/rd/AI-agent-self-improvement-research-2026-8b1d9ab7.md",
+        "library/rd/AI-agent-self-improvement-research-2026-6300c0d6.md",
+        "library/rd/AI-agent-self-improvement-research-2026-d5883d24.md",
+        "library/rd/AI-agent-self-improvement-research-2026-79d2e99e.md",
+        "library/rd/AI-agent-self-improvement-research-2026-dafb80c1.md",
+        "library/rd/AI-agent-self-improvement-research-2026-490ed976.md",
+        "library/rd/AI-agent-self-improvement-research-2026-ec2b4c8e.md",
+        "library/rd/AI-agent-self-improvement-research-2026-aa317844.md",
+        "library/rd/AI-agent-self-improvement-research-2026-f67297fc.md",
+        "library/rd/AI-agent-self-improvement-research-2026-d8f16d72.md",
+        "library/rd/AI-agent-self-improvement-research-2026-a41b9223.md",
+        "library/rd/AI-agent-self-improvement-research-2026-0a7861e3.md"
       ],
       "bureaus": [
         "rd"
@@ -1576,7 +2874,24 @@
         "8c37decb-b4a8-4a74-a7c3-3d2ae4689eb4",
         "a1e66da7-1d68-459c-b32e-4bac2fbbb022",
         "e2011b9e-13bc-4e06-b075-1f2079216575",
-        "4cee27e1-611f-43ce-aa48-ddf768ac1d9a"
+        "4cee27e1-611f-43ce-aa48-ddf768ac1d9a",
+        "d22ffc89-7ce2-4d5d-b252-c7e18ae23e55",
+        "24851cde-b827-4557-8529-c4a7c9057cae",
+        "544c0f45-e9a5-4b04-b990-4e43521dbad1",
+        "e9991614-ade7-4485-b31a-657bf3b115b8",
+        "aa2702c8-1563-460c-8a12-f2e6c0377833",
+        "51ec3d92-ce88-4d05-a14e-6e5a3595b1f3",
+        "d4955fd9-af59-42d3-818b-69226b840039",
+        "1580303a-513b-4101-a515-7b67ec4fa544",
+        "32fd4f0a-1df7-4066-9d20-3a29fc7a85a2",
+        "ddb6b87f-2524-47dd-a267-c788db3f6c2e",
+        "b9da9bc4-0ba8-4101-b41b-e460c9c2e6ef",
+        "e5487d5e-2111-421d-b535-c0c4f66535e7",
+        "4efef71f-9f73-45b7-b3cf-07adf22db39e",
+        "f4b7175c-b16a-4b76-87b9-1744f1cdcfe5",
+        "5bc7a415-0f92-4513-9cc9-765b983263bd",
+        "04bbbe66-a039-47a9-bf90-f722d345ffab",
+        "73761624-bb48-4439-988a-1bf721bcda74"
       ],
       "paths": [
         "library/rd/multi-agent-system-architecture-97d97bae.md",
@@ -1589,7 +2904,24 @@
         "library/rd/multi-agent-system-architecture-8c37decb.md",
         "library/rd/multi-agent-system-architecture-a1e66da7.md",
         "library/rd/multi-agent-system-architecture-e2011b9e.md",
-        "library/rd/multi-agent-system-architecture-4cee27e1.md"
+        "library/rd/multi-agent-system-architecture-4cee27e1.md",
+        "library/rd/multi-agent-system-architecture-d22ffc89.md",
+        "library/rd/multi-agent-system-architecture-24851cde.md",
+        "library/rd/multi-agent-system-architecture-544c0f45.md",
+        "library/rd/multi-agent-system-architecture-e9991614.md",
+        "library/rd/multi-agent-system-architecture-aa2702c8.md",
+        "library/rd/multi-agent-system-architecture-51ec3d92.md",
+        "library/rd/multi-agent-system-architecture-d4955fd9.md",
+        "library/rd/multi-agent-system-architecture-1580303a.md",
+        "library/rd/multi-agent-system-architecture-32fd4f0a.md",
+        "library/rd/multi-agent-system-architecture-ddb6b87f.md",
+        "library/rd/multi-agent-system-architecture-b9da9bc4.md",
+        "library/rd/multi-agent-system-architecture-e5487d5e.md",
+        "library/rd/multi-agent-system-architecture-4efef71f.md",
+        "library/rd/multi-agent-system-architecture-f4b7175c.md",
+        "library/rd/multi-agent-system-architecture-5bc7a415.md",
+        "library/rd/multi-agent-system-architecture-04bbbe66.md",
+        "library/rd/multi-agent-system-architecture-73761624.md"
       ],
       "bureaus": [
         "rd"
@@ -1618,7 +2950,24 @@
         "5f69906e-3f46-4113-a245-c6600a545f5c",
         "e5a22d93-8f5d-443b-8547-34e70a963ada",
         "b9ca656c-f29f-4e9e-b888-4a0a0f2657e0",
-        "44943159-9537-43c5-8b88-df18ecdf5044"
+        "44943159-9537-43c5-8b88-df18ecdf5044",
+        "4f24d0ac-e0bd-483b-9c10-636a49e5f72e",
+        "08d6857e-7fbd-4c8b-8e40-a07d13a48025",
+        "3b887f3f-ffbb-4904-a398-3f3bc3d1cad7",
+        "0074bf37-d44b-4f31-a67b-5b64c759f27b",
+        "2d18b74e-c8d8-4422-91dd-ac813718296a",
+        "89521b06-cb08-4f55-b913-a5d24e651bc2",
+        "e6e5725f-8a33-4be3-abea-d126ec31032d",
+        "532dd9d7-6fb0-4779-adf6-5d13c4bcbaf6",
+        "2f2e6ce7-4f26-4fe7-a692-f09de0006462",
+        "9d2c468d-5faa-4b13-b42f-d4af73424b4d",
+        "300676dc-2616-4eb9-9759-240d3f0ff3ec",
+        "ccb66a2d-da46-4c4d-a096-c7bc04fe5d54",
+        "99e0e3ee-dbad-4c24-8a73-b58bf4ce81f2",
+        "b359af91-3ef1-4eea-a670-f96a817c7a31",
+        "f2ca4b43-86b4-4e28-a243-580bca1a021b",
+        "1de11b42-3040-4cff-b989-d09bf7126bf1",
+        "bc4d6cae-3102-4ffe-9388-0515e5fcefd2"
       ],
       "paths": [
         "library/rd/LLM-fine-tuning-techniques-2026-7b8d5d84.md",
@@ -1631,7 +2980,24 @@
         "library/rd/LLM-fine-tuning-techniques-2026-5f69906e.md",
         "library/rd/LLM-fine-tuning-techniques-2026-e5a22d93.md",
         "library/rd/LLM-fine-tuning-techniques-2026-b9ca656c.md",
-        "library/rd/LLM-fine-tuning-techniques-2026-44943159.md"
+        "library/rd/LLM-fine-tuning-techniques-2026-44943159.md",
+        "library/rd/LLM-fine-tuning-techniques-2026-4f24d0ac.md",
+        "library/rd/LLM-fine-tuning-techniques-2026-08d6857e.md",
+        "library/rd/LLM-fine-tuning-techniques-2026-3b887f3f.md",
+        "library/rd/LLM-fine-tuning-techniques-2026-0074bf37.md",
+        "library/rd/LLM-fine-tuning-techniques-2026-2d18b74e.md",
+        "library/rd/LLM-fine-tuning-techniques-2026-89521b06.md",
+        "library/rd/LLM-fine-tuning-techniques-2026-e6e5725f.md",
+        "library/rd/LLM-fine-tuning-techniques-2026-532dd9d7.md",
+        "library/rd/LLM-fine-tuning-techniques-2026-2f2e6ce7.md",
+        "library/rd/LLM-fine-tuning-techniques-2026-9d2c468d.md",
+        "library/rd/LLM-fine-tuning-techniques-2026-300676dc.md",
+        "library/rd/LLM-fine-tuning-techniques-2026-ccb66a2d.md",
+        "library/rd/LLM-fine-tuning-techniques-2026-99e0e3ee.md",
+        "library/rd/LLM-fine-tuning-techniques-2026-b359af91.md",
+        "library/rd/LLM-fine-tuning-techniques-2026-f2ca4b43.md",
+        "library/rd/LLM-fine-tuning-techniques-2026-1de11b42.md",
+        "library/rd/LLM-fine-tuning-techniques-2026-bc4d6cae.md"
       ],
       "bureaus": [
         "rd"
@@ -1660,7 +3026,23 @@
         "b3ce97f2-5b11-40f1-bf8b-90963a06d2ef",
         "60ab7f1c-8c06-4c62-b245-8e1b705dae01",
         "4750333d-27fc-41f8-8700-a659241bb6e9",
-        "17498501-6d35-4c63-b977-a5ca26ced447"
+        "17498501-6d35-4c63-b977-a5ca26ced447",
+        "4a7303f3-ea09-445f-8a71-6fbf9cd541ec",
+        "83fa5ea6-deb1-4f17-af49-d65e7bab449a",
+        "d35422a0-d42a-426d-91eb-4902958b95a8",
+        "c334c9cc-86f6-465b-963f-14f076f9a90c",
+        "024e02ef-acac-432a-aa4d-85a752733b90",
+        "59ae2cba-0e5f-4dc9-9b86-268b73b028cd",
+        "68b08315-b960-423b-91fa-6e6cdf2ba710",
+        "083ee2f7-4611-463c-b2d8-01825cc63b86",
+        "e8a0fc79-989e-4c3a-bbc8-fb3107165d79",
+        "5320719d-b62f-448d-8121-d37756827a9f",
+        "71fd3f31-dc13-48a8-9fcf-d62554900d97",
+        "6b340fd1-3c32-4772-8267-2995e583dbdc",
+        "5b3fb0e0-7ff0-4154-a043-c809e6509b4f",
+        "2455c7c5-7500-4d3c-925c-b36277041bab",
+        "eb9be228-3908-457b-b594-48f7eeee9859",
+        "62658a75-b7de-42d9-bb89-0cad51c78e0d"
       ],
       "paths": [
         "library/rd/autonomous-AI-systems-research-ced143da.md",
@@ -1673,7 +3055,23 @@
         "library/rd/autonomous-AI-systems-research-b3ce97f2.md",
         "library/rd/autonomous-AI-systems-research-60ab7f1c.md",
         "library/rd/autonomous-AI-systems-research-4750333d.md",
-        "library/rd/autonomous-AI-systems-research-17498501.md"
+        "library/rd/autonomous-AI-systems-research-17498501.md",
+        "library/rd/autonomous-AI-systems-research-4a7303f3.md",
+        "library/rd/autonomous-AI-systems-research-83fa5ea6.md",
+        "library/rd/autonomous-AI-systems-research-d35422a0.md",
+        "library/rd/autonomous-AI-systems-research-c334c9cc.md",
+        "library/rd/autonomous-AI-systems-research-024e02ef.md",
+        "library/rd/autonomous-AI-systems-research-59ae2cba.md",
+        "library/rd/autonomous-AI-systems-research-68b08315.md",
+        "library/rd/autonomous-AI-systems-research-083ee2f7.md",
+        "library/rd/autonomous-AI-systems-research-e8a0fc79.md",
+        "library/rd/autonomous-AI-systems-research-5320719d.md",
+        "library/rd/autonomous-AI-systems-research-71fd3f31.md",
+        "library/rd/autonomous-AI-systems-research-6b340fd1.md",
+        "library/rd/autonomous-AI-systems-research-5b3fb0e0.md",
+        "library/rd/autonomous-AI-systems-research-2455c7c5.md",
+        "library/rd/autonomous-AI-systems-research-eb9be228.md",
+        "library/rd/autonomous-AI-systems-research-62658a75.md"
       ],
       "bureaus": [
         "rd"
@@ -1702,7 +3100,24 @@
         "881c5fe9-8659-4bb7-aa58-5f2ec4cb5715",
         "63726661-9dfa-420a-a650-ef71f4572df3",
         "d89d3090-9f30-4f2d-8423-6d8026a04ff0",
-        "8a69e4c0-6e96-427c-9cf3-50429b5dd7ae"
+        "8a69e4c0-6e96-427c-9cf3-50429b5dd7ae",
+        "40b3adbb-dfb5-4455-af02-79005c19dbd3",
+        "77313ea7-1162-4d38-bd54-e9176c17ccba",
+        "d4de731c-a186-4dd8-a6cd-6e694bacd8c1",
+        "3647498b-fe68-41c6-a047-52ed8ac43443",
+        "6da5ffe5-6a58-49df-aae0-0aa11a856111",
+        "0ef2c312-2921-460b-a4a9-8336488f4858",
+        "615ed2fd-97d0-4b96-80c5-25903942f7c9",
+        "c61660b9-f57a-4bfd-9d97-7f787ff77f88",
+        "529fec53-22ef-40b4-918c-826e08bba5ba",
+        "9f0a292e-48de-4790-b396-baf4d788c13f",
+        "d16aab4e-59c8-4e4f-b148-1087f3ee7330",
+        "af612f1d-68ff-472e-aa39-5d8519e9019d",
+        "8df04f53-caa0-4da7-b7d5-85f558205b6c",
+        "6ec3ce73-b1b5-4efe-86ad-38f7f282c158",
+        "4f8c10cf-98fe-4ece-9e2d-5a8692e08ec0",
+        "810ee70d-63a5-4a3c-a6d3-86f9640f2e20",
+        "bec15df6-5df9-48dc-8109-4d78d23fbcdb"
       ],
       "paths": [
         "library/hub/AI-startup-operations-best-practices-96267d1c.md",
@@ -1715,7 +3130,24 @@
         "library/hub/AI-startup-operations-best-practices-881c5fe9.md",
         "library/hub/AI-startup-operations-best-practices-63726661.md",
         "library/hub/AI-startup-operations-best-practices-d89d3090.md",
-        "library/hub/AI-startup-operations-best-practices-8a69e4c0.md"
+        "library/hub/AI-startup-operations-best-practices-8a69e4c0.md",
+        "library/hub/AI-startup-operations-best-practices-40b3adbb.md",
+        "library/hub/AI-startup-operations-best-practices-77313ea7.md",
+        "library/hub/AI-startup-operations-best-practices-d4de731c.md",
+        "library/hub/AI-startup-operations-best-practices-3647498b.md",
+        "library/hub/AI-startup-operations-best-practices-6da5ffe5.md",
+        "library/hub/AI-startup-operations-best-practices-0ef2c312.md",
+        "library/hub/AI-startup-operations-best-practices-615ed2fd.md",
+        "library/hub/AI-startup-operations-best-practices-c61660b9.md",
+        "library/hub/AI-startup-operations-best-practices-529fec53.md",
+        "library/hub/AI-startup-operations-best-practices-9f0a292e.md",
+        "library/hub/AI-startup-operations-best-practices-d16aab4e.md",
+        "library/hub/AI-startup-operations-best-practices-af612f1d.md",
+        "library/hub/AI-startup-operations-best-practices-8df04f53.md",
+        "library/hub/AI-startup-operations-best-practices-6ec3ce73.md",
+        "library/hub/AI-startup-operations-best-practices-4f8c10cf.md",
+        "library/hub/AI-startup-operations-best-practices-810ee70d.md",
+        "library/hub/AI-startup-operations-best-practices-bec15df6.md"
       ],
       "bureaus": [
         "hub"
@@ -1744,7 +3176,23 @@
         "121c2608-e657-4bfd-a5b6-a4605dffe65a",
         "574739ff-8b0e-4850-8223-be2caf7c2459",
         "2687bcc7-72d3-4b06-a084-62e9dc88e9d8",
-        "b17be593-9552-4bf8-a74b-0d15988fd156"
+        "b17be593-9552-4bf8-a74b-0d15988fd156",
+        "f72479ba-8ff4-4488-880f-5888a9d8f064",
+        "e48a918a-8f9b-4460-a38f-517bd488c5bb",
+        "0ca056db-72e1-44ee-8113-ce52f12dc187",
+        "64c43294-03f3-4926-95de-28461269ec77",
+        "12be0c50-ba97-4a10-af15-1dba4760f94d",
+        "c5027368-7fb9-4c47-833f-2280b6b89364",
+        "069af05f-ccda-4bbb-8bb2-9811ecca8b1b",
+        "5e5c8e94-cfdb-46a8-b5f0-0cff90c2afc8",
+        "d7731587-5833-40f1-8f57-384bb28664aa",
+        "ab084c10-432a-4e33-81a8-55c4d9497a32",
+        "c1e9cf00-c06d-4d53-b200-dedd71264056",
+        "e73e573d-7266-42a5-bf1d-412ea218d2a4",
+        "a87f5d4a-8b04-4722-a8ed-06c3aeb9eb5a",
+        "7cd7666e-802b-410c-a44b-e5b404a959df",
+        "8ad82588-9291-4b9f-bb91-c96cb1427c1e",
+        "b0241684-76c4-4528-9b76-6c95a6cd4fb8"
       ],
       "paths": [
         "library/hub/solopreneur-productivity-systems-2026-b0d46e30.md",
@@ -1757,7 +3205,23 @@
         "library/hub/solopreneur-productivity-systems-2026-121c2608.md",
         "library/hub/solopreneur-productivity-systems-2026-574739ff.md",
         "library/hub/solopreneur-productivity-systems-2026-2687bcc7.md",
-        "library/hub/solopreneur-productivity-systems-2026-b17be593.md"
+        "library/hub/solopreneur-productivity-systems-2026-b17be593.md",
+        "library/hub/solopreneur-productivity-systems-2026-f72479ba.md",
+        "library/hub/solopreneur-productivity-systems-2026-e48a918a.md",
+        "library/hub/solopreneur-productivity-systems-2026-0ca056db.md",
+        "library/hub/solopreneur-productivity-systems-2026-64c43294.md",
+        "library/hub/solopreneur-productivity-systems-2026-12be0c50.md",
+        "library/hub/solopreneur-productivity-systems-2026-c5027368.md",
+        "library/hub/solopreneur-productivity-systems-2026-069af05f.md",
+        "library/hub/solopreneur-productivity-systems-2026-5e5c8e94.md",
+        "library/hub/solopreneur-productivity-systems-2026-d7731587.md",
+        "library/hub/solopreneur-productivity-systems-2026-ab084c10.md",
+        "library/hub/solopreneur-productivity-systems-2026-c1e9cf00.md",
+        "library/hub/solopreneur-productivity-systems-2026-e73e573d.md",
+        "library/hub/solopreneur-productivity-systems-2026-a87f5d4a.md",
+        "library/hub/solopreneur-productivity-systems-2026-7cd7666e.md",
+        "library/hub/solopreneur-productivity-systems-2026-8ad82588.md",
+        "library/hub/solopreneur-productivity-systems-2026-b0241684.md"
       ],
       "bureaus": [
         "hub"
@@ -1786,7 +3250,24 @@
         "4f2b8411-c394-4d49-adc7-f0f27f3378ff",
         "acfe3596-b604-4ce7-a705-8861b159c8cc",
         "7cc8b91c-7d96-4abc-bdd1-2aa24ba1fbd6",
-        "d1611be4-a98e-495c-80a8-124c212171d8"
+        "d1611be4-a98e-495c-80a8-124c212171d8",
+        "c4a4194c-a8e2-405b-8420-ca34c097ff38",
+        "ed7625d9-e531-45c8-b08a-af274c81d9bb",
+        "78628d2e-46b4-4c0f-af02-de2bfed82af5",
+        "5cd00358-0cb4-4485-8e39-ea48cdb7f349",
+        "ab3b661b-8037-4fd8-a36c-7582faf324af",
+        "c35fadc1-413b-4c84-8f0b-c6a891607aad",
+        "b3671739-0cd7-463f-a870-689ed7f32a7f",
+        "bd738ab7-1977-4d57-b5dc-6b5f8cd72655",
+        "bafb5a0d-619d-4799-97da-37c3ee452686",
+        "c4359dab-44d1-4bec-9696-d0af50b99b0a",
+        "5d5506df-b367-4919-a8d9-484f6a6a7a40",
+        "7203292e-96df-454d-8291-747118057801",
+        "0ffef0fb-1cf7-4765-8c4c-5e65c9fbb2d5",
+        "ac26d8de-c5f0-41f1-ae93-151c58e80ade",
+        "8cbaa711-55d2-4107-a8c4-d8fd242c5f3a",
+        "e860e42b-0ee2-4695-a24d-57024947aac6",
+        "5063342e-5cad-4f4c-b1de-cbae21c2807d"
       ],
       "paths": [
         "library/hub/AI-company-management-automation-94f0a974.md",
@@ -1799,7 +3280,24 @@
         "library/hub/AI-company-management-automation-4f2b8411.md",
         "library/hub/AI-company-management-automation-acfe3596.md",
         "library/hub/AI-company-management-automation-7cc8b91c.md",
-        "library/hub/AI-company-management-automation-d1611be4.md"
+        "library/hub/AI-company-management-automation-d1611be4.md",
+        "library/hub/AI-company-management-automation-c4a4194c.md",
+        "library/hub/AI-company-management-automation-ed7625d9.md",
+        "library/hub/AI-company-management-automation-78628d2e.md",
+        "library/hub/AI-company-management-automation-5cd00358.md",
+        "library/hub/AI-company-management-automation-ab3b661b.md",
+        "library/hub/AI-company-management-automation-c35fadc1.md",
+        "library/hub/AI-company-management-automation-b3671739.md",
+        "library/hub/AI-company-management-automation-bd738ab7.md",
+        "library/hub/AI-company-management-automation-bafb5a0d.md",
+        "library/hub/AI-company-management-automation-c4359dab.md",
+        "library/hub/AI-company-management-automation-5d5506df.md",
+        "library/hub/AI-company-management-automation-7203292e.md",
+        "library/hub/AI-company-management-automation-0ffef0fb.md",
+        "library/hub/AI-company-management-automation-ac26d8de.md",
+        "library/hub/AI-company-management-automation-8cbaa711.md",
+        "library/hub/AI-company-management-automation-e860e42b.md",
+        "library/hub/AI-company-management-automation-5063342e.md"
       ],
       "bureaus": [
         "hub"
@@ -1828,7 +3326,24 @@
         "2aec5d8c-04b6-4ad5-af8d-8cce7aad5b6b",
         "955ec77a-0c89-4f0b-ae56-f02804c87728",
         "a72ce634-ae9c-4879-bbda-3a17558f9f7c",
-        "87ebfb19-ea20-46d3-b146-1f78de102a9b"
+        "87ebfb19-ea20-46d3-b146-1f78de102a9b",
+        "ef39d61c-0259-462c-b0f6-eaf4c6031f30",
+        "7a9c597f-51c4-4ebe-9708-6bba69766bbe",
+        "14d5d6ec-0b2c-40a8-ae28-8c58436d7348",
+        "a47b9f03-ffc8-4010-b4d9-6df48b10c5e9",
+        "3411488a-1f3c-4437-9bc4-849b89a669b7",
+        "3c4737be-ca90-4774-a6ff-246c6924605f",
+        "2c628fc2-1034-4735-9f75-a3948df46b5f",
+        "af1c848b-6a23-4b45-9493-8f9d0907c9c0",
+        "bc4bdaa4-66dc-4c43-b433-01d27010cb3b",
+        "1125eb52-2612-467e-8364-a6a9ee2ca207",
+        "97faa4e6-67dc-44f0-ad50-d9b2994eaf2b",
+        "b31c9559-6c1c-40cc-879b-14dc3c1bb2a5",
+        "9bded217-b19b-4620-a952-54dce71d2bd2",
+        "5a6136af-b96b-4a24-8cf2-06f250066e2e",
+        "a3656919-4421-4768-9006-2b3f05b9b407",
+        "d7fc48e1-1d98-4d04-b5ed-31ec1132a6ac",
+        "454c53b2-ac9d-44eb-ab73-a1d22d46c1b3"
       ],
       "paths": [
         "library/hub/agile-project-management-AI-tools-2026-1f1bed0c.md",
@@ -1841,7 +3356,24 @@
         "library/hub/agile-project-management-AI-tools-2026-2aec5d8c.md",
         "library/hub/agile-project-management-AI-tools-2026-955ec77a.md",
         "library/hub/agile-project-management-AI-tools-2026-a72ce634.md",
-        "library/hub/agile-project-management-AI-tools-2026-87ebfb19.md"
+        "library/hub/agile-project-management-AI-tools-2026-87ebfb19.md",
+        "library/hub/agile-project-management-AI-tools-2026-ef39d61c.md",
+        "library/hub/agile-project-management-AI-tools-2026-7a9c597f.md",
+        "library/hub/agile-project-management-AI-tools-2026-14d5d6ec.md",
+        "library/hub/agile-project-management-AI-tools-2026-a47b9f03.md",
+        "library/hub/agile-project-management-AI-tools-2026-3411488a.md",
+        "library/hub/agile-project-management-AI-tools-2026-3c4737be.md",
+        "library/hub/agile-project-management-AI-tools-2026-2c628fc2.md",
+        "library/hub/agile-project-management-AI-tools-2026-af1c848b.md",
+        "library/hub/agile-project-management-AI-tools-2026-bc4bdaa4.md",
+        "library/hub/agile-project-management-AI-tools-2026-1125eb52.md",
+        "library/hub/agile-project-management-AI-tools-2026-97faa4e6.md",
+        "library/hub/agile-project-management-AI-tools-2026-b31c9559.md",
+        "library/hub/agile-project-management-AI-tools-2026-9bded217.md",
+        "library/hub/agile-project-management-AI-tools-2026-5a6136af.md",
+        "library/hub/agile-project-management-AI-tools-2026-a3656919.md",
+        "library/hub/agile-project-management-AI-tools-2026-d7fc48e1.md",
+        "library/hub/agile-project-management-AI-tools-2026-454c53b2.md"
       ],
       "bureaus": [
         "hub"
@@ -1870,7 +3402,24 @@
         "a1730af0-0c92-4364-a485-ebffa407083a",
         "e2eb9264-0979-44c1-9d5c-f9fa8f1118cd",
         "93e8f81d-78b3-44cc-90eb-524a1820cd94",
-        "36b6ad6b-eab7-4159-87a4-7e5315123ade"
+        "36b6ad6b-eab7-4159-87a4-7e5315123ade",
+        "fe1f4c2d-f989-49e2-95f2-0179e4e8e468",
+        "2f581df8-019c-4b5c-b71a-0104b62788ae",
+        "fc30fded-2d69-4621-acba-d1c6274aadb1",
+        "b99cee56-25d1-43ae-8443-3018064ce0c1",
+        "ed35914d-cd61-4e9a-bba3-4deb1d1eaa55",
+        "ac7adf1b-8e4d-4c4e-a6e4-172414e02c21",
+        "670eb9db-4794-4fd4-94fa-33f88f592290",
+        "f0852f3f-4a70-4d7d-9704-60d743a86fa0",
+        "d695749d-460b-431d-be48-879eced4f844",
+        "b640b5ea-f43e-49d5-94e3-f627697f5d60",
+        "bccef5ea-efbe-4612-9460-20e06fcbe1d8",
+        "77e19b44-62c5-4bc9-9566-a74881e47aac",
+        "1eca0a5b-032c-4845-a72f-93409fcdba38",
+        "1112f436-6018-4c18-89d7-d55a223edcd3",
+        "1a67b112-eaf6-4c1f-80a3-fdb52011cdec",
+        "0ce449c0-17b0-48ac-a2e4-c691b4043796",
+        "dd800655-25ce-4467-9ba5-0bad253459e7"
       ],
       "paths": [
         "library/hub/indie-startup-sprint-planning-eb2606ed.md",
@@ -1883,7 +3432,24 @@
         "library/hub/indie-startup-sprint-planning-a1730af0.md",
         "library/hub/indie-startup-sprint-planning-e2eb9264.md",
         "library/hub/indie-startup-sprint-planning-93e8f81d.md",
-        "library/hub/indie-startup-sprint-planning-36b6ad6b.md"
+        "library/hub/indie-startup-sprint-planning-36b6ad6b.md",
+        "library/hub/indie-startup-sprint-planning-fe1f4c2d.md",
+        "library/hub/indie-startup-sprint-planning-2f581df8.md",
+        "library/hub/indie-startup-sprint-planning-fc30fded.md",
+        "library/hub/indie-startup-sprint-planning-b99cee56.md",
+        "library/hub/indie-startup-sprint-planning-ed35914d.md",
+        "library/hub/indie-startup-sprint-planning-ac7adf1b.md",
+        "library/hub/indie-startup-sprint-planning-670eb9db.md",
+        "library/hub/indie-startup-sprint-planning-f0852f3f.md",
+        "library/hub/indie-startup-sprint-planning-d695749d.md",
+        "library/hub/indie-startup-sprint-planning-b640b5ea.md",
+        "library/hub/indie-startup-sprint-planning-bccef5ea.md",
+        "library/hub/indie-startup-sprint-planning-77e19b44.md",
+        "library/hub/indie-startup-sprint-planning-1eca0a5b.md",
+        "library/hub/indie-startup-sprint-planning-1112f436.md",
+        "library/hub/indie-startup-sprint-planning-1a67b112.md",
+        "library/hub/indie-startup-sprint-planning-0ce449c0.md",
+        "library/hub/indie-startup-sprint-planning-dd800655.md"
       ],
       "bureaus": [
         "hub"
@@ -1912,7 +3478,23 @@
         "34627580-ef79-4a1f-8ed5-df53cdecc0c4",
         "fafdaa18-2a4c-4599-8c87-be4e27d76479",
         "a17f54c9-4227-4f46-bb6c-bb8b3a46232e",
-        "c53949a1-c6e7-44ee-af98-709daed92fea"
+        "c53949a1-c6e7-44ee-af98-709daed92fea",
+        "d95c4023-ba32-44b8-bfb3-bb8be615fc35",
+        "0575db12-c957-4149-9fd9-147b59f783c5",
+        "85a217ba-25a1-4451-b71a-faed792b0ee2",
+        "e253fd54-3910-4442-82ee-478caeba1fb9",
+        "971bf1b8-d09e-4628-aac5-b497c7654314",
+        "3c2260a1-0eb2-4abd-8ffc-a1d2cda6f6f8",
+        "ec2cf2cb-d359-41e6-8e1f-903754810611",
+        "5a201646-8a7c-4040-8c9d-634f34d3c0bf",
+        "1f129561-c689-4cb0-a2fd-a29d6632f6e2",
+        "521d5783-300f-4c30-b1d0-19e0328a43ec",
+        "4e3ac232-e7e1-4d93-b092-03a55690cadf",
+        "9a9a8f91-762f-4fa7-92ce-41dc1e293bcb",
+        "41fdb7ec-da8d-4f6b-a7e9-b3bd6165ebdb",
+        "c10260e8-58de-4986-8209-d3fe68009842",
+        "3710dcf5-12a2-4a62-a6ef-0e27d5da96bb",
+        "f468d9d4-f779-4b64-b44a-58cb3913ac14"
       ],
       "paths": [
         "library/hub/product-roadmap-prioritization-framework-5c895007.md",
@@ -1925,7 +3507,23 @@
         "library/hub/product-roadmap-prioritization-framework-34627580.md",
         "library/hub/product-roadmap-prioritization-framework-fafdaa18.md",
         "library/hub/product-roadmap-prioritization-framework-a17f54c9.md",
-        "library/hub/product-roadmap-prioritization-framework-c53949a1.md"
+        "library/hub/product-roadmap-prioritization-framework-c53949a1.md",
+        "library/hub/product-roadmap-prioritization-framework-d95c4023.md",
+        "library/hub/product-roadmap-prioritization-framework-0575db12.md",
+        "library/hub/product-roadmap-prioritization-framework-85a217ba.md",
+        "library/hub/product-roadmap-prioritization-framework-e253fd54.md",
+        "library/hub/product-roadmap-prioritization-framework-971bf1b8.md",
+        "library/hub/product-roadmap-prioritization-framework-3c2260a1.md",
+        "library/hub/product-roadmap-prioritization-framework-ec2cf2cb.md",
+        "library/hub/product-roadmap-prioritization-framework-5a201646.md",
+        "library/hub/product-roadmap-prioritization-framework-1f129561.md",
+        "library/hub/product-roadmap-prioritization-framework-521d5783.md",
+        "library/hub/product-roadmap-prioritization-framework-4e3ac232.md",
+        "library/hub/product-roadmap-prioritization-framework-9a9a8f91.md",
+        "library/hub/product-roadmap-prioritization-framework-41fdb7ec.md",
+        "library/hub/product-roadmap-prioritization-framework-c10260e8.md",
+        "library/hub/product-roadmap-prioritization-framework-3710dcf5.md",
+        "library/hub/product-roadmap-prioritization-framework-f468d9d4.md"
       ],
       "bureaus": [
         "hub"
@@ -1954,7 +3552,24 @@
         "93630342-3fc1-4a0a-8d1b-c2d220bfc844",
         "d5e55c99-8798-47fa-89e8-1a94f968d05b",
         "5248493a-5338-4794-a5b2-2f3daef353ea",
-        "b8c1e62a-0a02-4265-97e0-22295dcb5012"
+        "b8c1e62a-0a02-4265-97e0-22295dcb5012",
+        "58cc648c-ac31-4bb2-a025-77f0c7d428a2",
+        "8f512d76-8d0a-4926-afb1-aafbab33f417",
+        "3f055ade-058b-4be0-b583-5f9f4ba03e3e",
+        "6b0ff1c1-f0f5-4f5e-9c59-41e64d403ed6",
+        "7c7b6ea4-c687-423c-a6d6-0c5ec182c1c9",
+        "9a8a4b8e-6ec7-4eb9-a3dc-6eb09a7c40ab",
+        "0da36f93-e47e-4c37-b82b-0b7c0691154f",
+        "a47713c2-28e9-4111-b3bb-97ae08c830b1",
+        "bdc24f63-7b4f-4f2c-8ea6-6ff151742caf",
+        "ee0d509c-47b8-4df1-8d77-ae732f154285",
+        "443bdf10-a2d8-47c5-ae63-3b54a3ae245a",
+        "ce454678-9f1b-4951-b6d8-8b892e0f9016",
+        "6b2318b4-5028-4a2f-ac1f-72d7de009a67",
+        "9873a511-4245-4cd0-b11a-e7c6d7c12d03",
+        "c3a0edc5-a5d7-4141-83ff-d8c92e3e56c7",
+        "1edbfe5f-fc85-41bc-80a5-be8ab6d36397",
+        "710919b3-2220-4487-8058-2cb015afdd1e"
       ],
       "paths": [
         "library/hub/Python-testing-best-practices-2026-4f228e2a.md",
@@ -1967,7 +3582,24 @@
         "library/hub/Python-testing-best-practices-2026-93630342.md",
         "library/hub/Python-testing-best-practices-2026-d5e55c99.md",
         "library/hub/Python-testing-best-practices-2026-5248493a.md",
-        "library/hub/Python-testing-best-practices-2026-b8c1e62a.md"
+        "library/hub/Python-testing-best-practices-2026-b8c1e62a.md",
+        "library/hub/Python-testing-best-practices-2026-58cc648c.md",
+        "library/hub/Python-testing-best-practices-2026-8f512d76.md",
+        "library/hub/Python-testing-best-practices-2026-3f055ade.md",
+        "library/hub/Python-testing-best-practices-2026-6b0ff1c1.md",
+        "library/hub/Python-testing-best-practices-2026-7c7b6ea4.md",
+        "library/hub/Python-testing-best-practices-2026-9a8a4b8e.md",
+        "library/hub/Python-testing-best-practices-2026-0da36f93.md",
+        "library/hub/Python-testing-best-practices-2026-a47713c2.md",
+        "library/hub/Python-testing-best-practices-2026-bdc24f63.md",
+        "library/hub/Python-testing-best-practices-2026-ee0d509c.md",
+        "library/hub/Python-testing-best-practices-2026-443bdf10.md",
+        "library/hub/Python-testing-best-practices-2026-ce454678.md",
+        "library/hub/Python-testing-best-practices-2026-6b2318b4.md",
+        "library/hub/Python-testing-best-practices-2026-9873a511.md",
+        "library/hub/Python-testing-best-practices-2026-c3a0edc5.md",
+        "library/hub/Python-testing-best-practices-2026-1edbfe5f.md",
+        "library/hub/Python-testing-best-practices-2026-710919b3.md"
       ],
       "bureaus": [
         "hub"
@@ -1996,7 +3628,24 @@
         "3b07bac2-ba21-4e7d-ae0a-9f9d0f2ef98d",
         "a8de3d38-c79e-448d-b5e7-b9ce881d699d",
         "6c2b484f-5e5d-48da-866c-08e44659c91d",
-        "78ed94c8-d3bf-4f57-b186-01a9603ce9bb"
+        "78ed94c8-d3bf-4f57-b186-01a9603ce9bb",
+        "62c24400-aeec-4149-a7a3-486456231766",
+        "1bb31aca-ab71-4e8a-b06f-2f45d7673fba",
+        "7a2177e7-2b92-41e0-b645-f53f8bf4adcd",
+        "8847e3ed-0f25-44bd-93be-9b999d2fabf5",
+        "830fd230-0b43-4747-ad70-1bd4344dcd63",
+        "69ef7bf0-2f90-48ed-bb41-3967d991f11b",
+        "0514ea4c-9c46-405e-8a40-936dc8ac3a44",
+        "3e75ca9f-85b4-4d68-90f8-9d3aef79f319",
+        "91f22a07-f582-4a05-98f9-5f9e594a1333",
+        "8f4b02f4-1013-4024-8ddb-a7c160667ab9",
+        "f2ef8ea2-cab1-487f-abb5-8beb7dfed91b",
+        "f7d93b63-19f9-4401-bd09-3729bebac1ca",
+        "f3b22d61-ece4-49b8-bcb3-4645c84685f4",
+        "bd1b9417-74ec-4584-b78a-a15c59faa15e",
+        "55b942a7-5fba-4c9f-967f-e0f55eb4d7bc",
+        "2a6100d8-e12d-4a4c-af2e-d5c5c062b4ae",
+        "350892cb-1266-48f3-a13d-1b5c613e8e1c"
       ],
       "paths": [
         "library/hub/automated-QA-AI-tools-e1cf2dbc.md",
@@ -2009,7 +3658,24 @@
         "library/hub/automated-QA-AI-tools-3b07bac2.md",
         "library/hub/automated-QA-AI-tools-a8de3d38.md",
         "library/hub/automated-QA-AI-tools-6c2b484f.md",
-        "library/hub/automated-QA-AI-tools-78ed94c8.md"
+        "library/hub/automated-QA-AI-tools-78ed94c8.md",
+        "library/hub/automated-QA-AI-tools-62c24400.md",
+        "library/hub/automated-QA-AI-tools-1bb31aca.md",
+        "library/hub/automated-QA-AI-tools-7a2177e7.md",
+        "library/hub/automated-QA-AI-tools-8847e3ed.md",
+        "library/hub/automated-QA-AI-tools-830fd230.md",
+        "library/hub/automated-QA-AI-tools-69ef7bf0.md",
+        "library/hub/automated-QA-AI-tools-0514ea4c.md",
+        "library/hub/automated-QA-AI-tools-3e75ca9f.md",
+        "library/hub/automated-QA-AI-tools-91f22a07.md",
+        "library/hub/automated-QA-AI-tools-8f4b02f4.md",
+        "library/hub/automated-QA-AI-tools-f2ef8ea2.md",
+        "library/hub/automated-QA-AI-tools-f7d93b63.md",
+        "library/hub/automated-QA-AI-tools-f3b22d61.md",
+        "library/hub/automated-QA-AI-tools-bd1b9417.md",
+        "library/hub/automated-QA-AI-tools-55b942a7.md",
+        "library/hub/automated-QA-AI-tools-2a6100d8.md",
+        "library/hub/automated-QA-AI-tools-350892cb.md"
       ],
       "bureaus": [
         "hub"
@@ -2038,7 +3704,24 @@
         "dcf31739-cfb4-4445-9df0-f3970935c460",
         "993487b6-37e0-42a5-ad12-81b2283cd571",
         "33a88f05-4190-4188-8538-e3cef4e69463",
-        "d9c18624-da40-471e-9171-84b6aa49e22b"
+        "d9c18624-da40-471e-9171-84b6aa49e22b",
+        "aa9dc6f3-9ca9-4954-9304-74820e220720",
+        "b3ff0a1f-5eb6-46cf-8af0-8b520dc12f2b",
+        "785449cf-2b75-4f5e-9afb-f3d0bae7c9b4",
+        "77afe8c2-6da5-44c7-8e22-83270f6a3ec9",
+        "76c981a1-3572-48f1-bc2b-de639b4b91fb",
+        "16bd604a-a34a-4ed1-b8c2-6830dc646a7a",
+        "14e3760a-5986-4a29-a697-e6d7aceecbdd",
+        "e93b0ff9-4c57-4c22-948b-37801004c1fc",
+        "3b03b64e-94c6-41e3-aab8-c5ab5684ddc1",
+        "902b9b4a-c611-4ff3-b295-00d9c7a4d92a",
+        "93d462c4-aad0-4312-9c65-6c42603729fb",
+        "4f4d7fce-8b7c-42ff-bdeb-d2f6924b0bab",
+        "093687b5-cac8-409b-9836-0d97e720c483",
+        "1a7b2d5b-69ec-4558-beec-32c18b6cfbcb",
+        "66ab86f0-a22c-4f8a-b846-d53307458eaa",
+        "6f271e83-8e5b-4402-aea5-20314b6ab289",
+        "e6463f8a-48b4-4625-88ca-0343c0ec6884"
       ],
       "paths": [
         "library/hub/software-quality-metrics-2026-7f3bc2d6.md",
@@ -2051,7 +3734,24 @@
         "library/hub/software-quality-metrics-2026-dcf31739.md",
         "library/hub/software-quality-metrics-2026-993487b6.md",
         "library/hub/software-quality-metrics-2026-33a88f05.md",
-        "library/hub/software-quality-metrics-2026-d9c18624.md"
+        "library/hub/software-quality-metrics-2026-d9c18624.md",
+        "library/hub/software-quality-metrics-2026-aa9dc6f3.md",
+        "library/hub/software-quality-metrics-2026-b3ff0a1f.md",
+        "library/hub/software-quality-metrics-2026-785449cf.md",
+        "library/hub/software-quality-metrics-2026-77afe8c2.md",
+        "library/hub/software-quality-metrics-2026-76c981a1.md",
+        "library/hub/software-quality-metrics-2026-16bd604a.md",
+        "library/hub/software-quality-metrics-2026-14e3760a.md",
+        "library/hub/software-quality-metrics-2026-e93b0ff9.md",
+        "library/hub/software-quality-metrics-2026-3b03b64e.md",
+        "library/hub/software-quality-metrics-2026-902b9b4a.md",
+        "library/hub/software-quality-metrics-2026-93d462c4.md",
+        "library/hub/software-quality-metrics-2026-4f4d7fce.md",
+        "library/hub/software-quality-metrics-2026-093687b5.md",
+        "library/hub/software-quality-metrics-2026-1a7b2d5b.md",
+        "library/hub/software-quality-metrics-2026-66ab86f0.md",
+        "library/hub/software-quality-metrics-2026-6f271e83.md",
+        "library/hub/software-quality-metrics-2026-e6463f8a.md"
       ],
       "bureaus": [
         "hub"
@@ -2080,7 +3780,22 @@
         "8b6d9996-845c-4187-812a-d6ff21fd8adf",
         "e2898bdd-e9e9-4da4-8d60-0e2107a1d2e1",
         "f3b19473-0a68-4d5b-ba52-198361b3c133",
-        "e578320a-92d9-4864-bddf-e73e5a9428ba"
+        "e578320a-92d9-4864-bddf-e73e5a9428ba",
+        "880ab29a-d289-4070-8577-b14a80e30d5c",
+        "ca79d9a5-ef95-4482-9686-e09f0dba68f2",
+        "939183d8-cb05-43c0-8029-d944f2bca716",
+        "3ccd1742-3049-4a07-b217-2ab420b02717",
+        "29cd10c2-5b3b-4046-ac30-6707dfb4ef6e",
+        "b2fde1cb-ab0a-4f2e-89c0-b065c085601a",
+        "5bbe043c-ddd3-4f21-aa40-d0077130eae9",
+        "e85ae27c-fe9d-4cee-abb3-e147d8e9f4bd",
+        "3850cae0-2689-4d76-a8ee-c9522163b2a2",
+        "756fafe3-d7ca-4256-b495-04dbef648f5e",
+        "bb6f3e8a-d5c2-46c4-9d22-cf4459595607",
+        "743b0e1c-b3ba-4e85-8f53-b60ed720c121",
+        "adf801e0-062f-42c8-bb37-c09c9e1dbc39",
+        "78183a2c-1e0f-40b4-83a3-848ae3681fa4",
+        "edd4da0b-2690-4b9c-be40-b66259041b6a"
       ],
       "paths": [
         "library/hub/software-architecture-patterns-2026-fda261ab.md",
@@ -2093,7 +3808,22 @@
         "library/hub/software-architecture-patterns-2026-8b6d9996.md",
         "library/hub/software-architecture-patterns-2026-e2898bdd.md",
         "library/hub/software-architecture-patterns-2026-f3b19473.md",
-        "library/hub/software-architecture-patterns-2026-e578320a.md"
+        "library/hub/software-architecture-patterns-2026-e578320a.md",
+        "library/hub/software-architecture-patterns-2026-880ab29a.md",
+        "library/hub/software-architecture-patterns-2026-ca79d9a5.md",
+        "library/hub/software-architecture-patterns-2026-939183d8.md",
+        "library/hub/software-architecture-patterns-2026-3ccd1742.md",
+        "library/hub/software-architecture-patterns-2026-29cd10c2.md",
+        "library/hub/software-architecture-patterns-2026-b2fde1cb.md",
+        "library/hub/software-architecture-patterns-2026-5bbe043c.md",
+        "library/hub/software-architecture-patterns-2026-e85ae27c.md",
+        "library/hub/software-architecture-patterns-2026-3850cae0.md",
+        "library/hub/software-architecture-patterns-2026-756fafe3.md",
+        "library/hub/software-architecture-patterns-2026-bb6f3e8a.md",
+        "library/hub/software-architecture-patterns-2026-743b0e1c.md",
+        "library/hub/software-architecture-patterns-2026-adf801e0.md",
+        "library/hub/software-architecture-patterns-2026-78183a2c.md",
+        "library/hub/software-architecture-patterns-2026-edd4da0b.md"
       ],
       "bureaus": [
         "hub"
@@ -2122,7 +3852,22 @@
         "9c4f139b-2ba6-4d4f-9e71-e62ebb2b90f4",
         "b345cb76-2be5-4fee-b5de-bcf409386f8d",
         "3ffa1918-ce92-4b2e-b752-25050eb795d5",
-        "c5e1975b-f875-4ea6-a614-f89b71bececf"
+        "c5e1975b-f875-4ea6-a614-f89b71bececf",
+        "204e97d1-0ee0-4589-895f-30335bbbef8d",
+        "a1dd53a1-518a-43b1-8051-986080117785",
+        "b7ee8e03-2d86-4ec3-a872-efe025fdf4b1",
+        "09299f5e-6a7b-423a-bb77-358fe3eb31e7",
+        "ecb3bd05-e6c2-4672-b66f-87786be73cfe",
+        "94b024f9-5107-472d-bbb7-1dabf8cb5882",
+        "6e02eabb-1104-422d-930b-812aaad6b0ff",
+        "56f47815-4b35-40c0-aabb-703e284d9e76",
+        "5e2ab557-4c00-4c2a-b055-ba4a2936c761",
+        "f1bc5f3f-60a1-4c2d-9529-aa02d05628e0",
+        "14de02b1-4917-4863-9927-c620a5441229",
+        "157af46a-9674-4793-a706-46f9e0286603",
+        "cb5865e6-cd1e-4f0f-ad20-69c097321f22",
+        "c99fa5c2-e9f9-43e2-b5f9-8691844d2b19",
+        "98f4085f-0f82-4901-b91c-d0becb077ef4"
       ],
       "paths": [
         "library/hub/API-design-best-practices-5760c2ad.md",
@@ -2135,7 +3880,22 @@
         "library/hub/API-design-best-practices-9c4f139b.md",
         "library/hub/API-design-best-practices-b345cb76.md",
         "library/hub/API-design-best-practices-3ffa1918.md",
-        "library/hub/API-design-best-practices-c5e1975b.md"
+        "library/hub/API-design-best-practices-c5e1975b.md",
+        "library/hub/API-design-best-practices-204e97d1.md",
+        "library/hub/API-design-best-practices-a1dd53a1.md",
+        "library/hub/API-design-best-practices-b7ee8e03.md",
+        "library/hub/API-design-best-practices-09299f5e.md",
+        "library/hub/API-design-best-practices-ecb3bd05.md",
+        "library/hub/API-design-best-practices-94b024f9.md",
+        "library/hub/API-design-best-practices-6e02eabb.md",
+        "library/hub/API-design-best-practices-56f47815.md",
+        "library/hub/API-design-best-practices-5e2ab557.md",
+        "library/hub/API-design-best-practices-f1bc5f3f.md",
+        "library/hub/API-design-best-practices-14de02b1.md",
+        "library/hub/API-design-best-practices-157af46a.md",
+        "library/hub/API-design-best-practices-cb5865e6.md",
+        "library/hub/API-design-best-practices-c99fa5c2.md",
+        "library/hub/API-design-best-practices-98f4085f.md"
       ],
       "bureaus": [
         "hub"
@@ -2164,7 +3924,21 @@
         "a3d91349-a6a9-4e19-99aa-d8ef4dae3a0f",
         "ea30c939-0212-451d-b105-13f5189e181f",
         "c79a09bb-4a38-4d86-b11e-96a955f1c289",
-        "aab907bf-6ee3-4209-98cc-97232b4f2ada"
+        "aab907bf-6ee3-4209-98cc-97232b4f2ada",
+        "748e237f-c1a7-441d-a6a5-21e34953e515",
+        "50e33926-d086-4ae5-a41d-3a9ce0f5c879",
+        "f6b3ff2d-0c35-46e6-8a96-99f33fb9c5b9",
+        "d1b09145-9a0f-4d2a-905b-8a6091d768d9",
+        "3c0f317a-f9b6-43a6-b856-2cbdf17cb71e",
+        "a9f86b98-7b09-408d-a725-92423ad8be23",
+        "e400b467-4922-4f50-8333-26dab968f363",
+        "84e43049-3f7f-46a1-8efa-51c0aeb6a4c3",
+        "896a94ca-b8a8-4bfe-944b-5d6b9334b8fe",
+        "6054a567-5961-4683-a219-f7ed7deda6c1",
+        "77bc65e2-ac60-4c7b-8dcf-a5bea75f7d25",
+        "8d345114-2a3f-4dfd-8f33-6c38ce803e06",
+        "632084f0-2ebd-4bf0-b5ee-8a7f480e8d4d",
+        "febb991a-f5ee-4157-bb94-52d35601b17a"
       ],
       "paths": [
         "library/hub/technical-specification-writing-AI-c9651779.md",
@@ -2177,7 +3951,21 @@
         "library/hub/technical-specification-writing-AI-a3d91349.md",
         "library/hub/technical-specification-writing-AI-ea30c939.md",
         "library/hub/technical-specification-writing-AI-c79a09bb.md",
-        "library/hub/technical-specification-writing-AI-aab907bf.md"
+        "library/hub/technical-specification-writing-AI-aab907bf.md",
+        "library/hub/technical-specification-writing-AI-748e237f.md",
+        "library/hub/technical-specification-writing-AI-50e33926.md",
+        "library/hub/technical-specification-writing-AI-f6b3ff2d.md",
+        "library/hub/technical-specification-writing-AI-d1b09145.md",
+        "library/hub/technical-specification-writing-AI-3c0f317a.md",
+        "library/hub/technical-specification-writing-AI-a9f86b98.md",
+        "library/hub/technical-specification-writing-AI-e400b467.md",
+        "library/hub/technical-specification-writing-AI-84e43049.md",
+        "library/hub/technical-specification-writing-AI-896a94ca.md",
+        "library/hub/technical-specification-writing-AI-6054a567.md",
+        "library/hub/technical-specification-writing-AI-77bc65e2.md",
+        "library/hub/technical-specification-writing-AI-8d345114.md",
+        "library/hub/technical-specification-writing-AI-632084f0.md",
+        "library/hub/technical-specification-writing-AI-febb991a.md"
       ],
       "bureaus": [
         "hub"
@@ -2191,8 +3979,516 @@
       "has_now": false,
       "learn_count": 0,
       "promoted_skill": null
+    },
+    "ia": {
+      "slug": "ia",
+      "label": "ia",
+      "entry_ids": [
+        "72cb8c5e-8592-4b44-be29-a9339e0ad815",
+        "51b40be3-ca8b-4589-868b-9285682783e6",
+        "fdc51bc9-ba5c-4808-a2ce-a73f640cba4a",
+        "139d12cf-5fa6-4eb8-b959-33cca3e73509",
+        "7edd0aed-dfa4-480d-9a83-e8b0bd2f03eb"
+      ],
+      "paths": [
+        "library/academy/Guide-2025-pour-maîtriser-les-prompts-IA-72cb8c5e.md",
+        "library/rd/Perplexity-agrégateur-multi-IA-51b40be3.md",
+        "library/hub/Débat-la-fin-annoncée-des-IA-génératives-fdc51bc9.md",
+        "library/app/AI-Trust-Center-fiabilité-des-applications-IA-139d12cf.md",
+        "library/marketing/LIA-comme-match-maker-éditeursmarques-7edd0aed.md"
+      ],
+      "bureaus": [
+        "academy",
+        "rd",
+        "hub",
+        "app",
+        "marketing"
+      ],
+      "timings": [
+        "now",
+        "later"
+      ],
+      "titles": [
+        "Guide 2025 pour maîtriser les prompts IA",
+        "Perplexity : agrégateur multi-IA",
+        "Débat : la fin annoncée des IA génératives ?",
+        "AI Trust Center : fiabilité des applications IA",
+        "L'IA comme 'match-maker' éditeurs/marques"
+      ],
+      "has_now": true,
+      "learn_count": 1,
+      "promoted_skill": "skills/knowledge/ia/SKILL.md"
+    },
+    "prompting": {
+      "slug": "prompting",
+      "label": "prompting",
+      "entry_ids": [
+        "72cb8c5e-8592-4b44-be29-a9339e0ad815"
+      ],
+      "paths": [
+        "library/academy/Guide-2025-pour-maîtriser-les-prompts-IA-72cb8c5e.md"
+      ],
+      "bureaus": [
+        "academy"
+      ],
+      "timings": [
+        "now"
+      ],
+      "titles": [
+        "Guide 2025 pour maîtriser les prompts IA"
+      ],
+      "has_now": true,
+      "learn_count": 0,
+      "promoted_skill": null
+    },
+    "formation": {
+      "slug": "formation",
+      "label": "formation",
+      "entry_ids": [
+        "72cb8c5e-8592-4b44-be29-a9339e0ad815",
+        "eb378885-0dcf-4320-9059-b865f2cee298"
+      ],
+      "paths": [
+        "library/academy/Guide-2025-pour-maîtriser-les-prompts-IA-72cb8c5e.md",
+        "library/academy/Académie-française-actualités-linguistiques-2026-eb378885.md"
+      ],
+      "bureaus": [
+        "academy"
+      ],
+      "timings": [
+        "now",
+        "later"
+      ],
+      "titles": [
+        "Guide 2025 pour maîtriser les prompts IA",
+        "Académie française — actualités linguistiques 2026"
+      ],
+      "has_now": true,
+      "learn_count": 0,
+      "promoted_skill": null
+    },
+    "dernières-sorties-ia-pertinentes": {
+      "slug": "dernières-sorties-ia-pertinentes",
+      "label": "dernières sorties ia pertinentes",
+      "entry_ids": [
+        "72cb8c5e-8592-4b44-be29-a9339e0ad815",
+        "51b40be3-ca8b-4589-868b-9285682783e6",
+        "fdc51bc9-ba5c-4808-a2ce-a73f640cba4a",
+        "139d12cf-5fa6-4eb8-b959-33cca3e73509",
+        "7edd0aed-dfa4-480d-9a83-e8b0bd2f03eb"
+      ],
+      "paths": [
+        "library/academy/Guide-2025-pour-maîtriser-les-prompts-IA-72cb8c5e.md",
+        "library/rd/Perplexity-agrégateur-multi-IA-51b40be3.md",
+        "library/hub/Débat-la-fin-annoncée-des-IA-génératives-fdc51bc9.md",
+        "library/app/AI-Trust-Center-fiabilité-des-applications-IA-139d12cf.md",
+        "library/marketing/LIA-comme-match-maker-éditeursmarques-7edd0aed.md"
+      ],
+      "bureaus": [
+        "academy",
+        "rd",
+        "hub",
+        "app",
+        "marketing"
+      ],
+      "timings": [
+        "now",
+        "later"
+      ],
+      "titles": [
+        "Guide 2025 pour maîtriser les prompts IA",
+        "Perplexity : agrégateur multi-IA",
+        "Débat : la fin annoncée des IA génératives ?",
+        "AI Trust Center : fiabilité des applications IA",
+        "L'IA comme 'match-maker' éditeurs/marques"
+      ],
+      "has_now": true,
+      "learn_count": 0,
+      "promoted_skill": null
+    },
+    "outils": {
+      "slug": "outils",
+      "label": "outils",
+      "entry_ids": [
+        "51b40be3-ca8b-4589-868b-9285682783e6"
+      ],
+      "paths": [
+        "library/rd/Perplexity-agrégateur-multi-IA-51b40be3.md"
+      ],
+      "bureaus": [
+        "rd"
+      ],
+      "timings": [
+        "later"
+      ],
+      "titles": [
+        "Perplexity : agrégateur multi-IA"
+      ],
+      "has_now": false,
+      "learn_count": 0,
+      "promoted_skill": null
+    },
+    "veille": {
+      "slug": "veille",
+      "label": "veille",
+      "entry_ids": [
+        "51b40be3-ca8b-4589-868b-9285682783e6",
+        "fdc51bc9-ba5c-4808-a2ce-a73f640cba4a"
+      ],
+      "paths": [
+        "library/rd/Perplexity-agrégateur-multi-IA-51b40be3.md",
+        "library/hub/Débat-la-fin-annoncée-des-IA-génératives-fdc51bc9.md"
+      ],
+      "bureaus": [
+        "rd",
+        "hub"
+      ],
+      "timings": [
+        "later"
+      ],
+      "titles": [
+        "Perplexity : agrégateur multi-IA",
+        "Débat : la fin annoncée des IA génératives ?"
+      ],
+      "has_now": false,
+      "learn_count": 0,
+      "promoted_skill": null
+    },
+    "stratégie": {
+      "slug": "stratégie",
+      "label": "stratégie",
+      "entry_ids": [
+        "fdc51bc9-ba5c-4808-a2ce-a73f640cba4a"
+      ],
+      "paths": [
+        "library/hub/Débat-la-fin-annoncée-des-IA-génératives-fdc51bc9.md"
+      ],
+      "bureaus": [
+        "hub"
+      ],
+      "timings": [
+        "later"
+      ],
+      "titles": [
+        "Débat : la fin annoncée des IA génératives ?"
+      ],
+      "has_now": false,
+      "learn_count": 0,
+      "promoted_skill": null
+    },
+    "mlops": {
+      "slug": "mlops",
+      "label": "mlops",
+      "entry_ids": [
+        "139d12cf-5fa6-4eb8-b959-33cca3e73509"
+      ],
+      "paths": [
+        "library/app/AI-Trust-Center-fiabilité-des-applications-IA-139d12cf.md"
+      ],
+      "bureaus": [
+        "app"
+      ],
+      "timings": [
+        "now"
+      ],
+      "titles": [
+        "AI Trust Center : fiabilité des applications IA"
+      ],
+      "has_now": true,
+      "learn_count": 0,
+      "promoted_skill": null
+    },
+    "qualité": {
+      "slug": "qualité",
+      "label": "qualité",
+      "entry_ids": [
+        "139d12cf-5fa6-4eb8-b959-33cca3e73509"
+      ],
+      "paths": [
+        "library/app/AI-Trust-Center-fiabilité-des-applications-IA-139d12cf.md"
+      ],
+      "bureaus": [
+        "app"
+      ],
+      "timings": [
+        "now"
+      ],
+      "titles": [
+        "AI Trust Center : fiabilité des applications IA"
+      ],
+      "has_now": true,
+      "learn_count": 0,
+      "promoted_skill": null
+    },
+    "gouvernance": {
+      "slug": "gouvernance",
+      "label": "gouvernance",
+      "entry_ids": [
+        "139d12cf-5fa6-4eb8-b959-33cca3e73509"
+      ],
+      "paths": [
+        "library/app/AI-Trust-Center-fiabilité-des-applications-IA-139d12cf.md"
+      ],
+      "bureaus": [
+        "app"
+      ],
+      "timings": [
+        "now"
+      ],
+      "titles": [
+        "AI Trust Center : fiabilité des applications IA"
+      ],
+      "has_now": true,
+      "learn_count": 0,
+      "promoted_skill": null
+    },
+    "langue-française": {
+      "slug": "langue-française",
+      "label": "langue française",
+      "entry_ids": [
+        "eb378885-0dcf-4320-9059-b865f2cee298"
+      ],
+      "paths": [
+        "library/academy/Académie-française-actualités-linguistiques-2026-eb378885.md"
+      ],
+      "bureaus": [
+        "academy"
+      ],
+      "timings": [
+        "later"
+      ],
+      "titles": [
+        "Académie française — actualités linguistiques 2026"
+      ],
+      "has_now": false,
+      "learn_count": 0,
+      "promoted_skill": null
+    },
+    "éditorial": {
+      "slug": "éditorial",
+      "label": "éditorial",
+      "entry_ids": [
+        "eb378885-0dcf-4320-9059-b865f2cee298"
+      ],
+      "paths": [
+        "library/academy/Académie-française-actualités-linguistiques-2026-eb378885.md"
+      ],
+      "bureaus": [
+        "academy"
+      ],
+      "timings": [
+        "later"
+      ],
+      "titles": [
+        "Académie française — actualités linguistiques 2026"
+      ],
+      "has_now": false,
+      "learn_count": 0,
+      "promoted_skill": null
+    },
+    "prix-littéraire": {
+      "slug": "prix-littéraire",
+      "label": "prix littéraire",
+      "entry_ids": [
+        "eb378885-0dcf-4320-9059-b865f2cee298"
+      ],
+      "paths": [
+        "library/academy/Académie-française-actualités-linguistiques-2026-eb378885.md"
+      ],
+      "bureaus": [
+        "academy"
+      ],
+      "timings": [
+        "later"
+      ],
+      "titles": [
+        "Académie française — actualités linguistiques 2026"
+      ],
+      "has_now": false,
+      "learn_count": 0,
+      "promoted_skill": null
+    },
+    "dernières-informations-concernant-académie": {
+      "slug": "dernières-informations-concernant-académie",
+      "label": "dernières informations concernant académie",
+      "entry_ids": [
+        "eb378885-0dcf-4320-9059-b865f2cee298",
+        "8ffef3de-842b-4c81-8fa0-5e64c2bf7807"
+      ],
+      "paths": [
+        "library/academy/Académie-française-actualités-linguistiques-2026-eb378885.md",
+        "library/rd/Médaille-dOr-du-CNRS-2026-Jacqueline-Bloch-physique-8ffef3de.md"
+      ],
+      "bureaus": [
+        "academy",
+        "rd"
+      ],
+      "timings": [
+        "later"
+      ],
+      "titles": [
+        "Académie française — actualités linguistiques 2026",
+        "Médaille d'Or du CNRS 2026 — Jacqueline Bloch (physique)"
+      ],
+      "has_now": false,
+      "learn_count": 0,
+      "promoted_skill": null
+    },
+    "marketing": {
+      "slug": "marketing",
+      "label": "marketing",
+      "entry_ids": [
+        "7edd0aed-dfa4-480d-9a83-e8b0bd2f03eb"
+      ],
+      "paths": [
+        "library/marketing/LIA-comme-match-maker-éditeursmarques-7edd0aed.md"
+      ],
+      "bureaus": [
+        "marketing"
+      ],
+      "timings": [
+        "now"
+      ],
+      "titles": [
+        "L'IA comme 'match-maker' éditeurs/marques"
+      ],
+      "has_now": true,
+      "learn_count": 0,
+      "promoted_skill": null
+    },
+    "partenariats": {
+      "slug": "partenariats",
+      "label": "partenariats",
+      "entry_ids": [
+        "7edd0aed-dfa4-480d-9a83-e8b0bd2f03eb"
+      ],
+      "paths": [
+        "library/marketing/LIA-comme-match-maker-éditeursmarques-7edd0aed.md"
+      ],
+      "bureaus": [
+        "marketing"
+      ],
+      "timings": [
+        "now"
+      ],
+      "titles": [
+        "L'IA comme 'match-maker' éditeurs/marques"
+      ],
+      "has_now": true,
+      "learn_count": 0,
+      "promoted_skill": null
+    },
+    "martech": {
+      "slug": "martech",
+      "label": "martech",
+      "entry_ids": [
+        "7edd0aed-dfa4-480d-9a83-e8b0bd2f03eb"
+      ],
+      "paths": [
+        "library/marketing/LIA-comme-match-maker-éditeursmarques-7edd0aed.md"
+      ],
+      "bureaus": [
+        "marketing"
+      ],
+      "timings": [
+        "now"
+      ],
+      "titles": [
+        "L'IA comme 'match-maker' éditeurs/marques"
+      ],
+      "has_now": true,
+      "learn_count": 0,
+      "promoted_skill": null
+    },
+    "physique": {
+      "slug": "physique",
+      "label": "physique",
+      "entry_ids": [
+        "8ffef3de-842b-4c81-8fa0-5e64c2bf7807"
+      ],
+      "paths": [
+        "library/rd/Médaille-dOr-du-CNRS-2026-Jacqueline-Bloch-physique-8ffef3de.md"
+      ],
+      "bureaus": [
+        "rd"
+      ],
+      "timings": [
+        "later"
+      ],
+      "titles": [
+        "Médaille d'Or du CNRS 2026 — Jacqueline Bloch (physique)"
+      ],
+      "has_now": false,
+      "learn_count": 0,
+      "promoted_skill": null
+    },
+    "cnrs": {
+      "slug": "cnrs",
+      "label": "cnrs",
+      "entry_ids": [
+        "8ffef3de-842b-4c81-8fa0-5e64c2bf7807"
+      ],
+      "paths": [
+        "library/rd/Médaille-dOr-du-CNRS-2026-Jacqueline-Bloch-physique-8ffef3de.md"
+      ],
+      "bureaus": [
+        "rd"
+      ],
+      "timings": [
+        "later"
+      ],
+      "titles": [
+        "Médaille d'Or du CNRS 2026 — Jacqueline Bloch (physique)"
+      ],
+      "has_now": false,
+      "learn_count": 0,
+      "promoted_skill": null
+    },
+    "veille-scientifique": {
+      "slug": "veille-scientifique",
+      "label": "veille scientifique",
+      "entry_ids": [
+        "8ffef3de-842b-4c81-8fa0-5e64c2bf7807"
+      ],
+      "paths": [
+        "library/rd/Médaille-dOr-du-CNRS-2026-Jacqueline-Bloch-physique-8ffef3de.md"
+      ],
+      "bureaus": [
+        "rd"
+      ],
+      "timings": [
+        "later"
+      ],
+      "titles": [
+        "Médaille d'Or du CNRS 2026 — Jacqueline Bloch (physique)"
+      ],
+      "has_now": false,
+      "learn_count": 0,
+      "promoted_skill": null
+    },
+    "photonique-quantique": {
+      "slug": "photonique-quantique",
+      "label": "photonique quantique",
+      "entry_ids": [
+        "8ffef3de-842b-4c81-8fa0-5e64c2bf7807"
+      ],
+      "paths": [
+        "library/rd/Médaille-dOr-du-CNRS-2026-Jacqueline-Bloch-physique-8ffef3de.md"
+      ],
+      "bureaus": [
+        "rd"
+      ],
+      "timings": [
+        "later"
+      ],
+      "titles": [
+        "Médaille d'Or du CNRS 2026 — Jacqueline Bloch (physique)"
+      ],
+      "has_now": false,
+      "learn_count": 0,
+      "promoted_skill": null
     }
   },
-  "entry_count": 585,
-  "topic_count": 51
+  "entry_count": 1486,
+  "topic_count": 72
 }

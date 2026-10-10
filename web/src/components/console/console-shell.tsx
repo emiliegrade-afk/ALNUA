@@ -26,6 +26,7 @@ interface ConsoleShellProps {
 }
 
 function activeDeptFromPath(pathname: string): string {
+  if (pathname === "/live" || pathname.startsWith("/live/")) return "secretary";
   const pole = CONSOLE_POLES.find(
     (p) => pathname === p.href || pathname.startsWith(`${p.href}/`),
   );

@@ -16,6 +16,8 @@ export const ROUTES = {
   competition: "/competition",
   ceo: "/ceo",
   secretary: "/secretary",
+  /** Cockpit Nadia Live - taches en arriere-plan (DEC-038). */
+  live: "/live",
   legal: "/legal",
   hub: "/hub",
   app: "/app",

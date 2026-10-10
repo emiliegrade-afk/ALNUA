@@ -58,6 +58,7 @@ const SELF_CONTAINED_V2_ROUTES = [
   "/brand",
   "/hub",
   "/analytics",
+  "/live",
 ];
 
 /** Residual mockup ProtoFullShell — none for primary dept routes (clean 2026-08-09). */

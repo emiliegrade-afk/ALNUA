@@ -7,7 +7,8 @@ param(
     [switch]$SkipWeb,
     [switch]$SkipBots,
     [switch]$SkipWake,
-    [switch]$OpenBrowser
+    [switch]$OpenBrowser,
+    [string]$OpenUrl = "http://localhost:3000/"
 )
 
 $ErrorActionPreference = "Continue"
@@ -125,11 +126,12 @@ if ($OpenBrowser) {
     if (Test-Path $launchScript) {
         Start-Process powershell.exe -ArgumentList @(
             "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass",
-            "-WindowStyle", "Hidden", "-File", $launchScript
+            "-WindowStyle", "Hidden", "-File", $launchScript,
+            "-Url", $OpenUrl
         ) -WindowStyle Hidden | Out-Null
         Write-Host "  Fenetre app ALNUA Hub lancee (Edge)" -ForegroundColor Green
     } else {
-        Start-Process "http://localhost:3000" | Out-Null
+        Start-Process $OpenUrl | Out-Null
     }
 }
 
@@ -147,7 +149,8 @@ if (-not $SkipWake) {
 
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Yellow
-Write-Host " Hub UI   : fenetre app (localhost:3000)" -ForegroundColor White
+Write-Host " Hub UI   : Command Center  http://localhost:3000/" -ForegroundColor White
+Write-Host " Nadia    : http://localhost:3000/live  (raccourci Nadia Live)" -ForegroundColor DarkGray
 Write-Host " Hub API  : http://127.0.0.1:$HubPort" -ForegroundColor White
 Write-Host " Logs     : data\hub_supervisor.log" -ForegroundColor DarkGray
 Write-Host " Arret    : Arreter ALNUA Hub.bat (racine)" -ForegroundColor DarkGray

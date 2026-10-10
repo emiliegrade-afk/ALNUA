@@ -135,13 +135,21 @@ def crewai_additional_params(
     *,
     settings: Any | None = None,
 ) -> dict[str, Any]:
-    """Params merged into CrewAI LLM calls (tool-heavy agents)."""
+    """Params merged into CrewAI LLM calls (tool-heavy agents).
+
+    CrewAI forwards ``additional_params`` as **kwargs to the OpenAI client, so
+    OpenRouter-only body fields must be wrapped in ``extra_body`` — passing them
+    top-level raises ``Completions.create() got an unexpected keyword argument``
+    (bug trouvé 2026-09-08 : tout agent CrewAI cassait à l'appel).
+    """
     if not prompt_cache_enabled(settings):
         return {}
     ttl = prompt_cache_ttl(settings)
     return {
-        "session_id": session_id_for_agent(agent_id),
-        "cache_control": _cache_control(ttl),
+        "extra_body": {
+            "session_id": session_id_for_agent(agent_id),
+            "cache_control": _cache_control(ttl),
+        }
     }
 
 

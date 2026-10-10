@@ -9,7 +9,7 @@ echo  ========================================
 echo.
 echo  Lance l'API (port 8003), l'interface web
 echo  (port 3000), les bots Telegram et ouvre
-echo  ton navigateur.
+echo  le Command Center (/).
 echo.
 
 powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0..\start-all.ps1" -OpenBrowser

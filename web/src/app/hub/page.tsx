@@ -5,7 +5,6 @@ import { DeptV2PageShell } from "@/components/dept-v2";
 import { DirectionCommandView } from "@/components/siege/direction-command-view";
 import { HubWorkflowsPanel } from "@/components/hub/hub-workflows-panel";
 import { BureauRoster } from "@/components/shared/bureau-roster";
-import { SiegeLifeLinks } from "@/components/shared/siege-life-links";
 import { C } from "@/app/app-v2/shared";
 import { ROUTES } from "@/lib/routes";
 import Link from "next/link";
@@ -27,12 +26,11 @@ export default function HubPage() {
     <ConsoleProvider>
       <DeptV2PageShell deptHref={ROUTES.hub} activeDeptId="hub" coreSubtitle="Direction ops">
         <div
-          className="alnua-scroll flex min-w-0 flex-1 flex-col gap-5 overflow-y-auto px-4 pb-4 pt-3.5"
+          className="alnua-scroll flex min-h-0 min-w-0 flex-1 flex-col gap-5 overflow-y-auto px-4 pb-4 pt-3.5"
           style={{ color: C.ivory }}
         >
           <DirectionCommandView />
           <HubWorkflowsPanel />
-          <SiegeLifeLinks />
           <BureauRoster bureau="hub" title="Équipe Direction — détail" />
           <section className="rounded-xl border border-copper/20 bg-obsidian/55 p-3">
             <p className="mb-3 text-[10px] uppercase tracking-[0.2em] text-titanium/55">

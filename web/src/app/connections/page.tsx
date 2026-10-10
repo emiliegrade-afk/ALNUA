@@ -19,10 +19,21 @@ import {
   fetchComposioApps,
   type ComposioApp,
 } from "@/lib/composio-api";
+import { extractOAuthUrl, fillOAuthPopup } from "@/lib/live-oauth";
 import { useHubHealthLive } from "@/hooks/use-hub-health-live";
+import { NadiaModeRail } from "@/components/live/nadia-mode-rail";
 import { toast } from "sonner";
 
-const SUGGESTED_APPS = ["GMAIL", "GITHUB", "SLACK", "NOTION", "DISCORD"];
+const SUGGESTED_APPS = [
+  "GMAIL",
+  "GOOGLECALENDAR",
+  "DISCORD",
+  "INSTAGRAM",
+  "LINKEDIN",
+  "GITHUB",
+  "SLACK",
+  "NOTION",
+];
 
 export default function ConnectionsPage() {
   const { phase: hubPhase } = useHubHealthLive();
@@ -51,17 +62,29 @@ export default function ConnectionsPage() {
     void load();
   }, [load]);
 
-  async function handleConnect(appName: string) {
+  async function handleConnect(appName: string, popup: Window | null) {
     if (hubPhase !== "ok") {
+      popup?.close();
       toast.error("API Hub hors ligne — démarre le backend avant de connecter une app.");
       return;
     }
     setConnecting(appName);
     try {
       const { oauth_url } = await connectComposioApp(appName);
-      window.open(oauth_url, "_blank", "noopener,noreferrer");
-      toast.success(`Lien OAuth ouvert pour ${appName}`);
+      const url = extractOAuthUrl(oauth_url) || (oauth_url.startsWith("http") ? oauth_url : "");
+      if (!url) {
+        popup?.close();
+        toast.error(oauth_url || "Lien OAuth manquant.");
+        return;
+      }
+      if (!fillOAuthPopup(popup, url)) {
+        toast.error("Fenêtre bloquée — autorise les pop-ups pour ce site, puis réessaie.");
+        popup?.close();
+        return;
+      }
+      toast.success(`Autorise ${appName} dans l'onglet qui vient de s'ouvrir.`);
     } catch (err) {
+      popup?.close();
       toast.error(
         err instanceof Error ? err.message : "Connexion impossible",
       );
@@ -79,6 +102,7 @@ export default function ConnectionsPage() {
       title="IT / Connexions"
       subtitle="Gmail · GitHub OAuth · Composio (pas tes projets de code)"
     >
+      <NadiaModeRail className="mb-4" />
       <BureauPanel title="État du Hub" icon={hubOnline ? CheckCircle2 : AlertTriangle}>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -190,7 +214,10 @@ export default function ConnectionsPage() {
               variant="outline"
               className="border-bronze-faint"
               disabled={connecting === app || !hubOnline}
-              onClick={() => void handleConnect(app)}
+              onClick={() => {
+                const popup = window.open("about:blank", "_blank");
+                void handleConnect(app, popup);
+              }}
             >
               {connecting === app ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

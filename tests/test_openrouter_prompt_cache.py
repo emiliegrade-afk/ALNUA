@@ -5,6 +5,23 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 
+def test_crewai_additional_params_wrapped_in_extra_body() -> None:
+    """Regression 2026-09-08: CrewAI forwards additional_params as kwargs to the
+    OpenAI client — OpenRouter body fields must live under extra_body, else
+    ``Completions.create() got an unexpected keyword argument 'session_id'``."""
+    with patch(
+        "services.openrouter_prompt_cache.prompt_cache_enabled", return_value=True
+    ):
+        from services.openrouter_prompt_cache import crewai_additional_params
+
+        params = crewai_additional_params("game_director")
+    assert "session_id" not in params
+    assert "cache_control" not in params
+    body = params["extra_body"]
+    assert body["session_id"]
+    assert body["cache_control"]["type"] == "ephemeral"
+
+
 def test_apply_prompt_cache_adds_session_and_top_level() -> None:
     from services.openrouter_prompt_cache import apply_prompt_cache_to_payload
 

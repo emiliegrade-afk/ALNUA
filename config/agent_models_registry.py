@@ -132,10 +132,10 @@ AGENT_TIERS: dict[str, str] = {
     "hardware":      "standard",
     "embedded_dev":  "standard",
     "content":       "standard",
-    "pm":               "fast",
+    "pm":               "standard",
     "accounting":       "fast",
     "secretary":        "fast",
-    "controller":       "fast",
+    "controller":       "standard",
     "dev_backend":      "standard",
     "level_designer":   "standard",
     "analyst_business": "standard",
@@ -161,7 +161,7 @@ AGENT_TIERS: dict[str, str] = {
     "mechanical":         "standard",
     "industrial_design":  "standard",
     "qa_robot":           "standard",
-    "safety":             "standard",
+    "safety":             "premium",
     "simulation":         "standard",
 }
 
@@ -184,9 +184,9 @@ CODING_AGENT_IDS: frozenset[str] = frozenset(
 
 # Modèle par défaut par tier
 TIER_DEFAULTS: dict[str, str] = {
-    "premium":  "anthropic/claude-sonnet-4",
-    "standard": "deepseek/deepseek-chat-v3.1",
-    "fast":     "anthropic/claude-haiku-4-5",
+    "premium":  "anthropic/claude-sonnet-5",
+    "standard": "openai/gpt-5.6-terra",
+    "fast":     "z-ai/glm-5.3-flash",
 }
 
 # Alias historique — services/llm_router.py

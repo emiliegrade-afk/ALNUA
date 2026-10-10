@@ -1,7 +1,7 @@
 # Ouvre ALNUA Hub dans ALNUAHub.exe (icone X dans la barre des taches).
 # Plus Edge --app : Windows affiche toujours le logo Edge pour ce process.
 param(
-    [string]$Url = "http://localhost:3000",
+    [string]$Url = "http://localhost:3000/",
     [int]$WaitSeconds = 0,
     [int]$MaxWait = 90
 )
