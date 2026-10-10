@@ -58,8 +58,10 @@
 | 45 | Context Engine L1–L4 + Collective (AAF Phase F) | ✅ Complete (DEC-027) |
 | 46 | Agent Lounge — remplace OpenRoom ; gamification expérimentale isolée | ✅ Complete (DEC-031) |
 | 47 | Overlay Jarvis — Nadia/Aria faits texte + réplique voix (DEC-033) | ✅ Lots 0–5 (ElevenLabs flag off) |
-| 48 | Gaming Academy — curriculum autonome studio, paper slice Wyrdheim (DEC-034) | ⏸️ Spec |
-| 50 | Jarvis Live — voix temps réel + tâches asynchrones (DEC-038/039) | 🔄 Lots 1–6 ✅ (OAuth Meta/LinkedIn à valider dans le navigateur) |
+| 48 | Gaming Academy — curriculum autonome studio, paper slice Wyrdheim (DEC-034) | ✅ Complete (curriculum tourne en continu) |
+| 49 | Studio Academies — moteur générique, 6 programmes, drills analytics/finance/R&D (DEC-036/042) | ✅ Complete (49.0–49.4) |
+| 50 | Boucle confiance académies → autonomie — trust, cockpit CEO, override L2 (DEC-043) | ✅ Complete (2026-10-11) |
+| 51 | Jarvis Live — voix temps réel + tâches asynchrones (DEC-038/039) | 🔄 Lots 1–7 codés (OAuth Meta/LinkedIn à valider dans le navigateur) |
 
 Statut légende : ⏸️ Not started | 🔄 In progress | ✅ Complete | 🔴 Blocked
 
@@ -71,6 +73,11 @@ voir `docs/classeur/doc-audit.md` (`BUGS.md` : 0 finding ouvert). Reste :
 Vague 6 « Apps NAÏA/NUAWAY coding » ; fin de plan = Vague 8 (Pi/UE5.8/
 Revolut/ads, hors scope Hub).
 **Fin reportée :** Pi, UE5.8, Revolut, ads.
+
+**Phases 46–50 = ✅ (au 2026-10-11).** En cours : Phase 51 Jarvis Live
+(OAuth Meta/LinkedIn à valider) + exécution continue des académies —
+curriculums 30 exercices par pôle, trust à faire monter vers 0,80
+(déblocage L2) puis 0,90 via validations production.
 
 **Phase 47 :** Lots 0–5 codés. ElevenLabs (`services/overlay_tts.py`) reste derrière `ELEVENLABS_TTS=0` (repli Edge).
 Sans crédits OpenRouter : `VOICE_OVERLAY_LLM=0` ; météo = tool HTTP (wttr.in).
