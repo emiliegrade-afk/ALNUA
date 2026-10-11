@@ -12,6 +12,7 @@ from services.agent_wake_queue import (  # noqa: F401
     academy_label_counts,
     queue_academy_if_idle,
     requeue_failed_academy,
+    reset_stuck_in_pipeline,
 )
 
 logger = logging.getLogger(__name__)
@@ -115,6 +116,15 @@ def wake_agents(
     if retry_failed:
         retried = requeue_failed_academy(count=1)
         result["actions"].append({"retry_failed": retried})
+
+    # Reset zombie in-pipeline labels before queueing — otherwise busy slots
+    # stay leaked and queue_academy_if_idle reports pipeline_full forever.
+    try:
+        reset = reset_stuck_in_pipeline()
+        if reset.get("reset_count"):
+            result["actions"].append({"reset_stuck_in_pipeline": reset})
+    except Exception as exc:
+        logger.warning("[AgentWake] reset stuck in-pipeline failed: %s", exc)
 
     queued = queue_academy_if_idle(count=mark_ready_count)
     result["actions"].append({"queue": queued})

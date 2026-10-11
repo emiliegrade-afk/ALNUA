@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import os
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import httpx
@@ -135,6 +136,62 @@ def queue_academy_if_idle(*, count: int | None = None) -> dict[str, Any]:
     result["slots_free"] = slots
     result["max_parallel"] = max_parallel
     return result
+
+
+def reset_stuck_in_pipeline(*, max_age_hours: float = 6.0) -> dict[str, Any]:
+    """Relabel in-pipeline → agent-ready on issues whose pipeline died silently.
+
+    handle_success/handle_failure both remove in-pipeline on completion — so
+    an in-pipeline label older than max_age_hours means the hub crashed or was
+    restarted mid-run. Without this, busy slots (agent-ready + in-pipeline vs
+    max_parallel) leak permanently and queue_academy_if_idle stays
+    pipeline_full forever (seen 2026-10-11: 12 zombies, 0 slots, App Academy
+    silent for 15h)."""
+    target = get_target_by_slug("academy")
+    if not target:
+        return {"reset_count": 0, "reset": []}
+
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=max_age_hours)
+    reset: list[dict[str, Any]] = []
+    url = f"{GITHUB_API}/repos/{target.github_repo}/issues"
+    params = {"state": "open", "per_page": 100, "labels": "in-pipeline"}
+
+    with httpx.Client() as client:
+        resp = client.get(url, headers=_headers(), params=params)
+        resp.raise_for_status()
+        issues = [
+            i
+            for i in resp.json()
+            if "pull_request" not in i and i.get("title", "").startswith("[ACADEMY")
+        ]
+        issues.sort(key=lambda i: i.get("number", 0))
+
+        for issue in issues:
+            raw_updated = str(issue.get("updated_at") or "")
+            try:
+                seen = datetime.fromisoformat(raw_updated.replace("Z", "+00:00"))
+            except ValueError:
+                continue
+            if seen > cutoff:
+                continue  # fresh — a live pipeline may legitimately own it
+            num = issue["number"]
+            labels = [
+                l["name"] for l in issue.get("labels", []) if l["name"] != "in-pipeline"
+            ]
+            if "agent-ready" not in labels:
+                labels.append("agent-ready")
+            client.patch(
+                f"{GITHUB_API}/repos/{target.github_repo}/issues/{num}",
+                headers=_headers(),
+                json={"labels": labels},
+            )
+            reset.append(
+                {"number": num, "title": issue.get("title", ""), "stuck_since": raw_updated}
+            )
+
+    if reset:
+        logger.info("[AgentWake] reset %d stuck in-pipeline issue(s)", len(reset))
+    return {"reset_count": len(reset), "reset": reset}
 
 
 def requeue_failed_academy(*, count: int = 1) -> dict[str, Any]:

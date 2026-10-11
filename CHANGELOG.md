@@ -1,3 +1,19 @@
+## 2026-10-11 — Déblocage pipeline App Academy (12 zombies in-pipeline)
+
+- **fix(academy)** : 12 issues académie portaient un label `in-pipeline`
+  zombie (pipelines interrompus jamais nettoyés) → `busy=17` vs 2 slots →
+  `pipeline_full` permanent, App Academy muette depuis 15h. Nettoyage manuel
+  immédiat : 5 issues `agent-ready` reparties (`#81` `#80` `#79` `#76` `#71`).
+- **fix(academy)** : garde-fou durable `reset_stuck_in_pipeline(6h)` dans le
+  wake — un label `in-pipeline` plus vieux que 6h ne peut venir que d'un
+  pipeline mort (succès ET échec retirent le label en fin de run) ; l'issue
+  repasse `agent-ready`. Appelé avant `queue_academy_if_idle`. `BUG-030`.
+- **Vérifié au passage** : boucle de confiance live — `technical_artist` a
+  enregistré 2 rejets QA réels cette nuit (0,70 → 0,5057, GN1.5, feedback
+  précis intégré pour la 3ᵉ tentative) ; file idle du jour reconstruite
+  (19 items, 6 faits, cadence 3/3h nominale) ; N4.20 mergée (35/52).
+- 6 tests nouveaux + ordre wake vérifié. Suite **861** verts, ruff clean.
+
 ## 2026-10-11 — L'App Academy alimente la confiance (DEC-043 complété)
 
 - **fix(trust)** : le moteur App Academy (Phase 48, issues GitHub → PR → merge)
