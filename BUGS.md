@@ -86,6 +86,7 @@ y compris `tests/test_devex_phase6.py` réécrit pour le nouveau comportement.
 | ID | Gravité | Description | Constat |
 |----|---------|-------------|-----------|
 | BUG-027 | Faible | 2 fichiers Python >300 lignes (régression de l'invariant, tenu depuis Vague 5 DEC-032) introduits par les Phases 49–50 : `services/studio_academy_engine.py` (**370** lignes) et `services/idle_work_recipes.py` (**319** lignes) | Paydown candidat — split en modules par responsabilité la prochaine fois qu'on y touche (précédent BUG-004 : façades + modules). Pas de split dans l'Audit 006 lui-même (lot séparé, logique académie cœur) ; ne pas grossir davantage |
+| BUG-029 | Info | Divergence de racines de données : `services/agent_trust.py::_STORE` (et les autres consommateurs `get_hub_repo_path()`) écrivent sous `HUB_REPO_PATH` (`C:\Dev\ALUNA_HUB\data`) alors que `services/academy_progress.py::_PROJECT_ROOT` et les fichiers `<pole>_academy_progress.json` vivent sous la racine du checkout (`D:\Dev\ALUNA_HUB\data`). Cohérent en interne aujourd'hui (chaque lecteur relit sa propre racine), mais fragile : un process lancé avec un `HUB_REPO_PATH` différent du checkout écrirait la confiance ailleurs que le reste | À unifier avant Vague 6 (une seule racine de données, vraisemblablement `get_hub_repo_path()` partout + migration des fichiers existants). Constaté lors du câblage confiance App Academy (2026-10-11) ; non bloquant tant que les deux racines restent celles-ci |
 
 ## Corrigés (2026-09-08 — Phase 48.2 Gaming Academy)
 
@@ -104,7 +105,7 @@ y compris `tests/test_devex_phase6.py` réécrit pour le nouveau comportement.
 
 | Bucket | Count |
 |--------|------:|
-| Ouverts | **1** (`BUG-027` — 2 fichiers >300, paydown candidat) |
+| Ouverts | **2** (`BUG-027` fichiers >300, `BUG-029` divergence racines data) |
 | Fermés remédiation + Vague 0–4 + BUG-004 + Audit 005 | 21 (+ `BUG-004`) |
 | Routers / Personas (Audit 006) | **93** / **53** |
 | pytest | **852** passed / 6 skipped / **0 failed** |

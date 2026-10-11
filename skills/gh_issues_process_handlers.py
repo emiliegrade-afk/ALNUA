@@ -125,6 +125,19 @@ def academy_post_merge(
             repo_slug="academy",
             outcome_summary=result.get("pr_url") or title,
         )
+        # DEC-043: a merged academy PR = a validated exercise — feed the trust
+        # loop (paper weight 0.5, capped at ACADEMY_TRUST_CAP by the store).
+        from services.agent_trust import record_validation
+
+        m = re.search(r"\[ACADEMY\s+(N\d+\.\d+)\]", title or "", re.I)
+        eid = m.group(1).upper() if m else f"issue-{issue_number}"
+        record_validation(
+            "dev_app",
+            success=True,
+            weight=0.5,
+            note=f"{eid} merged (issue #{issue_number})",
+            source="academy:app",
+        )
         close_issue(
             issue_number,
             github_repo=github_repo,
@@ -181,6 +194,21 @@ def handle_failure(
                 repo_slug=target.slug,
                 error_message=str(result["error"]),
                 task_context=title,
+            )
+        # DEC-043: a crashed academy pipeline = failed exercise (weight 2.0,
+        # same as terminal failure in the drill academies). Academy scope only
+        # — production repos feed trust via workflows/review board instead.
+        if getattr(target, "slug", "") == "academy":
+            from services.agent_trust import record_validation
+
+            m = re.search(r"\[ACADEMY\s+(N\d+\.\d+)\]", title or "", re.I)
+            eid = m.group(1).upper() if m else f"issue-{issue_number}"
+            record_validation(
+                "dev_app",
+                success=False,
+                weight=2.0,
+                note=f"{eid} pipeline failed (issue #{issue_number})",
+                source="academy:app",
             )
     except Exception:
         pass

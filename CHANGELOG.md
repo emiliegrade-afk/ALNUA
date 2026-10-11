@@ -1,3 +1,26 @@
+## 2026-10-11 — L'App Academy alimente la confiance (DEC-043 complété)
+
+- **fix(trust)** : le moteur App Academy (Phase 48, issues GitHub → PR → merge)
+  n'appelait jamais `record_validation` — le câblage Phase 50 ne couvrait que
+  les académies-drill, la review board et les workflows. Résultat : 35
+  exercices validés cette nuit sans un point de confiance, `dev_app` figé au
+  0,70 par défaut (provisoire) et le déblocage L2 (0,80 mesuré) hors de portée
+  quelle que soit la quantité d'entraînement.
+- **Câblage** dans `skills/gh_issues_process_handlers.py` : PR académie mergée
+  (`academy_post_merge`) → succès poids 0,5, source `academy:app` (cap 0,85 par
+  le store) ; pipeline académie en échec (`handle_failure`) → échec poids 2,0 —
+  même mapping poids que les académies-drill. Scope académie uniquement : les
+  repos production alimenteront la confiance via workflows/review board.
+- **Pas de backfill** : les 35 exercices déjà validés ne sont pas crédités —
+  la confiance se gagne en continu à partir de maintenant, pas rétroactivement
+  (le gate L2 garde son sens).
+- `tests/test_app_academy_trust.py` (3 tests, premiers tests des handlers) :
+  succès au merge (score monte, poids 0,5), échec académie (poids 2,0), échec
+  hors académie (rien enregistré). Suite **855** verts, ruff clean.
+- Divergence notée `BUG-029` : le store de confiance écrit sous
+  `HUB_REPO_PATH` (`C:\Dev\ALUNA_HUB\data`) alors que l'académie écrit sous
+  `_PROJECT_ROOT` (`D:\Dev\ALUNA_HUB\data`) — à unifier avant Vague 6.
+
 ## 2026-10-11 — Audit 006 : RCE Next.js critique corrigée, deps durcies
 
 - **fix(deps)** : `next` **16.3.0 → 16.4.0** — ferme 9 advisories dont la
