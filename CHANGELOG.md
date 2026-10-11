@@ -1,3 +1,22 @@
+## 2026-10-11 — Pipelines sérialisés par repo + verrous zombies balayés au démarrage (BUG-032)
+
+- **fix(pipeline)** : sémaphore **par repo cible** dans `skills/gh_issues_poll.py`
+  (`_repo_semaphores`, limite 1 par repo, clé `issue["_repo_slug"]`) — acquis
+  en plus du sémaphore global `max_parallel=2`. Deux pipelines peuvent
+  toujours tourner en parallèle, mais plus jamais sur le même repo : la cause
+  racine des collisions de verrous fichiers (BUG-031) est éliminée à la
+  source au lieu d'être seulement filtrée après coup.
+- **fix(pipeline)** : `release_process_locks_for_startup()` dans
+  `services/resource_locks.py`, appelé au boot (`api/lifespan_background.py`)
+  — les verrous `coding:`/`fix:` persistés appartiennent à des threads morts
+  avec l'ancien processus API et bloquaient les pipelines relancés jusqu'à
+  1h (TTL). Balayés au démarrage ; tout autre détenteur (ex. `lounge:`) est
+  préservé.
+- 6 tests nouveaux (`test_gh_issues_poll.py` ×3 : sérialisation même-repo
+  déterministe, parallélisme inter-repos prouvé par recouvrement, libération
+  sur crash ; `test_resource_locks_startup.py` ×3). Suite **868** verts,
+  ruff clean.
+
 ## 2026-10-11 — La confiance ignore le bruit infrastructurel (BUG-031)
 
 - **fix(trust)** : les échecs infrastructurels (collision de verrous fichiers

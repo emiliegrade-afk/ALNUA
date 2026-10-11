@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 POLL_INTERVAL = 60  # secondes entre chaque vérification
 
 _issue_semaphore: asyncio.Semaphore | None = None
+_repo_semaphores: dict[str, asyncio.Semaphore] = {}
 
 
 def _issue_processing_semaphore() -> asyncio.Semaphore:
@@ -29,12 +30,27 @@ def _issue_processing_semaphore() -> asyncio.Semaphore:
     return _issue_semaphore
 
 
+def _repo_processing_semaphore(slug: str) -> asyncio.Semaphore:
+    """One coding pipeline per target repo at a time (BUG-032).
+
+    File-level locks make same-repo parallelism useless AND harmful: two
+    coding loops on the same working tree collide on shared files
+    (LockBusyError on app/(tabs)/_layout.tsx, seen repeatedly in prod) and
+    double the CPU burst inside the API process (health-check flap).
+    Different repos still run concurrently, bounded by the global semaphore.
+    Lazily created per slug — safe in the single-threaded event loop."""
+    if slug not in _repo_semaphores:
+        _repo_semaphores[slug] = asyncio.Semaphore(1)
+    return _repo_semaphores[slug]
+
+
 async def _process_issue_bounded(
     issue: dict,
     repo_path: str | None,
     telegram_notify_fn=None,
 ) -> None:
-    async with _issue_processing_semaphore():
+    repo_slug = str(issue.get("_repo_slug") or "default")
+    async with _issue_processing_semaphore(), _repo_processing_semaphore(repo_slug):
         try:
             await asyncio.to_thread(process_issue, issue, repo_path, telegram_notify_fn)
         except Exception:

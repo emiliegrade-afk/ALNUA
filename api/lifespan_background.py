@@ -43,6 +43,19 @@ async def start_background_services(settings: Any) -> None:
         return
     _background_started = True
 
+    # Reap zombie pipeline locks before anything schedules new work: holders
+    # are threads of the previous API process — dead by definition at boot
+    # (BUG-032). Otherwise retried pipelines wait out the 1h TTL on files the
+    # killed run touched.
+    try:
+        from services.resource_locks import release_process_locks_for_startup
+
+        reaped = release_process_locks_for_startup()
+        if reaped:
+            logger.info("Startup: reaped %d zombie pipeline lock(s)", reaped)
+    except Exception as exc:
+        logger.warning("Startup lock reap skipped: %s", exc)
+
     delay = 8 if settings.hub_fast_start else 0
     if delay:
         logger.info("Background services in %ss (HUB_FAST_START)", delay)

@@ -207,6 +207,33 @@ def release_all(holder_id: str) -> int:
         return len(keys)
 
 
+def release_process_locks_for_startup(
+    *, holder_prefixes: tuple[str, ...] = ("coding:", "fix:")
+) -> int:
+    """Reap locks left by a previous API process run (BUG-032).
+
+    Pipeline lock holders are threads of the API process (``process_issue``
+    runs via ``asyncio.to_thread``) — after a restart, every persisted
+    coding/fix lock belongs to a dead thread. The 1h TTL would eventually
+    purge them, but that whole window blocks retried pipelines on files the
+    dead run touched (seen 2026-10-11: ``_layout.tsx`` held 25 min by the
+    killed GH-academy-79 run)."""
+    with _LOCK:
+        data = _load()
+        locks = data.get("locks") or {}
+        keys = [
+            k
+            for k, v in locks.items()
+            if str(v.get("holder_id") or "").startswith(holder_prefixes)
+        ]
+        for k in keys:
+            del locks[k]
+        if keys:
+            _save(data)
+            logger.info("resource_locks: startup reaped %d zombie lock(s)", len(keys))
+        return len(keys)
+
+
 def force_release(key: str, *, reason: str = "") -> bool:
     """Admin force-release (does not check holder)."""
     nkey = normalize_key(key)

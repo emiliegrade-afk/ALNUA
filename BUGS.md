@@ -111,7 +111,13 @@ y compris `tests/test_devex_phase6.py` réécrit pour le nouveau comportement.
 
 | ID | Gravité | Description | Correctif |
 |----|---------|-------------|-----------|
-| BUG-031 | **Haute** | Le câblage DEC-043 App Academy (hier) enregistrait **tout** échec pipeline comme échec de compétence (poids 2,0) — y compris les collisions de verrous fichiers entre pipelines parallèles, pur artefact d'ordonnancement (récurrent depuis au moins le 2026-09-09 : « Lock busy … `_layout.tsx` held by GH-academy-78 »). En prod le 2026-10-11 : 3 collisions lock-busy en 5 min → `dev_app` 0,70 → **0,24**, sans qu'aucune ligne de son code soit en cause. Le gate L2 (0,80) devenait inatteignable par construction | Filtre `_INFRA_ERROR_MARKERS` dans `handle_failure` : lock busy / `LockBusyError` / server disconnected / `RemoteProtocolError` → loggué, **aucune confiance enregistrée** (même philosophie que « QA indisponible = pas de verdict » dans les académies-drill). Réparation du store : la ligne `dev_app` (3 échantillons, 100 % bruit infra) supprimée → retour à l'état honnête 0,70 provisionnel, 0 verdict ; `technical_artist` (verdicts QA réels) conservé. Test `test_infra_failure_records_nothing`. **Suivi (non implémenté) :** pipelines parallèles sur le **même repo** se collisionnent sur les fichiers partagés — envisager `max_parallel=1` par cible ou une file sérialisée par repo |
+| BUG-031 | **Haute** | Le câblage DEC-043 App Academy (hier) enregistrait **tout** échec pipeline comme échec de compétence (poids 2,0) — y compris les collisions de verrous fichiers entre pipelines parallèles, pur artefact d'ordonnancement (récurrent depuis au moins le 2026-09-09 : « Lock busy … `_layout.tsx` held by GH-academy-78 »). En prod le 2026-10-11 : 3 collisions lock-busy en 5 min → `dev_app` 0,70 → **0,24**, sans qu'aucune ligne de son code soit en cause. Le gate L2 (0,80) devenait inatteignable par construction | Filtre `_INFRA_ERROR_MARKERS` dans `handle_failure` : lock busy / `LockBusyError` / server disconnected / `RemoteProtocolError` → loggué, **aucune confiance enregistrée** (même philosophie que « QA indisponible = pas de verdict » dans les académies-drill). Réparation du store : la ligne `dev_app` (3 échantillons, 100 % bruit infra) supprimée → retour à l'état honnête 0,70 provisionnel, 0 verdict ; `technical_artist` (verdicts QA réels) conservé. Test `test_infra_failure_records_nothing`. **Suivi :** pipelines parallèles sur le **même repo** se collisionnent sur les fichiers partagés — **implémenté dans BUG-032** (sémaphore par repo, 2026-10-11) |
+
+## Corrigés (2026-10-11 — sérialisation pipelines et verrous zombies)
+
+| ID | Gravité | Description | Correctif |
+|----|---------|-------------|-----------|
+| BUG-032 | **Haute** | Deux sources de blocage pipelines découvertes en suivant le fil BUG-031 : (1) les pipelines parallèles sur le **même repo** se collisionnaient structurellement sur les fichiers partagés (`_layout.tsx`…) — le filtre infra de BUG-031 protégeait la confiance mais la collision elle-même (échec + retry) restait du gaspillage ; (2) les verrous `coding:`/`fix:` sont détenus par des **threads du processus API** — après un restart/crash du hub, les verrous persistés survivent jusqu'à 1h (TTL) et bloquent en « Lock busy » les pipelines relancés sur les mêmes issues | (1) Sémaphore par repo dans `skills/gh_issues_poll.py` (`_repo_semaphores`, limite 1, clé `_repo_slug`) acquis en plus du sémaphore global — le parallélisme inter-repos reste à 2, le même-repo devient file d'attente ; (2) `services/resource_locks.py::release_process_locks_for_startup()` balaie les verrous `coding:`/`fix:` au démarrage du hub (appel dans `api/lifespan_background.py`), en préservant tout détenteur non-pipeline. 6 tests : sérialisation déterministe, preuve de recouvrement inter-repos, libération sur crash, balayage/préservation/store vide. Suite 868 verts |
 
 ## Statistiques (mises à jour Audit 006 — 2026-10-11)
 
@@ -120,7 +126,7 @@ y compris `tests/test_devex_phase6.py` réécrit pour le nouveau comportement.
 | Ouverts | **2** (`BUG-027` fichiers >300, `BUG-029` divergence racines data) |
 | Fermés remédiation + Vague 0–4 + BUG-004 + Audit 005 | 21 (+ `BUG-004`) |
 | Routers / Personas (Audit 006) | **93** / **53** |
-| pytest | **852** passed / 6 skipped / **0 failed** |
+| pytest | **868** passed / 6 skipped / **0 failed** |
 | Vitest (web) | **93** passed / **0 failed** |
 | ruff / tsc --noEmit | ✅ 0 erreur (les deux) |
 | npm audit (web) | **11** vuln (2 low, 9 high — 0 critical/moderate ; résidu dev-only documenté BUG-026) |
@@ -128,7 +134,7 @@ y compris `tests/test_devex_phase6.py` réécrit pour le nouveau comportement.
 | Residual mockup routes (working tree) | **0** |
 | Dernier commit poussé | voir `git log -1 origin/main` — hygiène git ✅ (fetch-first, 0 ahead/behind à l'audit) |
 | Corrigés (SEC) | 7 (`SEC-001`–`007`) |
-| Corrigés (BUG) | 27 (`BUG-001`–`026`, `028` — `027` ouvert) |
+| Corrigés (BUG) | 29 (`BUG-001`–`026`, `028`, `030`–`032` — `027`, `029` ouverts) |
 | Décision fermée | 1 (`DEC-009`) |
 
 ## Vérifié sans anomalie (audit sécurité, pour mémoire)
