@@ -70,6 +70,27 @@ def test_failure_on_academy_records_weight_2(monkeypatch) -> None:
     assert "N2.3" in hist["note"]
 
 
+def test_infra_failure_records_nothing(monkeypatch) -> None:
+    """Lock contention between parallel pipelines is a scheduler artifact,
+    not a competence signal — it must not move trust (BUG-031)."""
+    _patch_common(monkeypatch)
+
+    handlers.handle_failure(
+        issue_number=76,
+        title="[ACADEMY N4.12] Accessibilite labels",
+        target=_Target("academy"),
+        github_repo="owner/repo",
+        spec={},
+        result={"error": "Lock busy: path:app/(tabs)/_layout.tsx held by dev_app/coding:dev_app:GH-academy-79"},
+        activity_id="a-3",
+        telegram_notify_fn=None,
+    )
+
+    row = agent_trust.get_trust("dev_app")
+    assert row["samples"] == 0
+    assert row["provisional"] is True
+
+
 def test_failure_on_other_repo_records_nothing(monkeypatch) -> None:
     _patch_common(monkeypatch)
 

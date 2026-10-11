@@ -1,3 +1,18 @@
+## 2026-10-11 — La confiance ignore le bruit infrastructurel (BUG-031)
+
+- **fix(trust)** : les échecs infrastructurels (collision de verrous fichiers
+  entre pipelines parallèles, déconnexions transitoires) ne sont **plus
+  enregistrés** comme échecs de compétence — 3 collisions lock-busy avaient
+  fait chuter `dev_app` de 0,70 à 0,24 en 5 minutes sans qu'une seule ligne
+  de son code soit en cause. Filtre explicite dans `handle_failure`, même
+  philosophie que « QA indisponible = pas de verdict » des académies-drill.
+- **Réparation données** : ligne `dev_app` du trust store supprimée (3
+  échantillons, 100 % bruit infra) → retour à l'état honnête 0,70
+  provisionnel ; les verdicts QA réels (`technical_artist`) sont conservés.
+- Test `test_infra_failure_records_nothing` ajouté. Suite **862** verts.
+- Suivi noté dans `BUG-031` : sérialiser les pipelines par repo cible
+  (les verrous fichiers rendent le parallélisme même-repo inutile).
+
 ## 2026-10-11 — Déblocage pipeline App Academy (12 zombies in-pipeline)
 
 - **fix(academy)** : 12 issues académie portaient un label `in-pipeline`

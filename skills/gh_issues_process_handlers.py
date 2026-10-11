@@ -9,6 +9,17 @@ from skills.gh_issues_client import post_comment, set_label
 
 logger = logging.getLogger(__name__)
 
+# Infrastructure failures (lock contention between parallel pipelines, transient
+# network) say nothing about the agent's competence — recording them as trust
+# failures would tank the score on scheduler artifacts (seen 2026-10-11: 3
+# lock-busy collisions took dev_app from 0.70 to 0.24 in 5 minutes, BUG-031).
+_INFRA_ERROR_MARKERS = (
+    "lock busy",
+    "lockbusyerror",
+    "server disconnected",
+    "remoteprotocolerror",
+)
+
 
 def handle_success(
     *,
@@ -198,18 +209,27 @@ def handle_failure(
         # DEC-043: a crashed academy pipeline = failed exercise (weight 2.0,
         # same as terminal failure in the drill academies). Academy scope only
         # — production repos feed trust via workflows/review board instead.
+        # Infrastructure failures are NOT competence signals: skip them.
         if getattr(target, "slug", "") == "academy":
-            from services.agent_trust import record_validation
+            error_text = str(result.get("error") or "").lower()
+            if any(marker in error_text for marker in _INFRA_ERROR_MARKERS):
+                logger.info(
+                    "[GHIssues] #%s infra failure — no trust recorded: %s",
+                    issue_number,
+                    str(result.get("error"))[:120],
+                )
+            else:
+                from services.agent_trust import record_validation
 
-            m = re.search(r"\[ACADEMY\s+(N\d+\.\d+)\]", title or "", re.I)
-            eid = m.group(1).upper() if m else f"issue-{issue_number}"
-            record_validation(
-                "dev_app",
-                success=False,
-                weight=2.0,
-                note=f"{eid} pipeline failed (issue #{issue_number})",
-                source="academy:app",
-            )
+                m = re.search(r"\[ACADEMY\s+(N\d+\.\d+)\]", title or "", re.I)
+                eid = m.group(1).upper() if m else f"issue-{issue_number}"
+                record_validation(
+                    "dev_app",
+                    success=False,
+                    weight=2.0,
+                    note=f"{eid} pipeline failed (issue #{issue_number})",
+                    source="academy:app",
+                )
     except Exception:
         pass
     finish_task(activity_id, success=False, message=f"[ERREUR] {result.get('error', '')[:120]}")
